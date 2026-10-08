@@ -119,7 +119,11 @@ flowchart TD
 | | |
 |---|---|
 | ![Dark theme](docs/screenshots/result-pass-dark.jpg) | ![Settings themes](docs/screenshots/settings-appearance-light.jpg) |
-| *Result view — dark theme* | *Settings — 6 themes × 6 palettes* |
+| *Result view — Dark theme* | *Settings — 6 themes × 6 palettes* |
+| ![Sepia theme](docs/screenshots/dashboard-sepia.jpg) | ![Midnight theme](docs/screenshots/dashboard-midnight.jpg) |
+| *Dashboard — Sepia* | *Dashboard — Midnight + Violet accent* |
+| ![OLED theme](docs/screenshots/dashboard-oled-teal.jpg) | ![Dark indigo](docs/screenshots/dashboard-dark.jpg) |
+| *Dashboard — OLED + Teal accent* | *Dashboard — Dark + Indigo* |
 | ![History](docs/screenshots/history-light.jpg) | ![Students](docs/screenshots/students-light.jpg) |
 | *History with search* | *Student records* |
 | ![Analytics](docs/screenshots/analytics-light.jpg) | ![Analyze](docs/screenshots/analyze-light.jpg) |
@@ -269,68 +273,15 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ## 📸 Data Capture Procedure (golden set)
 
-Full protocol: [`docs/protocol.md`](docs/protocol.md). Goal: **30 golden plates** — 4 pilot / 13 dev / 13 holdout — for calibration, tuning, and one sealed final evaluation.
+**Full field manual: [`docs/data-collection-manual.md`](docs/data-collection-manual.md)** — camera settings, exact height/angle/distance, per-plate steps, metadata templates, on-site QA checklists, the 5-day schedule, and the post-collection tuning workflow. Quick version: [`docs/protocol.md`](docs/protocol.md).
 
-### Day-1 setup (do this once, before any capture)
+Goal: **30 golden plates** — 4 pilot / 13 dev / 13 holdout — for calibration, tuning, and one sealed final evaluation.
 
-1. **Print the reference card**: `docs/assets/reference_card_A6_300dpi.png` on **A6 paper at 100% scale — turn OFF "fit to page"** (borderless if your printer supports it).
-2. **Ruler-check the black square**: it must measure **exactly 100.0 mm (±0.5 mm)**. If off:
-   - reprint, **or**
-   - measure the actual size and record it in `data/anchor_config.json` → `card.square_mm`, then set `ruler_checked: true` with the date in `ruler_checked_note`.
-   - This square is the metric ground truth for every `measured`-tier plate — a 1 mm error here is a 1% scale error in every verdict.
-3. **Kitchen scale**: 1 g resolution. Zero it with the **empty vessel on it (tare)** before weighing food. Use the *same* scale and vessels across all splits.
+Field essentials:
 
-### Per-plate capture — step by step
-
-1. **Table & light**: plain, matte surface; even lighting; no harsh shadows or HDR tricks.
-2. **Arrange the plate**: vessel centred, **entire tray/vessel inside the frame** (nothing cropped), food as served (don't restyle it).
-3. **Place the card**: reference card flat **beside the vessel on the same surface plane**, fully visible, not overlapping the vessel. Marker must be **≥ 80 px** in the final image (fill roughly ⅛ of the frame width). No card? A ₹10 bimetallic coin (27 mm) beside the vessel is the fallback — if both are present, card wins.
-4. **Frame the shot**: slight top-down angle (**tilt < 50°**), whole tray in frame with a little margin, **digital zoom OFF (zoom = 1.0)** — this is a hard gate, the pipeline returns `cannot_verify` on zoomed photos.
-5. **Focus on the food** — tap to focus, avoid motion blur, keep original EXIF intact (no messaging-app re-compression; send the original file).
-6. **Shoot**, then immediately verify: card/coin sharp? tray fully in frame? no reflections covering the marker?
-7. **Weigh** (while the photo is fresh):
-   - place empty vessel on scale → record `vessel_g` (tare)
-   - serve food in → record total, subtract tare → `total_net_g`
-   - **dev/holdout splits: weigh each dish separately** (`per_dish` array) — this is what tunes the composition model.
-8. **Record metadata** in the plate's `meta.json` at capture time:
-
-```json
-{
-  "plate_id": "dev/plate_03",
-  "day": "mon", "band": "1-5", "dish": "rice_sambar",
-  "serving_style": "mixed",
-  "camera": "realme 14T", "captured_at": "2026-10-09T12:40:00",
-  "anchor": {"card_present": true, "coin_present": false, "ruler_checked": true},
-  "notes": ""
-}
-```
-
-```json
-{
-  "vessel_g": 320, "total_net_g": 465,
-  "per_dish": [{"name": "rice_sambar", "g": 465}],
-  "scale": "kitchen_scale_1g"
-}
-```
-
-### Folder layout
-
-```
-DATASET/golden/
-  pilot/plate_01/{photo.jpg, meta.json, weights.json}
-  dev/plate_01/...
-  holdout/plate_01/...
-```
-
-### Splits
-
-| Split | n | Weighing | Purpose |
-|---|---|---|---|
-| pilot | 4 | tray totals (per plate) | M0b go/no-go: does depth/scale pipeline behave |
-| dev | 13 | **per dish** in the tray | tune σ, temperature, composition rules |
-| holdout | 13 | **per dish** | M8 — opened **once**; results labeled `indicative` |
-
-- Holdout stays out of any tuning — no peeking at per-plate errors before M8.
+- Print `docs/assets/reference_card_A6_300dpi.png` on **A6 at 100% scale (fit-to-page OFF)**; ruler-check the black square = **100.0 mm ± 0.5** before Day 1; kitchen scale with 1 g resolution, tare first.
+- Digital zoom **OFF** (hard gate → `cannot_verify`), min side ≥ 1280 px, marker ≥ 80 px (≈ ⅛ frame width), tilt **< 50°**, EXIF intact — **transfer originals by cable, never a chat app**.
+- Golden plates live in `DATASET/golden/{pilot,dev,holdout}/plate_XX/{photo.jpg, meta.json, weights.json}` — never in gallery class folders.
 
 ### What the pipeline checks for you (capture lint)
 
@@ -341,15 +292,6 @@ DATASET/golden/
 | card marker ≥ 80 px (or coin) | falls back to prior tier → coverage capped at 0.60, **can never PASS/FAIL** |
 | plate weight inside `plate_sanity_g` band (`data/standards.yaml`, ±25%) | flagged only — never auto-rejects |
 | day ∈ menu days, dish ∈ `data/menu.yaml` ids | `cannot_verify` |
-
-### Common mistakes that ruin a capture
-
-- 🚫 card at an angle to the vessel or on a different surface (e.g. held in hand) — scale is wrong
-- 🚫 card partially covered by the vessel or cropped out of frame — falls to prior tier
-- 🚫 digital zoom or heavy crop — protocol violation, `cannot_verify`
-- 🚫 shiny reflections washing out the ArUco marker — undetectable, falls to prior
-- 🚫 tray cropped (rim outside frame) — area and ring-fit both fail
-- 🚫 messaging-app photo transfer (re-compressed, EXIF stripped) — transfer originals
 
 ---
 

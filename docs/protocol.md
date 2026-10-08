@@ -1,5 +1,10 @@
 # NutriSense capture protocol (golden set)
 
+> **Full field manual** (camera settings, geometry, per-plate steps, QA
+> checklists, 5-day schedule, post-collection workflow):
+> [`docs/data-collection-manual.md`](data-collection-manual.md) — this file is
+> the quick reference.
+
 Goal: 30 golden plates — 4 pilot / 13 dev / 13 holdout — for calibration,
 tuning, and a single sealed final evaluation.
 
