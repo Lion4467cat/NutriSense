@@ -371,10 +371,11 @@ Policy lives verbatim in `data/standards.yaml` (transcribed from the user's PM P
 
 ## 🌍 SDG Alignment
 
-| SDG | Goal | How NutriSense contributes |
-|---|---|---|
-| SDG 2 | Zero Hunger | Nutritional adequacy monitoring for the world's largest school meal programme |
-| SDG 3 | Good Health and Well-Being | Evidence-based detection of under-nutrition per plate |
+| SDG | Goal | Target | How NutriSense contributes |
+|---|---|---|---|
+| SDG 2 | Zero Hunger | **2.2** — end all forms of malnutrition by 2030 | Verifiable per-plate energy & protein adequacy against PM POSHAN minimums — turns *"a meal was served"* into *"the meal met the standard"*, with quantified uncertainty and honest coverage |
+| SDG 3 | Good Health and Well-being | **3.4** — reduce premature mortality from non-communicable diseases | Childhood undernutrition tracks into lifelong health risks; per-plate checks make dietary deficits visible early, meal by meal, instead of at annual surveys |
+| SDG 4 | Quality Education | **4.1** — ensure free, equitable and quality primary/secondary education | PM POSHAN explicitly aims to lift enrolment, attendance and learning levels; NutriSense protects the meal quality those outcomes depend on |
 
 ---
 
@@ -412,12 +413,19 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## 📚 References
 
-1. Ravi et al. (2024). SAM 2: Segment Anything in Images and Videos. arXiv:2408.00714.
-2. Tschannen et al. (2025). SigLIP 2: Multilingual Vision-Language Encoders. Google DeepMind.
-3. Wang et al. (2025). MoGe-2: Advancing Metric 3D Geometry. Microsoft Research.
-4. National Institute of Nutrition (2017). Indian Food Composition Tables (IFCT 2017). NIN, Hyderabad.
-5. Ministry of Education, Govt. of India. PM POSHAN — Food & Nutrition Guidelines (user-provided).
-6. Government of Karnataka. Mid-Day Meal Scheme Guidelines. Dept. of Public Instruction.
+**Models & methods**
+
+1. Ravi et al. (2024). *SAM 2: Segment Anything in Images and Videos.* arXiv:2408.00714. — image segmentation (S2).
+2. Tschannen et al. (2025). *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features.* arXiv:2502.14786. Google DeepMind. — dish gallery embeddings (S2).
+3. Wang et al. (2025). *MoGe-2: Accurate Monocular Geometry with Metric Scale and Sharp Details.* arXiv:2507.02546 (NeurIPS 2025). Microsoft Research. — metric depth (S3).
+4. Garrido-Jurado et al. (2014). *Automatic generation and detection of highly reliable fiducial markers under occlusion.* Pattern Recognition 48(6), 2051–2061. — ArUco reference-card detection (S1 scale anchor).
+
+**Nutrition & policy**
+
+5. National Institute of Nutrition (2017). *Indian Food Composition Tables (IFCT 2017).* NIN, Hyderabad. — literature nutrient rows in `data/nutrients.yaml`.
+6. Ministry of Education, Government of India. *PM POSHAN — Food & Nutrition Guidelines.* — band minimums & compliance rules, transcribed into `data/standards.yaml`.
+7. Government of Karnataka. *Mid-Day Meal Scheme Guidelines.* Dept. of Public Instruction. — weekly menu in `data/menu.yaml`.
+8. SPMCIL. *₹10 bimetallic coin specifications* (27.0 mm diameter). — secondary scale anchor tier.
 
 ---
 
