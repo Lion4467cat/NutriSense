@@ -1,0 +1,9 @@
+# NutriSense core runtime — install ONLY with uv (see AGENTS.md)
+#   uv pip install --python .venv/bin/python -r requirements.txt
+fastapi==0.142.2
+uvicorn==0.54.0
+python-multipart==0.0.32
+pyyaml==6.0.3
+numpy==2.5.3
+pillow==12.3.0
+opencv-python-headless==5.0.0

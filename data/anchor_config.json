@@ -1,0 +1,28 @@
+{
+  "card": {
+    "marker_id": 7,
+    "dictionary": "DICT_4X4_50",
+    "marker_mm": 60.0,
+    "square_mm": 100.0,
+    "print_dpi": 300,
+    "ruler_checked": false,
+    "ruler_checked_note": "User prints A6 card, verifies black square = exactly 100.0 mm with a ruler, then sets this true."
+  },
+  "coin": {
+    "diameter_mm": 27.0,
+    "bimetallic_only": true,
+    "min_diameter_px": 60,
+    "note": "Indian ₹10 bimetallic coin; all SPMCIL series are 27.0 mm"
+  },
+  "tier": {
+    "min_marker_side_px": 80,
+    "min_quarter_side_px": 80
+  },
+  "plane_height_interval_mm": [0, 50],
+  "camera": {
+    "focal_length_fallback_mm": 4.0,
+    "sensor_width_mm": 6.17,
+    "note": "focal from EXIF when present; sensor width is assumed (data/params_status.yaml)"
+  },
+  "tiers": ["card", "coin", "prior"]
+}

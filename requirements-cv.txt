@@ -1,0 +1,11 @@
+# CV stack (S2 masks/labels, S3 grams, M6 MC) — NOT installed yet.
+# S0 dry-run gate: uv pip install --dry-run --python .venv/bin/python -r requirements-cv.txt
+torch==2.13.0
+torchvision==0.28.0
+transformers==5.16.1
+huggingface_hub==1.28.0
+safetensors==0.8.0
+tokenizers==0.23.1
+regex==2026.7.19
+tqdm==4.70.0
+scipy==1.18.1

@@ -1,0 +1,25 @@
+# Virtual environment - never upload this
+venv/
+.venv/
+
+# Node dependencies (frontend/.gitignore is UTF-16 and unreliable)
+node_modules/
+frontend/dist/
+
+# Test caches
+.pytest_cache/
+
+# Secret keys - never upload this
+.env
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# Windows files
+Thumbs.db
+desktop.ini

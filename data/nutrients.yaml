@@ -1,0 +1,37 @@
+# Nutrient table per generic food id (kcal & protein per 100 g edible portion).
+# IFCT-derived where cited; assumed values carry status: assumed and are
+# reported as assumptions in the S5 verdict (never silently trusted).
+# MC engine (engine/mc.py) widens every value by nutrient_table_sigma_pct.
+
+units: {energy: kcal, protein: g, per: 100g}
+
+foods:
+  rice_boiled:
+    kcal_per_100g: 112
+    protein_g_per_100g: 2.4
+    status: literature
+    source: "IFCT cooked rice (raw 356 / boiled 112 cited in data/conversions.yaml)"
+
+  sambar:
+    kcal_per_100g: 60
+    protein_g_per_100g: 2.5
+    status: assumed
+    source: "dal-tamarind-vegetable stew estimate; calibrate against recipe (M-gate)"
+
+  vegetable_rice:
+    kcal_per_100g: 150
+    protein_g_per_100g: 3.5
+    status: assumed
+    source: "generic spiced rice estimate; official recipe table unavailable (menu ranges_wider)"
+
+  bisibelebath:
+    kcal_per_100g: 185
+    protein_g_per_100g: 5.0
+    status: assumed
+    source: "rice+pulses+vegetable one-pot estimate; calibrate against recipe (M-gate)"
+
+  curd:
+    kcal_per_100g: 60
+    protein_g_per_100g: 3.1
+    status: literature
+    source: "IFCT curd (not portion-scored; recognition context only)"

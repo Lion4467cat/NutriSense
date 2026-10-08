@@ -1,0 +1,66 @@
+# NutriSense MDM compliance standards — transcription of the user's PM POSHAN
+# Food & Nutrition guidelines (verified against the doc 2026-10-08).
+# This file is POLICY: compliance.py reads it, never re-derives it.
+
+source:
+  name: "PM POSHAN (MDM) Food & Nutrition guidelines"
+  provided_by: "user"
+  verified: 2026-10-08
+
+# Energy/protein minima per student group (the two mandatory nutrients)
+bands:
+  "1-5":
+    classes: "1-5"
+    kcal: {direction: min, value: 450}
+    protein_g: {direction: min, value: 12}
+  "6-8":
+    classes: "6-8 and 9-10"
+    kcal: {direction: min, value: 700}
+    protein_g: {direction: min, value: 20}
+    note: >-
+      The doc's 9-10 rows are identical to 6-8; inherits 700/20.
+      This is the single flagged inference in the transcription.
+  "9-10":
+    classes: "9-10"
+    kcal: {direction: min, value: 700}
+    protein_g: {direction: min, value: 20}
+    inherited_from: "6-8"
+    inference_flag: true
+
+# Per-child/day RAW ingredient allocations — informational only.
+# Never compare these grams directly against cooked plate weight (yield differs).
+allocation_raw_per_day:
+  "1-5":  {rice: 100, pulses: 20, vegetables: 50, oil: 5, salt: 2}
+  "6-8":  {rice: 150, pulses: 30, vegetables: 75, oil: 7.5, salt: 4}
+  "9-10": {rice: 150, pulses: 30, vegetables: 75, oil: 7.5, salt: 4}
+
+# Exact band table from the doc (same numbers as allocation; kept separate
+# because these rows are what reviewers compare against).
+band_table:
+  "1-5":  {rice: 100, dal: 20, vegetables: 50, oil: 5, salt: 2}
+  "6-8":  {rice: 150, dal: 30, vegetables: 75, oil: 7.5, salt: 4}
+  "9-10": {rice: 150, dal: 30, vegetables: 75, oil: 7.5, salt: 4}
+
+# What the plate verdict is computed over
+compliance:
+  mandatory_nutrients: [kcal, protein_g]
+  energy_basis: cooked_plate      # cooked plate kcal vs 450/700 minima
+  thresholds: {pass_p: 0.9, fail_p: 0.1}
+  coverage: {pass_min: 0.85, fail_min: 0.90}
+  raw_gram_rows: informational    # surfaced as raw-equivalent diagnostic, never verdict input
+
+advisory:
+  sodium_salt:                    # advisory only — salt is NOT a verdict nutrient
+    direction: max
+    primary_g: 2
+    upper_g: 4
+    note: "informational; noted in report only"
+
+out_of_scope:
+  items: [vitamin_A_tablet, WIFS_tablet, albendazole, fuel, condiments]
+  reason: "fuel & condiments excluded from energy accounting (cost lines only); tablets not food"
+
+plate_sanity_g:                   # loose capture lint for cooked plate weight (±25%)
+  "1-5": [300, 500]
+  "6-8": [450, 750]
+  "9-10": [450, 750]

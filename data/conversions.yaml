@@ -1,0 +1,33 @@
+# Raw -> cooked weight conversions (yield Y: cooked_g = raw_g * Y).
+# Only conversions with status literature/calibrated may tighten intervals;
+# assumed ones are widened accordingly in the MC engine.
+
+yields:
+  rice:
+    yield: 3.0
+    interval: [2.7, 3.3]
+    status: literature
+    source: "IFCT raw 356 vs boiled 112 kcal/100g -> 3.18; culinary 50g raw -> 150g cooked"
+  pulses:
+    yield: 2.5
+    interval: [2.0, 3.0]
+    status: assumed
+    source: "typical dal absorption; calibrate on pilot"
+  vegetables:
+    yield: 0.85
+    interval: [0.6, 1.0]
+    status: assumed
+    source: "cooked shrinkage, no added water retained"
+  oil:
+    yield: 1.0
+    interval: [1.0, 1.0]
+    status: literature
+    source: "no water uptake"
+  salt:
+    yield: 1.0
+    interval: [1.0, 1.0]
+    status: literature
+    source: "dissolves into dish; added as-is"
+
+# IFCT nutrient units used everywhere (kcal & g per 100 g edible portion)
+units: {energy: kcal, protein: g, per: 100g}
