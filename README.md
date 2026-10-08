@@ -25,7 +25,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 
 A React web UI wraps the pipeline: dashboard, photo analysis with honest staged progress, result detail (verdict reasons, coverage, 90% intervals), history + search, student records, menu browser, analytics, and settings.
 
-![NutriSense dashboard](docs/screenshots/dashboard-light.jpg)
+![NutriSense dashboard — OLED theme](docs/screenshots/dashboard-oled-teal.jpg)
 
 ---
 
