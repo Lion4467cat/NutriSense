@@ -31,64 +31,47 @@ The actual photo → verdict flow as built (`engine/pipeline.py`):
 
 ```mermaid
 flowchart TD
-    IMG["Photo capture<br/>(JPEG + EXIF)"] --> LINT
+    IMG["📷 Photo + EXIF"] --> L1
 
-    subgraph LINT["Lint gates"]
-        L1{"digital_zoom == 1.0?"}
-        L2{"day in menu?"}
-        L3{"band in 1-5 / 6-8 / 9-10?"}
-        L4["resolution note<br/>(min side < 1280px, non-blocking)"]
-        L1 -->|yes| L2
-        L2 -->|yes| L3
-        L3 -->|ok| L4
+    subgraph LINT["1 · Lint gates"]
+        direction LR
+        L1["zoom = 1.0"] --> L2["day valid"] --> L3["band valid"] --> L4["resolution note<br/>(< 1280px → note only)"]
     end
 
-    L1 -->|no| FAIL_CV
-    L2 -->|no| FAIL_CV
-    L3 -->|no| FAIL_CV
+    LINT -.->|"any gate fails"| CV["⛔ cannot_verify"]
+    L4 --> A["2 · Scale anchor<br/>card 60mm → coin 27mm → prior"]
 
-    L4 --> ANCHOR["S1 scale anchor<br/>card 60mm / coin 21mm / prior"]
-    ANCHOR --> SEG["S2 segment<br/>(SAM2.1)"]
+    A --> SEG["3 · Segment<br/>SAM 2.1"]
+    SEG -.->|error| CV
+    SEG --> CLS{"4 · Classify<br/>SigLIP2 gallery"}
 
-    SEG -->|exception| FAIL_CV
-    SEG --> CLS{"classify<br/>(SigLIP2 gallery)"}
+    CLS -->|"unrecognized"| CV
+    CLS -->|wheat| OOS["➖ out_of_scope"]
+    CLS -->|"dish found"| DEPTH["5 · Depth<br/>MoGe-2"]
 
-    CLS -->|"dish = null"| FAIL_CV2["cannot_verify<br/>dish unrecognized"]
-    CLS -->|"status = out_of_scope"| OOS["out_of_scope<br/>(wheat product)"]
-    CLS -->|"dish found"| DEPTH["S3 depth<br/>(MoGe-2 monocular)"]
+    DEPTH -.->|error| CV
+    DEPTH --> TIER{"tier?"}
+    TIER -->|measured| CAL["calibrate on marker<br/>≈ 1.1% error"]
+    TIER -->|prior| SKIP["no calibration<br/>scale ×1.0<br/>never PASS/FAIL"]
+    CAL --> PORT["6 · Portion<br/>g = area × height × ρ"]
+    SKIP --> PORT
+    PORT -.->|error| CV
+    PORT --> MC["7 · Monte Carlo<br/>n = 4000 · seed fixed"]
 
-    DEPTH --> TIER{"anchor tier?"}
-    TIER -->|measured| CAL["calibrate_depth_scale<br/>(card/coin, meters)<br/>~1.1% error"]
-    TIER -->|prior| NOCAL["no calibration<br/>scale = 1.0, source = none"]
-    CAL --> PORTION
-    NOCAL --> PORTION["S3 portion<br/>grams = area × height × density<br/>ring / table-prior / size-prior"]
+    MC --> VER{"8 · Compliance"}
+    VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
+    VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
+    VER -->|else| BORD["⚠ BORDERLINE"]
 
-    PORTION -->|exception| FAIL_CV3["cannot_verify<br/>portion estimation failed"]
-    PORTION --> MC["S4 Monte Carlo<br/>n=4000, seed fixed<br/>sole interval owner"]
-
-    MC --> VER{"S5 compliance"}
-    VER -->|"P >= 0.9, C >= 0.85"| PASS["PASS"]
-    VER -->|"P <= 0.1, C >= 0.90"| FAILV["FAIL"]
-    VER -->|otherwise| BORD["BORDERLINE"]
-    VER -->|"wheat / zoom / band"| SC["out_of_scope /<br/>cannot_verify"]
-
-    PASS --> RESULT
-    FAILV --> RESULT
-    BORD --> RESULT
-    SC --> RESULT
-    FAIL_CV --> RESULT
-    FAIL_CV2 --> RESULT
-    FAIL_CV3 --> RESULT
-    OOS --> RESULT
-
-    RESULT["Result dict<br/>verdict + lint + anchor + segmentation<br/>+ classification + dish + portion<br/>+ nutrition + coverage + assumptions<br/>+ advisory + model_versions"]
-
-    classDef gate fill:#ffe0e0,stroke:#c00
-    classDef ok fill:#e0ffe0,stroke:#0a0
-    classDef warn fill:#fff8dc,stroke:#b80
-    class FAIL_CV,FAIL_CV2,FAIL_CV3,SC gate
+    classDef err fill:#3d1f23,stroke:#e05252,color:#ffd9d9
+    classDef oos fill:#3a3325,stroke:#c9a227,color:#f5e9c8
+    classDef ok fill:#14331c,stroke:#3fae62,color:#d4f5df
+    classDef warn fill:#3d3319,stroke:#d9a13a,color:#fae9c4
+    class CV err
+    class OOS oos
     class PASS ok
-    class BORD,OOS warn
+    class FAIL err
+    class BORD warn
 ```
 
 ### Pipeline components
