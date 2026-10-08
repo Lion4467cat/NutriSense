@@ -6,7 +6,7 @@ images, or database dumps into this repo or any artifact).
 
 | Asset | License | Source | Status | Use in NutriSense |
 |---|---|---|---|---|
-| DA3METRIC-LARGE (metric head) | Apache-2.0 | HF model card | confirmed | **used** (depth metric) |
+| DA3METRIC-LARGE (metric head) | Apache-2.0 | HF model card | confirmed | **not used** (rejected: numpy<2 / py≤3.13 / xformers deps) |
 | DA3-LARGE multi-view weights | CC-BY-NC | original paper | confirmed | **not used** (NC) |
 | MoGe-2 | MIT | HF model card | confirmed | **used** (metric depth) |
 | SAM 2.1 (segmentation) | Apache-2.0 | Meta repo | confirmed | **used** |

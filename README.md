@@ -1,65 +1,33 @@
 # NutriSense 🍱
-### An Agentic AI-Based System for Automated Food Analysis, Nutritional Compliance Checking, and Meal Attendance Tracking
+### Photo → portion → nutrients → PM POSHAN compliance verdict, for Karnataka MDM canteens
 
-[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)](https://fastapi.tiangolo.com)
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-yellow.svg)](https://huggingface.co)
+[![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
+[![Tests](https://img.shields.io/badge/tests-70%20passed-brightgreen.svg)](#-testing)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
 ---
 
 ## 📌 Overview
 
-NutriSense is an intelligent, camera-based nutritional monitoring system designed specifically for **Karnataka government school canteens** under the **Mid-Day Meal (MDM) Scheme**. It automates food detection, nutrition analysis, dietary compliance checking, and meal attendance tracking using computer vision, deep learning, and agentic AI.
+NutriSense turns a single **photo of a plated mid-day meal** into a compliance verdict against the **PM POSHAN (MDM) food & nutrition guidelines**. One capture → dish identification → portion in grams → Monte Carlo nutrient intervals → **PASS / BORDERLINE / FAIL** with honest coverage and assumptions.
 
-The system addresses a critical gap in institutional food service: manual nutritional assessment is slow, inconsistent, and cannot scale to hundreds of meals served daily. NutriSense replaces this with a fully automated pipeline — from tray photo to compliance report — in under 5 seconds.
+Everything the pipeline decides is traceable: which scale anchor was used, how large the uncertainty was, which parameters are still `assumed`, and why a verdict landed where it did. No attendance tracking, no chatbot, no database — v5 is deliberately a single, testable photo-analysis pipeline.
 
----
+**What it does:**
 
-## 🎯 Problem Statement
-
-Institutions like government schools, hospitals, hostels, and corporate canteens serve hundreds of meals daily. Ensuring nutritional adequacy through manual inspection is:
-- **Slow** — dietitians cannot check every meal
-- **Inconsistent** — results vary between inspectors
-- **Disconnected** — attendance and nutrition data are never linked
-- **Non-localised** — existing tools use USDA data, which has no data on ragi mudde, jolada rotti, or bisibelebath
-
-NutriSense solves all of these problems in one integrated pipeline.
+- Measures portion size from one photo using a printed **reference card** (60 mm) or **₹10 coin** (27 mm) as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
+- Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
+- Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
+- Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
+- Scores energy & protein probabilities against the class-band minimums, gated by a **coverage** score
 
 ---
 
-## 🏗️ System Architecture
+## 🔁 Analysis Pipeline
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    LAYER 1 — INPUT                      │
-│   Meal Tray Camera │ Face Camera │ Admin Panel          │
-└─────────────────────────┬───────────────────────────────┘
-                          │ FastAPI Gateway (JSON)
-┌─────────────────────────▼───────────────────────────────┐
-│                 LAYER 2 — VISION PIPELINE               │
-│   Food Detector (ViT) │ Portion Estimator │ DeepFace    │
-└─────────────────────────┬───────────────────────────────┘
-                          │ food list, portions, user ID
-┌─────────────────────────▼───────────────────────────────┐
-│          LAYER 3 — NUTRITION & COMPLIANCE               │
-│  Karnataka DB → IFCT 2017 → USDA → Compliance Engine   │
-└─────────────────────────┬───────────────────────────────┘
-                          │ compliance report
-┌─────────────────────────▼───────────────────────────────┐
-│              LAYER 4 — AGENTIC AI LAYER                 │
-│  Orchestrator Agent │ Suggestion Agent │ Planner Agent  │
-└─────────────────────────┬───────────────────────────────┘
-                          │ meal logs, menu plans, alerts
-┌─────────────────────────▼───────────────────────────────┐
-│          LAYER 5 — STORAGE, DASHBOARD & ALERTS          │
-│      PostgreSQL │ React Dashboard │ Alert System        │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 🔁 Analysis Pipeline Flowchart (v5)
-
-The actual photo → verdict pipeline as built (`engine/pipeline.py`):
+The actual photo → verdict flow as built (`engine/pipeline.py`):
 
 ```mermaid
 flowchart TD
@@ -123,43 +91,53 @@ flowchart TD
     class BORD,OOS warn
 ```
 
+### Pipeline components
+
+| Stage | What runs | Model / method |
+|---|---|---|
+| Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
+| S1 Scale anchor | 3 tiers: card → coin → prior (prior caps coverage at 0.60) | ArUco card detector, bimetallic coin detector |
+| S2 Segment | food mask from the plate photo | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
+| S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
+| S3 Depth | metric depth, scale-calibrated against the marker | MoGe-2 (`Ruicheng/moge-2-vitl`) |
+| S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
+| S4 Nutrition | lognormal sampling of every uncertainty source | Monte Carlo, n=4000, fixed seed (sole interval owner) |
+| S5 Compliance | P(at/above min) per mandatory nutrient × coverage gates | pure rules from `data/standards.yaml` |
+
 ---
 
 ## ✨ Features
 
-### ✅ Implemented (Phase 1–4)
+**Implemented and tested (70 tests green):**
 
-- **Multi-item Food Detection** — ViT model (Food-101 pretrained) with quadrant-splitting for detecting multiple items on a single tray. ⚠️ *Currently trained on Food-101 (international dishes) — accuracy on Indian/Karnataka dishes is limited since the model hasn't been fine-tuned on local food images yet. This is a known limitation, tracked for Phase 5.*
-- **4-Layer Nutrition Lookup** — Priority-based lookup chain:
-  1. Karnataka Local DB (ragi mudde, jolada rotti, bisibelebath, sajje rotti...)
-  2. IFCT 2017 — NIN Hyderabad (528 Indian foods)
-  3. USDA FoodData Central (international fallback)
-  4. Default safe estimate
-- **Compliance Engine** — Checks against Karnataka MDM Scheme + ICMR-NIN 2020 + FSSAI + WHO standards
-- **Student Supplement Tracking** — Tracks egg, banana, milk, chikki distributed separately from tray
-- **Tap-to-Select UI API** — Returns structured supplement options for frontend rendering
-- **React Dashboard (Frontend)** — Tray image upload, supplement selector, compliance report with nutrient breakdown, bar chart visualization, and floating AI chatbot widget (gracefully prompts for API key if not configured)
+- **Three-tier scale anchor** — reference card (60 mm ArUco), ₹10 coin (27 mm), or size prior; tier is always reported and gates verdict authority
+- **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
+- **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
+- **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
+- **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
+- **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; prior tier and wheat products can never PASS or FAIL; salt is advisory only
+- **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
+- **React frontend** — capture form, verdict card, pure-CSS nutrient interval bars against band minimums, coverage gates, portion + quality panels (screenshot below)
+- **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
-### 🔄 In Progress (Phase 5–7)
+![Frontend result view](docs/assets/frontend-result.png)
 
-- Fine-tuning food detection model on Indian/Karnataka food images for improved accuracy
-- Face recognition attendance tracking (DeepFace)
-- Agentic AI layer (LangChain — orchestrator, suggestion, planner agents) — chatbot endpoint scaffolded, requires ANTHROPIC_API_KEY to activate
-- PostgreSQL meal logging with user linkage
-- Email/SMS alert system for canteen managers
+**Open gates (M1–M8, see `docs/final-report.md`):** physical reference-card run against a kitchen scale, prior-tier depth-scale validation, real-photo abstain/segmentation tuning (real canteen photos currently segment poorly — see Known Limitations), nutrient-table validation, holdout evaluation.
 
 ---
 
-## 🗄️ Datasets Used
+## 🗄️ Data & Sources
 
-| Dataset | Source | Purpose |
+| Source | What it provides | Where |
 |---|---|---|
-| Food-101 | ETH Zurich (via HuggingFace `nateraw/food`) | Food item classification |
-| IFCT 2017 | National Institute of Nutrition, Hyderabad | Indian food nutrition values |
-| Karnataka Local Foods | Created by team (based on IFCT + MDM data) | Karnataka-specific staples |
-| USDA FoodData Central | USDA Agricultural Research Service | International fallback nutrition |
-| Karnataka MDM Scheme | Government of Karnataka | Per-meal compliance thresholds |
-| ICMR-NIN RDA 2020 | Indian Council of Medical Research | Daily nutrient requirements |
+| PM POSHAN menu + F&N guidelines (user-provided doc) | dishes, days, class bands, kcal/protein minimums | `data/menu.yaml`, `data/standards.yaml` |
+| IFCT 2017 (NIN Hyderabad) | boiled-rice / curd nutrient values (literature rows) | `data/nutrients.yaml` |
+| Recipe assumptions | sambar, vegetable_rice, bisi_belee_bath rows (marked `assumed`) | `data/nutrients.yaml`, `data/params_status.yaml` |
+| Canteen phone photos (46) | classifier gallery | `data/gallery.npz`, `../DATASET/` |
+| Synthetic renderer | ground truth for the test suite | `tests/synth/` |
+| Reference card (A6, 300 dpi) | metric scale marker | `docs/assets/reference_card_A6_300dpi.png` |
+
+No USDA API, no external database, no network calls at runtime — all policy lives in versioned YAML.
 
 ---
 
@@ -167,14 +145,12 @@ flowchart TD
 
 | Component | Technology |
 |---|---|
-| Backend | FastAPI (Python 3.13) |
-| Food Detection | Vision Transformer (ViT) via HuggingFace Transformers |
-| Face Recognition | DeepFace |
-| Nutrition Database | IFCT 2017 + Karnataka Local DB + USDA API |
-| Agentic AI | LangChain + Claude/GPT-4 |
-| Database | PostgreSQL |
-| Frontend | React.js + Chart.js |
-| Containerization | Docker Compose |
+| Backend | FastAPI · Python 3.14 · uv-managed `.venv` |
+| Vision | PyTorch 2.13 (CUDA) · SAM 2.1 · SigLIP2 · MoGe-2 via HuggingFace Transformers |
+| Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
+| Uncertainty | NumPy Monte Carlo (seeded) |
+| Frontend | React 18 · Vite 6 · pure-CSS charts (no chart runtime needed) |
+| Tests | pytest — 70 tests (synthetic GT scenes + HTTP E2E) |
 
 ---
 
@@ -182,32 +158,24 @@ flowchart TD
 
 ```
 NutriSense/
-├── main.py                      # FastAPI entry point — all endpoints
-├── requirements.txt             # Python dependencies
-├── .env                         # API keys (not committed)
-├── .gitignore
-│
+├── main.py                    # FastAPI: /health /menu /analyze
+├── geo/                       # camera pose, planes, quads, back-projection
 ├── models/
-│   ├── food_detector.py         # ViT food detection + quadrant splitting
-│   ├── nutrition_lookup.py      # 4-layer nutrition lookup chain
-│   └── face_recognizer.py       # DeepFace attendance tracking
-│
+│   ├── scale_anchor.py        # S1: card / coin / prior tiers
+│   ├── dish_segmenter.py      # S2: SAM 2.1 food masking
+│   ├── food_classifier.py     # S2: SigLIP2 gallery-first + text fallback
+│   └── portion_estimator.py   # S3: area × height × density → grams
 ├── engine/
-│   ├── compliance_engine.py     # Karnataka MDM + ICMR-NIN compliance check
-│   └── aggregator.py            # Combines multi-item nutrition into meal total
-│
-├── agents/
-│   ├── orchestrator.py          # LangChain orchestrator agent
-│   ├── suggestion_agent.py      # AI corrective recommendations
-│   └── planner_agent.py         # Next-day menu planning agent
-│
-├── database/
-│   ├── db.py                    # PostgreSQL connection + SQLAlchemy models
-│   └── schemas.py               # Pydantic schemas for request/response
-│
-└── data/
-    ├── karnataka_foods.csv      # Karnataka-specific food nutrition DB
-    └── ifct_foods.py            # IFCT 2017 — 528 Indian foods
+│   ├── pipeline.py            # S6: analyze() orchestration + gates
+│   ├── depth.py               # MoGe-2 wrapper + marker calibration
+│   ├── mc.py                  # S4: Monte Carlo (sole interval owner)
+│   ├── nutrients.py           # nutrient table access
+│   └── compliance.py          # S5: verdict + coverage rules
+├── data/                      # single sources of truth (YAML + gallery.npz)
+├── tests/                     # 70 tests incl. synth/ renderer with full GT
+├── docs/                      # protocol, reports, flowchart, card asset
+├── tools/                     # reference-card generator, gallery builder
+└── frontend/                  # React 18 + Vite analyzer UI
 ```
 
 ---
@@ -216,11 +184,9 @@ NutriSense/
 
 ### Prerequisites
 
-Before you begin, make sure you have these installed:
-
-- **Python 3.10+** — download from python.org/downloads. During install on Windows, check "Add python.exe to PATH".
-- **Git** — download from git-scm.com/downloads
-- **PostgreSQL** — download from postgresql.org/download. Remember the password you set for the postgres user during install.
+- **uv** (Python package manager) — https://docs.astral.sh/uv/
+- **Python 3.14**, **Node 20+**
+- NVIDIA GPU + CUDA recommended (CPU works, slower)
 
 ### Installation
 
@@ -265,7 +231,7 @@ npm run dev
 - **Interactive Docs:** `http://127.0.0.1:8731/docs`
 - **Health Check:** `http://127.0.0.1:8731/health`
 
-The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:8731`). HF model downloads need `HF_HUB_DISABLE_XET=1` prefixed in this environment. Full agent notes live in `AGENTS.md`.
+The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:8731`). First run downloads HF model weights (~3 GB) — prefix with `HF_HUB_DISABLE_XET=1` if downloads stall. Full agent notes live in `AGENTS.md`.
 
 ---
 
@@ -300,14 +266,106 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ---
 
-## 🎯 Compliance Standards Used
+## 📸 Data Capture Procedure (golden set)
 
-| Standard | Source | What it governs |
+Full protocol: [`docs/protocol.md`](docs/protocol.md). Goal: **30 golden plates** — 4 pilot / 13 dev / 13 holdout — for calibration, tuning, and one sealed final evaluation.
+
+### Day-1 setup (do this once, before any capture)
+
+1. **Print the reference card**: `docs/assets/reference_card_A6_300dpi.png` on **A6 paper at 100% scale — turn OFF "fit to page"** (borderless if your printer supports it).
+2. **Ruler-check the black square**: it must measure **exactly 100.0 mm (±0.5 mm)**. If off:
+   - reprint, **or**
+   - measure the actual size and record it in `data/anchor_config.json` → `card.square_mm`, then set `ruler_checked: true` with the date in `ruler_checked_note`.
+   - This square is the metric ground truth for every `measured`-tier plate — a 1 mm error here is a 1% scale error in every verdict.
+3. **Kitchen scale**: 1 g resolution. Zero it with the **empty vessel on it (tare)** before weighing food. Use the *same* scale and vessels across all splits.
+
+### Per-plate capture — step by step
+
+1. **Table & light**: plain, matte surface; even lighting; no harsh shadows or HDR tricks.
+2. **Arrange the plate**: vessel centred, **entire tray/vessel inside the frame** (nothing cropped), food as served (don't restyle it).
+3. **Place the card**: reference card flat **beside the vessel on the same surface plane**, fully visible, not overlapping the vessel. Marker must be **≥ 80 px** in the final image (fill roughly ⅛ of the frame width). No card? A ₹10 bimetallic coin (27 mm) beside the vessel is the fallback — if both are present, card wins.
+4. **Frame the shot**: slight top-down angle (**tilt < 50°**), whole tray in frame with a little margin, **digital zoom OFF (zoom = 1.0)** — this is a hard gate, the pipeline returns `cannot_verify` on zoomed photos.
+5. **Focus on the food** — tap to focus, avoid motion blur, keep original EXIF intact (no messaging-app re-compression; send the original file).
+6. **Shoot**, then immediately verify: card/coin sharp? tray fully in frame? no reflections covering the marker?
+7. **Weigh** (while the photo is fresh):
+   - place empty vessel on scale → record `vessel_g` (tare)
+   - serve food in → record total, subtract tare → `total_net_g`
+   - **dev/holdout splits: weigh each dish separately** (`per_dish` array) — this is what tunes the composition model.
+8. **Record metadata** in the plate's `meta.json` at capture time:
+
+```json
+{
+  "plate_id": "dev/plate_03",
+  "day": "mon", "band": "1-5", "dish": "rice_sambar",
+  "serving_style": "mixed",
+  "camera": "realme 14T", "captured_at": "2026-10-09T12:40:00",
+  "anchor": {"card_present": true, "coin_present": false, "ruler_checked": true},
+  "notes": ""
+}
+```
+
+```json
+{
+  "vessel_g": 320, "total_net_g": 465,
+  "per_dish": [{"name": "rice_sambar", "g": 465}],
+  "scale": "kitchen_scale_1g"
+}
+```
+
+### Folder layout
+
+```
+DATASET/golden/
+  pilot/plate_01/{photo.jpg, meta.json, weights.json}
+  dev/plate_01/...
+  holdout/plate_01/...
+```
+
+### Splits
+
+| Split | n | Weighing | Purpose |
+|---|---|---|---|
+| pilot | 4 | tray totals (per plate) | M0b go/no-go: does depth/scale pipeline behave |
+| dev | 13 | **per dish** in the tray | tune σ, temperature, composition rules |
+| holdout | 13 | **per dish** | M8 — opened **once**; results labeled `indicative` |
+
+- Holdout stays out of any tuning — no peeking at per-plate errors before M8.
+
+### What the pipeline checks for you (capture lint)
+
+| Check | Consequence if violated |
+|---|---|
+| digital zoom == 1.0 | hard gate → `cannot_verify` |
+| min side ≥ 1280 px | note in response; marker tier may fall back |
+| card marker ≥ 80 px (or coin) | falls back to prior tier → coverage capped at 0.60, **can never PASS/FAIL** |
+| plate weight inside `plate_sanity_g` band (`data/standards.yaml`, ±25%) | flagged only — never auto-rejects |
+| day ∈ menu days, dish ∈ `data/menu.yaml` ids | `cannot_verify` |
+
+### Common mistakes that ruin a capture
+
+- 🚫 card at an angle to the vessel or on a different surface (e.g. held in hand) — scale is wrong
+- 🚫 card partially covered by the vessel or cropped out of frame — falls to prior tier
+- 🚫 digital zoom or heavy crop — protocol violation, `cannot_verify`
+- 🚫 shiny reflections washing out the ArUco marker — undetectable, falls to prior
+- 🚫 tray cropped (rim outside frame) — area and ring-fit both fail
+- 🚫 messaging-app photo transfer (re-compressed, EXIF stripped) — transfer originals
+
+---
+
+## 🎯 Compliance Standards
+
+Policy lives verbatim in `data/standards.yaml` (transcribed from the user's PM POSHAN Food & Nutrition guidelines):
+
+| Class band | Energy (min) | Protein (min) |
 |---|---|---|
-| Karnataka MDM Scheme | Govt. of Karnataka | Per-meal calorie and calcium targets |
-| ICMR-NIN RDA 2020 | Indian Council of Medical Research | Protein, carbs, fat, fiber, iron |
-| FSSAI Guidelines | Food Safety and Standards Authority of India | Fat limits for school canteens |
-| WHO Guidelines | World Health Organization | Vitamin C minimum |
+| 1–5 | 450 kcal | 12 g |
+| 6–8 | 700 kcal | 20 g |
+| 9–10 | 700 kcal | 20 g *(identical rows in the source doc)* |
+
+- **Verdicts**: PASS needs P ≥ 0.90 *and* coverage ≥ 0.85; FAIL needs P ≤ 0.10 *and* coverage ≥ 0.90; everything else is BORDERLINE
+- **Coverage** multiplies ledger factors (anchor tier, base-plane method, capture quality) — a prior-tier anchor caps it at 0.60, so a guessed scale can never FAIL a plate
+- **Salt** (2 g primary / 4 g upper) is reported as an advisory only — never a verdict nutrient
+- Raw per-child/day gram allocations are surfaced as informational diagnostics, never compared against cooked plate weight
 
 ---
 
@@ -315,8 +373,8 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 | SDG | Goal | How NutriSense contributes |
 |---|---|---|
-| SDG 3 | Good Health and Well-Being | Continuous nutritional monitoring prevents deficiencies |
-| SDG 9 | Industry, Innovation and Infrastructure | Open-source AI applied to public health infrastructure |
+| SDG 2 | Zero Hunger | Nutritional adequacy monitoring for the world's largest school meal programme |
+| SDG 3 | Good Health and Well-Being | Evidence-based detection of under-nutrition per plate |
 
 ---
 
@@ -346,24 +404,23 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-world calibration gates (M1–M6)**: the pipeline is fully validated on synthetic scenes (69+ tests green) but physical-marker runs, prior-tier depth scale, and real-photo abstain thresholds are still open gates — see `docs/final-report.md`.
-- **No chatbot or database**: v5 is a pure photo → verdict pipeline (FastAPI + local models). The old chatbot/PostgreSQL stack described in earlier iterations was removed in the baseline cleanup.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (70 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) and the coin detector can false-positive on shiny vessels — the M1/M3 real-world tuning gates. Until those close, treat field results as indicative.
+- **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
+- **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 
 ---
 
 ## 📚 References
 
-1. Bossard et al. (2014). Food-101 — Mining Discriminative Components with Random Forests. ECCV.
-2. National Institute of Nutrition (2017). Indian Food Composition Tables (IFCT 2017). NIN, Hyderabad.
-3. ICMR-NIN (2020). Recommended Dietary Allowances for Indians. New Delhi.
-4. USDA Agricultural Research Service. FoodData Central. https://fdc.nal.usda.gov/
-5. Dosovitskiy et al. (2020). An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale. ICLR.
-6. Taigman et al. (2014). DeepFace: Closing the Gap to Human-Level Performance in Face Verification. CVPR.
-7. Chase, H. (2022). LangChain. https://github.com/langchain-ai/langchain
-8. Government of Karnataka. Mid-Day Meal Scheme Guidelines. Dept. of Public Instruction.
+1. Ravi et al. (2024). SAM 2: Segment Anything in Images and Videos. arXiv:2408.00714.
+2. Tschannen et al. (2025). SigLIP 2: Multilingual Vision-Language Encoders. Google DeepMind.
+3. Wang et al. (2025). MoGe-2: Advancing Metric 3D Geometry. Microsoft Research.
+4. National Institute of Nutrition (2017). Indian Food Composition Tables (IFCT 2017). NIN, Hyderabad.
+5. Ministry of Education, Govt. of India. PM POSHAN — Food & Nutrition Guidelines (user-provided).
+6. Government of Karnataka. Mid-Day Meal Scheme Guidelines. Dept. of Public Instruction.
 
 ---
 
 ## 📄 License
 
-This project is developed for academic purposes at B.M.S. College of Engineering under Project Work 2 (2026–27).
+[MIT](LICENSE) — © 2026 S S Gokula Swamy. Developed for Project Work 2 (2026–27) at B.M.S. College of Engineering. Model/dataset attributions: `docs/licenses.md`.
