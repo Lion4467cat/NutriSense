@@ -1,27 +1,28 @@
 # NutriSense v5 — Final Build Report
 
-**Date:** 2026-10-08
-**Status:** S0–S6 complete — 58/58 tests green (72s), server smoke-tested, phase `built`.
+**Date:** 2026-10-08 (updated 2026-10-09)
+**Status:** S0–S6 complete — **70/70 tests green (~86s, isolated run)**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
 ## Test results
 
 ```
-58 passed in 72s
+70 passed in ~86s
 ```
 
 | Test file | Tests | Covers |
 |---|---|---|
-| `tests/test_geo.py` | 6 | coordinate transforms, back-projection |
+| `tests/test_geo.py` | 5 | coordinate transforms, back-projection |
 | `tests/test_card.py` | 4 | reference-card detection, corner ordering |
-| `tests/test_scale_anchor.py` | 6 | 3-tier anchor: card / coin / prior |
-| `tests/test_renderer.py` | 5 | synthetic dish renderer, handedness |
-| `tests/test_s2.py` | 3 | segmenter + gallery classifier |
+| `tests/test_scale_anchor.py` | 7 | 3-tier anchor: card / coin / prior |
+| `tests/test_renderer.py` | 7 | synthetic dish renderer, handedness |
+| `tests/test_s2.py` | 5 | segmenter + gallery classifier |
 | `tests/test_portion.py` | 7 | S3 portion estimator (ring + prior tiers) |
 | `tests/test_mc.py` | 7 | S4 Monte Carlo engine, nutrient table |
 | `tests/test_compliance.py` | 9 | S5 verdicts, coverage, gate rules |
 | `tests/test_api.py` | 7 | S6 pipeline + HTTP endpoints (E2E) |
+| `tests/test_pipeline_seams.py` | 12 | 8 pipeline seams (lint, failures, contracts) |
 
 ## Phase delivery
 
@@ -29,7 +30,7 @@ Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance v
 Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`), geo package, ledger (`data/params_status.yaml`). All assumed values flagged `assumed` pending physical validation.
 
 ### S1 — Scale anchor (3 tiers)
-- **Tier `measured`**: 60 mm reference card detected in image → metric scale; coin (21 mm) fallback.
+- **Tier `measured`**: 60 mm reference card detected in image → metric scale; coin (27 mm) fallback.
 - **Tier `prior`**: no marker → vessel-table prior (never PASS/FAIL, coverage capped 0.60).
 - Card result exposes `marker_corners_px` in extras — reused by depth calibration.
 - Asset: `docs/assets/reference_card_A6_300dpi.png`.
@@ -102,7 +103,7 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - **M4** — nutrient table validation.
 - **M5** — compliance pilot with real MDM day bands.
 - **M6** — depth-scale σ validation for the prior tier.
-- Frontend wiring (scaffold exists under `frontend/`).
+- Frontend: rebuilt (React 18 + TypeScript, hash router, localStorage history/students, 6 themes × 6 palettes) — see README screenshots.
 
 ## Environment notes
 

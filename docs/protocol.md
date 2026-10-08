@@ -65,7 +65,7 @@ DATASET/golden/
 }
 ```
 
-## Capture lint (checked by tools when pipeline lands)
+## Capture lint (enforced by the pipeline)
 
 - digital zoom == 1.0 (else `cannot_verify`)
 - min side ≥ 1280 px, card marker ≥ 80 px (else `prior`)

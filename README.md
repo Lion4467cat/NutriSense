@@ -23,6 +23,10 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
 - Scores energy & protein probabilities against the class-band minimums, gated by a **coverage** score
 
+A React web UI wraps the pipeline: dashboard, photo analysis with honest staged progress, result detail (verdict reasons, coverage, 90% intervals), history + search, student records, menu browser, analytics, and settings.
+
+![NutriSense dashboard](docs/screenshots/dashboard-light.jpg)
+
 ---
 
 ## 🔁 Analysis Pipeline
@@ -100,12 +104,26 @@ flowchart TD
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; prior tier and wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
-- **React frontend** — capture form, verdict card, pure-CSS nutrient interval bars against band minimums, coverage gates, portion + quality panels (screenshot below)
+- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB
+- **Themes** — 6 full themes (Light, Dark, Sepia, Midnight, OLED, System) × 6 accent palettes, light/dark aware
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
-![Frontend result view](docs/assets/frontend-result.png)
+![Analysis result — verdict, reasons, coverage](docs/screenshots/result-fail-light.jpg)
 
 **Open gates (M1–M8, see `docs/final-report.md`):** physical reference-card run against a kitchen scale, prior-tier depth-scale validation, real-photo abstain/segmentation tuning (real canteen photos currently segment poorly — see Known Limitations), nutrient-table validation, holdout evaluation.
+
+---
+
+## 🖼️ Screenshots
+
+| | |
+|---|---|
+| ![Dark theme](docs/screenshots/result-pass-dark.jpg) | ![Settings themes](docs/screenshots/settings-appearance-light.jpg) |
+| *Result view — dark theme* | *Settings — 6 themes × 6 palettes* |
+| ![History](docs/screenshots/history-light.jpg) | ![Students](docs/screenshots/students-light.jpg) |
+| *History with search* | *Student records* |
+| ![Analytics](docs/screenshots/analytics-light.jpg) | ![Analyze](docs/screenshots/analyze-light.jpg) |
+| *Analytics* | *Analyze — staged progress* |
 
 ---
 
@@ -132,7 +150,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Vision | PyTorch 2.13 (CUDA) · SAM 2.1 · SigLIP2 · MoGe-2 via HuggingFace Transformers |
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
-| Frontend | React 18 · Vite 6 · pure-CSS charts (no chart runtime needed) |
+| Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
 | Tests | pytest — 70 tests (synthetic GT scenes + HTTP E2E) |
 
 ---
@@ -156,9 +174,9 @@ NutriSense/
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
 ├── tests/                     # 70 tests incl. synth/ renderer with full GT
-├── docs/                      # protocol, reports, flowchart, card asset
+├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
-└── frontend/                  # React 18 + Vite analyzer UI
+└── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
 ```
 
 ---

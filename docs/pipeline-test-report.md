@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-08
 **Method:** TDD skill (confirmed seams → vertical slices → red→green loop)
-**Suite:** `69 passed in 82s` (58 pre-existing + 11 new seam tests)
+**Suite:** `70 passed in ~86s` (58 pre-existing + 12 seam tests; the compliance-block test was added after this TDD run)
 
 ## 1. Seam inventory (confirmed with user)
 
@@ -15,7 +15,7 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 | 3 | Classify-unrecognized branch | `analyze(deps={"classify"})` → `cannot_verify` | out-of-scope covered only | 1 test |
 | 4 | Depth-calibration wiring | `analyze(deps={"depth"})` → `anchor.depth_scale_*` | anchor tier covered in isolation | 2 tests |
 | 5 | Portion-failure branch | `analyze(deps={"depth"})` → `cannot_verify` | none | 1 test |
-| 6 | Result-assembly contract | `analyze()` return dict (API spec) | happy-path E2E asserted a few fields | 2 tests |
+| 6 | Result-assembly contract | `analyze()` return dict (API spec) | happy-path E2E asserted a few fields | 3 tests (incl. compliance block) |
 | 7 | HTTP contract | `POST /analyze` validation + echo | /health, /menu, unreadable, bad band covered | 2 tests |
 
 **Already covered before this run** (left untouched): scale anchor tiers, portion ring/prior/table paths, MC engine, compliance verdict rules, happy-path E2E, zoom/day/band gates, out-of-scope dish.
@@ -46,21 +46,21 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 ## 3. Final suite
 
 ```
-69 passed in 82.42s
+70 passed in ~86s
 ```
 
 | File | Tests | Phase |
 |---|---|---|
-| tests/test_geo.py | 6 | S0 |
+| tests/test_geo.py | 5 | S0 |
 | tests/test_card.py | 4 | S1 |
-| tests/test_scale_anchor.py | 6 | S1 |
-| tests/test_renderer.py | 5 | S0/S1 |
-| tests/test_s2.py | 3 | S2 |
+| tests/test_scale_anchor.py | 7 | S1 |
+| tests/test_renderer.py | 7 | S0/S1 |
+| tests/test_s2.py | 5 | S2 |
 | tests/test_portion.py | 7 | S3 |
 | tests/test_mc.py | 7 | S4 |
 | tests/test_compliance.py | 9 | S5 |
 | tests/test_api.py | 7 | S6 |
-| **tests/test_pipeline_seams.py** | **11** | **S6 seams (this run)** |
+| **tests/test_pipeline_seams.py** | **12** | **S6 seams** |
 
 ## 4. Pipeline flowchart
 
