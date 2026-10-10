@@ -3,6 +3,7 @@ import type {
   HealthResponse,
   MenuResponse,
 } from "../types/api";
+import { analysisSchema } from "../types/contract.gen";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8731";
 
@@ -68,9 +69,11 @@ export async function analyze(params: AnalyzeParams): Promise<AnalyzeResult> {
     }
     throw new ApiError(res.status, detail);
   }
-  const data = (await res.json()) as AnalyzeResult;
-  if (!data || typeof data.verdict !== "string") {
+  const data: unknown = await res.json();
+  // contract check: the wire is validated against the generated Zod schema
+  const parsed = analysisSchema.safeParse(data);
+  if (!parsed.success) {
     throw new ApiError(500, "The backend returned an unexpected response.");
   }
-  return data;
+  return parsed.data;
 }

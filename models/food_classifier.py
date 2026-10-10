@@ -64,12 +64,17 @@ def gallery_match_threshold():
 
 # --- model ------------------------------------------------------------------
 
+def _device():
+    import torch
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
 def _load():
     if _STATE:
         return _STATE["proc"], _STATE["model"], _STATE["device"]
     import torch
     from transformers import AutoModel, AutoProcessor
-    dev = "cuda" if torch.cuda.is_available() else "cpu"
+    dev = _device()
     proc = AutoProcessor.from_pretrained(MODEL_ID)
     model = AutoModel.from_pretrained(MODEL_ID).to(dev).eval()
     _STATE.update(proc=proc, model=model, device=dev)
@@ -112,7 +117,7 @@ def build_gallery(entries):
         if isinstance(img, str):
             bgr = cv2.imread(img)
             if bgr is None:
-                raise FileNotFoundError(img)
+                raise FileNotFoundError("gallery image failed to decode")
             src = img
         else:
             bgr, src = img, "<memory>"

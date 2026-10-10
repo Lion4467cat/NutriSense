@@ -4,6 +4,7 @@ import pytest
 import yaml
 
 from engine.compliance import assess, coverage
+from engine.contract import ReasonKind
 
 DISHES = yaml.safe_load(open("data/menu.yaml"))["dishes"]
 
@@ -53,7 +54,7 @@ def test_prior_anchor_cannot_pass_or_fail():
     out = assess(mc, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
     assert out["verdict"] == "BORDERLINE"
     assert out["coverage"]["score"] == pytest.approx(0.60)
-    assert any("coverage" in r for r in out["reasons"])
+    assert any(r.kind == ReasonKind.COVERAGE_GATE for r in out["reasons"])
     mc2 = _mc(np.full(1000, 300.0), np.full(1000, 6.0))
     out2 = assess(mc2, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
     assert out2["verdict"] == "BORDERLINE"  # FAIL blocked by coverage
@@ -68,7 +69,7 @@ def test_coverage_gate_fail_needs_090():
     mc_fail = _mc(np.full(1000, 300.0), np.full(1000, 6.0))
     out2 = assess(mc_fail, _portion(base="table_prior"), DISHES["rice_sambar"], "1-5", "measured")
     assert out2["verdict"] == "BORDERLINE"
-    assert any("coverage" in r for r in out2["reasons"])
+    assert any(r.kind == ReasonKind.COVERAGE_GATE for r in out2["reasons"])
 
 
 def test_zoom_and_bad_band_cannot_verify():

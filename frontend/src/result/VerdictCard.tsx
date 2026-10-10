@@ -1,6 +1,7 @@
 import type { AnalyzeResult } from  "../types/api";
 import { verdictMeta } from  "../ui/primitives";
 import { formatPct } from  "../utils/format";
+import { firstReasonText } from  "../utils/reasons";
 
 export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const meta = verdictMeta(result.verdict);
@@ -17,7 +18,7 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
         <h2 className="verdict-label" id="verdict-label">
           {meta.label}
         </h2>
-        <p className="verdict-msg">{result.reasons?.[0] || meta.blurb}</p>
+        <p className="verdict-msg">{firstReasonText(result.reasons) || meta.blurb}</p>
         <div className="verdict-meta">
           {dish && (
             <span className="tag">

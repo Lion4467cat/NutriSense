@@ -288,6 +288,11 @@ def _prior(reason, cfg):
     }
 
 
+def prior_anchor(reason, cfg=None):
+    """Public prior-tier anchor (the anchor stage's degrade fallback)."""
+    return _prior(reason, cfg if cfg is not None else load_config())
+
+
 def estimate_anchor(image, config=None, exif=None):
     """Run the tier ladder on a BGR ndarray (or file path if str/Path).
 
@@ -301,7 +306,7 @@ def estimate_anchor(image, config=None, exif=None):
         path = str(image)
         img = cv2.imread(path)
         if img is None:
-            raise FileNotFoundError(image)
+            raise FileNotFoundError("anchor image failed to decode")
     else:
         img = image
     if exif is None:

@@ -4,6 +4,15 @@
  * engine/compliance.py, engine/mc.py and main.py — no invented fields.
  */
 
+import type {
+  FailureKind,
+  Policy,
+  ReasonKind,
+  StageName,
+} from "./contract.gen";
+
+export type { Policy };
+
 export type Verdict =
   | "PASS"
   | "FAIL"
@@ -23,12 +32,12 @@ export interface Lint {
 }
 
 export interface Anchor {
-  method: string;
-  tier: "measured" | "prior" | string;
+  method: string | null;
+  tier: "measured" | "prior" | string | null;
   cm_per_px: number | null;
   interval: [number | null, number | null] | null;
   tilt_deg: number | null;
-  reason: string;
+  reason: string | null;
   depth_scale_factor?: number;
   depth_scale_source?: string;
 }
@@ -50,12 +59,12 @@ export interface Classification {
 
 export interface DishInfo {
   id: string;
-  display_name: string;
+  display_name: string | null;
   day: string;
   band: string;
   serving_style?: string | null;
   on_day: boolean;
-  nutrition_source: string;
+  nutrition_source: string | null;
 }
 
 export interface Portion {
@@ -84,7 +93,7 @@ export interface NutrientSummary {
 export interface Nutrition {
   kcal: NutrientSummary;
   protein_g: NutrientSummary;
-  grams: number;
+  grams: NutrientSummary;
   n: number;
   seed: number;
   diagnostics: Record<string, unknown>;
@@ -108,29 +117,42 @@ export interface NutrientRow {
 }
 
 export interface Compliance {
-  day: string;
+  day: string | null;
   band: string;
   probs: Record<string, number>;
   nutrients: Record<string, NutrientRow>;
 }
 
 export interface Advisory {
-  sodium_salt?: {
-    direction?: string;
-    primary_g: number;
-    upper_g: number;
-    note?: string;
-  };
-  note?: string;
+  sodium_salt: {
+    direction?: string | null;
+    primary_g?: number | null;
+    upper_g?: number | null;
+    note?: string | null;
+  } | null;
+  note?: string | null;
+}
+
+export interface Reason {
+  kind: ReasonKind;
+  text: string;
+}
+
+export interface Failure {
+  kind: FailureKind;
+  stage: StageName;
+  error: string;
 }
 
 /**
- * Full /analyze payload. `unreadable image` responses only carry
- * verdict+reasons, so every detail block is optional at the type level.
+ * Full /analyze payload (16 keys, engine.contract). Detail blocks are
+ * null when their stage never ran; old v1 records may lack failures/policy.
  */
 export interface AnalyzeResponse {
   verdict: Verdict;
-  reasons: string[];
+  reasons: Reason[];
+  failures: Failure[];
+  policy: Policy;
   lint: Lint | null;
   anchor: Anchor | null;
   segmentation: Segmentation | null;
@@ -147,7 +169,7 @@ export interface AnalyzeResponse {
 
 export type AnalyzeResult = Partial<AnalyzeResponse> & {
   verdict: Verdict;
-  reasons: string[];
+  reasons: Reason[];
 };
 
 export interface HealthResponse {
@@ -196,4 +218,18 @@ export interface MenuResponse {
     band: CaptureField;
   };
   remarks: string[];
+  policy?: Policy;
 }
+
+/** Pre-policy records (and a down /menu) render with today's constants. */
+export const FALLBACK_POLICY: Policy = {
+  pass_p: 0.9,
+  fail_p: 0.1,
+  pass_min: 0.85,
+  fail_min: 0.9,
+  anchor_prior_cap: 0.6,
+  base_table_prior: 0.85,
+  quality_degraded: 0.9,
+  lint_min_side_px: 1280,
+  policy_version: "unknown",
+};

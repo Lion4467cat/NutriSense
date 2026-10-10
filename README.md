@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-70%20passed-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-89%20passed-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -95,7 +95,7 @@ flowchart TD
 
 ## ✨ Features
 
-**Implemented and tested (70 tests green):**
+**Implemented and tested (89 tests green):**
 
 - **Three-tier scale anchor** — reference card (60 mm ArUco), ₹10 coin (27 mm), or size prior; tier is always reported and gates verdict authority
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
@@ -155,7 +155,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 70 tests (synthetic GT scenes + HTTP E2E) |
+| Tests | pytest — 89 tests (synthetic GT scenes + HTTP E2E + contract parity) |
 
 ---
 
@@ -177,7 +177,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 70 tests incl. synth/ renderer with full GT
+├── tests/                     # 89 tests incl. synth/ renderer with full GT
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -251,17 +251,21 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ### Example Response — `/analyze`
 
+Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `policy` carries the thresholds the UI renders.
+
 ```json
 {
   "verdict": "FAIL",
-  "reasons": ["mandatory nutrient below minimum with sufficient coverage", "kcal: P=0.06 <= 0.1 fail zone"],
-  "lint": {"digital_zoom": null, "min_side_px": 1100, "resolution_ok": false, "notes": ["min side 1100 < 1280px (marker tier may fall back to prior)"]},
+  "reasons": [{"kind": "below_min", "text": "mandatory nutrient below minimum with sufficient coverage"}, {"kind": "below_min", "text": "kcal: P=0.06 <= 0.1 fail zone"}],
+  "failures": [],
+  "policy": {"pass_p": 0.9, "fail_p": 0.1, "pass_min": 0.85, "fail_min": 0.9, "anchor_prior_cap": 0.6, "base_table_prior": 0.85, "quality_degraded": 0.9, "lint_min_side_px": 1280, "policy_version": "c65df5efee0f"},
+  "lint": {"digital_zoom": null, "focal_mm": 4.0, "min_side_px": 1100, "resolution_ok": false, "notes": ["min side 1100 < 1280px (marker tier may fall back to prior)"]},
   "anchor": {"method": "card_aruco", "tier": "measured", "cm_per_px": 0.0547, "tilt_deg": 39.0, "depth_scale_factor": 0.1417, "depth_scale_source": "card"},
   "classification": {"dish": "rice_sambar", "confidence": 0.9, "method": "gallery"},
   "dish": {"id": "rice_sambar", "display_name": "Rice & Sambar", "day": "mon", "band": "1-5"},
   "portion": {"grams": 298.5, "volume_ml": 354.8, "base_method": "ring", "scale_tier": "measured", "sigma_grams_rel": 0.37, "flags": []},
   "nutrition": {"kcal": {"mean": 271.0, "interval_90": [141.0, 466.0]}, "protein_g": {"mean": 7.3, "interval_90": [3.8, 12.5]}},
-  "coverage": {"score": 1.0, "factors": {"anchor": 1.0, "base": 1.0}, "pass_min": 0.85, "fail_min": 0.9},
+  "coverage": {"score": 1.0, "factors": {}, "pass_min": 0.85, "fail_min": 0.9},
   "compliance": {"day": "mon", "band": "1-5", "probs": {"kcal": 0.06, "protein_g": 0.06}, "nutrients": {"kcal": {"min": 450.0, "p_at_or_above_min": 0.06, "interval_90": [141.0, 466.0]}}},
   "assumptions": ["nutrient table row sambar (assumed)"],
   "advisory": {"note": "advisory only — salt is never a verdict nutrient"},
@@ -348,7 +352,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (70 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) and the coin detector can false-positive on shiny vessels — the M1/M3 real-world tuning gates. Until those close, treat field results as indicative.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (89 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) and the coin detector can false-positive on shiny vessels — the M1/M3 real-world tuning gates. Until those close, treat field results as indicative.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 

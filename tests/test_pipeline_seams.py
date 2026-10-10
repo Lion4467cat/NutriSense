@@ -83,8 +83,9 @@ def test_segment_failure_cannot_verify(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, segment=boom))
     assert out["verdict"] == "cannot_verify"
-    assert any("segmentation failed" in r and "segment exploded" in r
-               for r in out["reasons"])
+    assert any(r["kind"] == "stage_failed"
+               and "segment exploded" in r["text"] for r in out["reasons"])
+    assert out["failures"][0]["stage"] == "segment"
     assert out["anchor"] is not None  # anchor ran before segment
     assert out["segmentation"] is None
     assert out["classification"] is None
@@ -101,7 +102,9 @@ def test_classify_unrecognized_cannot_verify(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, classify=unknown))
     assert out["verdict"] == "cannot_verify"
-    assert any("dish unrecognized" in r for r in out["reasons"])
+    assert any(r["kind"] == "unrecognized" and "dish unrecognized" in r["text"]
+               for r in out["reasons"])
+    assert out["failures"] == []  # abstain is an outcome, not a hard failure
     assert out["classification"]["dish"] is None
     assert out["classification"]["reason"] == "below threshold"
     assert out["segmentation"] is not None  # segment ran before classify
@@ -144,8 +147,9 @@ def test_depth_failure_cannot_verify(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, depth=boom))
     assert out["verdict"] == "cannot_verify"
-    assert any("portion estimation failed" in r and "depth exploded" in r
+    assert any(r["kind"] == "stage_failed" and "depth exploded" in r["text"]
                for r in out["reasons"])
+    assert out["failures"][0]["stage"] == "depth"
     assert out["classification"]["dish"] == "rice_sambar"
     assert out["dish"] is not None  # dish lookup happened before portion
     assert out["portion"] is None
@@ -159,10 +163,12 @@ def test_result_contract_keys_and_types(scene):
                        deps=make_deps(scene), serving_style="mixed")
     # API response contract (spec literal, not derived from the code)
     assert set(out) == {
-        "verdict", "reasons", "lint", "anchor", "segmentation",
+        "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
-        "assumptions", "advisory", "model_versions", "compliance",
+        "assumptions", "advisory", "model_versions", "compliance", "policy",
     }
+    assert out["failures"] == []
+    assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
     assert isinstance(out["reasons"], list)
     assert isinstance(out["portion"]["grams"], float) and out["portion"]["grams"] > 0

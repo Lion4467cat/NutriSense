@@ -2,7 +2,7 @@
 # measured from this capture must appear here with status.
 # Plan rule: only measured/literature values may drive PASS/FAIL confidence;
 # unmeasured ones are marked `assumed` and reported as such.
-# Status vocabulary: measured | literature | assumed | calibrated
+# Status vocabulary: measured | literature | assumed | calibrated | fixed
 
 params:
 
@@ -34,6 +34,9 @@ params:
   thickness_prior_sigma_pct: {value: 15, status: assumed, note: "flat-layer/prior shape path"}
   shape_kappa_dome: {value: [0.4, 0.55, 0.7], status: assumed, note: "dome fill factor [lo, mode, hi]"}
   shape_kappa_layered: {value: [0.75, 0.9, 1.0], status: assumed, note: "layered/spread fill factor"}
+
+  # --- protocol lint (S6) ---
+  lint_min_side_px: {value: 1280, status: fixed, note: "min image side for resolution_ok; below it the anchor tier may fall back to prior"}
 
   # --- coverage score (S5) ---
   coverage_anchor_prior: {value: 0.60, status: assumed, note: "coverage factor when scale is prior tier (caps PASS/FAIL)"}

@@ -1,0 +1,198 @@
+{
+  "advisory": {
+    "note": "advisory only \u2014 salt is never a verdict nutrient",
+    "sodium_salt": {
+      "direction": "max",
+      "note": "informational; noted in report only",
+      "primary_g": 2,
+      "upper_g": 4
+    }
+  },
+  "anchor": {
+    "cm_per_px": 0.05469744627766077,
+    "depth_scale_factor": 1.0115,
+    "depth_scale_source": "card",
+    "interval": [
+      0.05411743858338014,
+      0.055277453971941407
+    ],
+    "method": "card_aruco",
+    "reason": "ArUco card detected (measured)",
+    "tier": "measured",
+    "tilt_deg": 39.03763676653301
+  },
+  "assumptions": [
+    "nutrient table row sambar (assumed)"
+  ],
+  "classification": {
+    "confidence": 1.0,
+    "dish": "rice_sambar",
+    "match_score": 0.9,
+    "method": "stub",
+    "reason": "stub"
+  },
+  "compliance": {
+    "band": "1-5",
+    "day": "mon",
+    "nutrients": {
+      "kcal": {
+        "headroom_at_interval_low": -211.92,
+        "interval_90": [
+          238.08230573111084,
+          599.9716700905137
+        ],
+        "mean": 390.84665628768454,
+        "min": 450.0,
+        "p_at_or_above_min": 0.253
+      },
+      "protein_g": {
+        "headroom_at_interval_low": -5.63,
+        "interval_90": [
+          6.3661379663323565,
+          16.051738737721017
+        ],
+        "mean": 10.4547240474703,
+        "min": 12.0,
+        "p_at_or_above_min": 0.2542
+      }
+    },
+    "probs": {
+      "kcal": 0.253,
+      "protein_g": 0.2542
+    }
+  },
+  "coverage": {
+    "factors": {},
+    "fail_min": 0.9,
+    "pass_min": 0.85,
+    "score": 1.0
+  },
+  "dish": {
+    "band": "1-5",
+    "day": "mon",
+    "display_name": "Rice & Sambar",
+    "id": "rice_sambar",
+    "nutrition_source": "official_menu",
+    "on_day": true,
+    "serving_style": null
+  },
+  "failures": [],
+  "lint": {
+    "digital_zoom": null,
+    "focal_mm": null,
+    "min_side_px": 1100,
+    "notes": [
+      "min side 1100 < 1280px (marker tier may fall back to prior)"
+    ],
+    "resolution_ok": false
+  },
+  "model_versions": {
+    "classifier": "google/siglip2-base-patch16-224",
+    "depth": "gt",
+    "segmenter": "facebook/sam2.1-hiera-large"
+  },
+  "nutrition": {
+    "assumed_nutrients": [
+      "sambar"
+    ],
+    "diagnostics": {
+      "raw_allocation_per_day_g": {
+        "oil": 5,
+        "pulses": 20,
+        "rice": 100,
+        "salt": 2,
+        "vegetables": 50
+      },
+      "raw_basis_note": "raw allocations are per-child/day; plate raw-equivalent is informational only (never verdict input)",
+      "raw_equivalent_g": {
+        "rice": 85.94307269198805,
+        "sambar": 68.75445815359045
+      }
+    },
+    "grams": {
+      "interval_90": [
+        262.1713066223561,
+        656.8628165817755
+      ],
+      "mean": 428.624991447492,
+      "p05": 262.1713066223561,
+      "p50": 412.858221287049,
+      "p95": 656.8628165817755,
+      "sd": 121.37677546502485
+    },
+    "kcal": {
+      "interval_90": [
+        238.08230573111084,
+        599.9716700905137
+      ],
+      "mean": 390.84665628768454,
+      "p05": 238.08230573111084,
+      "p50": 376.7161518967314,
+      "p95": 599.9716700905137,
+      "sd": 111.34919624167405
+    },
+    "n": 4000,
+    "protein_g": {
+      "interval_90": [
+        6.3661379663323565,
+        16.051738737721017
+      ],
+      "mean": 10.4547240474703,
+      "p05": 6.3661379663323565,
+      "p50": 10.085928203584965,
+      "p95": 16.051738737721017,
+      "sd": 2.973680493643846
+    },
+    "seed": 1234,
+    "wider_ranges": false
+  },
+  "policy": {
+    "anchor_prior_cap": 0.6,
+    "base_table_prior": 0.85,
+    "fail_min": 0.9,
+    "fail_p": 0.1,
+    "lint_min_side_px": 1280,
+    "pass_min": 0.85,
+    "pass_p": 0.9,
+    "policy_version": "c65df5efee0f",
+    "quality_degraded": 0.9
+  },
+  "portion": {
+    "area_cm2": 268.9,
+    "base_method": "ring",
+    "components_g": {
+      "rice": 257.8,
+      "sambar": 171.9
+    },
+    "density_eff": 0.842,
+    "flags": [],
+    "grams": 429.7,
+    "mean_h_mm": 18.99,
+    "scale_tier": "measured",
+    "sigma_grams_rel": 0.2799,
+    "sigma_rel": {
+      "area": 0.0547,
+      "base": 0.2369,
+      "density": 0.08,
+      "depth": 0.1131
+    },
+    "volume_ml": 510.7
+  },
+  "reasons": [
+    {
+      "kind": "below_min",
+      "text": "kcal: P=0.25 < 0.9 pass zone"
+    },
+    {
+      "kind": "below_min",
+      "text": "protein_g: P=0.25 < 0.9 pass zone"
+    }
+  ],
+  "segmentation": {
+    "area_frac": 0.2,
+    "n_candidates": 1,
+    "sam_score": 1.0,
+    "strategy": "stub"
+  },
+  "verdict": "BORDERLINE"
+}

@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-08
 **Method:** TDD skill (confirmed seams → vertical slices → red→green loop)
-**Suite:** `70 passed in ~86s` (58 pre-existing + 12 seam tests; the compliance-block test was added after this TDD run)
+**Suite:** `89 passed in ~88s` (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run)
 
 ## 1. Seam inventory (confirmed with user)
 
@@ -30,7 +30,7 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 | 3 | `test_classify_unrecognized_cannot_verify` | 🟢 green | Classification summary + segmentation retained on early exit |
 | 4 | `test_depth_scale_calibrated_and_recorded` | 🟢 green | Card → `depth_scale_source ∈ {card, coin}`, factor ∈ (0.5, 2.0) vs metric GT |
 | 4 | `test_depth_scale_none_on_prior_tier` | 🟢 then tightened → 🟢 | First assertion allowed PASS/FAIL — plan forbids it; tightened to `== "BORDERLINE"` and re-ran |
-| 5 | `test_depth_failure_cannot_verify` | 🟢 green | `portion estimation failed` reason; dish info retained |
+| 5 | `test_depth_failure_cannot_verify` | 🟢 green | stage split (2026-10-10): reason is now `stage_failed` / "depth failed: …"; dish info retained |
 | 6 | `test_result_contract_keys_and_types` | ⚠️ vacuous → fixed → 🟢 | Flag-vocabulary subset guessed wrong (`size_prior/low_area` don't exist) and passed vacuously; corrected to the real vocabulary (`depth_partial, vessel_shape_uncertain, base_sign_flip, thin_layer, size_prior_scale`) |
 | 6 | `test_result_contract_flags_populated_on_ring_path` | 🟢 green | Card + healthy area → `base_method == "ring"`, no flags |
 | 7 | `test_http_missing_required_field_422` | 🟢 green | FastAPI 422 with `loc` naming `band` |
@@ -41,12 +41,14 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 **Anti-patterns avoided (per skill):**
 - No internal mocking — all tests drive `analyze()` via its public `deps` seam and the HTTP API; only the classifier is stubbed (deterministic gallery abstain on synthetic renders, same pattern as existing E2E).
 - No tautologies — expected values are spec literals (response key set, flag vocabulary, plan verdict rules, metric GT depth), not recomputed the way the code computes them.
+
+**Response key-set spec (as of 2026-10-10):** exactly 16 keys — `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. `reasons` are `{kind, text}` objects (`ReasonKind`: zoom, unknown_day, unknown_band, out_of_scope, unrecognized, unreadable, stage_failed, in_zone, below_min, coverage_gate); `failures` is `[]` for graceful exits (gates carry their own entry, open-set abstain carries none); `policy` mirrors `data/standards.yaml` + `data/params_status.yaml` with a 12-hex `policy_version` digest. `tests/test_contract_gen.py` regenerates `frontend/src/types/contract.gen.ts` and diffs it; vitest validates both parity fixtures against the schema.
 - Vertical slices — each test was written, run, and settled before the next began.
 
 ## 3. Final suite
 
 ```
-70 passed in ~86s
+89 passed in ~88s
 ```
 
 | File | Tests | Phase |
@@ -61,6 +63,9 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 | tests/test_compliance.py | 9 | S5 |
 | tests/test_api.py | 7 | S6 |
 | **tests/test_pipeline_seams.py** | **12** | **S6 seams** |
+| tests/test_contract.py | 11 | wire contract |
+| tests/test_contract_gen.py | 3 | generated-schema + fixture parity |
+| tests/test_stage_guards.py | 5 | per-stage failure guards (HTTP) |
 
 ## 4. Pipeline flowchart
 

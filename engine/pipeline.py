@@ -1,6 +1,11 @@
 """S6: end-to-end analysis pipeline (lint -> anchor -> segment -> classify
 -> depth -> portion -> MC -> verdict).
 
+Every stage runs through engine.contract.stage(): fatal stages convert their
+exceptions into a Failure (log ERROR, cannot_verify — never a 500), the anchor
+stage degrades to the prior tier (log WARNING, continues). Every exit returns
+the 16-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+
 deps lets tests (and future alternate backends) override any stage:
   deps = {"segment": callable(image_bgr)->dict, "classify": ..., "depth": ...}
 Depth callables return {"depth_m": (H,W) meters, ...}; the pipeline calibrates
@@ -11,16 +16,18 @@ from pathlib import Path
 import numpy as np
 
 from engine.compliance import assess
+from engine.contract import (Analysis, Reason, ReasonKind, Stage,
+                             gate_reject, load_policy, log_analysis,
+                             reason_for_failure, register_fallback, stage)
 from engine.mc import sample_nutrients
 from engine.depth import MonocularDepth, calibrate_depth_scale
 from geo.pose import camera_matrix
-from models.portion_estimator import estimate_portion, load_params
-from models.scale_anchor import estimate_anchor, load_config as load_anchor_config
+from models.portion_estimator import estimate_portion
+from models.scale_anchor import (estimate_anchor, prior_anchor,
+                                 load_config as load_anchor_config)
 
 _MENU_PATH = Path(__file__).resolve().parents[1] / "data" / "menu.yaml"
 _MENU_CACHE = None
-
-_MIN_SIDE_PX = 1280  # protocol lint (note only; anchor tier handles marker size)
 
 _default_depth = None
 
@@ -41,23 +48,18 @@ def _get_depth_provider():
     return _default_depth
 
 
-def _base_result(verdict, reasons=None, **kw):
-    out = {
-        "verdict": verdict,
-        "reasons": reasons or [],
-        "lint": None, "anchor": None, "segmentation": None,
-        "classification": None, "dish": None, "portion": None,
-        "nutrition": None, "coverage": None, "assumptions": [],
-        "advisory": None, "model_versions": {}, "compliance": None,
-    }
-    out.update(kw)
-    return out
+def _make_prior_anchor():
+    return prior_anchor("anchor stage failed — prior tier",
+                        load_anchor_config())
+
+
+register_fallback("prior_anchor", _make_prior_anchor)
 
 
 def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             serving_style=None):
-    """Run the full pipeline on one capture. Always returns a result dict
-    with a top-level `verdict` (PASS | FAIL | BORDERLINE | cannot_verify |
+    """Run the full pipeline on one capture. Always returns the 16-key wire
+    dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | cannot_verify |
     out_of_scope)."""
     from models.dish_segmenter import segment_food
     from models.food_classifier import classify_dish
@@ -68,142 +70,217 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     depth_fn = deps.get("depth") or _get_depth_provider()
     exif = exif or {"focal_mm": None, "subject_distance_cm": None,
                     "digital_zoom": None, "camera": None}
-    menu = load_menu()
-    H, W = image_bgr.shape[:2]
+    timings: dict[str, float] = {}
+    policy = load_policy()
 
+    def finish(analysis: Analysis) -> dict:
+        log_analysis(str(analysis.verdict), day, band, timings)
+        return analysis.to_wire()
+
+    def fail(failure, **blocks) -> dict:
+        analysis = Analysis(verdict="cannot_verify",
+                            reasons=[reason_for_failure(failure)],
+                            failures=[failure], **blocks)
+        return finish(analysis)
+
+    # --- input stage: menu config ----------------------------------------
+    menu, failure = stage(Stage.INPUT, load_menu, timings=timings)
+    if failure:
+        return fail(failure)
+
+    H, W = image_bgr.shape[:2]
     lint = {
         "digital_zoom": exif.get("digital_zoom"),
         "focal_mm": exif.get("focal_mm"),
         "min_side_px": int(min(H, W)),
-        "resolution_ok": bool(min(H, W) >= _MIN_SIDE_PX),
+        "resolution_ok": bool(min(H, W) >= policy.lint_min_side_px),
         "notes": [],
     }
     if not lint["resolution_ok"]:
-        lint["notes"].append(f"min side {min(H, W)} < {_MIN_SIDE_PX}px "
+        lint["notes"].append(f"min side {min(H, W)} < {policy.lint_min_side_px}px "
                              "(marker tier may fall back to prior)")
 
-    # hard lint gate: digital zoom
-    if lint["digital_zoom"] is not None and float(lint["digital_zoom"]) != 1.0:
-        return _base_result(
-            "cannot_verify",
-            [f"digital zoom {lint['digital_zoom']} != 1.0 (protocol requires zoom==1)"],
-            lint=lint)
-
+    # --- input gates ------------------------------------------------------
+    zoom = lint["digital_zoom"]
+    if zoom is not None and float(zoom) != 1.0:
+        f, r = gate_reject(ReasonKind.ZOOM, Stage.INPUT,
+                           f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)")
+        return finish(Analysis(verdict="cannot_verify", reasons=[r],
+                               failures=[f], lint=lint))
     if day not in menu["days"]:
-        return _base_result("cannot_verify", [f"unknown day {day!r}"], lint=lint)
+        f, r = gate_reject(ReasonKind.UNKNOWN_DAY, Stage.INPUT,
+                           f"unknown day {day!r}")
+        return finish(Analysis(verdict="cannot_verify", reasons=[r],
+                               failures=[f], lint=lint))
     if band not in {"1-5", "6-8", "9-10"}:
-        return _base_result("cannot_verify", [f"unknown class band {band!r}"], lint=lint)
+        f, r = gate_reject(ReasonKind.UNKNOWN_BAND, Stage.INPUT,
+                           f"unknown class band {band!r}")
+        return finish(Analysis(verdict="cannot_verify", reasons=[r],
+                               failures=[f], lint=lint))
 
-    # S1 anchor
-    anchor = estimate_anchor(image_bgr, exif=exif)
+    # --- anchor stage (degrade to prior tier on failure) ------------------
+    anchor, failure = stage(Stage.ANCHOR, estimate_anchor, image_bgr,
+                            exif=exif, timings=timings)
+    if failure:
+        return fail(failure, lint=lint)
+    anchor_info = _anchor_summary(anchor)
 
-    cfg = load_anchor_config()
-    cam = cfg["camera"]
-    focal = exif.get("focal_mm") or cam["focal_length_fallback_mm"]
-    K = camera_matrix(focal, cam.get("sensor_width_mm", 6.17), W, H)
+    # --- input stage: camera intrinsics -----------------------------------
+    def _intrinsics():
+        cfg = load_anchor_config()
+        cam = cfg["camera"]
+        focal = exif.get("focal_mm") or cam["focal_length_fallback_mm"]
+        return camera_matrix(focal, cam.get("sensor_width_mm", 6.17), W, H)
 
-    # S2 segment + classify
-    try:
+    K, failure = stage(Stage.INPUT, _intrinsics, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info)
+
+    # --- segment stage ----------------------------------------------------
+    def _segment_step():
         seg = segment(image_bgr)
-    except Exception as e:
-        return _base_result("cannot_verify", [f"segmentation failed: {e}"],
-                            lint=lint, anchor=_anchor_summary(anchor))
-    mask = seg["mask"]
+        return seg, seg["mask"]  # missing key -> stage_failed/segment
 
-    cls = classify(image_bgr)
-    classification = {
-        "dish": cls.get("dish"), "confidence": cls.get("confidence"),
-        "method": cls.get("method"), "match_score": cls.get("match_score"),
-        "reason": cls.get("reason"),
-    }
-    if cls.get("dish") is None:
-        return _base_result(
-            "cannot_verify",
-            [f"dish unrecognized: {cls.get('reason')}"],
-            lint=lint, anchor=_anchor_summary(anchor),
-            segmentation=_seg_summary(seg), classification=classification)
+    seg_out, failure = stage(Stage.SEGMENT, _segment_step, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info)
+    seg, mask = seg_out
+    seg_info = _seg_summary(seg)
 
-    dish_key = cls["dish"]
-    dish = menu["dishes"][dish_key]
-    dish_info = {"id": dish_key, "display_name": dish.get("display_name"),
-                 "day": day, "band": band, "serving_style": serving_style,
-                 "on_day": (not dish.get("days")) or day in dish.get("days", []),
-                 "nutrition_source": dish.get("nutrition_source")}
+    # --- classify stage (classification + menu lookup) --------------------
+    def _classify_step():
+        cls = classify(image_bgr)
+        classification = {
+            "dish": cls.get("dish"), "confidence": cls.get("confidence"),
+            "method": cls.get("method"), "match_score": cls.get("match_score"),
+            "reason": cls.get("reason"),
+        }
+        if cls.get("dish") is None:
+            return classification, None, cls.get("reason")
+        dish_key = cls["dish"]
+        dish = menu["dishes"][dish_key]  # KeyError -> stage_failed/classify
+        dish_info = {"id": dish_key, "display_name": dish.get("display_name"),
+                     "day": day, "band": band, "serving_style": serving_style,
+                     "on_day": (not dish.get("days")) or day in dish.get("days", []),
+                     "nutrition_source": dish.get("nutrition_source")}
+        return classification, dish_info, None
+
+    cls_out, failure = stage(Stage.CLASSIFY, _classify_step, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info,
+                    segmentation=seg_info)
+    classification, dish_info, cls_reason = cls_out
+    if dish_info is None:
+        # open-set abstain is an outcome, not a hard failure
+        return finish(Analysis(
+            verdict="cannot_verify",
+            reasons=[Reason(ReasonKind.UNRECOGNIZED,
+                            f"dish unrecognized: {cls_reason}")],
+            lint=lint, anchor=anchor_info, segmentation=seg_info,
+            classification=classification))
+
+    dish = menu["dishes"][dish_info["id"]]
     if dish.get("status") == "out_of_scope" or dish.get("nutrition_source") == "out_of_scope":
-        return _base_result("out_of_scope",
-                            ["dish is out of scope (not portion-scored)"],
-                            lint=lint, anchor=_anchor_summary(anchor),
-                            segmentation=_seg_summary(seg),
-                            classification=classification, dish=dish_info)
+        f, r = gate_reject(ReasonKind.OUT_OF_SCOPE, Stage.CLASSIFY,
+                           "dish is out of scope (not portion-scored)")
+        return finish(Analysis(verdict="out_of_scope", reasons=[r],
+                               failures=[f], lint=lint, anchor=anchor_info,
+                               segmentation=seg_info,
+                               classification=classification, dish=dish_info))
 
-    # S3 depth + portion
-    try:
+    # --- depth stage (monocular depth + anchor calibration) ---------------
+    def _depth_step():
         depth_out = depth_fn(image_bgr)
         depth_m = np.asarray(depth_out["depth_m"], dtype=np.float64)
         scale_factor, scale_source = 1.0, "none"
         if anchor.get("label") == "measured":
-            depth_m, scale_factor, scale_source = calibrate_depth_scale(depth_m, anchor, K)
-        portion = estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
-    except Exception as e:
-        return _base_result("cannot_verify", [f"portion estimation failed: {e}"],
-                            lint=lint, anchor=_anchor_summary(anchor),
-                            segmentation=_seg_summary(seg),
-                            classification=classification, dish=dish_info)
+            depth_m, scale_factor, scale_source = calibrate_depth_scale(
+                depth_m, anchor, K)
+        return depth_out, depth_m, scale_factor, scale_source
 
-    # S4 MC
-    mc = sample_nutrients(portion, dish, band, n=n_mc, seed=seed)
+    depth_result, failure = stage(Stage.DEPTH, _depth_step, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info,
+                    segmentation=seg_info, classification=classification,
+                    dish=dish_info)
+    depth_out, depth_m, scale_factor, scale_source = depth_result
 
-    # S5 verdict
-    verdict = assess(mc, portion, dish, band, anchor.get("label", "prior"),
-                     lint=lint, day=day)
+    # --- portion stage ----------------------------------------------------
+    portion, failure = stage(Stage.PORTION, estimate_portion, image_bgr, mask,
+                             depth_m, anchor, {"K": K}, dish, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info,
+                    segmentation=seg_info, classification=classification,
+                    dish=dish_info)
+    portion_block = {
+        "grams": round(portion["grams"], 1),
+        "volume_ml": round(portion["volume_ml"], 1),
+        "density_eff": round(portion["density_eff"], 3),
+        "components_g": {k: round(v, 1) for k, v in portion["components_g"].items()},
+        "base_method": portion["base_method"],
+        "scale_tier": portion["scale_tier"],
+        "mean_h_mm": round(portion["mean_h_mm"], 2),
+        "area_cm2": round(portion["area_cm2"], 1),
+        "sigma_grams_rel": round(portion["sigma_grams_rel"], 4),
+        "sigma_rel": {k: round(v, 4) for k, v in portion["sigma_rel"].items()},
+        "flags": portion["flags"],
+    }
 
-    anchor_info = _anchor_summary(anchor)
+    # --- nutrition stage (Monte Carlo) ------------------------------------
+    mc, failure = stage(Stage.NUTRITION, sample_nutrients, portion, dish, band,
+                        n=n_mc, seed=seed, timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info,
+                    segmentation=seg_info, classification=classification,
+                    dish=dish_info, portion=portion_block)
+    nutrition_block = {
+        "kcal": mc["kcal"], "protein_g": mc["protein_g"],
+        "grams": mc["grams"],
+        "n": mc["n"], "seed": mc["seed"],
+        "diagnostics": mc["diagnostics"],
+        "assumed_nutrients": mc["assumed_nutrients"],
+        "wider_ranges": mc["wider_ranges"],
+    }
+
+    # --- compliance stage (verdict) ---------------------------------------
+    verdict, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,
+                             anchor.get("label", "prior"), lint=lint, day=day,
+                             timings=timings)
+    if failure:
+        return fail(failure, lint=lint, anchor=anchor_info,
+                    segmentation=seg_info, classification=classification,
+                    dish=dish_info, portion=portion_block,
+                    nutrition=nutrition_block)
+
     anchor_info["depth_scale_factor"] = round(float(scale_factor), 4)
     anchor_info["depth_scale_source"] = scale_source
 
-    return {
-        "verdict": verdict["verdict"],
-        "reasons": verdict["reasons"],
-        "lint": lint,
-        "anchor": anchor_info,
-        "segmentation": _seg_summary(seg),
-        "classification": classification,
-        "dish": dish_info,
-        "portion": {
-            "grams": round(portion["grams"], 1),
-            "volume_ml": round(portion["volume_ml"], 1),
-            "density_eff": round(portion["density_eff"], 3),
-            "components_g": {k: round(v, 1) for k, v in portion["components_g"].items()},
-            "base_method": portion["base_method"],
-            "scale_tier": portion["scale_tier"],
-            "mean_h_mm": round(portion["mean_h_mm"], 2),
-            "area_cm2": round(portion["area_cm2"], 1),
-            "sigma_grams_rel": round(portion["sigma_grams_rel"], 4),
-            "sigma_rel": {k: round(v, 4) for k, v in portion["sigma_rel"].items()},
-            "flags": portion["flags"],
-        },
-        "nutrition": {
-            "kcal": mc["kcal"], "protein_g": mc["protein_g"],
-            "grams": mc["grams"],
-            "n": mc["n"], "seed": mc["seed"],
-            "diagnostics": mc["diagnostics"],
-            "assumed_nutrients": mc["assumed_nutrients"],
-            "wider_ranges": mc["wider_ranges"],
-        },
-        "coverage": verdict.get("coverage"),
-        "assumptions": verdict.get("assumptions", []),
-        "advisory": verdict.get("advisory"),
-        "compliance": {
+    return finish(Analysis(
+        verdict=verdict["verdict"],
+        reasons=list(verdict["reasons"]),
+        lint=lint,
+        anchor=anchor_info,
+        segmentation=seg_info,
+        classification=classification,
+        dish=dish_info,
+        portion=portion_block,
+        nutrition=nutrition_block,
+        coverage=verdict.get("coverage"),
+        assumptions=verdict.get("assumptions", []),
+        advisory=verdict.get("advisory"),
+        compliance={
             "day": verdict.get("day", day),
             "band": verdict.get("band", band),
             "probs": verdict.get("probs", {}),
             "nutrients": verdict.get("nutrients", {}),
         },
-        "model_versions": _model_versions(depth_out),
-    }
+        model_versions=_model_versions(depth_out),
+    ))
 
 
 def _anchor_summary(anchor, depth_scale=None):
+    if not anchor:
+        return None
     out = {
         "method": anchor.get("method"), "tier": anchor.get("label"),
         "cm_per_px": anchor.get("cm_per_px"),

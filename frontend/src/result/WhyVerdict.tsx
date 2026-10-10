@@ -1,24 +1,42 @@
-import type { AnalyzeResult } from  "../types/api";
-import { Card } from  "../ui/primitives";
+import type { AnalyzeResult, Reason } from "../types/api";
+import { Card } from "../ui/primitives";
+import { toReasons } from "../utils/reasons";
 
-function iconFor(reason: string): "good" | "bad" | "info" {
-  const r = reason.toLowerCase();
+const KIND_ICON: Record<string, "good" | "bad" | "info"> = {
+  in_zone: "good",
+  below_min: "bad",
+  stage_failed: "bad",
+  unrecognized: "bad",
+  zoom: "bad",
+  unknown_day: "bad",
+  unknown_band: "bad",
+  unreadable: "info",
+  out_of_scope: "info",
+  coverage_gate: "info",
+};
+
+function iconFor(reason: Reason): "good" | "bad" | "info" {
+  const known = KIND_ICON[reason.kind];
+  if (known) return known;
+  if (reason.kind !== "legacy") return "info"; // open vocabulary: default glyph
+  // legacy v1 string reasons: keep the old prose heuristics
+  const t = reason.text.toLowerCase();
   if (
-    r.includes("fail zone") ||
-    r.includes("below minimum") ||
-    r.includes("<= 0.1") ||
-    r.includes("< 0.9") ||
-    r.includes("unrecognized") ||
-    r.includes("failed") ||
-    r.includes("unknown ")
+    t.includes("fail zone") ||
+    t.includes("below minimum") ||
+    t.includes("<= 0.1") ||
+    t.includes("< 0.9") ||
+    t.includes("unrecognized") ||
+    t.includes("failed") ||
+    t.includes("unknown ")
   )
     return "bad";
-  if (r.includes("all mandatory nutrients")) return "good";
+  if (t.includes("all mandatory nutrients")) return "good";
   return "info";
 }
 
 export default function WhyVerdict({ result }: { result: AnalyzeResult }) {
-  const reasons = result.reasons || [];
+  const reasons = toReasons(result.reasons);
   return (
     <Card title="Why this verdict?" sub="Straight from the backend's compliance engine.">
       {reasons.length === 0 ? (
@@ -27,14 +45,17 @@ export default function WhyVerdict({ result }: { result: AnalyzeResult }) {
         </p>
       ) : (
         <ul className="list-clean reason-list">
-          {reasons.map((r, i) => (
-            <li className="reason-item" key={i}>
-              <span className={`r-ico ${iconFor(r)}`} aria-hidden="true">
-                {iconFor(r) === "good" ? "✓" : iconFor(r) === "bad" ? "✕" : "i"}
-              </span>
-              <span>{r}</span>
-            </li>
-          ))}
+          {reasons.map((r, i) => {
+            const ico = iconFor(r);
+            return (
+              <li className="reason-item" key={i}>
+                <span className={`r-ico ${ico}`} aria-hidden="true">
+                  {ico === "good" ? "✓" : ico === "bad" ? "✕" : "i"}
+                </span>
+                <span>{r.text}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
 

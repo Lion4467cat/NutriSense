@@ -11,6 +11,8 @@ quality flags). The prior anchor tier can never PASS or FAIL (C caps out at
 """
 import numpy as np
 
+from engine.contract import (Failure, FailureKind, Reason, ReasonKind, Stage,
+                             gate_reject, reason_for_failure)
 from engine.mc import load_standards, sample_nutrients  # noqa: F401 (re-export convenience)
 from models.portion_estimator import load_params
 
@@ -43,22 +45,27 @@ def assess(mc, portion, dish, band, anchor_label, lint=None,
 
     # --- hard gates first -------------------------------------------------
     if dish.get("nutrition_source") == "out_of_scope" or dish.get("status") == "out_of_scope":
-        return {"verdict": "out_of_scope",
-                "reasons": ["dish is out of scope (not portion-scored)"],
+        f, r = gate_reject(ReasonKind.OUT_OF_SCOPE, Stage.CLASSIFY,
+                           "dish is out of scope (not portion-scored)")
+        return {"verdict": "out_of_scope", "reasons": [r], "failures": [f],
                 "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
     zoom = lint.get("digital_zoom")
     if zoom is not None and float(zoom) != 1.0:
-        return {"verdict": "cannot_verify",
-                "reasons": [f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)"],
+        f, r = gate_reject(ReasonKind.ZOOM, Stage.INPUT,
+                           f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)")
+        return {"verdict": "cannot_verify", "reasons": [r], "failures": [f],
                 "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
     bands = standards["bands"]
     if band not in bands:
-        return {"verdict": "cannot_verify",
-                "reasons": [f"unknown class band {band!r}"],
+        f, r = gate_reject(ReasonKind.UNKNOWN_BAND, Stage.INPUT,
+                           f"unknown class band {band!r}")
+        return {"verdict": "cannot_verify", "reasons": [r], "failures": [f],
                 "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
     if mc is None:
-        return {"verdict": "cannot_verify",
-                "reasons": ["no nutrient samples"],
+        f = Failure(FailureKind.STAGE_FAILED, Stage.NUTRITION,
+                    "no nutrient samples")
+        return {"verdict": "cannot_verify", "reasons": [reason_for_failure(f)],
+                "failures": [f],
                 "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
 
     rules = standards["compliance"]
@@ -88,24 +95,29 @@ def assess(mc, portion, dish, band, anchor_label, lint=None,
         all_pass &= p >= thr["pass_p"]
         any_fail |= p <= thr["fail_p"]
         if p < thr["pass_p"]:
-            reasons.append(f"{key}: P={p:.2f} < {thr['pass_p']} pass zone")
+            reasons.append(Reason(ReasonKind.BELOW_MIN,
+                                  f"{key}: P={p:.2f} < {thr['pass_p']} pass zone"))
         if p <= thr["fail_p"]:
-            reasons.append(f"{key}: P={p:.2f} <= {thr['fail_p']} fail zone")
+            reasons.append(Reason(ReasonKind.BELOW_MIN,
+                                  f"{key}: P={p:.2f} <= {thr['fail_p']} fail zone"))
 
     # --- coverage ---------------------------------------------------------
     cov_score, cov_factors = coverage(portion, anchor_label, params)
 
     if any_fail and cov_score >= cov_min["fail_min"]:
         verdict = "FAIL"
-        reasons.insert(0, "mandatory nutrient below minimum with sufficient coverage")
+        reasons.insert(0, Reason(ReasonKind.BELOW_MIN,
+                                 "mandatory nutrient below minimum with sufficient coverage"))
     elif all_pass and cov_score >= cov_min["pass_min"]:
         verdict = "PASS"
-        reasons = ["all mandatory nutrients in pass zone with sufficient coverage"]
+        reasons = [Reason(ReasonKind.IN_ZONE,
+                          "all mandatory nutrients in pass zone with sufficient coverage")]
     elif any_fail or all_pass:
         verdict = "BORDERLINE"
-        reasons.append(f"probability zone met but coverage {cov_score:.2f} < "
-                       f"{'fail' if any_fail else 'pass'} gate "
-                       f"{cov_min['fail_min' if any_fail else 'pass_min']}")
+        reasons.append(Reason(ReasonKind.COVERAGE_GATE,
+                              f"probability zone met but coverage {cov_score:.2f} < "
+                              f"{'fail' if any_fail else 'pass'} gate "
+                              f"{cov_min['fail_min' if any_fail else 'pass_min']}"))
     else:
         verdict = "BORDERLINE"
 
@@ -129,6 +141,7 @@ def assess(mc, portion, dish, band, anchor_label, lint=None,
     return {
         "verdict": verdict,
         "reasons": reasons,
+        "failures": [],
         "coverage": {"score": cov_score, "factors": cov_factors,
                      "pass_min": cov_min["pass_min"], "fail_min": cov_min["fail_min"]},
         "probs": {k: round(v, 4) for k, v in probs.items()},

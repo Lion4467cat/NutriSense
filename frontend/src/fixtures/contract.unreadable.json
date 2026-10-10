@@ -1,0 +1,39 @@
+{
+  "advisory": null,
+  "anchor": null,
+  "assumptions": [],
+  "classification": null,
+  "compliance": null,
+  "coverage": null,
+  "dish": null,
+  "failures": [
+    {
+      "error": "unreadable image",
+      "kind": "input_unreadable",
+      "stage": "input"
+    }
+  ],
+  "lint": null,
+  "model_versions": {},
+  "nutrition": null,
+  "policy": {
+    "anchor_prior_cap": 0.6,
+    "base_table_prior": 0.85,
+    "fail_min": 0.9,
+    "fail_p": 0.1,
+    "lint_min_side_px": 1280,
+    "pass_min": 0.85,
+    "pass_p": 0.9,
+    "policy_version": "c65df5efee0f",
+    "quality_degraded": 0.9
+  },
+  "portion": null,
+  "reasons": [
+    {
+      "kind": "unreadable",
+      "text": "unreadable image"
+    }
+  ],
+  "segmentation": null,
+  "verdict": "cannot_verify"
+}

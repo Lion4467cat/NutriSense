@@ -1,4 +1,5 @@
-import type { AnalyzeResult, NutrientRow } from  "../types/api";
+import type { AnalyzeResult, NutrientRow, Policy } from  "../types/api";
+import { FALLBACK_POLICY } from  "../types/api";
 import { Card } from  "../ui/primitives";
 import { formatNum, formatPct } from  "../utils/format";
 
@@ -13,18 +14,26 @@ function IntervalBar({
   unit,
   row,
   p,
+  policy,
 }: {
   name: string;
   unit: string;
   row: NutrientRow;
   p: number | undefined;
+  policy: Policy;
 }) {
   const [lo, hi] = row.interval_90;
   const domain = Math.max(hi, row.min) * 1.18 || 1;
   const pct = (v: number) => `${Math.min(100, Math.max(0, (v / domain) * 100))}%`;
   const fmt = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1));
   const pCls =
-    p == null ? "warn" : p >= 0.9 ? "good" : p <= 0.1 ? "bad" : "warn";
+    p == null
+      ? "warn"
+      : p >= policy.pass_p
+        ? "good"
+        : p <= policy.fail_p
+          ? "bad"
+          : "warn";
 
   return (
     <div className="nutrient">
@@ -87,6 +96,7 @@ function IntervalBar({
 
 export default function NutrientIntervals({ result }: { result: AnalyzeResult }) {
   const comp = result.compliance;
+  const policy = result.policy ?? FALLBACK_POLICY;
   if (!comp || !comp.nutrients || Object.keys(comp.nutrients).length === 0) {
     return (
       <Card title="Uncertainty intervals">
@@ -111,6 +121,7 @@ export default function NutrientIntervals({ result }: { result: AnalyzeResult })
           unit={UNITS[key] || ""}
           row={row}
           p={comp.probs?.[key]}
+          policy={policy}
         />
       ))}
       <p className="card-sub" style={{ marginTop: 12 }}>

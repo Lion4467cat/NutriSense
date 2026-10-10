@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import { FALLBACK_POLICY } from "../types/api";
 import { Card, EmptyState } from "../ui/primitives";
 import { IconBook } from "../ui/Icon";
 
@@ -38,6 +39,8 @@ export default function MenuPage() {
 
   const bands = Object.entries(menu.bands);
   const dishes = Object.entries(menu.dishes);
+  const policy = menu.policy ?? FALLBACK_POLICY;
+  const fmtP = (v: number) => v.toFixed(2);
   const days = Object.entries(menu.days);
 
   return (
@@ -75,9 +78,10 @@ export default function MenuPage() {
           ))}
         </div>
         <p className="card-sub" style={{ marginTop: 14 }}>
-          Verdict rules (backend-owned): PASS needs P ≥ 0.90 on every mandatory
-          nutrient with coverage ≥ 0.85 · FAIL needs P ≤ 0.10 with coverage ≥
-          0.90 · anything else is BORDERLINE.
+          Verdict rules (backend-owned): PASS needs P ≥ {fmtP(policy.pass_p)} on
+          every mandatory nutrient with coverage ≥ {fmtP(policy.pass_min)} · FAIL
+          needs P ≤ {fmtP(policy.fail_p)} with coverage ≥ {fmtP(policy.fail_min)} ·
+          anything else is BORDERLINE.
         </p>
       </Card>
 

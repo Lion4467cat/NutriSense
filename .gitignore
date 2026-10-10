@@ -9,6 +9,9 @@ frontend/dist/
 # Test caches
 .pytest_cache/
 
+# Backend logs (RotatingFileHandler)
+logs/
+
 # Secret keys - never upload this
 .env
 
