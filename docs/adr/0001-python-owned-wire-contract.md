@@ -67,3 +67,22 @@ claims the rules are from what the backend enforces.
   eviction fix (Stage 2), providers/stage-label wiring (Stage 3), the
   duplicated gate blocks stay duplicated by decision (candidate #1 of the
   2026-10-10 architecture review).
+
+## Amendment (2026-10-10, architecture-review candidate C4)
+
+The decision was extended from `/analyze` to the whole wire:
+
+1. **`GET /menu` and `GET /health` are generated and decoded too.**
+   `tools/gen_contract_ts.py` now also renders `menuSchema` (loose nested
+   objects — dish/day yaml stays open; top-level keys closed) and
+   `healthSchema`; `services/api.ts` decodes both, so menu drift fails as
+   an `ApiError` instead of a runtime `TypeError` in `Menu.tsx`.
+2. **The hand-typed mirror is gone.** `frontend/src/types/api.ts` no longer
+   restates block shapes — it re-exports `z.infer` aliases from
+   `contract.gen.ts`. Impossible fields stop compiling.
+3. **`Partial<>` is legacy-only.** Fresh responses are full `Analysis`;
+   the Partial wrapper survives solely for pre-contract stored records,
+   adapted at the storage boundary (`adaptV1Record`).
+4. **A third fixture** (`contract.menu.json`) is produced by pytest from the
+   live `/menu` endpoint, closing the same parity loop as the two Analysis
+   fixtures.

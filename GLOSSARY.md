@@ -33,13 +33,16 @@ How scale was measured: `measured` (reference card detected) or
 `anchor_prior_cap`, so it can never issue PASS/FAIL.
 
 **Policy**
-The thresholds an analysis was judged by — verdict P-zones (`pass_p`,
-`fail_p`), coverage gates (`pass_min`, `fail_min`), coverage factor values,
-and the capture lint limit (`lint_min_side_px`) — plus `policy_version`, a
-12-hex digest over the yaml source values. Served on every `/analyze`
-response and on `/menu`; records store it so old results can tell which rule
-set produced them. Records from before the contract carry
-`policy_version: "unknown"`.
+The whole rule set an analysis was judged by — verdict P-zones (`pass_p`,
+`fail_p`), coverage gates (`pass_min`, `fail_min`), the mandatory nutrient
+set, every band's minima and directions, coverage factor values, and the
+capture lint limit (`lint_min_side_px`) — plus `policy_version`, a 12-hex
+digest over all of those sources (a strict test flips each rule and demands
+the digest move). Served on every `/analyze` response and on `/menu`;
+records store it so old results can tell which rule set produced them.
+Records from before the contract carry no policy block and read as
+`unknown`; the UI only claims "judged under an earlier policy" when today's
+policy is loaded and ready.
 
 **Coverage**
 Multiplicative confidence score (product of degradation factors) gating

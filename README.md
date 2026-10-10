@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-97%20passed-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-104%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -104,7 +104,7 @@ flowchart TD
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; prior tier and wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
-- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB
+- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
 - **Themes** — 6 full themes (Light, Dark, Sepia, Midnight, OLED, System) × 6 accent palettes, light/dark aware
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
@@ -227,6 +227,7 @@ npm run dev
 
 ```bash
 .venv/bin/pytest -q
+cd frontend && npm test    # 43 vitest tests (wire parity, selectors, PolicyNote)
 ```
 
 ### Access the App
@@ -251,7 +252,7 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ### Example Response — `/analyze`
 
-Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `policy` carries the thresholds the UI renders.
+Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
 
 ```json
 {

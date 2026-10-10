@@ -1,7 +1,7 @@
 # NutriSense v5 — Final Build Report
 
 **Date:** 2026-10-08 (updated 2026-10-10)
-**Status:** S0–S6 complete — **104/104 tests green (isolated run)**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript).
+**Status:** S0–S6 complete — **104/104 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10.
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
@@ -15,16 +15,19 @@ Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance v
 |---|---|---|
 | `tests/test_geo.py` | 5 | coordinate transforms, back-projection |
 | `tests/test_card.py` | 4 | reference-card detection, corner ordering |
-| `tests/test_scale_anchor.py` | 6 | 2-tier anchor: card / prior |
+| `tests/test_scale_anchor.py` | 7 | 2-tier anchor: card / prior (+ Exif IFD tag reading) |
 | `tests/test_renderer.py` | 7 | synthetic dish renderer, handedness |
 | `tests/test_s2.py` | 5 | segmenter + gallery classifier |
 | `tests/test_portion.py` | 7 | S3 portion estimator (ring + prior tiers) |
 | `tests/test_mc.py` | 7 | S4 Monte Carlo engine, nutrient table |
-| `tests/test_compliance.py` | 9 | S5 verdicts, coverage, gate rules |
+| `tests/test_compliance.py` | 9 | S5 verdicts, coverage, gate rules (+ depth factor) |
 | `tests/test_api.py` | 7 | S6 pipeline + HTTP endpoints (E2E) |
-| `tests/test_pipeline_seams.py` | 12 | 8 pipeline seams (lint, failures, contracts) |
-| `tests/test_contract.py` | 11 | single 16-key result contract |
-| `tests/test_contract_gen.py` | 3 | generated TS schema + fixture parity |
+| `tests/test_config.py` | 4 | yaml loaders, ledger keys, frozen policy digest |
+| `tests/test_gates.py` | 5 | zoom/day/band/scope gates |
+| `tests/test_log_config.py` | 1 | pytest never writes the real app log |
+| `tests/test_pipeline_seams.py` | 15 | 11 pipeline seams (lint, failures, fov_x, coverage, contracts) |
+| `tests/test_contract.py` | 12 | 16-key result contract + whole-rule-set digest test |
+| `tests/test_contract_gen.py` | 4 | generated TS schema + 3 fixture parity (analyze ×2, menu) |
 | `tests/test_stage_guards.py` | 5 | per-stage failure guards (HTTP) |
 
 ## Phase delivery
@@ -64,8 +67,9 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 ### Depth — `engine/depth.py`
 - **MoGe-2** (`Ruicheng/moge-2-vitl`, MIT) chosen; DA3 rejected (requires numpy<2, python≤3.13, xformers/open3d/pycolmap).
 - Installed `--no-deps` + pinned `utils3d_moge` @62f09d5 (xet/HF cache gotchas noted in AGENTS.md).
-- Monocular metric scale is ~6.2× off out-of-domain → **`calibrate_depth_scale`** uses card marker corners with meters on both sides → **1.1% median error** (from 519% raw).
-- Prior tier has no card: depth scale uncalibrated, `depth_scale_sigma_pct` remains an **M6 gate**.
+- Monocular metric scale is ~6.2× off out-of-domain → **`calibrate_depth_scale`** uses card marker corners with meters on both sides → **1.1% median error** (from 519% raw). It returns `(depth, factor, source)` with source `card` or `none` — declined calibration is reported, never faked.
+- The pipeline computes the horizontal field of view from the intrinsic matrix and passes it to the depth model (`fov_x`, degrees; MoGe expects degrees) — seam-tested.
+- Prior tier has no card: depth scale uncalibrated, `depth_scale_sigma_pct` remains an **M6 gate**; a measured-but-uncalibrated scale multiplies coverage by `coverage_depth_uncalibrated` (0.80) so it cannot issue PASS.
 
 ### S4 — Monte Carlo engine (`engine/mc.py`, `engine/nutrients.py`)
 - Portion grams sampled lognormal from `sigma_grams_rel`; recipe-share noise renormalized across dishes.
@@ -76,7 +80,7 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 
 ### S5 — Compliance (`engine/compliance.py`)
 - **Verdict:** PASS if P≥0.9, FAIL if P≤0.1, else BORDERLINE.
-- **Coverage** `C` = product of ledger factors: `coverage_anchor_prior` 0.60 × `coverage_base_table_prior` 0.85 × `coverage_quality_degraded` 0.90.
+- **Coverage** `C` = product of ledger factors: `coverage_anchor_prior` 0.60 × `coverage_base_table_prior` 0.85 × `coverage_quality_degraded` 0.90 × `coverage_depth_uncalibrated` 0.80 (when a measured anchor declined depth calibration).
 - **Gates:** FAIL requires C≥0.90 (table-prior C=0.85 blocks FAIL, still allows PASS); PASS requires C≥0.85; prior tier caps C at 0.60 → never PASS/FAIL.
 - Zoom / band violations → `cannot_verify`; wheat products → `out_of_scope` (MDM scope rule).
 - Salt: advisory only, never affects verdict.
@@ -86,6 +90,24 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - Endpoints: `GET /health` → `{"status":"ok","phase":"built"}`, `GET /menu`, `POST /analyze` (multipart: file, day, band, serving_style).
 - Lint gates for digital zoom, day, band run before ML stages.
 - E2E test exercises the real anchor → SAM → MoGe depth → portion → MC chain over HTTP.
+
+## Post-build hardening (2026-10-10)
+
+Architecture review → 11 outright bugs fixed + 6 deepening candidates, one
+commit each (`7a9d8ea` … `79b1ea5`):
+
+| Fix | Plain words |
+|---|---|
+| Exif IFD + swapped tags (bug 8) | focal/distance zoom tags were read from the wrong IFD and their constants were swapped — now read correctly; zoom reports honestly |
+| Protein fallback (bug 4) | protein never double-counts via an energy-derived substitute |
+| Box-path area guard (bug 10) | absurd segmentation boxes are rejected before they OOM |
+| Vacuous ordering test (bug 9) | the test now asserts a real descending order |
+| `AssessResult` (bug 2 / C6) | failures can no longer be dropped between `assess()` and the wire |
+| Depth stage honesty (bugs 5–7 / C3) | `fov_x` reaches the depth model; calibration status feeds coverage; no fabricated `×1.0` in the UI |
+| Whole-rule-set digest (bug 1 / C1) | `policy_version` hashes every rule assess() reads; a strict mutation test enforces it |
+| Tri-state menu policy (bug 3 / C2) | the "earlier policy" note only speaks when today's policy is actually loaded |
+| Generated-only view types (C4) | `types/api.ts` is aliases of the generated Zod; `/menu` and `/health` are decoded |
+| Records selectors (C5) | one `tally()`/`attention()`/`byNewest()`; newest-first stated as the `RecordsState` invariant |
 
 ## Assumptions pending physical validation (M-gates)
 

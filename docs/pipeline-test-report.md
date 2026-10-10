@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-08
 **Method:** TDD skill (confirmed seams → vertical slices → red→green loop)
-**Suite:** `89 passed in ~88s` (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run)
+**Suite (historical S6 TDD run):** `89 passed in ~88s` — the current suite is **104 pytest + 43 vitest** (see README/AGENTS); counts below are the S6-time snapshot (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run)
 
 ## 1. Seam inventory (confirmed with user)
 
@@ -42,7 +42,7 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 - No internal mocking — all tests drive `analyze()` via its public `deps` seam and the HTTP API; only the classifier is stubbed (deterministic gallery abstain on synthetic renders, same pattern as existing E2E).
 - No tautologies — expected values are spec literals (response key set, flag vocabulary, plan verdict rules, metric GT depth), not recomputed the way the code computes them.
 
-**Response key-set spec (as of 2026-10-10):** exactly 16 keys — `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. `reasons` are `{kind, text}` objects (`ReasonKind`: zoom, unknown_day, unknown_band, out_of_scope, unrecognized, unreadable, stage_failed, in_zone, below_min, coverage_gate); `failures` is `[]` for graceful exits (gates carry their own entry, open-set abstain carries none); `policy` mirrors `data/standards.yaml` + `data/params_status.yaml` with a 12-hex `policy_version` digest. `tests/test_contract_gen.py` regenerates `frontend/src/types/contract.gen.ts` and diffs it; vitest validates both parity fixtures against the schema.
+**Response key-set spec (as of 2026-10-10):** exactly 16 keys — `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. `reasons` are `{kind, text}` objects (`ReasonKind`: zoom, unknown_day, unknown_band, out_of_scope, unrecognized, unreadable, stage_failed, in_zone, below_min, coverage_gate); `failures` is `[]` for graceful exits (gates carry their own entry, open-set abstain carries none); `policy` carries the whole rule set (`data/standards.yaml` thresholds/gates/mandatory set/band minima + `data/params_status.yaml` factors/lint) under a 12-hex `policy_version` digest, mutation-tested. `tests/test_contract_gen.py` regenerates `frontend/src/types/contract.gen.ts` (analysis + menu + health schemas) and diffs it; vitest validates all three parity fixtures (happy, unreadable, menu) against the schemas.
 - Vertical slices — each test was written, run, and settled before the next began.
 
 ## 3. Final suite
