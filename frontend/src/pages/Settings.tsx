@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMenu } from "../context/menu";
-import { ACCENTS, THEME_OPTS, usePrefs } from "../context/prefs";
+import { ACCENTS, THEME_OPTS } from "../hooks/useTheme";
+import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
 import { Card, StatusMark } from "../ui/primitives";
 import { apiBase } from "../services/api";
