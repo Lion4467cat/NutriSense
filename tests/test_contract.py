@@ -106,3 +106,65 @@ def test_policy_version_is_stable_digest():
     assert len(a.policy_version) == 12
     assert all(c in "0123456789abcdef" for c in a.policy_version)
     assert b.policy_version == a.policy_version
+
+
+
+def test_every_verdict_rule_change_moves_the_digest(monkeypatch):
+    """Strict rule-set test: mutate each rule assess() reads (thresholds,
+    gates, mandatory set, band minima/directions, factors, lint) and the
+    digest must move — a stored record can never keep the old policy_version.
+    Iterates the yaml itself, so a rule added later is covered automatically."""
+    import copy
+
+    base = load_policy().policy_version
+    std0 = copy.deepcopy(config.load_standards())
+    ledger0 = copy.deepcopy(config.load_params())
+    n = 0
+
+    def moved(label, std=None, ledger=None):
+        nonlocal n
+        n += 1
+        if std is not None:
+            monkeypatch.setitem(config._CACHE, "standards", std)
+        if ledger is not None:
+            monkeypatch.setitem(config._CACHE, "params", ledger)
+        got = load_policy().policy_version
+        assert got != base, f"digest ignores {label}"
+        return got
+
+    thr = std0["compliance"]["thresholds"]
+    for k in thr:
+        std = copy.deepcopy(std0)
+        std["compliance"]["thresholds"][k] = float(thr[k]) + 0.01
+        moved(f"thresholds.{k}", std=std)
+    cov = std0["compliance"]["coverage"]
+    for k in cov:
+        std = copy.deepcopy(std0)
+        std["compliance"]["coverage"][k] = float(cov[k]) + 0.01
+        moved(f"coverage.{k}", std=std)
+    std = copy.deepcopy(std0)
+    std["compliance"]["mandatory_nutrients"] = ["kcal"]
+    moved("mandatory_nutrients membership", std=std)
+    for band, bandrow in std0["bands"].items():
+        for key, row in bandrow.items():
+            if not (isinstance(row, dict) and "value" in row):
+                continue
+            std = copy.deepcopy(std0)
+            std["bands"][band][key]["value"] = row["value"] + 1
+            moved(f"bands.{band}.{key}.value", std=std)
+            std = copy.deepcopy(std0)
+            std["bands"][band][key]["direction"] = "max"
+            moved(f"bands.{band}.{key}.direction", std=std)
+    for key in ("coverage_anchor_prior", "coverage_base_table_prior",
+                "coverage_quality_degraded", "coverage_depth_uncalibrated",
+                "lint_min_side_px"):
+        ledger = copy.deepcopy(ledger0)
+        step = 64 if key == "lint_min_side_px" else 0.05
+        ledger[key]["value"] = float(ledger[key]["value"]) + step
+        moved(f"params.{key}", ledger=ledger)
+
+    # enough mutations actually ran (yaml has 2+2+1+6+4+1 = 16 rule moves)
+    assert n >= 16, f"only {n} rule mutations exercised"
+    monkeypatch.setitem(config._CACHE, "standards", std0)
+    monkeypatch.setitem(config._CACHE, "params", ledger0)
+    assert load_policy().policy_version == base  # restores cleanly

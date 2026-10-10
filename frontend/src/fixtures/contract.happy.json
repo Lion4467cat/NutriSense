@@ -155,7 +155,7 @@
     "lint_min_side_px": 1280,
     "pass_min": 0.85,
     "pass_p": 0.9,
-    "policy_version": "abf816ab83b0",
+    "policy_version": "8e75c97be3e0",
     "quality_degraded": 0.9
   },
   "portion": {

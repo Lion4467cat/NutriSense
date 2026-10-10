@@ -154,15 +154,53 @@ class Policy:
         return asdict(self)
 
 
+def policy_sources() -> list:
+    """Every rule that can move a plate verdict: thresholds + coverage gates
+    + the mandatory set + each band's minima, plus the coverage factors and
+    the capture lint limit. A list of (key, value) pairs — sorted before
+    hashing so the digest is stable."""
+    standards = config.load_standards()
+    ledger = config.load_params()
+    rules = standards["compliance"]
+    out: list = [
+        (("thresholds", k), float(v))
+        for k, v in sorted(rules["thresholds"].items())
+    ]
+    out += [(("coverage", k), float(v))
+            for k, v in sorted(rules["coverage"].items())]
+    out += [
+        (("mandatory_nutrients", i), n)
+        for i, n in enumerate(rules["mandatory_nutrients"])
+    ]
+    out += [
+        (("band", band, key), (float(row["value"]),
+                               str(row.get("direction", "min"))))
+        for band, bandrow in sorted(standards["bands"].items())
+        for key, row in sorted(bandrow.items())
+        if isinstance(row, dict) and "value" in row
+    ]
+    out += [
+        (("factor", name), float(ledger[key]["value"]))
+        for name, key in (
+            ("anchor_prior", "coverage_anchor_prior"),
+            ("base_table_prior", "coverage_base_table_prior"),
+            ("quality_degraded", "coverage_quality_degraded"),
+            ("depth_uncalibrated", "coverage_depth_uncalibrated"),
+        )
+    ]
+    out += [(("lint_min_side_px",), int(ledger["lint_min_side_px"]["value"]))]
+    return out
+
+
 def load_policy() -> Policy:
     """Thresholds + coverage factors + capture limits, read via config (the
-    single data/ owner). policy_version = sha256 of the source values
+    single data/ owner). policy_version = sha256 over the whole rule set
     (12 hex chars) so stored records can tell which rule set produced them."""
     standards = config.load_standards()
     ledger = config.load_params()
     thr = standards["compliance"]["thresholds"]
     cov = standards["compliance"]["coverage"]
-    sources = {
+    fields = {
         "pass_p": float(thr["pass_p"]),
         "fail_p": float(thr["fail_p"]),
         "pass_min": float(cov["pass_min"]),
@@ -174,8 +212,8 @@ def load_policy() -> Policy:
         "lint_min_side_px": int(ledger["lint_min_side_px"]["value"]),
     }
     digest = hashlib.sha256(
-        repr(sorted(sources.items())).encode()).hexdigest()[:12]
-    return Policy(**sources, policy_version=digest)
+        repr(sorted(policy_sources())).encode()).hexdigest()[:12]
+    return Policy(**fields, policy_version=digest)
 
 
 # --- stage guard ----------------------------------------------------------
