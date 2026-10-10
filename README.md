@@ -42,41 +42,49 @@ flowchart TD
         L1["zoom = 1.0"] --> L2["day valid"] --> L3["band valid"] --> L4["resolution note<br/>(< 1280px → note only)"]
     end
 
-    LINT -.->|"any gate fails"| CV["⛔ cannot_verify"]
+    LINT -.->|"any gate fails"| WIRE
     L4 --> A["2 · Scale anchor<br/>card 60mm → prior"]
 
     A --> SEG["3 · Segment<br/>SAM 2.1"]
-    SEG -.->|error| CV
+    SEG -.->|error| WIRE
     SEG --> CLS{"4 · Classify<br/>SigLIP2 gallery"}
 
-    CLS -->|"unrecognized"| CV
+    CLS -->|"unrecognized"| WIRE
     CLS -->|wheat| OOS["➖ out_of_scope"]
-    CLS -->|"dish found"| DEPTH["5 · Depth<br/>MoGe-2"]
+    CLS -->|"dish found"| DEPTH["5 · Depth<br/>MoGe-2 · fov_x from K"]
 
-    DEPTH -.->|error| CV
+    DEPTH -.->|error| WIRE
     DEPTH --> TIER{"tier?"}
-    TIER -->|measured| CAL["calibrate on marker<br/>≈ 1.1% error"]
-    TIER -->|prior| SKIP["no calibration<br/>scale ×1.0<br/>never PASS/FAIL"]
+    TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
+    TIER -->|prior| NOCAL["no scale reported<br/>× 0.60 coverage cap<br/>never PASS/FAIL"]
     CAL --> PORT["6 · Portion<br/>g = area × height × ρ"]
-    SKIP --> PORT
-    PORT -.->|error| CV
+    NOCAL --> PORT
+    PORT -.->|error| WIRE
     PORT --> MC["7 · Monte Carlo<br/>n = 4000 · seed fixed"]
 
-    MC --> VER{"8 · Compliance"}
+    MC --> VER{"8 · Compliance<br/>C = Π coverage factors"}
     VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
     VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
     VER -->|else| BORD["⚠ BORDERLINE"]
+
+    PASS ==> WIRE["16-key wire · to_wire()<br/>verdict (incl. cannot_verify) · reasons · failures"]
+    FAIL ==> WIRE
+    BORD ==> WIRE
+    OOS ==> WIRE
 
     classDef err fill:#3d1f23,stroke:#e05252,color:#ffd9d9
     classDef oos fill:#3a3325,stroke:#c9a227,color:#f5e9c8
     classDef ok fill:#14331c,stroke:#3fae62,color:#d4f5df
     classDef warn fill:#3d3319,stroke:#d9a13a,color:#fae9c4
-    class CV err
+    classDef wire fill:#1e2430,stroke:#5b6b85,color:#dfe7f5
     class OOS oos
     class PASS ok
     class FAIL err
     class BORD warn
+    class WIRE wire
 ```
+
+Every exit — gate, stage failure, or verdict — serializes through the same 16-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS.
 
 ### Pipeline components
 
@@ -86,10 +94,10 @@ flowchart TD
 | S1 Scale anchor | 2 tiers: card → prior (prior caps coverage at 0.60) | ArUco card detector |
 | S2 Segment | food mask from the plate photo | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
 | S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
-| S3 Depth | metric depth, scale-calibrated against the marker | MoGe-2 (`Ruicheng/moge-2-vitl`) |
+| S3 Depth | metric depth; `fov_x` (from intrinsics) passed to the model; scale calibrated on the marker, status reported `card`/`none` — never fabricated | MoGe-2 (`Ruicheng/moge-2-vitl`) |
 | S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
 | S4 Nutrition | lognormal sampling of every uncertainty source | Monte Carlo, n=4000, fixed seed (sole interval owner) |
-| S5 Compliance | P(at/above min) per mandatory nutrient × coverage gates | pure rules from `data/standards.yaml` |
+| S5 Compliance | P(at/above min) per mandatory nutrient × coverage factors (anchor-prior, table-prior, quality, depth-uncalibrated) | pure rules from `data/standards.yaml` |
 
 ---
 
