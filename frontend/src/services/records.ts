@@ -65,6 +65,41 @@ export function scored(records: AnalysisRecord[]): AnalysisRecord[] {
   return records.filter((r) => SCORED_VERDICTS.includes(r.summary.verdict));
 }
 
+export interface Tally {
+  pass: number;
+  warn: number;
+  fail: number;
+  /** PASS + BORDERLINE + FAIL — the scored denominator. */
+  scored: number;
+}
+
+/** One verdict tally (P/B/F); unscored verdicts count nowhere. */
+export function tally(records: AnalysisRecord[]): Tally {
+  let pass = 0;
+  let warn = 0;
+  let fail = 0;
+  for (const r of records) {
+    if (r.summary.verdict === "PASS") pass += 1;
+    else if (r.summary.verdict === "BORDERLINE") warn += 1;
+    else if (r.summary.verdict === "FAIL") fail += 1;
+  }
+  return { pass, warn, fail, scored: pass + warn + fail };
+}
+
+/** Verdicts a human should look at again. */
+export const ATTENTION_VERDICTS: Verdict[] = [
+  "FAIL",
+  "BORDERLINE",
+  "cannot_verify",
+];
+
+/** Attention list, newest first (consumers may slice for display). */
+export function attention(records: AnalysisRecord[]): AnalysisRecord[] {
+  return byNewest(
+    records.filter((r) => ATTENTION_VERDICTS.includes(r.summary.verdict))
+  );
+}
+
 /** Wire dish → label: display name, else classification id, else fallback. */
 export function dishLabel(
   result: Pick<AnalyzeResult, "dish" | "classification"> | null | undefined,

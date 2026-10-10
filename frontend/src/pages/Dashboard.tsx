@@ -11,7 +11,7 @@ import {
   IconHistory,
 } from "../ui/Icon";
 import { formatDate, formatNum, formatPct, localDateKey } from "../utils/format";
-import { SCORED_VERDICTS, scored, type AnalysisRecord } from "../services/records";
+import { SCORED_VERDICTS, tally, type AnalysisRecord } from "../services/records";
 
 function daysAgo(n: number): number {
   const d = new Date();
@@ -106,10 +106,7 @@ export default function DashboardPage() {
   const { prefs, setPrefs } = usePrefs();
   const navigate = useNavigate();
 
-  const sc = scored(records);
-  const pass = sc.filter((r) => r.summary.verdict === "PASS").length;
-  const warn = sc.filter((r) => r.summary.verdict === "BORDERLINE").length;
-  const fail = sc.filter((r) => r.summary.verdict === "FAIL").length;
+  const t = tally(records);
 
   const now = Date.now();
   const recent = records.filter((r) => Date.parse(r.createdAt) >= daysAgo(7)).length;
@@ -136,7 +133,7 @@ export default function DashboardPage() {
     setEditingName(false);
   };
 
-  const rate = (n: number) => (sc.length ? formatPct(n / sc.length, 0) : "—");
+  const rate = (n: number) => (t.scored ? formatPct(n / t.scored, 0) : "—");
 
   return (
     <div className="page">
@@ -226,22 +223,22 @@ export default function DashboardPage() {
             />
             <Kpi
               label="PASS rate"
-              value={rate(pass)}
-              foot={`${pass} of ${sc.length} scored`}
+              value={rate(t.pass)}
+              foot={`${t.pass} of ${t.scored} scored`}
               icon="✓"
               cls="pass"
             />
             <Kpi
               label="BORDERLINE rate"
-              value={rate(warn)}
-              foot={`${warn} of ${sc.length} scored`}
+              value={rate(t.warn)}
+              foot={`${t.warn} of ${t.scored} scored`}
               icon="!"
               cls="warn"
             />
             <Kpi
               label="FAIL rate"
-              value={rate(fail)}
-              foot={`${fail} of ${sc.length} scored`}
+              value={rate(t.fail)}
+              foot={`${t.fail} of ${t.scored} scored`}
               icon="✕"
               cls="fail"
             />

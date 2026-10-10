@@ -3,9 +3,11 @@ import {
   KEY,
   LEGACY_KEY,
   MAX_RECORDS,
+  attention,
   capRecords,
   loadRecords,
   saveRecords,
+  tally,
   type AnalysisRecord,
 } from "./records";
 import { createMemoryStorage, type Storage } from "./storage";
@@ -14,10 +16,10 @@ import type { AnalyzeResult } from "../types/api";
 function makeRecord(
   id: string,
   createdAt: string,
-  opts: { photo?: string | null; reasons?: unknown } = {}
+  opts: { photo?: string | null; reasons?: unknown; verdict?: string } = {}
 ): AnalysisRecord {
   const result = {
-    verdict: "BORDERLINE",
+    verdict: opts.verdict ?? "BORDERLINE",
     reasons: opts.reasons ?? [{ kind: "coverage_gate", text: "coverage below gate" }],
     policy: { policy_version: "v-current" },
   } as unknown as AnalyzeResult;
@@ -30,7 +32,7 @@ function makeRecord(
     student: null,
     photo: opts.photo ?? null,
     summary: {
-      verdict: "BORDERLINE",
+      verdict: (opts.verdict ?? "BORDERLINE") as AnalysisRecord["summary"]["verdict"],
       dish: "Rice & Sambar",
       grams: 300,
       kcal: 400,
@@ -209,5 +211,38 @@ describe("eviction", () => {
     for (let i = 30; i < 40; i++) {
       expect(stored[i].photo).toBeNull();
     }
+  });
+});
+
+describe("selectors", () => {
+  it("tally counts P/B/F and ignores unscored verdicts", () => {
+    const recs = [
+      makeRecord("a", iso(4), { verdict: "PASS" }),
+      makeRecord("b", iso(3), { verdict: "PASS" }),
+      makeRecord("c", iso(2), { verdict: "BORDERLINE" }),
+      makeRecord("d", iso(1), { verdict: "FAIL" }),
+      makeRecord("e", iso(0), { verdict: "cannot_verify" }),
+    ];
+    expect(tally(recs)).toEqual({
+      pass: 2,
+      warn: 1,
+      fail: 1,
+      scored: 4,
+    });
+  });
+
+  it("attention selects FAIL/BORDERLINE/cannot_verify, newest first", () => {
+    const recs = [
+      makeRecord("old-fail", iso(1), { verdict: "FAIL" }),
+      makeRecord("pass", iso(2), { verdict: "PASS" }),
+      makeRecord("new-cv", iso(5), { verdict: "cannot_verify" }),
+      makeRecord("mid-bl", iso(3), { verdict: "BORDERLINE" }),
+      makeRecord("oos", iso(4), { verdict: "out_of_scope" }),
+    ];
+    expect(attention(recs).map((r) => r.id)).toEqual([
+      "new-cv",
+      "mid-bl",
+      "old-fail",
+    ]);
   });
 });

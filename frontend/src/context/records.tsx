@@ -15,6 +15,9 @@ import {
 import type { Storage } from "../services/storage";
 
 interface RecordsState {
+  /** Newest-first (createdAt desc): THE ordering invariant. add/remove/clear
+   * preserve it (capRecords re-sorts); selectors in services/records.ts
+   * (byNewest/tally/attention) assume it — views must not re-sort for date. */
   records: AnalysisRecord[];
   addRecord: (r: AnalysisRecord) => void;
   removeRecord: (id: string) => void;

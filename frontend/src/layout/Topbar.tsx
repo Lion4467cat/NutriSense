@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
+import { attention as selectAttention } from "../services/records";
 import { VerdictPill } from  "../result/VerdictPill";
 import { formatDate } from  "../utils/format";
 import {
@@ -52,13 +53,7 @@ export default function Topbar({
   const alertsRef = useRef<HTMLDivElement>(null);
 
   const attention = useMemo(
-    () =>
-      [...records]
-        .filter((r) =>
-          ["FAIL", "BORDERLINE", "cannot_verify"].includes(r.summary.verdict)
-        )
-        .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-        .slice(0, 6),
+    () => selectAttention(records).slice(0, 6),
     [records]
   );
 

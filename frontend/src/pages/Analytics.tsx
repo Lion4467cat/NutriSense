@@ -4,7 +4,7 @@ import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { IconChart } from "../ui/Icon";
 import { formatNum, formatPct } from "../utils/format";
-import { scored } from "../services/records";
+import { scored, tally } from "../services/records";
 
 function Donut({ parts }: { parts: { label: string; value: number; color: string }[] }) {
   const total = parts.reduce((s, p) => s + p.value, 0) || 1;
@@ -61,9 +61,8 @@ export default function AnalyticsPage() {
 
   const stats = useMemo(() => {
     const sc = scored(records);
-    const pass = sc.filter((r) => r.summary.verdict === "PASS").length;
-    const warn = sc.filter((r) => r.summary.verdict === "BORDERLINE").length;
-    const fail = sc.filter((r) => r.summary.verdict === "FAIL").length;
+    const t = tally(records);
+    const { pass, warn, fail } = t;
     const withG = sc.filter((r) => r.summary.grams != null);
     const withK = sc.filter((r) => r.summary.kcal != null);
     const withP = sc.filter((r) => r.summary.protein != null);
@@ -87,11 +86,11 @@ export default function AnalyticsPage() {
 
     return {
       total: records.length,
-      scored: sc.length,
+      scored: t.scored,
       pass,
       warn,
       fail,
-      complianceRate: sc.length ? pass / sc.length : null,
+      complianceRate: t.scored ? t.pass / t.scored : null,
       avgPortion: avg(withG.map((r) => r.summary.grams)),
       avgKcal: avg(withK.map((r) => r.summary.kcal)),
       avgProtein: avg(withP.map((r) => r.summary.protein)),

@@ -6,7 +6,6 @@ import { VerdictPill } from "../result/VerdictPill";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
-import { byNewest } from "../services/records";
 
 type SortKey = "date" | "dish" | "verdict" | "coverage";
 
@@ -36,9 +35,8 @@ export default function HistoryPage() {
       );
     }
     if (verdict) out = out.filter((r) => r.summary.verdict === verdict);
-    if (sort === "date") {
-      out = byNewest(out);
-    } else {
+    // date sort: records are newest-first by the RecordsState invariant
+    if (sort !== "date") {
       out = [...out].sort((a, b) => {
         if (sort === "dish")
           return (a.summary.dish || "").localeCompare(b.summary.dish || "");

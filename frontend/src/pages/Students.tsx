@@ -5,7 +5,12 @@ import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
 import { IconArrowLeft, IconUsers } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
-import { scored as scoredRecords, type AnalysisRecord } from "../services/records";
+import {
+  byNewest,
+  scored as scoredRecords,
+  tally,
+  type AnalysisRecord,
+} from "../services/records";
 
 interface Group {
   name: string;
@@ -40,9 +45,7 @@ function useGroups(): Group[] {
     }
     return [...map.entries()]
       .map(([name, list]) => {
-        const sorted = [...list].sort(
-          (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
-        );
+        const sorted = byNewest(list);
         return {
           name,
           records: sorted,
@@ -79,8 +82,7 @@ function StudentList() {
   return (
     <div className="student-grid">
       {groups.map((g) => {
-        const scored = scoredRecords(g.records);
-        const pass = scored.filter((r) => r.summary.verdict === "PASS").length;
+        const t = tally(g.records);
         const last6 = g.records.slice(0, 6).reverse();
         return (
           <button
@@ -101,17 +103,17 @@ function StudentList() {
               </div>
               <span
                 className={`pill ${
-                  !scored.length
+                  !t.scored
                     ? "neutral"
-                    : pass === scored.length
+                    : t.pass === t.scored
                       ? "pass"
-                      : pass / scored.length >= 0.5
+                      : t.pass / t.scored >= 0.5
                         ? "warn"
                         : "fail"
                 }`}
                 style={{ marginLeft: "auto" }}
               >
-                {scored.length ? formatPct(pass / scored.length, 0) : "—"}
+                {t.scored ? formatPct(t.pass / t.scored, 0) : "—"}
               </span>
             </div>
             <div className="streak" aria-label="Recent verdicts">
@@ -161,7 +163,7 @@ function StudentDetail({ name }: { name: string }) {
   }
 
   const scored = scoredRecords(group.records);
-  const pass = scored.filter((r) => r.summary.verdict === "PASS").length;
+  const t = tally(group.records);
   const avgKcal = scored.filter((r) => r.summary.kcal != null);
   const meanKcal =
     avgKcal.length > 0
@@ -184,7 +186,7 @@ function StudentDetail({ name }: { name: string }) {
             Classes {group.bands.join(", ")} ·{" "}
             {group.records.length} meal
             {group.records.length === 1 ? "" : "s"} ·{" "}
-            {scored.length ? `${pass}/${scored.length} PASS` : "no scored meals"}
+            {t.scored ? `${t.pass}/${t.scored} PASS` : "no scored meals"}
           </p>
         </div>
         <Link className="btn btn-secondary" to="/analyze">
@@ -211,7 +213,7 @@ function StudentDetail({ name }: { name: string }) {
             </span>
           </div>
           <div className="kpi-value">
-            {scored.length ? formatPct(pass / scored.length, 0) : "—"}
+            {t.scored ? formatPct(t.pass / t.scored, 0) : "—"}
           </div>
           <div className="kpi-foot">over scored meals</div>
         </article>
