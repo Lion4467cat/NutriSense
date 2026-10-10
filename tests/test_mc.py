@@ -1,12 +1,12 @@
 """S4: MC nutrient engine."""
 import numpy as np
 import pytest
-import yaml
 
+from config import load_menu
 from engine.mc import sample_nutrients, load_standards, load_yields
 from engine.nutrients import load_nutrients
 
-DISHES = yaml.safe_load(open("data/menu.yaml"))["dishes"]
+DISHES = load_menu()["dishes"]
 NUTRIENTS = load_nutrients()
 
 

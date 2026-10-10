@@ -1,13 +1,13 @@
 """S3: portion estimation against synthetic ground truth."""
 import numpy as np
 import pytest
-import yaml
 
+from config import load_menu
 from models.portion_estimator import estimate_portion
 from models.scale_anchor import estimate_anchor
 from tests.synth.scene import default_scene, render_scene
 
-DISH = yaml.safe_load(open("data/menu.yaml"))["dishes"]["rice_sambar"]
+DISH = load_menu()["dishes"]["rice_sambar"]
 
 
 def _vol_gt(scene):

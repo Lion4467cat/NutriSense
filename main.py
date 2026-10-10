@@ -7,12 +7,12 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-import yaml
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import load_menu, load_standards
 from engine.contract import load_policy, log_analysis, unreadable_analysis
-from engine.pipeline import analyze, load_menu
+from engine.pipeline import analyze
 from models.scale_anchor import read_exif
 
 app = FastAPI(title="NutriSense API", version="5.0")
@@ -91,8 +91,7 @@ def health():
 @app.get("/menu")
 def menu():
     m = load_menu()
-    with open(Path(__file__).parent / "data" / "standards.yaml") as f:
-        standards = yaml.safe_load(f)
+    standards = load_standards()
     return {
         "dishes": m["dishes"],
         "days": m["days"],

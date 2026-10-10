@@ -2,8 +2,8 @@
 import json
 
 import pytest
-import yaml
 
+import config
 from engine.contract import (Analysis, Failure, FailureKind, Reason,
                              ReasonKind, STAGE_POLICY, Stage, WIRE_KEYS,
                              gate_reject, load_policy, reason_for_failure,
@@ -90,10 +90,8 @@ def test_wire_json_serialisable():
 
 def test_policy_matches_yaml_sources():
     p = load_policy()
-    with open("data/standards.yaml") as f:
-        standards = yaml.safe_load(f)
-    with open("data/params_status.yaml") as f:
-        ledger = yaml.safe_load(f)["params"]
+    standards = config.load_standards()
+    ledger = config.load_params()
     assert p.pass_p == standards["compliance"]["thresholds"]["pass_p"]
     assert p.fail_p == standards["compliance"]["thresholds"]["fail_p"]
     assert p.pass_min == standards["compliance"]["coverage"]["pass_min"]
@@ -104,7 +102,6 @@ def test_policy_matches_yaml_sources():
 
 def test_policy_version_is_stable_digest():
     a, b = load_policy(), load_policy()
-    assert a is b  # cached
     assert len(a.policy_version) == 12
     assert all(c in "0123456789abcdef" for c in a.policy_version)
     assert b.policy_version == a.policy_version

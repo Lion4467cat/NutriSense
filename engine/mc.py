@@ -13,30 +13,9 @@ only — never verdict input (standards.yaml: raw_gram_rows: informational).
 Interval width is tuned by params temperature_scale (M6 calibration hook).
 """
 import numpy as np
-import yaml
-from pathlib import Path
 
+from config import load_params, load_standards, load_yields
 from engine.nutrients import assumed_nutrient_ids, nutrient_value, load_nutrients
-from models.portion_estimator import load_params
-
-_STANDARDS_PATH = Path(__file__).resolve().parents[1] / "data" / "standards.yaml"
-_YIELDS_PATH = Path(__file__).resolve().parents[1] / "data" / "conversions.yaml"
-_CACHE = {}
-
-
-def _load(path, key):
-    if key not in _CACHE:
-        with open(path) as f:
-            _CACHE[key] = yaml.safe_load(f)
-    return _CACHE[key]
-
-
-def load_standards():
-    return _load(_STANDARDS_PATH, "standards")
-
-
-def load_yields():
-    return _load(_YIELDS_PATH, "yields")["yields"]
 
 
 def _lognormal_mean1(rng, sigma_rel, n):

@@ -18,30 +18,13 @@ Base plane:
 Returns point estimates plus `sigma_rel` (named relative sigmas) — ALL
 intervals are owned by the MC engine (S4), never drawn here.
 """
-from pathlib import Path
-
 import cv2
 import numpy as np
-import yaml
 
+from config import load_params
 from geo.plane import fit_plane, plane_residuals
 
-_PARAMS_PATH = Path(__file__).resolve().parents[1] / "data" / "params_status.yaml"
-_PARAMS_CACHE = None
-
 _Z = 1.645  # 90% two-sided
-
-
-def load_params(path=None):
-    global _PARAMS_CACHE
-    if path is None and _PARAMS_CACHE is not None:
-        return _PARAMS_CACHE["params"]
-    with open(path or _PARAMS_PATH) as f:
-        data = yaml.safe_load(f)
-    params = data["params"]
-    if path is None:
-        _PARAMS_CACHE = {"params": params}
-    return params
 
 
 def _p(params, key, field="value"):

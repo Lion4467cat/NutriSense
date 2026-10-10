@@ -1,22 +1,6 @@
-"""Nutrient table access (S4). Values from data/nutrients.yaml only."""
-from pathlib import Path
-
-import yaml
-
-_NUTRIENTS_PATH = Path(__file__).resolve().parents[1] / "data" / "nutrients.yaml"
-_CACHE = None
-
-
-def load_nutrients(path=None):
-    global _CACHE
-    if path is None and _CACHE is not None:
-        return _CACHE
-    with open(path or _NUTRIENTS_PATH) as f:
-        data = yaml.safe_load(f)
-    foods = data["foods"]
-    if path is None:
-        _CACHE = foods
-    return foods
+"""Nutrient table access (S4). Values from data/nutrients.yaml only —
+read and cached by config; this module owns the lookup semantics."""
+from config import load_nutrients
 
 
 def nutrient_value(generic_id, nutrients=None):

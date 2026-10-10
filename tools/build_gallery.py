@@ -14,6 +14,7 @@ import os
 import cv2
 import numpy as np
 
+from config import GALLERY_PATH
 from models.food_classifier import (MODEL_ID, build_gallery, load_gallery,
                                     menu_aliases, menu_dish_keys, save_gallery)
 
@@ -43,7 +44,7 @@ def scan_source(source):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default="../DATASET")
-    ap.add_argument("--out", default="data/gallery.npz")
+    ap.add_argument("--out", default=str(GALLERY_PATH))
     ap.add_argument("--dedupe", type=float, default=DUP_SIM)
     args = ap.parse_args()
 

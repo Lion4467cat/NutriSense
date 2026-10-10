@@ -21,8 +21,10 @@ import os
 import cv2
 import numpy as np
 
+from config import (GALLERY_PATH, load_gallery as _load_gallery, load_menu,
+                    load_params, reset_caches)
+
 MODEL_ID = "google/siglip2-base-patch16-224"
-DEFAULT_GALLERY = "data/gallery.npz"
 TOP_K = 3
 
 _STATE = {}
@@ -31,10 +33,7 @@ _STATE = {}
 # --- menu helpers (dish truth lives in data/menu.yaml only) -----------------
 
 def _menu():
-    import yaml
-    path = os.path.join(os.path.dirname(__file__), "..", "data", "menu.yaml")
-    with open(path) as f:
-        return yaml.safe_load(f)["dishes"]
+    return load_menu()["dishes"]
 
 
 def menu_dish_keys():
@@ -55,11 +54,7 @@ def _text_prompt(key):
 
 
 def gallery_match_threshold():
-    import yaml
-    path = os.path.join(os.path.dirname(__file__), "..", "data", "params_status.yaml")
-    with open(path) as f:
-        params = yaml.safe_load(f)["params"]
-    return float(params["gallery_match_threshold"]["value"])
+    return float(load_params()["gallery_match_threshold"]["value"])
 
 
 # --- model ------------------------------------------------------------------
@@ -132,14 +127,14 @@ def build_gallery(entries):
     }
 
 
-def save_gallery(gallery, path=DEFAULT_GALLERY):
+def save_gallery(gallery, path=GALLERY_PATH):
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     np.savez_compressed(path, **gallery)
+    reset_caches()  # in-process readers must see the file just written
 
 
-def load_gallery(path=DEFAULT_GALLERY):
-    with np.load(path, allow_pickle=False) as z:
-        gallery = {k: z[k] for k in z.files}
+def load_gallery(path=None):
+    gallery = _load_gallery(path)
     if str(gallery["model"]) != MODEL_ID:
         raise ValueError(f"gallery built with {gallery['model']}, expected {MODEL_ID}")
     return gallery
@@ -196,8 +191,8 @@ def classify_dish(image_bgr, gallery=None, threshold=None):
       uncovered  dishes with no gallery entries (gallery only)
       reason     human-readable explanation
     """
-    if gallery is None and os.path.exists(DEFAULT_GALLERY):
-        gallery = load_gallery(DEFAULT_GALLERY)
+    if gallery is None and os.path.exists(GALLERY_PATH):
+        gallery = load_gallery()
 
     if gallery is None or len(gallery["labels"]) == 0:
         scores = _text_scores(image_bgr)

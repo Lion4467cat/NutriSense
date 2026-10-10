@@ -1,12 +1,12 @@
 """S5: compliance verdict rules."""
 import numpy as np
 import pytest
-import yaml
 
+from config import load_menu
 from engine.compliance import assess, coverage
 from engine.contract import FailureKind, ReasonKind
 
-DISHES = yaml.safe_load(open("data/menu.yaml"))["dishes"]
+DISHES = load_menu()["dishes"]
 
 
 def _mc(kcal_arr, prot_arr):

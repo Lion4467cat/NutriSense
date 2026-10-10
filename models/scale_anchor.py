@@ -10,26 +10,19 @@ Return schema (estimate_anchor):
   method, label, cm_per_px, interval (lo, hi | None), H (3x3 | None),
   tilt_deg, plane_height_interval_mm, exif_distance_cm, reason, extras
 """
-import json
 from pathlib import Path
 
 import cv2
 import numpy as np
 from PIL import Image
 
+from config import load_anchor_config as load_config
 from geo import camera_matrix, mean_side_px, pose_from_marker
-
-_CONFIG_PATH = Path(__file__).resolve().parents[1] / "data" / "anchor_config.json"
 
 _REL_Z = 1.645          # one-sided 90% normal quantile
 _EXIF_FOCAL = 37386     # FocalLength
 _EXIF_SUBJ_DIST = 41486 # SubjectDistance
 _EXIF_DIGI_ZOOM = 41540 # DigitalZoomRatio
-
-
-def load_config(path=None):
-    with open(path or _CONFIG_PATH) as f:
-        return json.load(f)
 
 
 def read_exif(path):

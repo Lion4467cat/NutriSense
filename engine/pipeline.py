@@ -11,10 +11,9 @@ deps lets tests (and future alternate backends) override any stage:
 Depth callables return {"depth_m": (H,W) meters, ...}; the pipeline calibrates
 monocular scale against a measured anchor automatically.
 """
-from pathlib import Path
-
 import numpy as np
 
+from config import load_anchor_config, load_menu
 from engine.compliance import assess
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
                              load_policy, log_analysis,
@@ -24,22 +23,9 @@ from engine.mc import sample_nutrients
 from engine.depth import MonocularDepth, calibrate_depth_scale
 from geo.pose import camera_matrix
 from models.portion_estimator import estimate_portion
-from models.scale_anchor import (estimate_anchor, prior_anchor,
-                                 load_config as load_anchor_config)
-
-_MENU_PATH = Path(__file__).resolve().parents[1] / "data" / "menu.yaml"
-_MENU_CACHE = None
+from models.scale_anchor import estimate_anchor, prior_anchor
 
 _default_depth = None
-
-
-def load_menu():
-    global _MENU_CACHE
-    if _MENU_CACHE is None:
-        import yaml
-        with open(_MENU_PATH) as f:
-            _MENU_CACHE = yaml.safe_load(f)
-    return _MENU_CACHE
 
 
 def _get_depth_provider():

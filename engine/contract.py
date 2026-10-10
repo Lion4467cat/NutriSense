@@ -28,10 +28,9 @@ import re
 import time
 from dataclasses import dataclass, field, asdict
 from enum import StrEnum
-from pathlib import Path
 from typing import Literal
 
-_DATA = Path(__file__).resolve().parents[1] / "data"
+import config
 
 log = logging.getLogger("nutrisense")
 
@@ -154,36 +153,27 @@ class Policy:
         return asdict(self)
 
 
-_POLICY_CACHE: Policy | None = None
-
-
 def load_policy() -> Policy:
-    """Thresholds + coverage factors + capture limits, read from the yaml
-    sources. policy_version = sha256 of the source values (12 hex chars) so
-    stored records can tell which rule set produced them."""
-    global _POLICY_CACHE
-    if _POLICY_CACHE is None:
-        import yaml
-        with open(_DATA / "standards.yaml") as f:
-            standards = yaml.safe_load(f)
-        with open(_DATA / "params_status.yaml") as f:
-            ledger = yaml.safe_load(f)["params"]
-        thr = standards["compliance"]["thresholds"]
-        cov = standards["compliance"]["coverage"]
-        sources = {
-            "pass_p": float(thr["pass_p"]),
-            "fail_p": float(thr["fail_p"]),
-            "pass_min": float(cov["pass_min"]),
-            "fail_min": float(cov["fail_min"]),
-            "anchor_prior_cap": float(ledger["coverage_anchor_prior"]["value"]),
-            "base_table_prior": float(ledger["coverage_base_table_prior"]["value"]),
-            "quality_degraded": float(ledger["coverage_quality_degraded"]["value"]),
-            "lint_min_side_px": int(ledger["lint_min_side_px"]["value"]),
-        }
-        digest = hashlib.sha256(
-            repr(sorted(sources.items())).encode()).hexdigest()[:12]
-        _POLICY_CACHE = Policy(**sources, policy_version=digest)
-    return _POLICY_CACHE
+    """Thresholds + coverage factors + capture limits, read via config (the
+    single data/ owner). policy_version = sha256 of the source values
+    (12 hex chars) so stored records can tell which rule set produced them."""
+    standards = config.load_standards()
+    ledger = config.load_params()
+    thr = standards["compliance"]["thresholds"]
+    cov = standards["compliance"]["coverage"]
+    sources = {
+        "pass_p": float(thr["pass_p"]),
+        "fail_p": float(thr["fail_p"]),
+        "pass_min": float(cov["pass_min"]),
+        "fail_min": float(cov["fail_min"]),
+        "anchor_prior_cap": float(ledger["coverage_anchor_prior"]["value"]),
+        "base_table_prior": float(ledger["coverage_base_table_prior"]["value"]),
+        "quality_degraded": float(ledger["coverage_quality_degraded"]["value"]),
+        "lint_min_side_px": int(ledger["lint_min_side_px"]["value"]),
+    }
+    digest = hashlib.sha256(
+        repr(sorted(sources.items())).encode()).hexdigest()[:12]
+    return Policy(**sources, policy_version=digest)
 
 
 # --- stage guard ----------------------------------------------------------

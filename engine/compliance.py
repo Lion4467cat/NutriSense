@@ -11,10 +11,9 @@ quality flags). The prior anchor tier can never PASS or FAIL (C caps out at
 """
 import numpy as np
 
+from config import load_params, load_standards
 from engine.contract import (Failure, FailureKind, Reason, ReasonKind, Stage,
                              reason_for_failure)
-from engine.mc import load_standards, sample_nutrients  # noqa: F401 (re-export convenience)
-from models.portion_estimator import load_params
 
 
 def coverage(portion, anchor_label, params=None):
