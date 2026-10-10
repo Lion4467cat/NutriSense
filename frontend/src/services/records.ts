@@ -50,10 +50,27 @@ function createdAtMs(r: AnalysisRecord): number {
 }
 
 /** Newest first; records with unparseable dates sort as oldest. */
+export function byNewest(records: AnalysisRecord[]): AnalysisRecord[] {
+  return [...records].sort((a, b) => createdAtMs(b) - createdAtMs(a));
+}
+
 export function capRecords(records: AnalysisRecord[]): AnalysisRecord[] {
-  return [...records]
-    .sort((a, b) => createdAtMs(b) - createdAtMs(a))
-    .slice(0, MAX_RECORDS);
+  return byNewest(records).slice(0, MAX_RECORDS);
+}
+
+/** Verdicts that carry a compliance score (excludes cannot_verify / out_of_scope). */
+export const SCORED_VERDICTS: Verdict[] = ["PASS", "BORDERLINE", "FAIL"];
+
+export function scored(records: AnalysisRecord[]): AnalysisRecord[] {
+  return records.filter((r) => SCORED_VERDICTS.includes(r.summary.verdict));
+}
+
+/** Wire dish → label: display name, else classification id, else fallback. */
+export function dishLabel(
+  result: Pick<AnalyzeResult, "dish" | "classification"> | null | undefined,
+  fallback = ""
+): string {
+  return result?.dish?.display_name || result?.classification?.dish || fallback;
 }
 
 function isValidRecord(r: unknown): r is AnalysisRecord {
@@ -138,7 +155,7 @@ export function makeRecord(input: {
     photo: input.photo,
     summary: {
       verdict: r.verdict,
-      dish: r.dish?.display_name || r.classification?.dish || null,
+      dish: dishLabel(r) || null,
       grams: r.portion?.grams ?? null,
       kcal: r.nutrition?.kcal?.mean ?? null,
       protein: r.nutrition?.protein_g?.mean ?? null,
@@ -147,34 +164,4 @@ export function makeRecord(input: {
     },
     result: r,
   };
-}
-
-/** Downscale an image to a small JPEG data URL for local thumbnails. */
-export function fileToThumbnail(file: File, maxSide = 220): Promise<string | null> {
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-      const w = Math.max(1, Math.round(img.width * scale));
-      const h = Math.max(1, Math.round(img.height * scale));
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        URL.revokeObjectURL(url);
-        resolve(null);
-        return;
-      }
-      ctx.drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL("image/jpeg", 0.6));
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve(null);
-    };
-    img.src = url;
-  });
 }

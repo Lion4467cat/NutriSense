@@ -4,8 +4,7 @@ import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { IconChart } from "../ui/Icon";
 import { formatNum, formatPct } from "../utils/format";
-
-const SCORED = ["PASS", "BORDERLINE", "FAIL"];
+import { scored } from "../services/records";
 
 function Donut({ parts }: { parts: { label: string; value: number; color: string }[] }) {
   const total = parts.reduce((s, p) => s + p.value, 0) || 1;
@@ -61,7 +60,7 @@ export default function AnalyticsPage() {
   const { records } = useRecords();
 
   const stats = useMemo(() => {
-    const sc = records.filter((r) => SCORED.includes(r.summary.verdict));
+    const sc = scored(records);
     const pass = sc.filter((r) => r.summary.verdict === "PASS").length;
     const warn = sc.filter((r) => r.summary.verdict === "BORDERLINE").length;
     const fail = sc.filter((r) => r.summary.verdict === "FAIL").length;

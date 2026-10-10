@@ -1,5 +1,6 @@
 import type { AnalyzeResult } from  "../types/api";
 import { formatNum, formatPct } from  "../utils/format";
+import { dishLabel } from  "../services/records";
 
 function Card({
   label,
@@ -28,8 +29,7 @@ function Card({
 
 export default function SummaryCards({ result }: { result: AnalyzeResult }) {
   const dish = result.dish || result.classification;
-  const dishName =
-    result.dish?.display_name || result.classification?.dish || "—";
+  const dishName = dishLabel(result);
   const conf = result.classification?.confidence;
   const p = result.portion;
   const kcal = result.nutrition?.kcal;

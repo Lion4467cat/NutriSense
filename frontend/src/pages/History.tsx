@@ -6,6 +6,7 @@ import { VerdictPill } from "../result/VerdictPill";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
+import { byNewest } from "../services/records";
 
 type SortKey = "date" | "dish" | "verdict" | "coverage";
 
@@ -35,15 +36,17 @@ export default function HistoryPage() {
       );
     }
     if (verdict) out = out.filter((r) => r.summary.verdict === verdict);
-    const dir = sort === "date" ? -1 : 1;
-    out = [...out].sort((a, b) => {
-      if (sort === "date") return dir * (Date.parse(a.createdAt) - Date.parse(b.createdAt));
-      if (sort === "dish")
-        return dir * (a.summary.dish || "").localeCompare(b.summary.dish || "");
-      if (sort === "coverage")
-        return dir * ((a.summary.coverage ?? -1) - (b.summary.coverage ?? -1));
-      return dir * a.summary.verdict.localeCompare(b.summary.verdict);
-    });
+    if (sort === "date") {
+      out = byNewest(out);
+    } else {
+      out = [...out].sort((a, b) => {
+        if (sort === "dish")
+          return (a.summary.dish || "").localeCompare(b.summary.dish || "");
+        if (sort === "coverage")
+          return (a.summary.coverage ?? -1) - (b.summary.coverage ?? -1);
+        return a.summary.verdict.localeCompare(b.summary.verdict);
+      });
+    }
     return out;
   }, [records, q, verdict, sort]);
 

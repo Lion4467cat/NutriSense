@@ -10,15 +10,8 @@ import {
   IconChart,
   IconHistory,
 } from "../ui/Icon";
-import type { Verdict } from "../types/api";
 import { formatDate, formatNum, formatPct, localDateKey } from "../utils/format";
-import type { AnalysisRecord } from "../services/records";
-
-const SCORED: Verdict[] = ["PASS", "BORDERLINE", "FAIL"];
-
-function scored(records: AnalysisRecord[]) {
-  return records.filter((r) => SCORED.includes(r.summary.verdict));
-}
+import { SCORED_VERDICTS, scored, type AnalysisRecord } from "../services/records";
 
 function daysAgo(n: number): number {
   const d = new Date();
@@ -63,7 +56,7 @@ function ComplianceOverview({ records }: { records: AnalysisRecord[] }) {
   for (const r of records.slice(0, 60)) {
     const key = localDateKey(r.createdAt);
     const bucket = byDay.get(key) || { PASS: 0, BORDERLINE: 0, FAIL: 0, other: 0 };
-    if (SCORED.includes(r.summary.verdict)) bucket[r.summary.verdict] += 1;
+    if (SCORED_VERDICTS.includes(r.summary.verdict)) bucket[r.summary.verdict] += 1;
     else bucket.other += 1;
     byDay.set(key, bucket);
   }

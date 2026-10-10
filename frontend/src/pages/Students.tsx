@@ -5,7 +5,7 @@ import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
 import { IconArrowLeft, IconUsers } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
-import type { AnalysisRecord } from "../services/records";
+import { scored as scoredRecords, type AnalysisRecord } from "../services/records";
 
 interface Group {
   name: string;
@@ -79,9 +79,7 @@ function StudentList() {
   return (
     <div className="student-grid">
       {groups.map((g) => {
-        const scored = g.records.filter((r) =>
-          ["PASS", "BORDERLINE", "FAIL"].includes(r.summary.verdict)
-        );
+        const scored = scoredRecords(g.records);
         const pass = scored.filter((r) => r.summary.verdict === "PASS").length;
         const last6 = g.records.slice(0, 6).reverse();
         return (
@@ -162,9 +160,7 @@ function StudentDetail({ name }: { name: string }) {
     );
   }
 
-  const scored = group.records.filter((r) =>
-    ["PASS", "BORDERLINE", "FAIL"].includes(r.summary.verdict)
-  );
+  const scored = scoredRecords(group.records);
   const pass = scored.filter((r) => r.summary.verdict === "PASS").length;
   const avgKcal = scored.filter((r) => r.summary.kcal != null);
   const meanKcal =
