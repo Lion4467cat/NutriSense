@@ -13,6 +13,7 @@ from pathlib import Path
 FIXTURE_DIR = Path("frontend/src/fixtures")
 HAPPY_PATH = FIXTURE_DIR / "contract.happy.json"
 UNREADABLE_PATH = FIXTURE_DIR / "contract.unreadable.json"
+MENU_PATH = FIXTURE_DIR / "contract.menu.json"
 WRITE = os.environ.get("CONTRACT_FIXTURE_WRITE") == "1"
 
 
@@ -45,6 +46,15 @@ def _unreadable_wire():
     return r.json()
 
 
+def _menu_wire():
+    from fastapi.testclient import TestClient
+    from main import app
+    client = TestClient(app)
+    r = client.get("/menu")
+    assert r.status_code == 200
+    return r.json()
+
+
 def _check(path: Path, wire: dict, label: str):
     # normalize: wire tuples/np-scalars vs JSON lists/floats
     wire = json.loads(json.dumps(wire, default=float))
@@ -65,3 +75,7 @@ def test_happy_fixture_matches_wire():
 
 def test_unreadable_fixture_matches_wire():
     _check(UNREADABLE_PATH, _unreadable_wire(), "unreadable")
+
+
+def test_menu_fixture_matches_wire():
+    _check(MENU_PATH, _menu_wire(), "menu")

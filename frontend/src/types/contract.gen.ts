@@ -187,3 +187,58 @@ export const analysisSchema = z.object({
   policy: policySchema,
 });
 export type Analysis = z.infer<typeof analysisSchema>;
+
+export const menuItemSchema = z.looseObject({
+  display_name: z.string().optional(),
+  days: z.array(z.string()).optional(),
+  aliases: z.array(z.string()).optional(),
+  subtype: z.string().optional(),
+  nutrition_source: z.string().optional(),
+  status: z.string().optional(),
+  standard_class: z.string().optional(),
+  components: z.record(z.string(), z.unknown()).optional(),
+  ranges_wider: z.boolean().optional(),
+  mandatory_report_line: z.string().optional(),
+});
+export type MenuItem = z.infer<typeof menuItemSchema>;
+
+export const dayMenuSchema = z.looseObject({
+  note: z.string().optional(),
+  vegetables: z.array(z.string()).optional(),
+});
+export type DayMenu = z.infer<typeof dayMenuSchema>;
+
+export const bandStandardSchema = z.object({
+  kcal: z.object({ direction: z.string(), value: z.number() }),
+  protein_g: z.object({ direction: z.string(), value: z.number() }),
+});
+export type BandStandard = z.infer<typeof bandStandardSchema>;
+
+export const captureFieldSchema = z.looseObject({
+  type: z.string().optional(),
+  values: z.array(z.string()),
+  note: z.string().optional(),
+});
+export type CaptureField = z.infer<typeof captureFieldSchema>;
+
+/** GET /menu — top-level keys are closed (main.menu()); nested yaml is open. */
+export const menuSchema = z.object({
+  dishes: z.record(z.string(), menuItemSchema),
+  days: z.record(z.string(), dayMenuSchema),
+  bands: z.record(z.string(), bandStandardSchema),
+  capture_fields: z.looseObject({
+    serving_style: captureFieldSchema,
+    day: captureFieldSchema,
+    band: captureFieldSchema,
+  }),
+  remarks: z.array(z.string()),
+  policy: policySchema,
+});
+export type MenuResponse = z.infer<typeof menuSchema>;
+
+/** GET /health */
+export const healthSchema = z.object({
+  status: z.string(),
+  phase: z.string(),
+});
+export type HealthResponse = z.infer<typeof healthSchema>;

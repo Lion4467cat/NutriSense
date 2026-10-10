@@ -1,9 +1,9 @@
+import type { Analysis } from "../types/contract.gen";
 import type {
-  AnalyzeResult,
   HealthResponse,
   MenuResponse,
 } from "../types/api";
-import { analysisSchema } from "../types/contract.gen";
+import { analysisSchema, healthSchema, menuSchema } from "../types/contract.gen";
 
 export const API_BASE =
   import.meta.env.VITE_API_BASE || "http://127.0.0.1:8731";
@@ -31,7 +31,24 @@ export interface ApiClient {
   readonly base: string;
   getMenu(): Promise<MenuResponse>;
   getHealth(): Promise<HealthResponse>;
-  analyze(params: AnalyzeParams): Promise<AnalyzeResult>;
+  /** Fresh wire responses are full Analysis; stored records use Partial. */
+  analyze(params: AnalyzeParams): Promise<Analysis>;
+}
+
+/** Structural decoder: anything with safeParse (the generated Zod schemas). */
+type Decoder<T> = {
+  safeParse(data: unknown):
+    | { success: true; data: T }
+    | { success: false };
+};
+
+function decodeWith<T>(dec: Decoder<T>, data: unknown): T {
+  const parsed = dec.safeParse(data);
+  if (!parsed.success) {
+    // contract check: drift in the wire fails here, never renders garbage
+    throw new ApiError(500, "The backend returned an unexpected response.");
+  }
+  return parsed.data;
 }
 
 /**
@@ -44,7 +61,7 @@ export function createClient(opts: {
 }): ApiClient {
   const { base, fetch } = opts;
 
-  async function get<T>(path: string): Promise<T> {
+  async function getJson<T>(path: string, dec: Decoder<T>): Promise<T> {
     let res: Response;
     try {
       res = await fetch(`${base}${path}`);
@@ -54,10 +71,10 @@ export function createClient(opts: {
     if (!res.ok) {
       throw new ApiError(res.status, `Backend returned ${res.status} on ${path}`);
     }
-    return res.json() as Promise<T>;
+    return decodeWith(dec, await res.json());
   }
 
-  async function analyze(params: AnalyzeParams): Promise<AnalyzeResult> {
+  async function analyze(params: AnalyzeParams): Promise<Analysis> {
     const fd = new FormData();
     fd.append("file", params.file);
     fd.append("day", params.day);
@@ -81,18 +98,13 @@ export function createClient(opts: {
       throw new ApiError(res.status, detail);
     }
     const data: unknown = await res.json();
-    // contract check: the wire is validated against the generated Zod schema
-    const parsed = analysisSchema.safeParse(data);
-    if (!parsed.success) {
-      throw new ApiError(500, "The backend returned an unexpected response.");
-    }
-    return parsed.data;
+    return decodeWith(analysisSchema, data);
   }
 
   return {
     base,
-    getMenu: () => get<MenuResponse>("/menu"),
-    getHealth: () => get<HealthResponse>("/health"),
+    getMenu: () => getJson("/menu", menuSchema),
+    getHealth: () => getJson("/health", healthSchema),
     analyze,
   };
 }

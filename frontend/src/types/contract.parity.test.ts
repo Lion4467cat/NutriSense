@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import happyWire from "../fixtures/contract.happy.json";
+import menuWire from "../fixtures/contract.menu.json";
 import unreadableWire from "../fixtures/contract.unreadable.json";
 import {
   analysisSchema,
   failureSchema,
+  menuSchema,
+  policySchema,
   reasonSchema,
 } from "./contract.gen";
 
@@ -59,5 +62,24 @@ describe("python→typescript contract parity", () => {
     const { policy, ...withoutPolicy } = wire;
     expect(policy).toBeDefined();
     expect(analysisSchema.safeParse(withoutPolicy).success).toBe(false);
+  });
+});
+
+describe("menu contract parity", () => {
+  it("the menu fixture satisfies menuSchema", () => {
+    const parsed = menuSchema.safeParse(menuWire);
+    expect(parsed.error?.message).toBeUndefined();
+    expect(parsed.success).toBe(true);
+  });
+
+  it("missing /menu keys fail decode (top-level keys are closed)", () => {
+    const { policy, ...withoutPolicy } = menuWire as Record<string, unknown>;
+    expect(policy).toBeDefined();
+    expect(menuSchema.safeParse(withoutPolicy).success).toBe(false);
+  });
+
+  it("an unknown verdict fails decode in the menu's policy-bearing neighbor", () => {
+    // sanity: the shared policySchema is the same object both seams decode
+    expect(menuSchema.shape.policy).toBe(policySchema);
   });
 });

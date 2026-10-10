@@ -1,0 +1,248 @@
+{
+  "bands": {
+    "1-5": {
+      "kcal": {
+        "direction": "min",
+        "value": 450
+      },
+      "protein_g": {
+        "direction": "min",
+        "value": 12
+      }
+    },
+    "6-8": {
+      "kcal": {
+        "direction": "min",
+        "value": 700
+      },
+      "protein_g": {
+        "direction": "min",
+        "value": 20
+      }
+    },
+    "9-10": {
+      "kcal": {
+        "direction": "min",
+        "value": 700
+      },
+      "protein_g": {
+        "direction": "min",
+        "value": 20
+      }
+    }
+  },
+  "capture_fields": {
+    "band": {
+      "note": "student class band of the capture",
+      "type": "enum",
+      "values": [
+        "1-5",
+        "6-8",
+        "9-10"
+      ]
+    },
+    "day": {
+      "type": "enum",
+      "values": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat"
+      ]
+    },
+    "serving_style": {
+      "note": "mixed = multiple components blended in the vessel (e.g. sambar+rice stirred); single = components served separately",
+      "type": "enum",
+      "values": [
+        "mixed",
+        "single"
+      ]
+    }
+  },
+  "days": {
+    "fri": {
+      "note": "mixed + cereals",
+      "vegetables": [
+        "beans",
+        "turnip",
+        "carrot",
+        "capsicum",
+        "onion",
+        "tomato",
+        "cereals"
+      ]
+    },
+    "mon": {
+      "note": "leafy + tuber",
+      "vegetables": [
+        "palak",
+        "drumstick_leaves",
+        "leafy_mix",
+        "potato",
+        "brinjal",
+        "onion",
+        "tomato"
+      ]
+    },
+    "sat": {
+      "note": "greens + cereals",
+      "vegetables": [
+        "carrot",
+        "beans",
+        "cabbage",
+        "onion",
+        "dill_greens",
+        "cereals"
+      ]
+    },
+    "thu": {
+      "note": "gourd/summer",
+      "vegetables": [
+        "pumpkin",
+        "bottle_gourd",
+        "cucumber",
+        "ladies_finger",
+        "radish",
+        "ridge_gourd"
+      ]
+    },
+    "tue": {
+      "note": "gourd/brassica",
+      "vegetables": [
+        "white_pumpkin",
+        "carrot",
+        "beans",
+        "cabbage",
+        "beetroot",
+        "tomato"
+      ]
+    },
+    "wed": {
+      "note": "drumstick + tuber",
+      "vegetables": [
+        "drumstick",
+        "potato",
+        "onion",
+        "tomato"
+      ]
+    }
+  },
+  "dishes": {
+    "bisibelebath": {
+      "aliases": [
+        "bisi_bele_bath"
+      ],
+      "components": {
+        "bisibelebath": {
+          "density_g_ml": 0.9,
+          "generic_id": "bisibelebath",
+          "required": true,
+          "share": 1.0,
+          "type": "grain_pulse_mix"
+        }
+      },
+      "days": [
+        "fri"
+      ],
+      "display_name": "Bisi Bele Bath",
+      "min_dev_plates": 2,
+      "nutrition_source": "official_menu",
+      "standard_class": "1-5",
+      "subtype": "bisibelebath"
+    },
+    "rice_sambar": {
+      "aliases": [
+        "pepper_rasam_rice",
+        "tomato_rasam_rice"
+      ],
+      "components": {
+        "rice": {
+          "density_g_ml": 0.75,
+          "generic_id": "rice_boiled",
+          "required": false,
+          "share": 0.6,
+          "type": "grain"
+        },
+        "sambar": {
+          "composite_of": [
+            "dal",
+            "tamarind",
+            "vegetables",
+            "oil"
+          ],
+          "density_g_ml": 1.03,
+          "generic_id": "sambar",
+          "required": false,
+          "share": 0.4,
+          "type": "dal"
+        }
+      },
+      "days": [
+        "mon",
+        "tue",
+        "wed",
+        "thu"
+      ],
+      "display_name": "Rice & Sambar",
+      "nutrition_source": "official_menu",
+      "standard_class": "1-5",
+      "subtype": "rice_sambar_mixed"
+    },
+    "vegetable_rice": {
+      "aliases": [
+        "veg_rice"
+      ],
+      "components": {
+        "vegetable_rice": {
+          "density_g_ml": 0.85,
+          "generic_id": "vegetable_rice",
+          "required": true,
+          "share": 1.0,
+          "type": "grain"
+        }
+      },
+      "days": [],
+      "display_name": "Vegetable Rice",
+      "mandatory_report_line": "Nutrient values are generic estimates; an official recipe table was not available.",
+      "nutrition_source": "generic",
+      "ranges_wider": true,
+      "standard_class": "1-5",
+      "subtype": "vegetable_rice"
+    },
+    "wheat_product": {
+      "aliases": [
+        "roti",
+        "chapati",
+        "pulka"
+      ],
+      "days": [
+        "sat"
+      ],
+      "decision": "dropped_by_user",
+      "display_name": "Wheat Product (Roti/Chapati)",
+      "doc_status": "listed",
+      "nutrition_source": "out_of_scope",
+      "standard_class": "1-5",
+      "status": "out_of_scope"
+    }
+  },
+  "policy": {
+    "anchor_prior_cap": 0.6,
+    "base_table_prior": 0.85,
+    "depth_uncalibrated": 0.8,
+    "fail_min": 0.9,
+    "fail_p": 0.1,
+    "lint_min_side_px": 1280,
+    "pass_min": 0.85,
+    "pass_p": 0.9,
+    "policy_version": "8e75c97be3e0",
+    "quality_degraded": 0.9
+  },
+  "remarks": [
+    "Cereals and Millets to be used in rotation. Raghi, Jowar, Bajra shall be included at least twice a week.",
+    "Pulses & Dhal shall be included at least 3 days a week.",
+    "Weekly Menu should include variety of food and same food shall not be repeated."
+  ]
+}

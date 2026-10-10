@@ -39,6 +39,15 @@ def test_menu_endpoint():
     assert body["dishes"]["wheat_product"]["status"] == "out_of_scope"
     assert body["bands"]["1-5"]["kcal"]["value"] == 450
     assert set(body["capture_fields"]["band"]["values"]) == {"1-5", "6-8", "9-10"}
+    # wire keys are the contract the frontend menuSchema decodes (C4):
+    # tools/gen_contract_ts.py menuSchema must stay aligned with this set
+    assert set(body) == {"dishes", "days", "bands", "capture_fields",
+                         "remarks", "policy"}
+    for band in body["bands"].values():
+        assert set(band) == {"kcal", "protein_g"}
+    assert set(body["capture_fields"]) == {"serving_style", "day", "band"}
+    assert isinstance(body["remarks"], list)
+    assert len(body["policy"]["policy_version"]) == 12
 
 
 def test_analyze_upload_end_to_end(jpg_bytes, monkeypatch):
