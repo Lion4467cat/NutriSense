@@ -5,8 +5,10 @@ import type {
 } from "../types/api";
 import { analysisSchema } from "../types/contract.gen";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8731";
+export const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://127.0.0.1:8731";
 
+/** Config for display/links only — IO goes through a created client. */
 export const apiBase = API_BASE;
 
 export class ApiError extends Error {
@@ -18,27 +20,6 @@ export class ApiError extends Error {
   }
 }
 
-async function get<T>(path: string): Promise<T> {
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE}${path}`);
-  } catch {
-    throw new ApiError(0, "Cannot reach the NutriSense backend.");
-  }
-  if (!res.ok) {
-    throw new ApiError(res.status, `Backend returned ${res.status} on ${path}`);
-  }
-  return res.json() as Promise<T>;
-}
-
-export function getMenu(): Promise<MenuResponse> {
-  return get<MenuResponse>("/menu");
-}
-
-export function getHealth(): Promise<HealthResponse> {
-  return get<HealthResponse>("/health");
-}
-
 export interface AnalyzeParams {
   file: File;
   day: string;
@@ -46,34 +27,72 @@ export interface AnalyzeParams {
   serving_style?: string;
 }
 
-export async function analyze(params: AnalyzeParams): Promise<AnalyzeResult> {
-  const fd = new FormData();
-  fd.append("file", params.file);
-  fd.append("day", params.day);
-  fd.append("band", params.band);
-  if (params.serving_style) fd.append("serving_style", params.serving_style);
+export interface ApiClient {
+  readonly base: string;
+  getMenu(): Promise<MenuResponse>;
+  getHealth(): Promise<HealthResponse>;
+  analyze(params: AnalyzeParams): Promise<AnalyzeResult>;
+}
 
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE}/analyze`, { method: "POST", body: fd });
-  } catch {
-    throw new ApiError(0, "Cannot reach the NutriSense backend.");
-  }
-  if (!res.ok) {
-    let detail = `Backend returned ${res.status}.`;
+/**
+ * Injected IO seam: base URL and fetch are supplied by the composition root
+ * (main.tsx builds the real client; tests build stubs).
+ */
+export function createClient(opts: {
+  base: string;
+  fetch: typeof globalThis.fetch;
+}): ApiClient {
+  const { base, fetch } = opts;
+
+  async function get<T>(path: string): Promise<T> {
+    let res: Response;
     try {
-      const body = await res.json();
-      if (body?.detail) detail = String(body.detail);
+      res = await fetch(`${base}${path}`);
     } catch {
-      /* keep default message */
+      throw new ApiError(0, "Cannot reach the NutriSense backend.");
     }
-    throw new ApiError(res.status, detail);
+    if (!res.ok) {
+      throw new ApiError(res.status, `Backend returned ${res.status} on ${path}`);
+    }
+    return res.json() as Promise<T>;
   }
-  const data: unknown = await res.json();
-  // contract check: the wire is validated against the generated Zod schema
-  const parsed = analysisSchema.safeParse(data);
-  if (!parsed.success) {
-    throw new ApiError(500, "The backend returned an unexpected response.");
+
+  async function analyze(params: AnalyzeParams): Promise<AnalyzeResult> {
+    const fd = new FormData();
+    fd.append("file", params.file);
+    fd.append("day", params.day);
+    fd.append("band", params.band);
+    if (params.serving_style) fd.append("serving_style", params.serving_style);
+
+    let res: Response;
+    try {
+      res = await fetch(`${base}/analyze`, { method: "POST", body: fd });
+    } catch {
+      throw new ApiError(0, "Cannot reach the NutriSense backend.");
+    }
+    if (!res.ok) {
+      let detail = `Backend returned ${res.status}.`;
+      try {
+        const body = await res.json();
+        if (body?.detail) detail = String(body.detail);
+      } catch {
+        /* keep default message */
+      }
+      throw new ApiError(res.status, detail);
+    }
+    const data: unknown = await res.json();
+    // contract check: the wire is validated against the generated Zod schema
+    const parsed = analysisSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new ApiError(500, "The backend returned an unexpected response.");
+    }
+    return parsed.data;
   }
-  return parsed.data;
+
+  return {
+    base,
+    getMenu: () => get<MenuResponse>("/menu"),
+    getHealth: () => get<HealthResponse>("/health"),
+    analyze,
+  };
 }

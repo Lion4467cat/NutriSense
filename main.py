@@ -1,5 +1,6 @@
 """NutriSense API (S6): /health, /menu, /analyze."""
 import logging
+import os
 import tempfile
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -35,8 +36,12 @@ def _configure_logging() -> None:
     stream = logging.StreamHandler()
     stream.setFormatter(fmt)
     log.addHandler(stream)
-    log_dir = Path(__file__).resolve().parent / "logs"
-    log_dir.mkdir(exist_ok=True)
+    # tests redirect this to a temp dir so pytest never writes logs/nutrisense.log
+    log_dir = Path(
+        os.environ.get("NUTRISENSE_LOG_DIR")
+        or (Path(__file__).resolve().parent / "logs")
+    )
+    log_dir.mkdir(parents=True, exist_ok=True)
     file_handler = RotatingFileHandler(log_dir / "nutrisense.log",
                                        maxBytes=5 * 1024 * 1024,
                                        backupCount=3)

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import { analyze, ApiError } from "../services/api";
+import { ApiError } from "../services/api";
 import { fileToThumbnail, makeRecord } from "../services/records";
 import PipelineProgress from "../analysis/PipelineProgress";
 import { Card, Collapse } from "../ui/primitives";
@@ -11,7 +11,7 @@ import { bandLabel, dayLabel } from "../utils/format";
 type Status = "idle" | "loading" | "error";
 
 export default function AnalyzePage() {
-  const { menu, records, addRecord, prefs, apiUp, checkHealth } = useApp();
+  const { menu, records, addRecord, prefs, apiUp, checkHealth, client } = useApp();
   const navigate = useNavigate();
 
   const [file, setFile] = useState<File | null>(null);
@@ -72,7 +72,7 @@ export default function AnalyzePage() {
     setStatus("loading");
     setError(null);
     try {
-      const result = await analyze({ file, day, band, serving_style: style });
+      const result = await client.analyze({ file, day, band, serving_style: style });
       const thumb = await fileToThumbnail(file);
       const record = makeRecord({
         day,

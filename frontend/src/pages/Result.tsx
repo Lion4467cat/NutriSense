@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import VerdictCard from "../result/VerdictCard";
+import PolicyNote from "../result/PolicyNote";
 import SummaryCards from "../result/SummaryCards";
 import WhyVerdict from "../result/WhyVerdict";
 import CoveragePanel from "../result/CoveragePanel";
@@ -56,6 +57,7 @@ export default function ResultPage() {
             band {record.band} · {record.serving_style}
             {record.student ? ` · ${record.student.name}` : ""}
           </p>
+          <PolicyNote record={record} />
         </div>
         <div className="result-toolbar">
           <Link className="btn btn-secondary btn-sm" to="/analyze">

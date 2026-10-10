@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { Card, EmptyState, VerdictPill } from "../ui/primitives";
+import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
 
@@ -178,6 +179,7 @@ export default function HistoryPage() {
                     <div className="cell-sub">
                       {r.day.toUpperCase()} · band {r.band}
                     </div>
+                    <PolicyNote record={r} />
                   </td>
                   <td className="cell-main">{r.summary.dish || "—"}</td>
                   <td>{r.student?.name || <span className="muted">—</span>}</td>

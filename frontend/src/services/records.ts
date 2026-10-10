@@ -1,11 +1,17 @@
 import type { AnalyzeResult, Verdict } from "../types/api";
+import { toReasons } from "../utils/reasons";
+import type { Storage } from "./storage";
 
 /**
  * Local analysis store.
  *
  * The backend does not persist analyses today, so the frontend keeps a
- * browser-local history (localStorage) that a future history endpoint can
- * replace — the shape below is the record the UI reads from.
+ * browser-local history (through an injected Storage — localStorage in
+ * production, memory in tests) that a future history endpoint can replace —
+ * the shape below is the record the UI reads from.
+ *
+ * v2 records carry the wire policy block; v1 stays untouched as a read-only
+ * backup after migration (standards.yaml remains the policy source of truth).
  */
 
 export interface RecordStudent {
@@ -34,31 +40,79 @@ export interface AnalysisRecord {
   result: AnalyzeResult;
 }
 
-const KEY = "nutrisense.records.v1";
-const MAX_RECORDS = 200;
+export const KEY = "nutrisense.records.v2";
+export const LEGACY_KEY = "nutrisense.records.v1";
+export const MAX_RECORDS = 200;
 
-export function loadRecords(): AnalysisRecord[] {
+function createdAtMs(r: AnalysisRecord): number {
+  const t = Date.parse(r?.createdAt ?? "");
+  return Number.isFinite(t) ? t : 0;
+}
+
+/** Newest first; records with unparseable dates sort as oldest. */
+export function capRecords(records: AnalysisRecord[]): AnalysisRecord[] {
+  return [...records]
+    .sort((a, b) => createdAtMs(b) - createdAtMs(a))
+    .slice(0, MAX_RECORDS);
+}
+
+function isValidRecord(r: unknown): r is AnalysisRecord {
+  return !!r && typeof r === "object" && typeof (r as AnalysisRecord).id === "string";
+}
+
+/**
+ * v1 → v2 adapter: accept a pre-contract record, normalise its reasons to
+ * {kind, text} objects, keep everything else (missing `policy` is legal —
+ * the UI notes it under an earlier policy). Returns null for junk.
+ */
+export function adaptV1Record(raw: unknown): AnalysisRecord | null {
+  if (!isValidRecord(raw)) return null;
+  const rec: AnalysisRecord = { ...raw };
+  if (rec.result && typeof rec.result === "object") {
+    rec.result = {
+      ...rec.result,
+      reasons: toReasons((rec.result as AnalyzeResult).reasons),
+    };
+  }
+  return rec;
+}
+
+function parseKey(storage: Storage, key: string): AnalysisRecord[] {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = storage.get(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((r) => r && typeof r.id === "string");
+    return parsed.filter(isValidRecord);
   } catch {
     return [];
   }
 }
 
-export function saveRecords(records: AnalysisRecord[]): void {
+export function loadRecords(storage: Storage): AnalysisRecord[] {
+  const v2 = parseKey(storage, KEY);
+  if (v2.length > 0 || storage.get(KEY) !== null) {
+    return capRecords(v2);
+  }
+  // first run after the migration: adapt v1 once, write v2, never touch v1
+  const legacy = parseKey(storage, LEGACY_KEY);
+  if (legacy.length === 0) return [];
+  const migrated = capRecords(
+    legacy.map(adaptV1Record).filter((r): r is AnalysisRecord => r !== null)
+  );
+  saveRecords(storage, migrated);
+  return migrated;
+}
+
+export function saveRecords(storage: Storage, records: AnalysisRecord[]): void {
+  const capped = capRecords(records);
   try {
-    localStorage.setItem(KEY, JSON.stringify(records.slice(0, MAX_RECORDS)));
+    storage.set(KEY, JSON.stringify(capped));
   } catch {
     /* storage full — drop thumbnails from oldest entries and retry once */
     try {
-      const slim = records.slice(0, MAX_RECORDS).map((r, i) =>
-        i < records.length - 30 ? { ...r, photo: null } : r
-      );
-      localStorage.setItem(KEY, JSON.stringify(slim));
+      const slim = capped.map((r, i) => (i < 30 ? r : { ...r, photo: null }));
+      storage.set(KEY, JSON.stringify(slim));
     } catch {
       /* give up silently — history is a convenience, never data-critical */
     }

@@ -7,13 +7,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getHealth, getMenu } from "../services/api";
+import type { ApiClient } from "../services/api";
 import type { HealthResponse, MenuResponse } from "../types/api";
 import {
+  capRecords,
   loadRecords,
   saveRecords,
   type AnalysisRecord,
 } from "../services/records";
+import type { Storage } from "../services/storage";
 
 export type ThemeChoice =
   | "light"
@@ -71,6 +73,7 @@ interface AppState {
   health: HealthResponse | null;
   apiUp: boolean | null;
   checkHealth: () => void;
+  client: ApiClient;
   records: AnalysisRecord[];
   addRecord: (r: AnalysisRecord) => void;
   removeRecord: (id: string) => void;
@@ -83,7 +86,7 @@ const Ctx = createContext<AppState | null>(null);
 
 const PREFS_KEY = "nutrisense.prefs.v1";
 
-function loadPrefs(): Prefs {
+function loadPrefs(storage: Storage): Prefs {
   const base: Prefs = {
     theme: "system",
     accent: "indigo",
@@ -92,7 +95,7 @@ function loadPrefs(): Prefs {
     defaultBand: "",
   };
   try {
-    const raw = localStorage.getItem(PREFS_KEY);
+    const raw = storage.get(PREFS_KEY);
     if (raw) return { ...base, ...(JSON.parse(raw) as Partial<Prefs>) };
   } catch {
     /* ignore */
@@ -109,18 +112,29 @@ function resolveTheme(
     : "light";
 }
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({
+  children,
+  storage,
+  client,
+}: {
+  children: ReactNode;
+  storage: Storage;
+  client: ApiClient;
+}) {
   const [menu, setMenu] = useState<MenuResponse | null>(null);
   const [menuError, setMenuError] = useState(false);
   const [menuNonce, setMenuNonce] = useState(0);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [apiUp, setApiUp] = useState<boolean | null>(null);
   const [healthNonce, setHealthNonce] = useState(0);
-  const [records, setRecords] = useState<AnalysisRecord[]>(() => loadRecords());
-  const [prefs, setPrefsState] = useState<Prefs>(() => loadPrefs());
+  const [records, setRecords] = useState<AnalysisRecord[]>(() =>
+    loadRecords(storage)
+  );
+  const [prefs, setPrefsState] = useState<Prefs>(() => loadPrefs(storage));
 
   useEffect(() => {
-    getMenu()
+    client
+      .getMenu()
       .then((m) => {
         setMenu(m);
         setMenuError(false);
@@ -129,10 +143,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setMenu(null);
         setMenuError(true);
       });
-  }, [menuNonce]);
+  }, [menuNonce, client]);
 
   useEffect(() => {
-    getHealth()
+    client
+      .getHealth()
       .then((h) => {
         setHealth(h);
         setApiUp(true);
@@ -141,7 +156,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setHealth(null);
         setApiUp(false);
       });
-  }, [healthNonce]);
+  }, [healthNonce, client]);
 
   useEffect(() => {
     const apply = () => {
@@ -165,40 +180,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener("change", apply);
   }, [prefs.theme, prefs.accent]);
 
-  const setPrefs = useCallback((p: Partial<Prefs>) => {
-    setPrefsState((prev) => {
-      const next = { ...prev, ...p };
-      try {
-        localStorage.setItem(PREFS_KEY, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  }, []);
+  const setPrefs = useCallback(
+    (p: Partial<Prefs>) => {
+      setPrefsState((prev) => {
+        const next = { ...prev, ...p };
+        try {
+          storage.set(PREFS_KEY, JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+        return next;
+      });
+    },
+    [storage]
+  );
 
-  const addRecord = useCallback((r: AnalysisRecord) => {
-    setRecords((prev) => {
-      const next = [r, ...prev];
-      saveRecords(next);
-      return next;
-    });
-  }, []);
+  const addRecord = useCallback(
+    (r: AnalysisRecord) => {
+      setRecords((prev) => {
+        const next = capRecords([r, ...prev]);
+        saveRecords(storage, next);
+        return next;
+      });
+    },
+    [storage]
+  );
 
-  const removeRecord = useCallback((id: string) => {
-    setRecords((prev) => {
-      const next = prev.filter((r) => r.id !== id);
-      saveRecords(next);
-      return next;
-    });
-  }, []);
+  const removeRecord = useCallback(
+    (id: string) => {
+      setRecords((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        saveRecords(storage, next);
+        return next;
+      });
+    },
+    [storage]
+  );
 
   const clearRecords = useCallback(() => {
     setRecords(() => {
-      saveRecords([]);
+      saveRecords(storage, []);
       return [];
     });
-  }, []);
+  }, [storage]);
 
   const value = useMemo<AppState>(
     () => ({
@@ -208,6 +232,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       health,
       apiUp,
       checkHealth: () => setHealthNonce((n) => n + 1),
+      client,
       records,
       addRecord,
       removeRecord,
@@ -215,7 +240,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       prefs,
       setPrefs,
     }),
-    [menu, menuError, health, apiUp, records, addRecord, removeRecord, clearRecords, prefs, setPrefs]
+    [
+      menu,
+      menuError,
+      health,
+      apiUp,
+      client,
+      records,
+      addRecord,
+      removeRecord,
+      clearRecords,
+      prefs,
+      setPrefs,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

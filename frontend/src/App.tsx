@@ -1,5 +1,7 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
+import type { ApiClient } from "./services/api";
+import type { Storage } from "./services/storage";
 import AppShell from "./layout/AppShell";
 import DashboardPage from "./pages/Dashboard";
 import AnalyzePage from "./pages/Analyze";
@@ -10,9 +12,15 @@ import MenuPage from "./pages/Menu";
 import AnalyticsPage from "./pages/Analytics";
 import SettingsPage from "./pages/Settings";
 
-export default function App() {
+export default function App({
+  storage,
+  client,
+}: {
+  storage: Storage;
+  client: ApiClient;
+}) {
   return (
-    <AppProvider>
+    <AppProvider storage={storage} client={client}>
       <HashRouter>
         <AppShell>
           <Routes>
