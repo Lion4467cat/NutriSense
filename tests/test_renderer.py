@@ -20,7 +20,7 @@ def test_image_and_gt_shapes():
     assert s["depth_m"].shape == (CANVAS_H, CANVAS_W)
     assert s["depth_m"].dtype == np.float32
     assert float(s["depth_m"].min()) > 0.1          # camera-z depth in metres
-    assert set(np.unique(s["obj_ids"])) <= {0, 1, 2, 3, 4}
+    assert set(np.unique(s["obj_ids"])) <= {0, 1, 2, 3}
     assert set(np.unique(s["comp_ids"])) <= {0, 1, 2}
     K, R_wc = s["camera"]["K"], s["camera"]["R_wc"]
     assert K.shape == (3, 3) and R_wc.shape == (3, 3)
@@ -77,7 +77,7 @@ def test_depth_reprojects_to_known_planes():
     assert card.sum() > 1000
     np.testing.assert_allclose(z[card], 0.6, atol=1.0)
 
-    food = s["obj_ids"] == 4
+    food = s["obj_ids"] == 3
     assert food.sum() > 5000
     assert 3.0 < float(z[food].min()) and float(z[food].max()) < 50.0
 
@@ -101,7 +101,7 @@ def test_bowl_scene_renders():
     assert s["image_rgb"].shape == (CANVAS_H, CANVAS_W, 3)
     assert float(s["depth_m"].min()) > 0.1
     ids = set(np.unique(s["obj_ids"]))
-    assert 1 in ids and 4 in ids                      # vessel floor/rim + food
+    assert 1 in ids and 3 in ids                      # vessel floor/rim + food
     assert s["grams_gt_total"] > 400.0
 
 

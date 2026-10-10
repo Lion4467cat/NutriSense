@@ -8,12 +8,6 @@
     "ruler_checked": false,
     "ruler_checked_note": "User prints A6 card, verifies black square = exactly 100.0 mm with a ruler, then sets this true."
   },
-  "coin": {
-    "diameter_mm": 27.0,
-    "bimetallic_only": true,
-    "min_diameter_px": 60,
-    "note": "Indian ₹10 bimetallic coin; all SPMCIL series are 27.0 mm"
-  },
   "tier": {
     "min_marker_side_px": 80,
     "min_quarter_side_px": 80
@@ -24,5 +18,5 @@
     "sensor_width_mm": 6.17,
     "note": "focal from EXIF when present; sensor width is assumed (data/params_status.yaml)"
   },
-  "tiers": ["card", "coin", "prior"]
+  "tiers": ["card", "prior"]
 }

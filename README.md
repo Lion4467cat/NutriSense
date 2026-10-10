@@ -17,7 +17,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 
 **What it does:**
 
-- Measures portion size from one photo using a printed **reference card** (60 mm) or **₹10 coin** (27 mm) as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
+- Measures portion size from one photo using a printed **reference card** (60 mm) as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
 - Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
 - Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
@@ -43,7 +43,7 @@ flowchart TD
     end
 
     LINT -.->|"any gate fails"| CV["⛔ cannot_verify"]
-    L4 --> A["2 · Scale anchor<br/>card 60mm → coin 27mm → prior"]
+    L4 --> A["2 · Scale anchor<br/>card 60mm → prior"]
 
     A --> SEG["3 · Segment<br/>SAM 2.1"]
     SEG -.->|error| CV
@@ -83,7 +83,7 @@ flowchart TD
 | Stage | What runs | Model / method |
 |---|---|---|
 | Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
-| S1 Scale anchor | 3 tiers: card → coin → prior (prior caps coverage at 0.60) | ArUco card detector, bimetallic coin detector |
+| S1 Scale anchor | 2 tiers: card → prior (prior caps coverage at 0.60) | ArUco card detector |
 | S2 Segment | food mask from the plate photo | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
 | S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
 | S3 Depth | metric depth, scale-calibrated against the marker | MoGe-2 (`Ruicheng/moge-2-vitl`) |
@@ -95,9 +95,9 @@ flowchart TD
 
 ## ✨ Features
 
-**Implemented and tested (89 tests green):**
+**Implemented and tested (88 tests green):**
 
-- **Three-tier scale anchor** — reference card (60 mm ArUco), ₹10 coin (27 mm), or size prior; tier is always reported and gates verdict authority
+- **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates verdict authority
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
@@ -155,7 +155,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 89 tests (synthetic GT scenes + HTTP E2E + contract parity) |
+| Tests | pytest — 88 tests (synthetic GT scenes + HTTP E2E + contract parity) |
 
 ---
 
@@ -166,7 +166,7 @@ NutriSense/
 ├── main.py                    # FastAPI: /health /menu /analyze
 ├── geo/                       # camera pose, planes, quads, back-projection
 ├── models/
-│   ├── scale_anchor.py        # S1: card / coin / prior tiers
+│   ├── scale_anchor.py        # S1: card / prior tiers
 │   ├── dish_segmenter.py      # S2: SAM 2.1 food masking
 │   ├── food_classifier.py     # S2: SigLIP2 gallery-first + text fallback
 │   └── portion_estimator.py   # S3: area × height × density → grams
@@ -177,7 +177,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 89 tests incl. synth/ renderer with full GT
+├── tests/                     # 88 tests incl. synth/ renderer with full GT
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -293,7 +293,7 @@ Field essentials:
 |---|---|
 | digital zoom == 1.0 | hard gate → `cannot_verify` |
 | min side ≥ 1280 px | note in response; marker tier may fall back |
-| card marker ≥ 80 px (or coin) | falls back to prior tier → coverage capped at 0.60, **can never PASS/FAIL** |
+| card marker ≥ 80 px | falls back to prior tier → coverage capped at 0.60, **can never PASS/FAIL** |
 | plate weight inside `plate_sanity_g` band (`data/standards.yaml`, ±25%) | flagged only — never auto-rejects |
 | day ∈ menu days, dish ∈ `data/menu.yaml` ids | `cannot_verify` |
 
@@ -352,7 +352,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (89 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) and the coin detector can false-positive on shiny vessels — the M1/M3 real-world tuning gates. Until those close, treat field results as indicative.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (88 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 
@@ -372,7 +372,6 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 5. National Institute of Nutrition (2017). *Indian Food Composition Tables (IFCT 2017).* NIN, Hyderabad. — literature nutrient rows in `data/nutrients.yaml`.
 6. Ministry of Education, Government of India. *PM POSHAN — Food & Nutrition Guidelines.* — band minimums & compliance rules, transcribed into `data/standards.yaml`.
 7. Government of Karnataka. *Mid-Day Meal Scheme Guidelines.* Dept. of Public Instruction. — weekly menu in `data/menu.yaml`.
-8. SPMCIL. *₹10 bimetallic coin specifications* (27.0 mm diameter). — secondary scale anchor tier.
 
 ---
 

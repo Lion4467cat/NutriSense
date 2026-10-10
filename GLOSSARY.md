@@ -28,7 +28,7 @@ One guarded step of the pipeline: `input`, `anchor`, `segment`, `classify`,
 `degrade` (exception → registered fallback, logged, no failure entry).
 
 **Anchor tier**
-How scale was measured: `measured` (reference card or coin detected) or
+How scale was measured: `measured` (reference card detected) or
 `prior` (size/assumption priors). Prior tier caps coverage at
 `anchor_prior_cap`, so it can never issue PASS/FAIL.
 

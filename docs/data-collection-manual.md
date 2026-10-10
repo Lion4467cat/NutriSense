@@ -17,8 +17,8 @@ A folder is a valid golden plate only if **all** of the following hold:
 
 - [ ] Photo taken with **digital zoom OFF** (EXIF zoom = 1.0) — otherwise the
       pipeline hard-fails with `cannot_verify`
-- [ ] **Reference card visible, flat, same surface as the vessel** (or the ₹10
-      coin fallback), marker sharp
+- [ ] **Reference card visible, flat, same surface as the vessel** (required in
+      every photo), marker sharp
 - [ ] **Whole vessel + food + card inside the frame**, nothing cropped
 - [ ] Original file with **EXIF intact** (focal length readable — the pose
       calculation needs it)
@@ -84,7 +84,6 @@ capture a mix (their minimums differ: 450 kcal/12 g vs 700 kcal/20 g).
 - [ ] Phone + **charging cable / power bank** (transfer + long day)
 - [ ] Printed checklist (§11) + pen, or notes app open to §10 templates
 - [ ] Tissue/lens cloth (steam and fingerprints ruin markers)
-- [ ] Coin (₹10 bimetallic) kept in the card sleeve — emergency scale fallback
 
 ---
 
@@ -117,7 +116,7 @@ capture a mix (their minimums differ: 450 kcal/12 g vs 700 kcal/20 g).
 | Digital zoom | **OFF (must read 1.0)** | `zoom != 1.0` → `cannot_verify` |
 | Resolution | **highest available, ≥ 1280 px min side** (ideally 4000 × 3000) | below 1280 the API adds a resolution note and the marker tier may fall back |
 | Aspect ratio | **4:3** (full sensor) | maximum detail, no crop |
-| Flash | **OFF** | reflections wash out the ArUco marker and coin |
+| Flash | **OFF** | reflections wash out the ArUco marker |
 | HDR / AI scene / beauty / filters | **OFF** (or "off" in Pro mode) | keeps the marker contrast honest, no re-sharpening artifacts |
 | Grid lines | **ON** | helps hold the 30–45° tilt (§6) |
 | Timer / steady grip | 2 s timer or steady hands | motion blur = lost marker |
@@ -160,18 +159,17 @@ The pipeline reports what it achieved: after upload, check the result's
 
 ---
 
-## 7. Card (and coin) placement
+## 7. Card placement
 
+- **The card is required in every photo** — without a usable card the pipeline
+  falls back to size priors (coverage capped 0.60, never PASS/FAIL) and the
+  plate must be re-shot for the golden set.
 - Card lies **flat on the table, beside the vessel, on the same surface plane**.
 - Card **fully visible**, not overlapping or under the vessel, not held in a
   hand, not leaning against anything.
 - Marker faces the camera as squarely as the tilt allows; avoid folding/creases.
 - **No reflections** across the marker (angled overhead lights — shift the card
   a few degrees or your own position).
-- **Coin fallback** (card missing/damaged): ₹10 **bimetallic** coin (27.0 mm)
-  flat beside the vessel, ≥ 60 px diameter on screen. The coin gives scale but
-  **no camera pose** (tilt falls back to an assumed 30°) — always prefer the card.
-- If both are present, the card wins — that is fine, keep both.
 
 ---
 
@@ -222,7 +220,7 @@ The pipeline reports what it achieved: after upload, check the result's
   "serving_style": "mixed",
   "camera": "your phone model",
   "captured_at": "2026-10-13T12:45:00",
-  "anchor": {"card_present": true, "coin_present": false, "ruler_checked": true},
+  "anchor": {"card_present": true, "ruler_checked": true},
   "notes": ""
 }
 ```
@@ -301,12 +299,10 @@ DATASET/golden/
 |---|---|---|
 | `cannot_verify — digital zoom != 1.0` | pinch-zoom used | reshoot at 1× |
 | `tier: prior`, coverage capped 0.60 | card not found: cropped, covered, tilted, blurry, or < 80 px | card flat, fully visible, move closer |
-| `tier: coin` and odd tilt | card missed, coin picked up | prefer card; clean reflections |
 | resolution note (< 1280 px) | low-res mode or crop | set highest resolution, 4:3 |
 | `unrecognized dish` | dish not in gallery/aliases, or photo too dark | check menu id/alias; reshoot brighter |
 | grams ≈ 0 / tiny mask | segmentation failed (known weakness on real photos — why pilot exists) | reshoot sharper, plainer background, more top-down within 45° |
 | verdict `cannot_verify`, day/band error | metadata mismatch vs `data/menu.yaml` | fix meta.json (don't force wrong day) |
-| coin detector false positive | shiny vessel rim looks bimetallic | card first; keep coin away from the frame edge |
 | weight outside sanity band | scale not tared / wrong vessel / wrong band recorded | reweigh, recheck tare and band |
 
 ---

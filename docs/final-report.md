@@ -1,21 +1,21 @@
 # NutriSense v5 — Final Build Report
 
-**Date:** 2026-10-08 (updated 2026-10-09)
-**Status:** S0–S6 complete — **70/70 tests green (~86s, isolated run)**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript).
+**Date:** 2026-10-08 (updated 2026-10-10)
+**Status:** S0–S6 complete — **88/88 tests green (isolated run)**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
 ## Test results
 
 ```
-70 passed in ~86s
+88 passed
 ```
 
 | Test file | Tests | Covers |
 |---|---|---|
 | `tests/test_geo.py` | 5 | coordinate transforms, back-projection |
 | `tests/test_card.py` | 4 | reference-card detection, corner ordering |
-| `tests/test_scale_anchor.py` | 7 | 3-tier anchor: card / coin / prior |
+| `tests/test_scale_anchor.py` | 6 | 2-tier anchor: card / prior |
 | `tests/test_renderer.py` | 7 | synthetic dish renderer, handedness |
 | `tests/test_s2.py` | 5 | segmenter + gallery classifier |
 | `tests/test_portion.py` | 7 | S3 portion estimator (ring + prior tiers) |
@@ -23,14 +23,17 @@ Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance v
 | `tests/test_compliance.py` | 9 | S5 verdicts, coverage, gate rules |
 | `tests/test_api.py` | 7 | S6 pipeline + HTTP endpoints (E2E) |
 | `tests/test_pipeline_seams.py` | 12 | 8 pipeline seams (lint, failures, contracts) |
+| `tests/test_contract.py` | 11 | single 16-key result contract |
+| `tests/test_contract_gen.py` | 3 | generated TS schema + fixture parity |
+| `tests/test_stage_guards.py` | 5 | per-stage failure guards (HTTP) |
 
 ## Phase delivery
 
 ### S0 — Foundation
 Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`), geo package, ledger (`data/params_status.yaml`). All assumed values flagged `assumed` pending physical validation.
 
-### S1 — Scale anchor (3 tiers)
-- **Tier `measured`**: 60 mm reference card detected in image → metric scale; coin (27 mm) fallback.
+### S1 — Scale anchor (2 tiers)
+- **Tier `measured`**: 60 mm reference card detected in image → metric scale.
 - **Tier `prior`**: no marker → vessel-table prior (never PASS/FAIL, coverage capped 0.60).
 - Card result exposes `marker_corners_px` in extras — reused by depth calibration.
 - Asset: `docs/assets/reference_card_A6_300dpi.png`.

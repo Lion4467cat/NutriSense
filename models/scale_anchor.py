@@ -1,9 +1,8 @@
-"""Scale anchor detection: ArUco card -> bimetallic coin -> prior.
+"""Scale anchor detection: ArUco card -> prior.
 
-Implements the three-tier anchor ladder from the plan:
+Implements the two-tier anchor ladder:
   measured  - printed card (ArUco 4x4_50 id 7, 60.0 mm marker) beside the vessel
-  measured  - bimetallic ₹10 coin (27.0 mm)
-  prior     - no anchor in frame; scale must come from size priors (S3 owns it)
+  prior     - no reference card in frame; scale must come from size priors (S3 owns it)
 
 The anchor NEVER uses vessel/plate diameter for scale.
 
@@ -175,104 +174,6 @@ def _try_card(img_bgr, cfg, exif, notes):
     }
 
 
-def _golden(hsv):
-    """Boolean mask of gold-ish bimetallic-coin outer metal."""
-    h, s, _ = cv2.split(hsv)
-    return (h >= 12) & (h <= 40) & (s >= 60)
-
-
-def _validate_coin(x, y, r, gold, h, w, min_diam_px):
-    """Ring must be mostly gold, centre must NOT be gold (bimetallic check)."""
-    if 2 * r < min_diam_px:
-        return None
-    angles = np.linspace(0, 2 * np.pi, 72, endpoint=False)
-    rr = 0.82 * r
-    ring = gold[np.clip((y + rr * np.sin(angles)).astype(int), 0, h - 1),
-                np.clip((x + rr * np.cos(angles)).astype(int), 0, w - 1)]
-    ys, xs = np.ogrid[-r:r + 1, -r:r + 1]
-    inner = (xs * xs + ys * ys) <= (0.45 * r) ** 2
-    cy0, cy1 = max(0, y - r), min(h, y + r + 1)
-    cx0, cx1 = max(0, x - r), min(w, x + r + 1)
-    patch_g = gold[cy0:cy1, cx0:cx1]
-    patch_i = inner[:cy1 - cy0, :cx1 - cx0]
-    if patch_i.sum() == 0:
-        return None
-    ring_frac = float(ring.mean())
-    center_frac = float(patch_g[patch_i].mean())
-    if ring_frac >= 0.6 and center_frac <= 0.3:
-        return ring_frac, center_frac
-    return None
-
-
-def _coin_candidates(gray, hsv, gold, cfg):
-    """Candidates from HSV gold-mask contours (primary) + Hough (secondary)."""
-    coin = cfg["coin"]
-    h, w = gray.shape
-    min_r = max(10, coin["min_diameter_px"] // 2)
-    out = []
-
-    blur = cv2.GaussianBlur(gold.astype(np.uint8) * 255, (7, 7), 0)
-    mask = cv2.morphologyEx(blur, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
-    cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    for c in cnts:
-        if cv2.contourArea(c) < np.pi * min_r * min_r * 0.5:
-            continue
-        (x, y), r = cv2.minEnclosingCircle(c)
-        circ = cv2.contourArea(c) / (np.pi * r * r + 1e-9)
-        if 0.35 <= circ <= 1.05:
-            out.append((int(x), int(y), int(round(r))))
-
-    try:
-        circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1.2,
-                                   minDist=max(60, min_r), param1=60, param2=24,
-                                   minRadius=min_r, maxRadius=max(min_r + 1, min(h, w) // 3))
-        if circles is not None:
-            out.extend((int(x), int(y), int(r)) for x, y, r in circles[0])
-    except cv2.error:
-        pass
-    return out
-
-
-def _try_coin(img_bgr, cfg, notes):
-    coin = cfg["coin"]
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    hsv = cv2.cvtColor(cv2.GaussianBlur(img_bgr, (5, 5), 0), cv2.COLOR_BGR2HSV)
-    gold = _golden(hsv)
-    h, w = gray.shape
-
-    best = None
-    for x, y, r in _coin_candidates(gray, hsv, gold, cfg):
-        ok = _validate_coin(x, y, r, gold, h, w, coin["min_diameter_px"])
-        if ok is None:
-            continue
-        if best is None or r > best[2]:
-            best = (x, y, r, ok[0], ok[1])
-    if best is None:
-        return None
-
-    x, y, r, ring_frac, center_frac = best
-    diam_px = 2.0 * r
-    diam_cm = coin["diameter_mm"] / 10.0
-    cm_per_px = diam_cm / diam_px
-    sigma_d = 2.0 * cfg.get("_coin_sigma_px", 2.0)
-    rel = _REL_Z * sigma_d / diam_px
-    interval = (cm_per_px * (1.0 - rel), cm_per_px * (1.0 + rel))
-
-    return {
-        "method": "coin_bimetallic",
-        "label": "measured",
-        "cm_per_px": float(cm_per_px),
-        "interval": (float(interval[0]), float(interval[1])),
-        "H": None,
-        "tilt_deg": None,
-        "plane_height_interval_mm": tuple(cfg["plane_height_interval_mm"]),
-        "exif_distance_cm": None,
-        "reason": "bimetallic coin detected (measured)",
-        "extras": {"diam_px": float(diam_px), "center": [x, y],
-                   "ring_gold_frac": ring_frac, "center_gold_frac": center_frac},
-    }
-
-
 def _prior(reason, cfg):
     return {
         "method": "prior",
@@ -299,7 +200,6 @@ def estimate_anchor(image, config=None, exif=None):
     exif: dict from read_exif(image_path) — pass explicitly when image is ndarray.
     """
     cfg = dict(config or load_config())
-    cfg.setdefault("_coin_sigma_px", 2.0)
 
     path = None
     if isinstance(image, (str, Path)):
@@ -319,11 +219,6 @@ def estimate_anchor(image, config=None, exif=None):
         result["reason"] = "; ".join(notes + [result["reason"]]) if notes else result["reason"]
         return result
 
-    result = _try_coin(img, cfg, notes)
-    if result:
-        result["reason"] = "; ".join(notes + [result["reason"]]) if notes else result["reason"]
-        return result
-
     if not notes:
-        notes.append("no card or coin anchor in frame")
+        notes.append("no reference card in frame — scale from size priors")
     return _prior("; ".join(notes), cfg)

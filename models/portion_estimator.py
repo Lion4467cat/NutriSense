@@ -3,7 +3,7 @@
 Plan v5 geometry: grams = footprint_area (scale from the anchor tier)
     x mean_height_above_base (from metric depth), then x effective density.
 
-Footprint area uses the S1 anchor scale (card/coin) with a cos(tilt)
+Footprint area uses the S1 anchor scale (card) with a cos(tilt)
 de-foreshortening; with no anchor it falls back to an assumed food-diameter
 size prior (label= prior -> never PASS/FAIL upstream).
 

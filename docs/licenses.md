@@ -18,7 +18,6 @@ images, or database dumps into this repo or any artifact).
 | Omnifood-Bench (arXiv 2607.08423) | paper cite | arXiv | confirmed | benchmarks context only |
 | PM POSHAN menu + MDM F&N guidelines | user-provided document | — | confirmed | transcribed into data/menu.yaml, data/standards.yaml |
 | Golden plate photos (30) | user's own captures | — | confirmed | primary evaluation set |
-| ₹10 coin dimensions (27.0 mm) | SPMCIL public spec, cite | spmcil.com | confirmed | scale anchor tier 2 |
 | Karnataka mid-day menu text | user-provided | — | confirmed | data/menu.yaml |
 
 Open source build deps (torch, transformers, OpenCV, FastAPI, etc.): normal

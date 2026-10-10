@@ -1,10 +1,10 @@
 """Full synthetic scene renderer (S0): pinhole camera over a table with a
-vessel, a food height-field, and the reference card / coin.
+vessel, a food height-field, and the reference card.
 
 Produces image + ground truth for M-level tests:
   image_rgb / image_bgr   uint8 render
   depth_m                 metric camera-z depth (float32, metres)
-  obj_ids                 0 table, 1 vessel, 2 card, 3 coin, 4 food
+  obj_ids                 0 table, 1 vessel, 2 card, 3 food
   comp_ids                0 none, 1..k food component zones
   grams_gt                true grams per component (integrated height field)
   anchor_gt               planted cm/px, marker corners, tilt (or None)
@@ -50,8 +50,7 @@ def default_scene():
                   layout="sectors", seed=11,
                   components=[{"name": "rice", "material": "rice", "share_g": 270.0},
                               {"name": "sambar", "material": "sambar", "share_g": 180.0}]),
-        anchor=dict(card=True, card_center=(170.0, 15.0), card_angle_deg=10.0,
-                    coin=False, coin_center=(-165.0, 40.0)),
+        anchor=dict(card=True, card_center=(170.0, 15.0), card_angle_deg=10.0),
         table_color=(166, 161, 154),
         noise_sigma=2.5,
         seed=5,
@@ -185,7 +184,7 @@ def render_scene(cfg=None):
     lam = {"table": lam_z(0.0)}
     obj_of = {}
 
-    # card / coin -----------------------------------------------------------
+    # card ------------------------------------------------------------------
     card_img = None
     card_ang = np.radians(cfg["anchor"]["card_angle_deg"])
     marker_gt = None
@@ -230,12 +229,6 @@ def render_scene(cfg=None):
     else:
         card_rgb = None
 
-    if cfg["anchor"]["coin"]:
-        cc = cfg["anchor"]["coin_center"]
-        P0 = C + lam["table"][..., None] * dir_w
-        rc = np.hypot(P0[..., 0] - cc[0], P0[..., 1] - cc[1])
-        lam["coin"] = np.where(rc <= 13.5, lam_z(0.9), np.inf)
-
     # vessel ----------------------------------------------------------------
     ves = VESSELS[cfg["vessel"]] if isinstance(cfg["vessel"], str) else cfg["vessel"]
     P0 = C + lam["table"][..., None] * dir_w
@@ -258,8 +251,7 @@ def render_scene(cfg=None):
                            np.inf)
 
     # occlusion pick --------------------------------------------------------
-    names = ["table", "card", "coin", "floor", "rim", "food"] if cfg["anchor"]["coin"] \
-        else ["table", "card", "floor", "rim", "food"] if cfg["anchor"]["card"] \
+    names = ["table", "card", "floor", "rim", "food"] if cfg["anchor"]["card"] \
         else ["table", "floor", "rim", "food"]
     stack = np.stack([lam[k] for k in names], axis=-1)
     idx = np.argmin(stack, axis=-1)
@@ -267,7 +259,7 @@ def render_scene(cfg=None):
     P_hit = C + lam_min[..., None] * dir_w
     depth_m = (lam_min / 1000.0).astype(np.float32)
 
-    obj_names = {"table": 0, "floor": 1, "rim": 1, "card": 2, "coin": 3, "food": 4}
+    obj_names = {"table": 0, "floor": 1, "rim": 1, "card": 2, "food": 3}
     obj_ids = np.zeros((H, W), dtype=np.uint8)
     for i, nm in enumerate(names):
         obj_ids[idx == i] = obj_names[nm]
@@ -286,16 +278,6 @@ def render_scene(cfg=None):
     if card_rgb is not None:
         sel = idx == names.index("card")
         img[sel] = card_rgb[sel]
-
-    if cfg["anchor"]["coin"]:
-        sel = idx == names.index("coin")
-        P_c = P_hit[sel]
-        rc2 = np.hypot(P_c[:, 0] - cfg["anchor"]["coin_center"][0],
-                       P_c[:, 1] - cfg["anchor"]["coin_center"][1])
-        gold = np.array([212.0, 168.0, 110.0])
-        steel = np.array([150.0, 150.0, 155.0])
-        col = np.where((rc2 <= 7.4)[:, None], steel, gold)
-        img[sel] = col * shade_table
 
     for side in ("floor", "rim"):
         if side in names:

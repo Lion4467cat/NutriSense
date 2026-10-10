@@ -116,14 +116,14 @@ def test_classify_unrecognized_cannot_verify(scene):
 
 @pytest.fixture(scope="module")
 def no_card_scene():
-    return render_scene({"anchor": {"card": False, "coin": False}})
+    return render_scene({"anchor": {"card": False}})
 
 
 def test_depth_scale_calibrated_and_recorded(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene))
     assert out["anchor"]["tier"] == "measured"
-    assert out["anchor"]["depth_scale_source"] in {"card", "coin"}
+    assert out["anchor"]["depth_scale_source"] == "card"
     # GT depth is already metric: calibration factor must stay near 1
     assert 0.5 < out["anchor"]["depth_scale_factor"] < 2.0
 

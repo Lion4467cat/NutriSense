@@ -26,7 +26,7 @@ def _card_scene(seed=0):
     return scene, H
 
 
-def _draw_coin(canvas, center, r):
+def _draw_gold_disc(canvas, center, r):
     cv2.circle(canvas, center, r, (110, 168, 212), -1)   # gold outer
     cv2.circle(canvas, center, int(r * 0.55), (150, 150, 155), -1)  # steel core
 
@@ -46,22 +46,14 @@ def test_card_tier_recovers_scale():
     assert res["H"] is not None and res["H"].shape == (3, 3)
 
 
-def test_coin_tier_recovers_scale():
+def test_gold_disc_is_not_an_anchor():
     canvas = np.full((CANVAS_H, CANVAS_W, 3), 190, np.uint8)
-    _draw_coin(canvas, (CANVAS_W // 2, CANVAS_H // 2), 90)  # 180 px diameter
+    _draw_gold_disc(canvas, (CANVAS_W // 2, CANVAS_H // 2), 90)
     res = estimate_anchor(canvas)
-    assert res["label"] == "measured"
-    assert res["method"] == "coin_bimetallic"
-    true = 2.7 / 180.0
-    assert abs(res["cm_per_px"] - true) / true < 0.05
-    assert res["tilt_deg"] is None and res["H"] is None
-
-
-def test_card_wins_over_coin():
-    scene, _ = _card_scene()
-    _draw_coin(scene, (CANVAS_W - 160, CANVAS_H - 160), 80)
-    res = estimate_anchor(scene)
-    assert res["method"] == "card_aruco"
+    assert res["label"] == "prior"
+    assert res["method"] == "prior"
+    assert res["cm_per_px"] is None
+    assert "no reference card" in res["reason"]
 
 
 def test_prior_fallback_on_empty_scene():
@@ -72,7 +64,7 @@ def test_prior_fallback_on_empty_scene():
     assert res["label"] == "prior"
     assert res["cm_per_px"] is None
     assert res["interval"] is None
-    assert "no card or coin" in res["reason"]
+    assert res["reason"] == "no reference card in frame — scale from size priors"
 
 
 def test_marker_too_small_rejected_with_reason():
@@ -96,7 +88,7 @@ def test_exif_read_on_plain_png(tmp_path):
 
 def test_config_loads_tiers():
     cfg = load_config()
-    assert cfg["tiers"] == ["card", "coin", "prior"]
+    assert cfg["tiers"] == ["card", "prior"]
+    assert "coin" not in cfg
     assert cfg["card"]["marker_mm"] == 60.0
-    assert cfg["coin"]["diameter_mm"] == 27.0
     assert cfg["card"]["ruler_checked"] is False

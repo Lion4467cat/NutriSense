@@ -73,7 +73,7 @@ export default function CoveragePanel({ result }: { result: AnalyzeResult }) {
               <span aria-hidden="true">!</span>
               <div>
                 <strong>Prior-tier measurement in use</strong>
-                No card or coin was detected, so scale comes from size priors.
+                No reference card was detected, so scale comes from size priors.
                 Coverage is capped at {policy.anchor_prior_cap} and this tier can never issue
                 PASS/FAIL — verdict is advisory until a reference marker is
                 captured.

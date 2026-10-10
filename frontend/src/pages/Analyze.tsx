@@ -163,7 +163,7 @@ export default function AnalyzePage() {
                   <span className="dz-title">Drop a photo here or browse</span>
                   <span className="dz-sub">
                     Shoot from above with the whole vessel in frame. Keep the
-                    reference card (or ₹10 coin) beside the plate for measured
+                    reference card beside the plate for measured
                     scale.
                   </span>
                 </>
@@ -192,7 +192,7 @@ export default function AnalyzePage() {
                   <li>Digital zoom must be off (EXIF zoom = 1.0)</li>
                   <li>Use the original photo — not a screenshot or edit</li>
                   <li>Entire tray / vessel visible in frame</li>
-                  <li>Reference card beside the vessel (₹10 coin as fallback)</li>
+                  <li>Reference card beside the vessel (required in every photo)</li>
                   <li>Marker clearly visible, not covered by food</li>
                   <li>Min resolution 1280px on the short side</li>
                 </ul>
@@ -295,7 +295,7 @@ export default function AnalyzePage() {
             <Card title="How it works" sub="Photo → verdict, fully traced">
               <ol className="steps list-clean">
                 {[
-                  "Scale detected (card / coin / prior)",
+                  "Scale detected (card / prior)",
                   "Food segmented (SAM 2.1)",
                   "Dish identified (SigLIP2 gallery)",
                   "Depth calibrated (MoGe-2)",

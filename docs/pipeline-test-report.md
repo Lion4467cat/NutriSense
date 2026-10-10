@@ -28,7 +28,7 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 | 1 | `test_lint_resolution_ok_large_image` | 🟢 green | Complement branch (≥1280 → no notes, non-blocking) |
 | 2 | `test_segment_failure_cannot_verify` | 🟢 green | Confirms anchor runs before segment; failure surfaces reason verbatim |
 | 3 | `test_classify_unrecognized_cannot_verify` | 🟢 green | Classification summary + segmentation retained on early exit |
-| 4 | `test_depth_scale_calibrated_and_recorded` | 🟢 green | Card → `depth_scale_source ∈ {card, coin}`, factor ∈ (0.5, 2.0) vs metric GT |
+| 4 | `test_depth_scale_calibrated_and_recorded` | 🟢 green | Card → `depth_scale_source == "card"`, factor ∈ (0.5, 2.0) vs metric GT |
 | 4 | `test_depth_scale_none_on_prior_tier` | 🟢 then tightened → 🟢 | First assertion allowed PASS/FAIL — plan forbids it; tightened to `== "BORDERLINE"` and re-ran |
 | 5 | `test_depth_failure_cannot_verify` | 🟢 green | stage split (2026-10-10): reason is now `stage_failed` / "depth failed: …"; dish info retained |
 | 6 | `test_result_contract_keys_and_types` | ⚠️ vacuous → fixed → 🟢 | Flag-vocabulary subset guessed wrong (`size_prior/low_area` don't exist) and passed vacuously; corrected to the real vocabulary (`depth_partial, vessel_shape_uncertain, base_sign_flip, thin_layer, size_prior_scale`) |
@@ -55,7 +55,7 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 |---|---|---|
 | tests/test_geo.py | 5 | S0 |
 | tests/test_card.py | 4 | S1 |
-| tests/test_scale_anchor.py | 7 | S1 |
+| tests/test_scale_anchor.py | 6 | S1 |
 | tests/test_renderer.py | 7 | S0/S1 |
 | tests/test_s2.py | 5 | S2 |
 | tests/test_portion.py | 7 | S3 |
@@ -79,7 +79,7 @@ flowchart TD
     end
 
     LINT -.->|"any gate fails"| CV["⛔ cannot_verify"]
-    L4 --> A["2 · Scale anchor<br/>card 60mm → coin 27mm → prior"]
+    L4 --> A["2 · Scale anchor<br/>card 60mm → prior"]
 
     A --> SEG["3 · Segment<br/>SAM 2.1"]
     SEG -.->|error| CV

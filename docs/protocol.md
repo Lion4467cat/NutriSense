@@ -22,10 +22,9 @@ tuning, and a single sealed final evaluation.
 
 - Plain, matte table; even lighting; no HDR/digital zoom (zoom = 1.0).
 - Vessel centred, **whole tray in frame**, slight top-down angle (tilt < 50°).
-- **Card beside the vessel, same plane, fully visible, marker ≥ 80 px**
-  (scale comes only from card/coin — never from vessel diameter).
-  Coin (₹10 bimetallic) accepted if card missing; both present is fine
-  (card wins).
+- **Card beside the vessel, same plane, fully visible, marker ≥ 80 px —
+  required in every photo** (scale comes only from the card — never from
+  vessel diameter; there is no coin fallback).
 - Focus on the food; no motion blur; keep original EXIF.
 - Enter metadata in the plate's `meta.json` at capture time (below).
 
@@ -57,7 +56,7 @@ DATASET/golden/
   "day": "mon", "band": "1-5", "dish": "rice_sambar",
   "serving_style": "mixed",
   "camera": "realme 14T", "captured_at": "2026-10-09T12:40:00",
-  "anchor": {"card_present": true, "coin_present": false, "ruler_checked": true},
+  "anchor": {"card_present": true, "ruler_checked": true},
   "notes": ""
 }
 ```

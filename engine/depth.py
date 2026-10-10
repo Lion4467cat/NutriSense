@@ -17,8 +17,8 @@ def calibrate_depth_scale(depth_m, anchor, K):
     """Rescale monocular depth so a known anchor object matches its true size.
 
     Unprojects anchor pixels with the raw depth (global scale error k scales
-    every 3D distance by the same k), measures card-marker edges (60 mm) or
-    coin diameter (27 mm), and returns depth * factor.
+    every 3D distance by the same k), measures card-marker edges (60 mm), and
+    returns depth * factor.
 
     Returns (depth_calibrated, factor, source). Prior tier: (depth, 1.0, "none").
     """
@@ -43,14 +43,6 @@ def calibrate_depth_scale(depth_m, anchor, K):
             ests.append(float(np.linalg.norm(pts[i] - pts[(i + 1) % 4])))
             trues.append(L)
         source = "card"
-    elif method == "coin_bimetallic" and extras.get("center"):
-        x, y = extras["center"]
-        r = float(extras["diam_px"]) / 2.0
-        L = 0.027  # meters
-        for d in ((r, 0.0), (0.0, r)):
-            ests.append(float(np.linalg.norm(_pt(x - d[0], y - d[1]) - _pt(x + d[0], y + d[1]))))
-            trues.append(L)
-        source = "coin"
 
     if not ests or any(not np.isfinite(e) or e <= 0 for e in ests):
         return depth, 1.0, "none"

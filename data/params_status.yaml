@@ -8,7 +8,6 @@ params:
 
   # --- anchor / scale (S1) ---
   anchor_corner_sigma_px: {value: 0.5, status: assumed, note: "G1p corner localisation jitter; calibrate on pilot"}
-  coin_fit_sigma_px: {value: 2.0, status: assumed, note: "Hough circle radius sigma for coin tier"}
   camera_sensor_width_mm: {value: 6.17, status: assumed, note: "EXIF FocalLength 3.98mm / guessed 1/2.55in sensor; needed for pose only"}
   plane_height_interval_mm: {value: [0, 50], status: assumed, note: "food base height above table, when no base evidence"}
 
@@ -18,8 +17,8 @@ params:
   base_ring_sigma_mm: {value: 4.5, interval: [2.0, 9.0], status: assumed, note: "base-plane height sigma, ring path; sized so total per-dish grams sigma ~26% per plan feasibility"}
   base_prior_sigma_mm: {value: 6.0, interval: [3.0, 12.0], status: assumed, note: "base-plane height sigma, table-prior path; sized so total grams sigma ~33% per plan feasibility"}
   base_prior_height_mm: {value: 8.0, interval: [0, 45], status: assumed, note: "food base above table when no ring evidence; vessel floor range"}
-  size_prior_food_diameter_mm: {value: 170, interval: [130, 210], status: assumed, note: "prior-tier footprint diameter when no card/coin anchor"}
-  prior_tilt_deg: {value: 30.0, interval: [15, 45], status: assumed, note: "assumed capture tilt when anchor pose unavailable (coin tier has no pose)"}
+  size_prior_food_diameter_mm: {value: 170, interval: [130, 210], status: assumed, note: "prior-tier footprint diameter when no card anchor"}
+  prior_tilt_deg: {value: 30.0, interval: [15, 45], status: assumed, note: "assumed capture tilt when anchor pose unavailable (prior tier has no pose)"}
   depth_scale_sigma_pct: {value: 8, status: assumed, unvalidated: true, note: "MoGe/pose depth scale; pipeline-wide sensitivity review at M6"}
 
   # --- segmentation / geometry (S2/S3) ---
