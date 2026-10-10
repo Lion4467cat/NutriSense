@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useMenu } from "../context/menu";
+import { usePrefs } from "../context/prefs";
+import { useRecords } from "../context/records";
 import { ApiError } from "../services/api";
 import { fileToThumbnail, makeRecord } from "../services/records";
 import PipelineProgress from "../analysis/PipelineProgress";
+import { HOW_IT_WORKS } from "../analysis/stages";
+import { STAGE_NAMES } from "../types/contract.gen";
 import { Card, Collapse } from "../ui/primitives";
 import { IconCamera, IconUpload } from "../ui/Icon";
 import { bandLabel, dayLabel } from "../utils/format";
@@ -11,7 +15,9 @@ import { bandLabel, dayLabel } from "../utils/format";
 type Status = "idle" | "loading" | "error";
 
 export default function AnalyzePage() {
-  const { menu, records, addRecord, prefs, apiUp, checkHealth, client } = useApp();
+  const { menu, apiUp, checkHealth, client } = useMenu();
+  const { records, addRecord } = useRecords();
+  const { prefs } = usePrefs();
   const navigate = useNavigate();
 
   const [file, setFile] = useState<File | null>(null);
@@ -294,20 +300,12 @@ export default function AnalyzePage() {
           ) : (
             <Card title="How it works" sub="Photo → verdict, fully traced">
               <ol className="steps list-clean">
-                {[
-                  "Scale detected (card / prior)",
-                  "Food segmented (SAM 2.1)",
-                  "Dish identified (SigLIP2 gallery)",
-                  "Depth calibrated (MoGe-2)",
-                  "Portion estimated in grams",
-                  "Nutrients sampled 4000× (Monte Carlo)",
-                  "PM POSHAN compliance evaluated",
-                ].map((label, i) => (
-                  <li className="step" key={label}>
+                {STAGE_NAMES.map((stage, i) => (
+                  <li className="step" key={stage}>
                     <span className="step-dot" aria-hidden="true">
                       {i + 1}
                     </span>
-                    {label}
+                    {HOW_IT_WORKS[stage]}
                   </li>
                 ))}
               </ol>

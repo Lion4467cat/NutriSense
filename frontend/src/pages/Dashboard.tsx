@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useMenu } from "../context/menu";
+import { usePrefs } from "../context/prefs";
+import { useRecords } from "../context/records";
 import { Card, EmptyState, VerdictPill } from "../ui/primitives";
 import {
   IconCamera,
@@ -105,7 +107,9 @@ function ComplianceOverview({ records }: { records: AnalysisRecord[] }) {
 }
 
 export default function DashboardPage() {
-  const { records, menuError, apiUp, prefs, setPrefs } = useApp();
+  const { records } = useRecords();
+  const { menuError, apiUp } = useMenu();
+  const { prefs, setPrefs } = usePrefs();
   const navigate = useNavigate();
 
   const sc = scored(records);

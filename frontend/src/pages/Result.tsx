@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useRecords } from "../context/records";
 import VerdictCard from "../result/VerdictCard";
 import PolicyNote from "../result/PolicyNote";
 import SummaryCards from "../result/SummaryCards";
@@ -15,7 +15,7 @@ import { formatDateTime } from "../utils/format";
 export default function ResultPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { records } = useApp();
+  const { records } = useRecords();
   const record = records.find((r) => r.id === id);
 
   if (!record) {

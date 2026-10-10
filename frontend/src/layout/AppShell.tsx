@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { usePrefs } from "../context/prefs";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
@@ -8,7 +8,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { prefs, setPrefs } = useApp();
+  const { prefs, setPrefs } = usePrefs();
 
   useEffect(() => {
     setDrawer(false);

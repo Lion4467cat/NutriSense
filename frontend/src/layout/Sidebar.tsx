@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
-import { useApp } from  "../context/AppContext";
+import { useMenu } from "../context/menu";
+import { useRecords } from "../context/records";
 import { apiBase } from  "../services/api";
 import {
   IconBook,
@@ -22,7 +23,8 @@ const NAV = [
 ];
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { apiUp, records, menu } = useApp();
+  const { apiUp, menu } = useMenu();
+  const { records } = useRecords();
   const statusLabel =
     apiUp === true ? "API connected" : apiUp === false ? "API unreachable" : "Connecting…";
 

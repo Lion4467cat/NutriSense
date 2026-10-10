@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { IconChart } from "../ui/Icon";
 import { formatNum, formatPct } from "../utils/format";
@@ -58,7 +58,7 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
 }
 
 export default function AnalyticsPage() {
-  const { records } = useApp();
+  const { records } = useRecords();
 
   const stats = useMemo(() => {
     const sc = records.filter((r) => SCORED.includes(r.summary.verdict));

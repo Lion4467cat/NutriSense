@@ -1,15 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
-export const STAGES = [
-  "Checking image",
-  "Detecting scale",
-  "Segmenting food",
-  "Identifying dish",
-  "Estimating depth",
-  "Estimating portion",
-  "Calculating nutrition",
-  "Evaluating compliance",
-];
+import { STAGES } from "./stages";
 
 interface Props {
   running: boolean;
@@ -19,7 +9,8 @@ interface Props {
 /**
  * Honest staged loading: stages advance on a local timer while the single
  * /analyze request is in flight — nothing is faked from the backend. The
- * final stage only completes when the response actually arrives.
+ * final stage only completes when the response actually arrives (on success
+ * the panel unmounts with the running state; on failure it freezes).
  */
 export default function PipelineProgress({ running, failed = false }: Props) {
   const [active, setActive] = useState(0);
@@ -38,48 +29,42 @@ export default function PipelineProgress({ running, failed = false }: Props) {
 
   if (!running && !failed) return null;
 
-  const done = !running && !failed;
-
   return (
     <div className="card card-pad progress-panel" aria-live="polite">
       <div className="card-head">
         <div>
           <h2 className="card-title">
-            {failed ? "Analysis failed" : done ? "Analysis complete" : "Analyzing meal"}
+            {failed ? "Analysis failed" : "Analyzing meal"}
           </h2>
           <p className="card-sub">
             {failed
               ? "The request did not complete."
-              : done
-                ? "All pipeline stages finished."
-                : "Photo → verdict in a single pipeline pass."}
+              : "Photo → verdict in a single pipeline pass."}
           </p>
         </div>
       </div>
 
       <ol className="steps list-clean">
-        {STAGES.map((label, i) => {
+        {STAGES.map(({ stage, label }, i) => {
           const state = failed
             ? i < active
               ? "done"
               : i === active
                 ? "failed"
                 : ""
-            : done
+            : i < active
               ? "done"
-              : i < active
-                ? "done"
-                : i === active
-                  ? "active"
-                  : "";
+              : i === active
+                ? "active"
+                : "";
           return (
-            <li className={`step ${state}`} key={label}>
+            <li className={`step ${state}`} key={stage}>
               <span className="step-dot" aria-hidden="true">
                 {state === "done" ? "✓" : state === "failed" ? "✕" : ""}
               </span>
               {label}
               {state === "active" && <span className="step-meta">running…</span>}
-              {state === "done" && !done && i === active - 1 && (
+              {state === "done" && i === active - 1 && (
                 <span className="step-meta">done</span>
               )}
             </li>

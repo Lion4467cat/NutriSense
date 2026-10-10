@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useRecords } from "../context/records";
 import { Card, EmptyState, VerdictPill } from "../ui/primitives";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
@@ -9,7 +9,7 @@ import { formatDate, formatNum, formatPct } from "../utils/format";
 type SortKey = "date" | "dish" | "verdict" | "coverage";
 
 export default function HistoryPage() {
-  const { records, removeRecord } = useApp();
+  const { records, removeRecord } = useRecords();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [verdict, setVerdict] = useState("");

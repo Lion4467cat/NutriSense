@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useMenu } from "../context/menu";
 import { FALLBACK_POLICY } from "../types/api";
 import { Card, EmptyState } from "../ui/primitives";
 import { IconBook } from "../ui/Icon";
 
 export default function MenuPage() {
-  const { menu, menuError, reloadMenu } = useApp();
+  const { menu, menuError, reloadMenu } = useMenu();
 
   if (!menu) {
     return (

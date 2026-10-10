@@ -1,20 +1,15 @@
 import { useState } from "react";
-import { useApp, ACCENTS, THEME_OPTS } from "../context/AppContext";
+import { useMenu } from "../context/menu";
+import { ACCENTS, THEME_OPTS, usePrefs } from "../context/prefs";
+import { useRecords } from "../context/records";
 import { Card, StatusMark } from "../ui/primitives";
 import { apiBase } from "../services/api";
 import { bandLabel, dayLabel } from "../utils/format";
 
 export default function SettingsPage() {
-  const {
-    prefs,
-    setPrefs,
-    apiUp,
-    health,
-    checkHealth,
-    records,
-    clearRecords,
-    menu,
-  } = useApp();
+  const { prefs, setPrefs } = usePrefs();
+  const { menu, apiUp, health, checkHealth } = useMenu();
+  const { records, clearRecords } = useRecords();
   const [confirmClear, setConfirmClear] = useState(false);
 
   const days = menu ? Object.keys(menu.days) : [];

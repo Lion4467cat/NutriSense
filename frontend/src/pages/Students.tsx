@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useRecords } from "../context/records";
 import { Card, EmptyState, VerdictPill } from "../ui/primitives";
 import { IconArrowLeft, IconUsers } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
@@ -28,7 +28,7 @@ function streakClass(v: string): string {
 }
 
 function useGroups(): Group[] {
-  const { records } = useApp();
+  const { records } = useRecords();
   return useMemo(() => {
     const map = new Map<string, AnalysisRecord[]>();
     for (const r of records) {

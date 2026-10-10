@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useApp } from  "../context/AppContext";
+import { useMenu } from "../context/menu";
+import { usePrefs } from "../context/prefs";
+import { useRecords } from "../context/records";
 import { VerdictPill } from  "../ui/primitives";
 import { formatDate } from  "../utils/format";
 import {
@@ -40,7 +42,9 @@ export default function Topbar({
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { apiUp, prefs, setPrefs, records } = useApp();
+  const { apiUp } = useMenu();
+  const { prefs, setPrefs } = usePrefs();
+  const { records } = useRecords();
   const [search, setSearch] = useState(params.get("q") || "");
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
