@@ -25,6 +25,7 @@ const MENU: MenuResponse = {
     anchor_prior_cap: 0.6,
     base_table_prior: 0.85,
     quality_degraded: 0.9,
+    depth_uncalibrated: 0.8,
     lint_min_side_px: 1280,
     policy_version: "current-v9",
   },

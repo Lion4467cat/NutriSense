@@ -44,8 +44,8 @@ export default function MeasurementDetails({ result }: { result: AnalyzeResult }
             <KV k="Tilt" v={a?.tilt_deg != null ? `${a.tilt_deg.toFixed(1)}°` : "—"} />
             <KV
               k="Depth scale"
-              v={`×${a?.depth_scale_factor ?? "1.0"}`}
-              sub={a?.depth_scale_source || "none"}
+              v={a?.depth_scale_factor != null ? `×${a.depth_scale_factor}` : "—"}
+              sub={a?.depth_scale_source ?? "—"}
             />
             <KV k="Reason" v={a?.reason || "—"} />
           </div>

@@ -149,12 +149,13 @@
   "policy": {
     "anchor_prior_cap": 0.6,
     "base_table_prior": 0.85,
+    "depth_uncalibrated": 0.8,
     "fail_min": 0.9,
     "fail_p": 0.1,
     "lint_min_side_px": 1280,
     "pass_min": 0.85,
     "pass_p": 0.9,
-    "policy_version": "c65df5efee0f",
+    "policy_version": "abf816ab83b0",
     "quality_degraded": 0.9
   },
   "portion": {

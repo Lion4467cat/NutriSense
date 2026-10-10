@@ -78,7 +78,7 @@ def test_analyze_unreadable_file():
 
 def test_pipeline_gates(scene, monkeypatch):
     deps = {
-        "depth": lambda img: {"depth_m": scene["depth_m"], "model": "gt"},
+        "depth": lambda img, **_kw: {"depth_m": scene["depth_m"], "model": "gt"},
         "segment": lambda img: {"mask": scene["mask_food"], "strategy": "stub",
                                 "sam_score": 1.0, "n_candidates": 1, "area_frac": 0.2},
         "classify": lambda img: {"dish": "rice_sambar", "confidence": 1.0,
@@ -106,7 +106,7 @@ def test_pipeline_gt_depth_deterministic(scene, monkeypatch):
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
         "match_score": 0.9, "reason": "stub"})
     deps = {
-        "depth": lambda img: {"depth_m": scene["depth_m"], "model": "gt"},
+        "depth": lambda img, **_kw: {"depth_m": scene["depth_m"], "model": "gt"},
         "classify": lambda img: {"dish": "rice_sambar", "confidence": 1.0,
                                  "method": "stub", "match_score": 0.9, "reason": "stub"},
     }

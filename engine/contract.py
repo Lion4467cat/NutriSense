@@ -146,6 +146,7 @@ class Policy:
     anchor_prior_cap: float
     base_table_prior: float
     quality_degraded: float
+    depth_uncalibrated: float
     lint_min_side_px: int
     policy_version: str
 
@@ -169,6 +170,7 @@ def load_policy() -> Policy:
         "anchor_prior_cap": float(ledger["coverage_anchor_prior"]["value"]),
         "base_table_prior": float(ledger["coverage_base_table_prior"]["value"]),
         "quality_degraded": float(ledger["coverage_quality_degraded"]["value"]),
+        "depth_uncalibrated": float(ledger["coverage_depth_uncalibrated"]["value"]),
         "lint_min_side_px": int(ledger["lint_min_side_px"]["value"]),
     }
     digest = hashlib.sha256(

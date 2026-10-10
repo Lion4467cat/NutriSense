@@ -92,3 +92,19 @@ def test_coverage_function_factors():
     s, f = coverage(_portion(base="table_prior", flags=["depth_partial"]), "prior")
     assert f.keys() == {"anchor_prior", "base_table_prior", "quality_degraded"}
     assert s == pytest.approx(0.60 * 0.85 * 0.90, rel=1e-6)
+
+
+def test_coverage_depth_uncalibrated_factor():
+    # reported "none" on a measured anchor = calibration declined
+    s, f = coverage(_portion(), "measured", depth_scale_source="none")
+    assert f == {"depth_uncalibrated": 0.80}
+    assert s == pytest.approx(0.80)
+    # calibrated: no factor
+    s, f = coverage(_portion(), "measured", depth_scale_source="card")
+    assert f == {}
+    # prior tier is already capped by anchor_prior — no double penalty
+    s, f = coverage(_portion(anchor="prior"), "prior", depth_scale_source="none")
+    assert set(f) == {"anchor_prior"}
+    # not reported (unit-test calls) never invents a factor
+    s, f = coverage(_portion(), "measured")
+    assert f == {}

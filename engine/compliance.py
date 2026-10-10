@@ -35,8 +35,14 @@ class AssessResult:
     band: str | None = None
 
 
-def coverage(portion, anchor_label, params=None):
-    """(score, factors) — multiplicative degradation model."""
+def coverage(portion, anchor_label, params=None, depth_scale_source=None):
+    """(score, factors) — multiplicative degradation model.
+
+    depth_scale_source: what the depth stage reported ("card" | "none").
+    Production always reports it; None means "not reported" (unit tests) and
+    never adds a factor. "none" on a measured anchor = calibration declined,
+    so the factor applies (prior tier is already capped by anchor_prior).
+    """
     params = params if params is not None else load_params()
     factors = {}
     if anchor_label != "measured":
@@ -46,6 +52,8 @@ def coverage(portion, anchor_label, params=None):
     flags = set(portion.get("flags") or [])
     if flags & {"depth_partial", "thin_layer"}:
         factors["quality_degraded"] = params["coverage_quality_degraded"]["value"]
+    if anchor_label == "measured" and depth_scale_source == "none":
+        factors["depth_uncalibrated"] = params["coverage_depth_uncalibrated"]["value"]
     score = float(np.prod(list(factors.values()))) if factors else 1.0
     return round(score, 4), factors
 
@@ -55,7 +63,7 @@ def _p_ge(samples, threshold):
 
 
 def assess(mc, portion, dish, band, anchor_label,
-           params=None, standards=None, day=None):
+           params=None, standards=None, day=None, depth_scale_source=None):
     """Score one admitted plate. Hard gates are consulted by analyze() only
     (engine/gates.py) — by the time we get here the plate is admitted."""
     params = params if params is not None else load_params()
@@ -102,7 +110,8 @@ def assess(mc, portion, dish, band, anchor_label,
                                   f"{key}: P={p:.2f} <= {thr['fail_p']} fail zone"))
 
     # --- coverage ---------------------------------------------------------
-    cov_score, cov_factors = coverage(portion, anchor_label, params)
+    cov_score, cov_factors = coverage(portion, anchor_label, params,
+                                      depth_scale_source)
 
     if any_fail and cov_score >= cov_min["fail_min"]:
         verdict = "FAIL"

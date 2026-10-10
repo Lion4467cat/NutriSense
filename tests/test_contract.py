@@ -97,6 +97,7 @@ def test_policy_matches_yaml_sources():
     assert p.pass_min == standards["compliance"]["coverage"]["pass_min"]
     assert p.fail_min == standards["compliance"]["coverage"]["fail_min"]
     assert p.anchor_prior_cap == ledger["coverage_anchor_prior"]["value"]
+    assert p.depth_uncalibrated == ledger["coverage_depth_uncalibrated"]["value"]
     assert p.lint_min_side_px == ledger["lint_min_side_px"]["value"]
 
 

@@ -31,6 +31,7 @@ params:
   coverage_anchor_prior: {value: 0.60, status: assumed, note: "coverage factor when scale is prior tier (caps PASS/FAIL)"}
   coverage_base_table_prior: {value: 0.85, status: assumed, note: "coverage factor for table-prior base path"}
   coverage_quality_degraded: {value: 0.90, status: assumed, note: "coverage factor for partial depth / thin-layer flags"}
+  coverage_depth_uncalibrated: {value: 0.80, status: assumed, unvalidated: true, note: "coverage factor when the card was measured but depth calibration declined; keeps C below pass_min so an uncalibrated scale cannot certify PASS/FAIL"}
 
   # --- composition / nutrients (S4) ---
   density_sigma_pct: {value: 8, status: assumed, note: "g/ml by dish; IFCT density not measured for all"}

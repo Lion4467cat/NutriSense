@@ -112,6 +112,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     K, failure = stage(Stage.INPUT, _intrinsics, timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info)
+    # horizontal FoV in degrees for the depth model (MoGe expects degrees)
+    _H, _W = image_bgr.shape[:2]
+    fov_x = float(np.degrees(2.0 * np.arctan(_W / (2.0 * K[0, 0]))))
 
     # --- segment stage ----------------------------------------------------
     def _segment_step():
@@ -167,7 +170,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     # --- depth stage (monocular depth + anchor calibration) ---------------
     def _depth_step():
-        depth_out = depth_fn(image_bgr)
+        depth_out = depth_fn(image_bgr, fov_x=fov_x)
         depth_m = np.asarray(depth_out["depth_m"], dtype=np.float64)
         scale_factor, scale_source = 1.0, "none"
         if anchor.get("label") == "measured":
@@ -222,6 +225,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     # --- compliance stage (verdict) ---------------------------------------
     score, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,
                            anchor.get("label", "prior"), day=day,
+                           depth_scale_source=scale_source,
                            timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,

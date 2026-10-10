@@ -53,4 +53,4 @@ def test_every_params_status_key_is_read_by_production_code():
 
 
 def test_policy_version_frozen_to_current_digest():
-    assert load_policy().policy_version == "c65df5efee0f"
+    assert load_policy().policy_version == "abf816ab83b0"

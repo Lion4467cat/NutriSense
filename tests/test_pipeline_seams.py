@@ -38,7 +38,7 @@ def make_deps(scene, *, segment=None, classify=None, depth=None):
         return {"mask": m, "strategy": "stub", "sam_score": 1.0,
                 "n_candidates": 1, "area_frac": 0.2}
 
-    def dep(img):
+    def dep(img, **_kw):
         h, w = img.shape[:2]
         d = scene["depth_m"]
         if d.shape[:2] != (h, w):
@@ -141,7 +141,7 @@ def test_depth_scale_none_on_prior_tier(no_card_scene):
 # --- seam 5: portion-failure branch ---------------------------------------
 
 def test_depth_failure_cannot_verify(scene):
-    def boom(img):
+    def boom(img, **_kw):
         raise RuntimeError("depth exploded")
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
@@ -261,7 +261,8 @@ def test_assess_failures_reach_the_wire(scene, monkeypatch):
     f = Failure(FailureKind.STAGE_FAILED, Stage.NUTRITION,
                 "no nutrient samples")
 
-    def fake_assess(mc, portion, dish, band, anchor_label, day=None):
+    def fake_assess(mc, portion, dish, band, anchor_label, day=None,
+                    depth_scale_source=None):
         return AssessResult(verdict="cannot_verify",
                             reasons=[reason_for_failure(f)], failures=[f],
                             day=day, band=band)
@@ -272,3 +273,40 @@ def test_assess_failures_reach_the_wire(scene, monkeypatch):
     assert out["verdict"] == "cannot_verify"
     assert out["failures"] and out["failures"][0]["stage"] == "nutrition"
     assert any(r["kind"] == "stage_failed" for r in out["reasons"])
+
+
+# --- seam 10: fov_x reaches the depth stage -------------------------------
+
+def test_depth_receives_known_fov_x(scene):
+    seen = {}
+
+    def dep(img, **kw):
+        seen.update(kw)
+        h, w = img.shape[:2]
+        d = scene["depth_m"]
+        if d.shape[:2] != (h, w):
+            d = cv2.resize(d, (w, h))
+        return {"depth_m": d, "model": "gt"}
+
+    pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                 deps=make_deps(scene, depth=dep))
+    assert "fov_x" in seen
+    assert 0.0 < seen["fov_x"] < 180.0
+
+
+# --- seam 11: declined calibration caps coverage --------------------------
+
+def test_uncalibrated_measured_depth_cannot_certify(scene, monkeypatch):
+    from engine import pipeline as pl
+
+    def decline(depth_m, anchor, K):
+        return depth_m, 1.0, "none"
+
+    monkeypatch.setattr(pl, "calibrate_depth_scale", decline)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene))
+    assert out["anchor"]["tier"] == "measured"
+    factors = out["coverage"]["factors"]
+    assert factors["depth_uncalibrated"] == 0.80
+    assert out["coverage"]["score"] == 0.80
+    assert out["verdict"] == "BORDERLINE"  # C < pass_min: no PASS/FAIL

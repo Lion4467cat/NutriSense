@@ -38,6 +38,7 @@ export const policySchema = z.object({
   anchor_prior_cap: z.number(),
   base_table_prior: z.number(),
   quality_degraded: z.number(),
+  depth_uncalibrated: z.number(),
   lint_min_side_px: z.number(),
   policy_version: z.string(),
 });
