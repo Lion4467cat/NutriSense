@@ -11,26 +11,6 @@ from engine.contract import load_policy
 
 REPO = Path(__file__).resolve().parents[1]
 
-# Keys with no production reader, deliberately kept in the ledger (review
-# decision: allowlist, not delete). The first three are consumed via copies
-# in other data files; the rest are planned/superseded hooks. The ledger
-# test below fails on any unread key NOT in this set.
-LEDGER_EXEMPT = {
-    # consumed via anchor_config.json (whose note cross-references this ledger)
-    "camera_sensor_width_mm",
-    "plane_height_interval_mm",
-    # consumed via conversions.yaml (identical value + interval)
-    "rice_yield",
-    # planned/superseded: no reader anywhere in production code
-    "anchor_corner_sigma_px",
-    "base_plane_ring_sigma_pct",
-    "base_plane_prior_sigma_pct",
-    "thickness_prior_sigma_pct",
-    "shape_kappa_dome",
-    "shape_kappa_layered",
-}
-
-
 def test_paths_derive_from_repo_root_not_cwd():
     assert config.DATA_DIR == REPO / "data"
     for p in (config.MENU_PATH, config.STANDARDS_PATH, config.PARAMS_PATH,
@@ -61,10 +41,10 @@ def test_every_loader_survives_chdir(tmp_path, monkeypatch):
 
 
 def test_every_params_status_key_is_read_by_production_code():
-    keys = set(config.load_params()) - LEDGER_EXEMPT
+    keys = set(config.load_params())
     py_files = sorted(
         p for d in ("engine", "models", "geo", "tools")
-        for p in (REPO / d).glob("*.py")
+        for p in (REPO / d).rglob("*.py")
     ) + [REPO / "main.py", REPO / "config.py"]
     source = "\n".join(p.read_text() for p in py_files)
     unread = sorted(k for k in keys if f'"{k}"' not in source

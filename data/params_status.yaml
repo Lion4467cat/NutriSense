@@ -6,14 +6,7 @@
 
 params:
 
-  # --- anchor / scale (S1) ---
-  anchor_corner_sigma_px: {value: 0.5, status: assumed, note: "G1p corner localisation jitter; calibrate on pilot"}
-  camera_sensor_width_mm: {value: 6.17, status: assumed, note: "EXIF FocalLength 3.98mm / guessed 1/2.55in sensor; needed for pose only"}
-  plane_height_interval_mm: {value: [0, 50], status: assumed, note: "food base height above table, when no base evidence"}
-
   # --- base plane / depth ring (S3) ---
-  base_plane_ring_sigma_pct: {value: 4, status: assumed, note: "depth ring band width around mask edge, % of min image side"}
-  base_plane_prior_sigma_pct: {value: 12, status: assumed, note: "fallback table plane + vessel-height prior"}
   base_ring_sigma_mm: {value: 4.5, interval: [2.0, 9.0], status: assumed, note: "base-plane height sigma, ring path; sized so total per-dish grams sigma ~26% per plan feasibility"}
   base_prior_sigma_mm: {value: 6.0, interval: [3.0, 12.0], status: assumed, note: "base-plane height sigma, table-prior path; sized so total grams sigma ~33% per plan feasibility"}
   base_prior_height_mm: {value: 8.0, interval: [0, 45], status: assumed, note: "food base above table when no ring evidence; vessel floor range"}
@@ -30,9 +23,6 @@ params:
 
   # --- thickness (S3) ---
   thickness_depth_sigma_pct: {value: 8, status: assumed, unvalidated: true, note: "plate depth via depth map + boundary"}
-  thickness_prior_sigma_pct: {value: 15, status: assumed, note: "flat-layer/prior shape path"}
-  shape_kappa_dome: {value: [0.4, 0.55, 0.7], status: assumed, note: "dome fill factor [lo, mode, hi]"}
-  shape_kappa_layered: {value: [0.75, 0.9, 1.0], status: assumed, note: "layered/spread fill factor"}
 
   # --- protocol lint (S6) ---
   lint_min_side_px: {value: 1280, status: fixed, note: "min image side for resolution_ok; below it the anchor tier may fall back to prior"}
@@ -47,7 +37,6 @@ params:
   component_value_sigma_pct: {value: 10, status: assumed, note: "per-component kcal/protein spread"}
   recipe_composition_sigma_pct: {value: 10, status: assumed, note: "recipe share uncertainty; wider for generic dishes"}
   nutrient_table_sigma_pct: {value: 4, status: literature, note: "IFCT nutrient table precision ~3-5%; widens kcal/protein per 100g in MC"}
-  rice_yield: {value: 3.0, interval: [2.7, 3.3], status: literature, note: "IFCT raw 356 vs boiled 112 kcal/100g -> 3.18; culinary 50g->150g"}
 
   # --- forecast temperature (tunable, M6) ---
   temperature_scale: {value: 1.0, status: assumed, note: "calibrated on dev plates so intervals hit nominal 90% coverage"}
