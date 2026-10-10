@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { AppProvider } from "../context/AppContext";
 import PolicyNote from "./PolicyNote";
 import type { ApiClient } from "../services/api";
@@ -66,9 +66,9 @@ function recordWithPolicy(policyVersion?: string): AnalysisRecord {
   };
 }
 
-function renderNote(record: AnalysisRecord) {
+function renderNote(record: AnalysisRecord, client: ApiClient = stubClient) {
   return render(
-    <AppProvider storage={createMemoryStorage()} client={stubClient}>
+    <AppProvider storage={createMemoryStorage()} client={client}>
       <PolicyNote record={record} />
     </AppProvider>
   );
@@ -96,5 +96,29 @@ describe("PolicyNote", () => {
         screen.queryByText("judged under an earlier policy")
       ).toBeNull()
     );
+  });
+
+  it("makes no claim while the menu is still loading", async () => {
+    const pending: ApiClient = {
+      ...stubClient,
+      getMenu: () => new Promise<MenuResponse>(() => {}),
+    };
+    renderNote(recordWithPolicy("older-v1"), pending);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(screen.queryByText("judged under an earlier policy")).toBeNull();
+  });
+
+  it("makes no claim when the menu failed to load", async () => {
+    const down: ApiClient = {
+      ...stubClient,
+      getMenu: () => Promise.reject(new Error("down")),
+    };
+    renderNote(recordWithPolicy("older-v1"), down);
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(screen.queryByText("judged under an earlier policy")).toBeNull();
   });
 });

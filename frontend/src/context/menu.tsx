@@ -10,9 +10,13 @@ import {
 import type { ApiClient } from "../services/api";
 import type { HealthResponse, MenuResponse } from "../types/api";
 
+/** The current Policy can be loading, ready, or failed — never "unknown". */
+export type PolicyState = "loading" | "ready" | "failed";
+
 interface MenuState {
   menu: MenuResponse | null;
   menuError: boolean;
+  policyState: PolicyState;
   reloadMenu: () => void;
   health: HealthResponse | null;
   apiUp: boolean | null;
@@ -66,6 +70,7 @@ export function MenuProvider({
     () => ({
       menu,
       menuError,
+      policyState: menu ? "ready" : menuError ? "failed" : "loading",
       reloadMenu: () => setMenuNonce((n) => n + 1),
       health,
       apiUp,
