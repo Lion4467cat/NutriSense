@@ -1,5 +1,5 @@
 import type { AnalyzeResult } from  "../types/api";
-import { verdictMeta } from  "../ui/primitives";
+import { verdictMeta } from  "./verdicts";
 import { formatPct } from  "../utils/format";
 import { firstReasonText } from  "../utils/reasons";
 

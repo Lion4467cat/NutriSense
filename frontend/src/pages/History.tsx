@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecords } from "../context/records";
-import { Card, EmptyState, VerdictPill } from "../ui/primitives";
+import { Card, EmptyState } from "../ui/primitives";
+import { VerdictPill } from "../result/VerdictPill";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";

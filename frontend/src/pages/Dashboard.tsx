@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
-import { Card, EmptyState, VerdictPill } from "../ui/primitives";
+import { Card, EmptyState } from "../ui/primitives";
+import { VerdictPill } from "../result/VerdictPill";
 import {
   IconCamera,
   IconChart,

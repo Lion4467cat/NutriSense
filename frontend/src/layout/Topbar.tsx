@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
-import { VerdictPill } from  "../ui/primitives";
+import { VerdictPill } from  "../result/VerdictPill";
 import { formatDate } from  "../utils/format";
 import {
   IconBell,
