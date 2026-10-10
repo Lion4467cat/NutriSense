@@ -14,7 +14,7 @@ export default function WhyVerdict({ result }: { result: AnalyzeResult }) {
       ) : (
         <ul className="list-clean reason-list">
           {reasons.map((r, i) => {
-            const ico = reasonTone(r);
+            const ico = reasonTone(r, result.verdict);
             return (
               <li className="reason-item" key={i}>
                 <span className={`r-ico ${ico}`} aria-hidden="true">

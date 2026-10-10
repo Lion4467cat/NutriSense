@@ -71,25 +71,13 @@ const KIND_TONE: Record<string, Tone> = {
 
 /**
  * Icon tone for one reason. The closed kind map wins; unknown kinds get the
- * neutral glyph; `legacy` (v1 pre-contract strings) keeps its prose heuristics
- * because prose is all those stored records carry.
+ * neutral glyph; `legacy` (v1 pre-contract string reasons) falls back to the
+ * record's structured verdict — prose is never parsed.
  */
-export function reasonTone(reason: Reason): Tone {
+export function reasonTone(reason: Reason, verdict: Verdict | string): Tone {
   const known = KIND_TONE[reason.kind];
   if (known) return known;
   if (reason.kind !== "legacy") return "info"; // open vocabulary: default glyph
-  // legacy v1 string reasons: keep the old prose heuristics
-  const t = reason.text.toLowerCase();
-  if (
-    t.includes("fail zone") ||
-    t.includes("below minimum") ||
-    t.includes("<= 0.1") ||
-    t.includes("< 0.9") ||
-    t.includes("unrecognized") ||
-    t.includes("failed") ||
-    t.includes("unknown ")
-  )
-    return "bad";
-  if (t.includes("all mandatory nutrients")) return "good";
-  return "info";
+  const cls = verdictMeta(verdict).cls;
+  return cls === "pass" ? "good" : cls === "fail" ? "bad" : "info";
 }
