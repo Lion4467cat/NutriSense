@@ -79,13 +79,14 @@ def test_temperature_widens_interval():
     dish = DISHES["rice_sambar"]
     a = sample_nutrients(p, dish, "1-5", n=4000, seed=9)
     import engine.mc as mcmod
-    saved = dict(mcmod.load_params())
+    params = mcmod.load_params()
+    saved = params["temperature_scale"]["value"]
     try:
-        mcmod.load_params()["temperature_scale"]["value"] = 2.0
+        params["temperature_scale"]["value"] = 2.0
         b = sample_nutrients(p, dish, "1-5", n=4000, seed=9)
     finally:
-        mcmod.load_params().clear()
-        mcmod.load_params().update(saved)
+        params["temperature_scale"]["value"] = saved
+    assert params["temperature_scale"]["value"] == saved  # restored for later tests
     wa = a["kcal"]["p95"] - a["kcal"]["p05"]
     wb = b["kcal"]["p95"] - b["kcal"]["p05"]
     assert wb == pytest.approx(2.0 * wa, rel=0.05)
