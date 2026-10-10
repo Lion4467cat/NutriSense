@@ -220,9 +220,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     }
 
     # --- compliance stage (verdict) ---------------------------------------
-    verdict, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,
-                             anchor.get("label", "prior"), day=day,
-                             timings=timings)
+    score, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,
+                           anchor.get("label", "prior"), day=day,
+                           timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
@@ -233,8 +233,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     anchor_info["depth_scale_source"] = scale_source
 
     return finish(Analysis(
-        verdict=verdict["verdict"],
-        reasons=list(verdict["reasons"]),
+        verdict=score.verdict,
+        reasons=list(score.reasons),
+        failures=list(score.failures),
         lint=lint,
         anchor=anchor_info,
         segmentation=seg_info,
@@ -242,14 +243,14 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         dish=dish_info,
         portion=portion_block,
         nutrition=nutrition_block,
-        coverage=verdict.get("coverage"),
-        assumptions=verdict.get("assumptions", []),
-        advisory=verdict.get("advisory"),
+        coverage=score.coverage,
+        assumptions=score.assumptions,
+        advisory=score.advisory,
         compliance={
-            "day": verdict.get("day", day),
-            "band": verdict.get("band", band),
-            "probs": verdict.get("probs", {}),
-            "nutrients": verdict.get("nutrients", {}),
+            "day": score.day,
+            "band": score.band,
+            "probs": score.probs,
+            "nutrients": score.nutrients,
         },
         model_versions=_model_versions(depth_out),
     ))

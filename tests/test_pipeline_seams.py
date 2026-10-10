@@ -248,3 +248,27 @@ def test_result_contract_compliance_block(scene):
         assert lo <= row["mean"] <= hi
         assert row["headroom_at_interval_low"] == pytest.approx(
             lo - row["min"], abs=0.011)  # API rounds to 2 decimals
+
+
+# --- seam 9: assess()'s failures reach the wire (typed result) -------------
+
+def test_assess_failures_reach_the_wire(scene, monkeypatch):
+    from engine import pipeline as pl
+    from engine.compliance import AssessResult
+    from engine.contract import (Failure, FailureKind, Stage,
+                                 reason_for_failure)
+
+    f = Failure(FailureKind.STAGE_FAILED, Stage.NUTRITION,
+                "no nutrient samples")
+
+    def fake_assess(mc, portion, dish, band, anchor_label, day=None):
+        return AssessResult(verdict="cannot_verify",
+                            reasons=[reason_for_failure(f)], failures=[f],
+                            day=day, band=band)
+
+    monkeypatch.setattr(pl, "assess", fake_assess)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene))
+    assert out["verdict"] == "cannot_verify"
+    assert out["failures"] and out["failures"][0]["stage"] == "nutrition"
+    assert any(r["kind"] == "stage_failed" for r in out["reasons"])

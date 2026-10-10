@@ -10,10 +10,29 @@ quality flags). The prior anchor tier can never PASS or FAIL (C caps out at
 0.60). Salt is advisory only; raw-gram rows are diagnostic only.
 """
 import numpy as np
+from dataclasses import dataclass, field
 
 from config import load_params, load_standards
 from engine.contract import (Failure, FailureKind, Reason, ReasonKind, Stage,
                              reason_for_failure)
+
+
+@dataclass
+class AssessResult:
+    """What assess() hands back. The pipeline builds the wire Analysis from
+    these fields directly, so every key — failures included — propagates
+    structurally instead of being re-picked by hand at the call site."""
+    verdict: str
+    reasons: list
+    failures: list = field(default_factory=list)
+    coverage: dict | None = None
+    probs: dict = field(default_factory=dict)
+    nutrients: dict = field(default_factory=dict)
+    assumptions: list = field(default_factory=list)
+    advisory: dict | None = None
+    diagnostics: dict | None = None
+    day: str | None = None
+    band: str | None = None
 
 
 def coverage(portion, anchor_label, params=None):
@@ -45,9 +64,9 @@ def assess(mc, portion, dish, band, anchor_label,
     if mc is None:
         f = Failure(FailureKind.STAGE_FAILED, Stage.NUTRITION,
                     "no nutrient samples")
-        return {"verdict": "cannot_verify", "reasons": [reason_for_failure(f)],
-                "failures": [f],
-                "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
+        return AssessResult(verdict="cannot_verify",
+                            reasons=[reason_for_failure(f)], failures=[f],
+                            day=day, band=band)
 
     rules = standards["compliance"]
     thr = rules["thresholds"]
@@ -119,17 +138,16 @@ def assess(mc, portion, dish, band, anchor_label,
         "note": "advisory only — salt is never a verdict nutrient",
     }
 
-    return {
-        "verdict": verdict,
-        "reasons": reasons,
-        "failures": [],
-        "coverage": {"score": cov_score, "factors": cov_factors,
-                     "pass_min": cov_min["pass_min"], "fail_min": cov_min["fail_min"]},
-        "probs": {k: round(v, 4) for k, v in probs.items()},
-        "nutrients": nutrients,
-        "assumptions": assumptions,
-        "advisory": advisory,
-        "diagnostics": mc.get("diagnostics"),
-        "day": day,
-        "band": band,
-    }
+    return AssessResult(
+        verdict=verdict,
+        reasons=reasons,
+        coverage={"score": cov_score, "factors": cov_factors,
+                  "pass_min": cov_min["pass_min"], "fail_min": cov_min["fail_min"]},
+        probs={k: round(v, 4) for k, v in probs.items()},
+        nutrients=nutrients,
+        assumptions=assumptions,
+        advisory=advisory,
+        diagnostics=mc.get("diagnostics"),
+        day=day,
+        band=band,
+    )
