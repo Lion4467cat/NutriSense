@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-89%20passed-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-93%20passed-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -95,7 +95,7 @@ flowchart TD
 
 ## ✨ Features
 
-**Implemented and tested (89 tests green):**
+**Implemented and tested (93 tests green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates verdict authority
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
@@ -155,7 +155,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 89 tests (synthetic GT scenes + HTTP E2E + contract parity) |
+| Tests | pytest — 93 tests (synthetic GT scenes + HTTP E2E + contract parity) |
 
 ---
 
@@ -177,7 +177,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 89 tests incl. synth/ renderer with full GT
+├── tests/                     # 93 tests incl. synth/ renderer with full GT
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -352,7 +352,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (89 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (93 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 

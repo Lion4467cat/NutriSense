@@ -12,7 +12,7 @@ quality flags). The prior anchor tier can never PASS or FAIL (C caps out at
 import numpy as np
 
 from engine.contract import (Failure, FailureKind, Reason, ReasonKind, Stage,
-                             gate_reject, reason_for_failure)
+                             reason_for_failure)
 from engine.mc import load_standards, sample_nutrients  # noqa: F401 (re-export convenience)
 from models.portion_estimator import load_params
 
@@ -36,31 +36,13 @@ def _p_ge(samples, threshold):
     return float(np.mean(np.asarray(samples) >= threshold))
 
 
-def assess(mc, portion, dish, band, anchor_label, lint=None,
+def assess(mc, portion, dish, band, anchor_label,
            params=None, standards=None, day=None):
-    """Produce the verdict dict for one plate."""
+    """Score one admitted plate. Hard gates are consulted by analyze() only
+    (engine/gates.py) — by the time we get here the plate is admitted."""
     params = params if params is not None else load_params()
     standards = standards if standards is not None else load_standards()
-    lint = lint or {}
 
-    # --- hard gates first -------------------------------------------------
-    if dish.get("nutrition_source") == "out_of_scope" or dish.get("status") == "out_of_scope":
-        f, r = gate_reject(ReasonKind.OUT_OF_SCOPE, Stage.CLASSIFY,
-                           "dish is out of scope (not portion-scored)")
-        return {"verdict": "out_of_scope", "reasons": [r], "failures": [f],
-                "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
-    zoom = lint.get("digital_zoom")
-    if zoom is not None and float(zoom) != 1.0:
-        f, r = gate_reject(ReasonKind.ZOOM, Stage.INPUT,
-                           f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)")
-        return {"verdict": "cannot_verify", "reasons": [r], "failures": [f],
-                "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
-    bands = standards["bands"]
-    if band not in bands:
-        f, r = gate_reject(ReasonKind.UNKNOWN_BAND, Stage.INPUT,
-                           f"unknown class band {band!r}")
-        return {"verdict": "cannot_verify", "reasons": [r], "failures": [f],
-                "coverage": None, "nutrients": {}, "assumptions": [], "advisory": None}
     if mc is None:
         f = Failure(FailureKind.STAGE_FAILED, Stage.NUTRITION,
                     "no nutrient samples")
@@ -71,7 +53,7 @@ def assess(mc, portion, dish, band, anchor_label, lint=None,
     rules = standards["compliance"]
     thr = rules["thresholds"]
     cov_min = rules["coverage"]
-    band_row = bands[band]
+    band_row = standards["bands"][band]  # band validity is the gate's job
 
     # --- probabilities per mandatory nutrient ----------------------------
     nutrients, probs, reasons = {}, {}, []

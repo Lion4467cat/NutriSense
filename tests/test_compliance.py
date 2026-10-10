@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from engine.compliance import assess, coverage
-from engine.contract import ReasonKind
+from engine.contract import FailureKind, ReasonKind
 
 DISHES = yaml.safe_load(open("data/menu.yaml"))["dishes"]
 
@@ -72,21 +72,11 @@ def test_coverage_gate_fail_needs_090():
     assert any(r.kind == ReasonKind.COVERAGE_GATE for r in out2["reasons"])
 
 
-def test_zoom_and_bad_band_cannot_verify():
-    mc = _mc(np.full(100, 600.0), np.full(100, 15.0))
-    out = assess(mc, _portion(), DISHES["rice_sambar"], "1-5", "measured",
-                 lint={"digital_zoom": 2.0})
+def test_missing_mc_cannot_score():
+    # scoring precondition, not a gate: assess() never sees None in production
+    out = assess(None, _portion(), DISHES["rice_sambar"], "1-5", "measured")
     assert out["verdict"] == "cannot_verify"
-    out2 = assess(mc, _portion(), DISHES["rice_sambar"], "nonsense", "measured")
-    assert out2["verdict"] == "cannot_verify"
-    out3 = assess(None, _portion(), DISHES["rice_sambar"], "1-5", "measured")
-    assert out3["verdict"] == "cannot_verify"
-
-
-def test_out_of_scope_dish():
-    mc = _mc(np.full(100, 600.0), np.full(100, 15.0))
-    out = assess(mc, _portion(), DISHES["wheat_product"], "1-5", "measured")
-    assert out["verdict"] == "out_of_scope"
+    assert out["failures"][0].kind is FailureKind.STAGE_FAILED
 
 
 def test_advisory_and_diagnostics_passthrough():

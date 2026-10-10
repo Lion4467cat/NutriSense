@@ -17,8 +17,9 @@ import numpy as np
 
 from engine.compliance import assess
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
-                             gate_reject, load_policy, log_analysis,
+                             load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
+from engine.gates import INPUT_GATES, SCOPE_GATE, admit
 from engine.mc import sample_nutrients
 from engine.depth import MonocularDepth, calibrate_depth_scale
 from geo.pose import camera_matrix
@@ -100,23 +101,13 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         lint["notes"].append(f"min side {min(H, W)} < {policy.lint_min_side_px}px "
                              "(marker tier may fall back to prior)")
 
-    # --- input gates ------------------------------------------------------
-    zoom = lint["digital_zoom"]
-    if zoom is not None and float(zoom) != 1.0:
-        f, r = gate_reject(ReasonKind.ZOOM, Stage.INPUT,
-                           f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)")
-        return finish(Analysis(verdict="cannot_verify", reasons=[r],
-                               failures=[f], lint=lint))
-    if day not in menu["days"]:
-        f, r = gate_reject(ReasonKind.UNKNOWN_DAY, Stage.INPUT,
-                           f"unknown day {day!r}")
-        return finish(Analysis(verdict="cannot_verify", reasons=[r],
-                               failures=[f], lint=lint))
-    if band not in {"1-5", "6-8", "9-10"}:
-        f, r = gate_reject(ReasonKind.UNKNOWN_BAND, Stage.INPUT,
-                           f"unknown class band {band!r}")
-        return finish(Analysis(verdict="cannot_verify", reasons=[r],
-                               failures=[f], lint=lint))
+    # --- hard gates: one table, consulted once each -----------------------
+    for gate in INPUT_GATES:
+        outcome = admit(gate, lint=lint, day=day, band=band, menu=menu)
+        if not outcome.admitted:
+            return finish(Analysis(verdict=gate.verdict,
+                                   reasons=[outcome.reason],
+                                   failures=[outcome.failure], lint=lint))
 
     # --- anchor stage (degrade to prior tier on failure) ------------------
     anchor, failure = stage(Stage.ANCHOR, estimate_anchor, image_bgr,
@@ -180,12 +171,12 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             classification=classification))
 
     dish = menu["dishes"][dish_info["id"]]
-    if dish.get("status") == "out_of_scope" or dish.get("nutrition_source") == "out_of_scope":
-        f, r = gate_reject(ReasonKind.OUT_OF_SCOPE, Stage.CLASSIFY,
-                           "dish is out of scope (not portion-scored)")
-        return finish(Analysis(verdict="out_of_scope", reasons=[r],
-                               failures=[f], lint=lint, anchor=anchor_info,
-                               segmentation=seg_info,
+    outcome = admit(SCOPE_GATE, dish=dish)
+    if not outcome.admitted:
+        return finish(Analysis(verdict=SCOPE_GATE.verdict,
+                               reasons=[outcome.reason],
+                               failures=[outcome.failure], lint=lint,
+                               anchor=anchor_info, segmentation=seg_info,
                                classification=classification, dish=dish_info))
 
     # --- depth stage (monocular depth + anchor calibration) ---------------
@@ -244,7 +235,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     # --- compliance stage (verdict) ---------------------------------------
     verdict, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,
-                             anchor.get("label", "prior"), lint=lint, day=day,
+                             anchor.get("label", "prior"), day=day,
                              timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
