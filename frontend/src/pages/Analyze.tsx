@@ -9,7 +9,7 @@ import { fileToThumbnail } from "../utils/image";
 import PipelineProgress from "../analysis/PipelineProgress";
 import { HOW_IT_WORKS } from "../analysis/stages";
 import { STAGE_NAMES } from "../types/contract.gen";
-import { Card, Collapse } from "../ui/primitives";
+import { Card } from "../ui/primitives";
 import { IconCamera, IconUpload } from "../ui/Icon";
 import { bandLabel, dayLabel } from "../utils/format";
 

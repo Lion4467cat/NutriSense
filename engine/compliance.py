@@ -64,7 +64,7 @@ def assess(mc, portion, dish, band, anchor_label,
         minimum = float(row["value"])
         samples = mc[f"{key}_samples"]
         p = _p_ge(samples, minimum)
-        summary = mc[key if key in mc else ("kcal" if key == "kcal" else "protein_g")]
+        summary = mc[key]
         probs[key] = p
         nutrients[key] = {
             "min": minimum,

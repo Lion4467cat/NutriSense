@@ -20,9 +20,10 @@ from config import load_anchor_config as load_config
 from geo import camera_matrix, mean_side_px, pose_from_marker
 
 _REL_Z = 1.645          # one-sided 90% normal quantile
-_EXIF_FOCAL = 37386     # FocalLength
-_EXIF_SUBJ_DIST = 41486 # SubjectDistance
-_EXIF_DIGI_ZOOM = 41540 # DigitalZoomRatio
+_EXIF_FOCAL = 41486     # FocalLength (Exif IFD)
+_EXIF_SUBJ_DIST = 37386 # SubjectDistance (Exif IFD)
+_EXIF_DIGI_ZOOM = 41540 # DigitalZoomRatio (Exif IFD)
+_EXIF_IFD = 0x8769      # pointer to the Exif sub-IFD
 
 
 def read_exif(path):
@@ -31,8 +32,14 @@ def read_exif(path):
     try:
         with Image.open(path) as im:
             ex = im.getexif()
+            exif_ifd = ex.get_ifd(_EXIF_IFD)
     except Exception:
         return out
+
+    def _get(tag):
+        # these tags live in the Exif sub-IFD; some writers put them in IFD0
+        v = ex.get(tag)
+        return exif_ifd.get(tag) if v is None else v
 
     def _rational(v):
         try:
@@ -41,13 +48,13 @@ def read_exif(path):
         except Exception:
             return None
 
-    focal = _rational(ex.get(_EXIF_FOCAL))
+    focal = _rational(_get(_EXIF_FOCAL))
     if focal:
         out["focal_mm"] = focal
-    dz = _rational(ex.get(_EXIF_DIGI_ZOOM))
-    if dz and dz != 1.0:
+    dz = _rational(_get(_EXIF_DIGI_ZOOM))
+    if dz:
         out["digital_zoom"] = dz
-    sd = ex.get(_EXIF_SUBJ_DIST)
+    sd = _get(_EXIF_SUBJ_DIST)
     if sd is not None:
         try:
             if isinstance(sd, str) and "/" in sd:

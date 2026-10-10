@@ -125,8 +125,10 @@ export default function NutrientIntervals({ result }: { result: AnalyzeResult })
         />
       ))}
       <p className="card-sub" style={{ marginTop: 12 }}>
-        Interval from {result.nutrition?.n ?? 4000} fixed-seed samples · P = P(at
-        or above minimum) computed by the backend.
+        {result.nutrition?.n
+          ? `Interval from ${result.nutrition.n} fixed-seed samples · `
+          : "Interval · "}
+        P = P(at or above minimum) computed by the backend.
       </p>
     </Card>
   );

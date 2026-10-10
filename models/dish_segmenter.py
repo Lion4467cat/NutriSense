@@ -140,6 +140,8 @@ def segment_food(image_bgr):
         cands = _query(rgb, (cx, cy), box=box)
         strategy = "centre_box"
         k = _select(cands)
+        if k is not None and cands[k][0].mean() > AREA_MAX:
+            k = None  # same area invariant as the centre_point path
     if k is None:
         raise RuntimeError("SAM2 produced no mask candidates")
 

@@ -162,8 +162,8 @@ describe("eviction", () => {
     expect(ids).not.toContain("r002");
     expect(ids).not.toContain("r003");
     expect(ids).not.toContain("r004");
-    // storage is newest-first
-    expect([...ids].sort()).toEqual(ids.slice().reverse().sort());
+    // storage is newest-first: descending by zero-padded id
+    expect(ids).toEqual([...ids].sort().reverse());
   });
 
   it("caps in-memory state the same way (capRecords keeps newest)", () => {

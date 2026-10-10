@@ -86,6 +86,25 @@ def test_exif_read_on_plain_png(tmp_path):
     assert res["label"] == "prior"
 
 
+def test_exif_tags_read_from_exif_ifd(tmp_path):
+    from PIL import Image
+    p = tmp_path / "phone.jpg"
+    im = Image.new("RGB", (64, 64), 128)
+    ex = im.getexif()
+    ifd = ex.get_ifd(0x8769)
+    ifd[41486] = 3.98     # FocalLength
+    ifd[37386] = "45/1"   # SubjectDistance
+    ifd[41540] = 1.0      # DigitalZoomRatio
+    ex[0x8769] = ifd
+    im.save(p, exif=ex)
+
+    out = read_exif(p)
+    assert out["focal_mm"] == 3.98
+    assert out["subject_distance_cm"] == 45.0
+    # 1.0 is a reported, protocol-compliant value — not swallowed as absent
+    assert out["digital_zoom"] == 1.0
+
+
 def test_config_loads_tiers():
     cfg = load_config()
     assert cfg["tiers"] == ["card", "prior"]

@@ -255,19 +255,16 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     ))
 
 
-def _anchor_summary(anchor, depth_scale=None):
+def _anchor_summary(anchor):
     if not anchor:
         return None
-    out = {
+    return {
         "method": anchor.get("method"), "tier": anchor.get("label"),
         "cm_per_px": anchor.get("cm_per_px"),
         "interval": anchor.get("interval"),
         "tilt_deg": anchor.get("tilt_deg"),
         "reason": anchor.get("reason"),
     }
-    if depth_scale is not None:
-        out["depth_scale_factor"] = depth_scale
-    return out
 
 
 def _seg_summary(seg):

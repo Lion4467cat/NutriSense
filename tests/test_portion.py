@@ -85,7 +85,7 @@ def test_table_prior_path_flagged(plate):
 
 def test_bad_inputs_raise(plate):
     with pytest.raises(ValueError):
-        _estimate(plate, cfg={})["x"] if False else estimate_portion(
+        estimate_portion(
             plate["image_bgr"], np.zeros_like(plate["mask_food"]),
             plate["depth_m"], estimate_anchor(plate["image_bgr"]),
             {"K": plate["camera"]["K"]}, DISH)
