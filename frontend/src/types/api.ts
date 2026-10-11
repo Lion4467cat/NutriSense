@@ -38,7 +38,7 @@ export type {
 export type ClassBand = "1-5" | "6-8" | "9-10";
 export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | string;
 
-/** The full 16-key /analyze payload (engine.contract.Analysis). */
+/** The full 18-key /analyze payload (engine.contract.Analysis). */
 export type AnalyzeResponse = Analysis;
 
 /**

@@ -4,7 +4,7 @@
 Every stage runs through engine.contract.stage(): fatal stages convert their
 exceptions into a Failure (log ERROR, cannot_verify — never a 500), the anchor
 stage degrades to the prior tier (log WARNING, continues). Every exit returns
-the 17-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+the 18-key wire shape via Analysis.to_wire(), with policy thresholds attached.
 Model stages additionally run through _oom_guard(): a CUDA OOM clears the
 model registry (unload + cache clear) and retries once, recording the
 degradations[] tag gpu_oom_retried; a second OOM becomes a structured Failure.
@@ -15,11 +15,15 @@ deps lets tests (and future alternate backends) override any stage:
 Depth callables return {"depth_m": (H,W) meters, ...}; the pipeline calibrates
 monocular scale against a measured anchor automatically.
 
-Learned weight fallback (ADR-0002): when the anchor is prior tier (no
-reference card) and a trained weight head exists (data/weight_head.pt), the
-portion step asks the head for grams (WED-trained, class-conditional) instead
-of size-prior geometry. Any head failure silently falls back to geometry.
-The verdict for every no-card plate is ESTIMATED — never PASS/FAIL.
+Learned weight (ADR-0002): when the anchor is prior tier (no reference card)
+and a trained weight head exists (data/weight_head.pt), the portion step asks
+the head for grams (WED-trained, class-conditional) instead of size-prior
+geometry. A head that fails raises WeightHeadUnavailable -> cannot_verify with
+the weight_head_unavailable reason and no grams — geometry is never silently
+substituted. Head absent (checkpoint missing or failed to load) on a mapped
+dish degrades to geometry with the degradations[] tag weight_head_unavailable;
+unmapped dishes never consult the head. No-card plates are scored like any
+other, leading their reasons with the no_reference_card estimate disclaimer.
 """
 import logging
 
@@ -29,7 +33,7 @@ from config import (load_anchor_config, load_menu, load_wed_dishes,
                     load_wed_index, load_wed_sigma)
 from engine.compliance import assess
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
-                             load_policy, log_analysis,
+                             WeightHeadUnavailable, load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
 from engine.gates import INPUT_GATES, SCOPE_GATE, admit
 from engine.mc import sample_nutrients
@@ -188,6 +192,13 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     def finish(analysis: Analysis) -> dict:
         analysis.degradations = list(degradations)
+        if analysis.path_used is None and analysis.portion is not None:
+            if (analysis.anchor or {}).get("tier") == "measured":
+                analysis.path_used = "card_geometry"
+            elif analysis.portion.get("base_method") == "learned_weight":
+                analysis.path_used = "learned_head"
+            else:
+                analysis.path_used = "prior_geometry"
         log_analysis(str(analysis.verdict), day, band, timings)
         return analysis.to_wire()
 
@@ -316,9 +327,17 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     depth_out, depth_m, scale_factor, scale_source = depth_result
 
     # --- portion stage ----------------------------------------------------
-    # Learned fallback (prior tier only): head.predict -> grams; any failure
-    # silently degrades to the geometry path (never worse than today).
+    # Learned path (prior tier only): head.predict -> grams. A head that
+    # fails raises WeightHeadUnavailable -> cannot_verify (stage() maps it to
+    # the weight_head_unavailable reason); an absent head on a mapped dish
+    # degrades to geometry with a visible degradations[] tag — never silent.
     head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
+    if (head is None and anchor.get("label") != "measured"
+            and _wed_slots_for_dish(dish_info["id"]) is not None
+            and "weight_head_unavailable" not in degradations):
+        degradations.append("weight_head_unavailable")
+        log.warning("weight head unavailable — geometry prior with "
+                    "degradations[]=weight_head_unavailable")
 
     def _portion_step():
         if (anchor.get("label") != "measured" and head is not None
@@ -326,9 +345,12 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             try:
                 return _learned_portion(image_bgr, mask, dish,
                                         dish_info["id"], head)
-            except Exception:
-                log.warning("learned weight head failed — geometry prior fallback",
-                            exc_info=True)
+            except Exception as e:
+                if _is_oom(e):
+                    raise  # _oom_guard retries; a second OOM is a Failure
+                raise WeightHeadUnavailable(
+                    f"learned weight head failed: {type(e).__name__}: {e}"
+                ) from e
         return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
 
     portion, failure = stage(Stage.PORTION, _oom_guard(_portion_step, degradations),

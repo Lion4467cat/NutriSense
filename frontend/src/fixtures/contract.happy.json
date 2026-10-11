@@ -147,6 +147,7 @@
     "seed": 1234,
     "wider_ranges": false
   },
+  "path_used": "card_geometry",
   "policy": {
     "anchor_prior_cap": 0.6,
     "base_table_prior": 0.85,

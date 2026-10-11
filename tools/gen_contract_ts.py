@@ -16,7 +16,8 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from engine.contract import FailureKind, Policy, ReasonKind, Stage  # noqa: E402
+from engine.contract import (PATH_USED_VALUES, FailureKind, Policy, ReasonKind,
+                             Stage)  # noqa: E402
 
 OUT_PATH = _ROOT / "frontend" / "src" / "types" / "contract.gen.ts"
 
@@ -29,6 +30,7 @@ def generate() -> str:
     reason_kinds = _literals(k.value for k in ReasonKind)
     failure_kinds = _literals(k.value for k in FailureKind)
     stages = _literals(s.value for s in Stage)
+    path_used = _literals(PATH_USED_VALUES)
     verdicts = _literals(Verdict for Verdict in
                          ("PASS", "BORDERLINE", "FAIL", "ESTIMATED",
                           "cannot_verify", "out_of_scope"))
@@ -216,6 +218,7 @@ export const analysisSchema = z.object({{
   compliance: complianceSchema.nullable(),
   model_versions: z.record(z.string(), z.string()),
   policy: policySchema,
+  path_used: z.enum([{path_used}]).nullable(),
   degradations: z.array(z.string()),
 }});
 export type Analysis = z.infer<typeof analysisSchema>;

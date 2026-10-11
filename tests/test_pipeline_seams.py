@@ -168,7 +168,7 @@ def test_result_contract_keys_and_types(scene):
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
         "assumptions", "advisory", "model_versions", "compliance", "policy",
-        "degradations",
+        "path_used", "degradations",
     }
     assert out["failures"] == []
     assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280
@@ -359,7 +359,7 @@ def test_learned_head_replaces_prior_geometry(no_card_scene):
     assert out["failures"] == []
 
 
-def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
+def test_learned_head_failure_cannot_verify(no_card_scene):
     class Boom:
         meta = {}
 
@@ -368,14 +368,14 @@ def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
 
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene) | {"weight_head": Boom()})
-    p = out["portion"]
-    assert p["grams_source"] == "geometry"
-    assert p["base_method"] in {"ring", "table_prior"}
-    assert "size_prior_scale" in p["flags"]          # prior geometry ran
-    assert "learned_weight_applied" not in p["flags"]
-    assert p["mean_h_mm"] is not None
-    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
-    assert out["failures"] == []                 # silent degrade
+    # STAGE 3: no silent geometry substitution — the plate cannot be verified
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None                 # no grams reach the wire
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "cuda exploded" in out["reasons"][0]["text"]
+    assert out["path_used"] is None               # no portion path ran
 
 
 def test_weight_head_none_disables_learned_path(no_card_scene):

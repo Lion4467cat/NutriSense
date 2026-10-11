@@ -71,7 +71,7 @@ flowchart TD
     VER -->|else| BORD["⚠ BORDERLINE"]
     VER -.->|"no card: reasons[0]"| DISC["📋 this weight is an estimate<br/>(no reference card)"]
 
-    PASS ==> WIRE["16-key wire · to_wire()<br/>verdict (incl. cannot_verify) · reasons · failures"]
+    PASS ==> WIRE["18-key wire · to_wire()<br/>verdict (incl. cannot_verify) · reasons · failures"]
     FAIL ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
@@ -90,7 +90,7 @@ flowchart TD
     class WIRE wire
 ```
 
-Every exit — gate, stage failure, or verdict — serializes through the same 16-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which still cannot PASS/FAIL).
+Every exit — gate, stage failure, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which still cannot PASS/FAIL).
 
 ### Pipeline components
 
@@ -267,7 +267,7 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ### Example Response — `/analyze`
 
-Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
+Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `learned_head` | `prior_geometry`, null when no portion ran); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried` and `weight_head_unavailable` (empty when nothing degraded); `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
 
 ```json
 {
