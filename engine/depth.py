@@ -59,17 +59,20 @@ class MonocularDepth:
         self.model_id = model_id
         self.device = device
         self.resolution_level = resolution_level
-        self._model = None
 
     def _load(self):
-        if self._model is None:
-            import torch
-            from moge.model.v2 import MoGeModel
+        import torch
+        from models import registry
 
-            device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        key = f"moge:{self.model_id}:{device}"
+
+        def _make():
+            from moge.model.v2 import MoGeModel
             model = MoGeModel.from_pretrained(self.model_id)
-            self._model = model.to(device).eval()
-        return self._model
+            return {"model": model.to(device).eval(), "device": device}
+
+        return registry.get_or_create(key, _make)["model"]
 
     def __call__(self, image_bgr, fov_x=None):
         import torch

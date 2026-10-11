@@ -58,17 +58,19 @@ def _log_startup_devices() -> None:
     try:
         import torch
         from engine.depth import MonocularDepth
-        from models import dish_segmenter, food_classifier
+        from models import dish_segmenter, food_classifier, registry
     except Exception as e:
         log.warning("startup device report unavailable: %s", e)
         return
     avail = torch.cuda.is_available()
     gpu = torch.cuda.get_device_name(0) if avail else "none"
     fallback = "cuda" if avail else "cpu"
-    seg = dish_segmenter._STATE.get("device") or dish_segmenter._device()
-    cls = food_classifier._STATE.get("device") or food_classifier._device()
+    seg_state = registry.peek("sam2")
+    cls_state = registry.peek("siglip2")
+    seg = (seg_state or {}).get("device") or dish_segmenter._device()
+    cls = (cls_state or {}).get("device") or food_classifier._device()
     dep = MonocularDepth().device or fallback  # constructor is lazy
-    loaded = bool(dish_segmenter._STATE or food_classifier._STATE)
+    loaded = bool(seg_state or cls_state)
     log.info(
         "startup torch.cuda.is_available()=%s gpu=%s | segment=%s classify=%s depth=%s%s",
         avail, gpu, seg, cls, dep,

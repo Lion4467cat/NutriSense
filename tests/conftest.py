@@ -8,6 +8,9 @@ the real logs/nutrisense.log.
 Hermetic weight head: never auto-load data/weight_head.pt in tests — seam
 tests inject their own head through deps={"weight_head": ...}. Without this,
 training would change test behaviour as soon as the checkpoint lands.
+(STAGE 2: the pipeline's ad hoc _weight_head_missing global was replaced by
+models.registry; the hermetic pin is now a registered factory returning
+None.)
 """
 import os
 import tempfile
@@ -17,6 +20,6 @@ os.environ.setdefault(
     tempfile.mkdtemp(prefix="nutrisense-pytest-logs-"),
 )
 
-import engine.pipeline as _pipeline  # noqa: E402
+from models import registry as _registry  # noqa: E402
 
-_pipeline._weight_head_missing = True
+_registry.register("weight_head", lambda: None)

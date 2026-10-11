@@ -35,9 +35,6 @@ from geo.pose import camera_matrix
 from models.portion_estimator import _components, estimate_portion
 from models.scale_anchor import estimate_anchor, prior_anchor
 
-_default_depth = None
-_default_weight_head = None
-_weight_head_missing = False
 log = logging.getLogger("nutrisense")
 
 # Assumed relative sigma when the head exists but no per-class val sigma is
@@ -46,35 +43,32 @@ LEARNED_SIGMA_REL_FALLBACK = 0.30
 
 
 def _get_depth_provider():
-    global _default_depth
-    if _default_depth is None:
-        _default_depth = MonocularDepth()
-    return _default_depth
+    from models import registry
+    return registry.get_or_create("depth_provider", MonocularDepth)
+
+
+def _make_weight_head():
+    from config import DATA_DIR
+    from models.weight_head import WeightHead
+    import torch
+    ckpt = DATA_DIR / "weight_head.pt"
+    if not ckpt.is_file():
+        raise FileNotFoundError(ckpt)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return WeightHead.load(ckpt, device=device)
 
 
 def _get_weight_head():
     """Lazy-load data/weight_head.pt once. Missing checkpoint -> None (the
     learned path is simply disabled; geometry prior keeps working)."""
-    global _default_weight_head, _weight_head_missing
-    if _weight_head_missing:
+    from models import registry
+    try:
+        return registry.get_or_create("weight_head", _make_weight_head)
+    except FileNotFoundError:
         return None
-    if _default_weight_head is None:
-        from pathlib import Path
-        from config import DATA_DIR
-        ckpt = DATA_DIR / "weight_head.pt"
-        if not ckpt.is_file():
-            _weight_head_missing = True
-            return None
-        try:
-            from models.weight_head import WeightHead
-            import torch
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            _default_weight_head = WeightHead.load(ckpt, device=device)
-        except Exception:
-            log.exception("weight head checkpoint failed to load — geometry fallback")
-            _weight_head_missing = True
-            return None
-    return _default_weight_head
+    except Exception:
+        log.exception("weight head checkpoint failed to load — geometry fallback")
+        return None
 
 
 def _wed_slots_for_dish(dish_key: str) -> list[int] | None:

@@ -145,6 +145,9 @@ def _profile(label: str, name: str, image_bgr, deps,
 
 def _compare(golden_path: Path, current: dict) -> None:
     golden = json.loads(golden_path.read_text())
+    # Normalise the live object to what json round-trips produce, so tuples /
+    # numpy scalars compare equal to their golden JSON counterparts.
+    current = json.loads(json.dumps(current))
     diffs = []
 
     def walk(a, b, path=""):

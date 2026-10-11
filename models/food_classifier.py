@@ -27,8 +27,6 @@ from config import (GALLERY_PATH, load_gallery as _load_gallery, load_menu,
 MODEL_ID = "google/siglip2-base-patch16-224"
 TOP_K = 3
 
-_STATE = {}
-
 
 # --- menu helpers (dish truth lives in data/menu.yaml only) -----------------
 
@@ -64,16 +62,19 @@ def _device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def _load():
-    if _STATE:
-        return _STATE["proc"], _STATE["model"], _STATE["device"]
+def _make_state():
     import torch
     from transformers import AutoModel, AutoProcessor
     dev = _device()
     proc = AutoProcessor.from_pretrained(MODEL_ID)
     model = AutoModel.from_pretrained(MODEL_ID).to(dev).eval()
-    _STATE.update(proc=proc, model=model, device=dev)
-    return proc, model, dev
+    return {"proc": proc, "model": model, "device": dev}
+
+
+def _load():
+    from models import registry
+    s = registry.get_or_create("siglip2", _make_state)
+    return s["proc"], s["model"], s["device"]
 
 
 def _pool(o):
