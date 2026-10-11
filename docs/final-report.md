@@ -120,7 +120,7 @@ weight is an estimate (user decision, graduated same day):
 | Evidence | Number |
 |---|---|
 | Prior-tier geometry baseline, WED test, per-ROI | **MAE 1,464.5 g** (median AE 917 g, bias +1,454 g; 71 empty-mask failures) — `data/reports/prior_tier_wed.json` |
-| WED-trained head, test split (248 views / 16,211 train ROIs → best val 19.73 g) | **test MAE 19.32 g** (~76× better than the prior baseline; paper's frozen-ResNet50 baseline: 14.51 g) — `data/reports/weight_head_train.json` |
+| WED-trained head, deployable path (248 test views / 16,211 train ROIs; val 108 views) | **val MAE 20.30 g / test MAE 20.03 g** (~73× better than the prior baseline; paper's frozen-ResNet50 baseline: 14.51 g). The test split was read exactly once (2026-10-11) for this report — no decision was based on it. Earlier quotes (val 19.73 g / test 19.32 g) were *in-process* numbers from a run where the frozen encoder's BatchNorm adapted in train mode and was never saved; the deployed checkpoint then scored 24.65 g val. STAGE 1B pinned the encoder to `eval()` during training so in-process == deployed — see `docs/known_issues.md` (`data/reports/weight_head_train.json` still holds the pre-fix numbers and is stale) |
 | `rice_sambar` composite (steamed-rice + sambar on merged mask) | merged-union MAE **44.3 g** ≤ per-ROI-sum 45.9 g → `merge_validated: true` — same report |
 | Head vs geometry on-card | head never runs when the anchor is `measured` (seam test) |
 

@@ -109,7 +109,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 
 ## ✨ Features
 
-**Implemented and tested (109 pytest + 43 vitest green):**
+**Implemented and tested (114 pytest + 43 vitest green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; any failure silently degrades to geometry (ADR 0002)
