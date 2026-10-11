@@ -32,6 +32,7 @@ def test_menu_dish_keys_exclude_out_of_scope():
     assert set(keys) <= {"rice_sambar", "vegetable_rice", "bisibelebath"}
 
 
+@pytest.mark.gpu
 def test_segmenter_iou_on_synthetic():
     s = render_scene()
     gt = s["mask_food"]
@@ -45,6 +46,7 @@ def test_segmenter_iou_on_synthetic():
     assert 0.01 < out["area_frac"] < 0.5
 
 
+@pytest.mark.gpu
 def test_gallery_held_out_photos():
     fl = _files()
     entries, held = [], []
@@ -64,6 +66,7 @@ def test_gallery_held_out_photos():
         assert res["uncovered"] == ["bisibelebath"]
 
 
+@pytest.mark.gpu
 def test_synthetic_render_abstains():
     s = render_scene()
     res = classify_dish(s["image_bgr"])          # uses data/gallery.npz
@@ -73,6 +76,7 @@ def test_synthetic_render_abstains():
     assert "match" in res["reason"]
 
 
+@pytest.mark.gpu
 def test_text_fallback_when_gallery_empty():
     s = render_scene()
     empty = {"emb": np.zeros((0, 4), np.float32),

@@ -50,6 +50,7 @@ def test_menu_endpoint():
     assert len(body["policy"]["policy_version"]) == 12
 
 
+@pytest.mark.gpu
 def test_analyze_upload_end_to_end(jpg_bytes, monkeypatch):
     # classifier stubbed (synthetic renders abstain at 0.67 < 0.82 by design)
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {

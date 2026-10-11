@@ -9,9 +9,10 @@ STAGE 1C adds two guards on top of the checksum/plausible-range pair:
     drift is what used to cost ~4 g between in-process and deployed MAE),
   * a golden MAE on a fixed 30-view VAL subset via the deployable path.
 
+Every test in this module loads a model and carries the `gpu` marker; the
+model and the ImageNet reference are built once per session by fixtures.
 All tests skip when the head checkpoint or the cached torchvision
-resnet50 IMAGENET1K_V2 weights are missing — no downloads in CI, and the
-gpu pytest marker does not exist yet, so a plain skipif guard is used.
+resnet50 IMAGENET1K_V2 weights are missing — no downloads in CI.
 """
 from __future__ import annotations
 
@@ -22,6 +23,8 @@ import pytest
 import torch
 
 from models.weight_head import WeightHead
+
+pytestmark = pytest.mark.gpu
 
 _ROOT = Path(__file__).resolve().parents[1]
 CKPT = _ROOT / "data" / "weight_head.pt"
@@ -41,35 +44,40 @@ def _device() -> torch.device:
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-@_needs_artifacts
-def test_load_restores_pretrained_encoder() -> None:
+@pytest.fixture(scope="session")
+def head() -> WeightHead:
+    return WeightHead.load(CKPT, device=_device())
+
+
+@pytest.fixture(scope="session")
+def imagenet_ref():
     from torchvision import models
-    ref = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
-    model = WeightHead.load(CKPT, device="cpu")
-    assert _sha(model.encoder[0].weight) == _sha(ref.conv1.weight), (
+    return models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
+
+
+@_needs_artifacts
+def test_load_restores_pretrained_encoder(head, imagenet_ref) -> None:
+    assert _sha(head.encoder[0].weight) == _sha(imagenet_ref.conv1.weight), (
         "loaded encoder conv1 does not match IMAGENET1K_V2 weights — "
         "WeightHead.load rebuilt the backbone without pretrained=True")
 
 
 @_needs_artifacts
-def test_loaded_head_predicts_grams_not_kilograms() -> None:
+def test_loaded_head_predicts_grams_not_kilograms(head) -> None:
     torch.manual_seed(0)
-    model = WeightHead.load(CKPT, device="cpu")
-    x = torch.randn(1, 3, 224, 224)
-    feats = model.encode(x)
-    rois = torch.tensor([[0.0, 2.0, 2.0, 26.0, 26.0]])
+    x = torch.randn(1, 3, 224, 224, device=_device())
+    feats = head.encode(x)
+    rois = torch.tensor([[0.0, 2.0, 2.0, 26.0, 26.0]], device=_device())
     with torch.no_grad():
-        pred = float(model(feats, rois)[0, 0])
+        pred = float(head(feats, rois)[0, 0])
     assert 0.0 < pred < 5000.0, f"implausible prediction {pred:.1f} g (kg-scale garbage?)"
 
 
 @_needs_artifacts
-def test_encoder_bn_matches_stock_imagenet() -> None:
-    from torchvision import models
-    ref = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
-    ref_enc = torch.nn.Sequential(*list(ref.children())[:-2])
-    model = WeightHead.load(CKPT, device="cpu")
-    ref_sd, enc_sd = ref_enc.state_dict(), model.encoder.state_dict()
+def test_encoder_bn_matches_stock_imagenet(head, imagenet_ref) -> None:
+    ref_enc = torch.nn.Sequential(*list(imagenet_ref.children())[:-2])
+    ref_sd = ref_enc.state_dict()
+    enc_sd = {k: v.detach().cpu() for k, v in head.encoder.state_dict().items()}
     assert ref_sd.keys() == enc_sd.keys()
     bn_keys = [k for k in ref_sd
                if k.endswith(("running_mean", "running_var",
@@ -90,7 +98,7 @@ _GOLDEN_VAL30_MAE_G = 16.21
 
 
 @_needs_artifacts
-def test_golden_val_subset_mae() -> None:
+def test_golden_val_subset_mae(head) -> None:
     import random
 
     import yaml
@@ -113,8 +121,7 @@ def test_golden_val_subset_mae() -> None:
     loader = DataLoader(WedPlates(subset, wed_root, train=False),
                         batch_size=8, shuffle=False, collate_fn=collate,
                         num_workers=0)
-    model = WeightHead.load(CKPT, device=_device())
-    mae, _, _ = evaluate_mae(model, loader, device=_device())
+    mae, _, _ = evaluate_mae(head, loader, device=_device())
     assert abs(mae - _GOLDEN_VAL30_MAE_G) <= 1.0, (
         f"golden val-subset MAE drifted: {mae:.2f} g "
         f"(golden {_GOLDEN_VAL30_MAE_G} g ± 1.0)")
