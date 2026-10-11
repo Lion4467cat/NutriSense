@@ -130,8 +130,9 @@ roi_align 7×7 over dish masks → class-conditional gram regression (41 WED
 classes). `data/wed/{train,test}` (git-ignored images), slot mapping in
 `data/wed_dishes.yaml`, head-only checkpoint `data/weight_head.pt` (~4 MB),
 per-class σ `data/weight_head_sigma.yaml` feeds the same MC engine.
-Any failure (missing checkpoint, unmapped dish, bad mask) silently falls
-back to the geometry path — measured captures are untouched.
+On a WED-mapped dish, an absent head (missing checkpoint / load failure)
+or a failing head cannot verify (`weight_head_unavailable`, no grams);
+unmapped dishes keep the geometry path — measured captures are untouched.
 
 Wire: `ReasonKind.NO_REFERENCE_CARD` leads `reasons` on every no-card
 plate (*"…this photo has no measured scale, so its weight is an estimate;

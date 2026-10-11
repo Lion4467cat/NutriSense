@@ -18,12 +18,12 @@ monocular scale against a measured anchor automatically.
 Learned weight (ADR-0002): when the anchor is prior tier (no reference card)
 and a trained weight head exists (data/weight_head.pt), the portion step asks
 the head for grams (WED-trained, class-conditional) instead of size-prior
-geometry. A head that fails raises WeightHeadUnavailable -> cannot_verify with
-the weight_head_unavailable reason and no grams — geometry is never silently
-substituted. Head absent (checkpoint missing or failed to load) on a mapped
-dish degrades to geometry with the degradations[] tag weight_head_unavailable;
-unmapped dishes never consult the head. No-card plates are scored like any
-other, leading their reasons with the no_reference_card estimate disclaimer.
+geometry. A head that fails — or is absent (checkpoint missing or failed to
+load) — on a WED-mapped dish raises WeightHeadUnavailable -> cannot_verify
+with the weight_head_unavailable reason and no grams; geometry is never
+silently substituted. Dishes with no WED mapping never consult the head and
+keep the geometry path. No-card plates are scored like any other, leading
+their reasons with the no_reference_card estimate disclaimer.
 """
 import logging
 
@@ -327,21 +327,20 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     depth_out, depth_m, scale_factor, scale_source = depth_result
 
     # --- portion stage ----------------------------------------------------
-    # Learned path (prior tier only): head.predict -> grams. A head that
-    # fails raises WeightHeadUnavailable -> cannot_verify (stage() maps it to
-    # the weight_head_unavailable reason); an absent head on a mapped dish
-    # degrades to geometry with a visible degradations[] tag — never silent.
+    # Learned path (prior tier only): head.predict -> grams. An absent head
+    # (checkpoint missing/load failed) and a failing head are treated the
+    # same on a WED-mapped dish: WeightHeadUnavailable -> cannot_verify with
+    # the weight_head_unavailable reason, no grams, path_used null. Unmapped
+    # dishes and the measured tier keep the geometry path.
     head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
-    if (head is None and anchor.get("label") != "measured"
-            and _wed_slots_for_dish(dish_info["id"]) is not None
-            and "weight_head_unavailable" not in degradations):
-        degradations.append("weight_head_unavailable")
-        log.warning("weight head unavailable — geometry prior with "
-                    "degradations[]=weight_head_unavailable")
 
     def _portion_step():
-        if (anchor.get("label") != "measured" and head is not None
+        if (anchor.get("label") != "measured"
                 and _wed_slots_for_dish(dish_info["id"]) is not None):
+            if head is None:
+                raise WeightHeadUnavailable(
+                    f"weight head unavailable for {dish_info['id']}: "
+                    "checkpoint missing or failed to load")
             try:
                 return _learned_portion(image_bgr, mask, dish,
                                         dish_info["id"], head)

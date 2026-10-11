@@ -129,14 +129,16 @@ def test_depth_scale_calibrated_and_recorded(scene):
 
 
 def test_depth_scale_none_on_prior_tier(no_card_scene):
+    # STAGE 5: a headless no-card run on a mapped dish cannot verify, so a
+    # working fake head is injected to reach the prior-tier depth wiring.
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene))
+                       deps=make_deps(no_card_scene) | {"weight_head": _FakeHead(310.0)})
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
-    # no reference card + geometry grams -> C=0.60 cap: scored verdict can
-    # only be BORDERLINE, with the no-card disclaimer leading the reasons
-    assert out["verdict"] == "BORDERLINE"
+    # no reference card + learned grams -> scored verdict with the
+    # no-card disclaimer leading the reasons
+    assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}
     assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
 
 
@@ -382,14 +384,34 @@ def test_learned_head_failure_cannot_verify(no_card_scene):
     assert out["path_used"] is None               # no portion path ran
 
 
-def test_weight_head_none_disables_learned_path(no_card_scene):
+def test_weight_head_none_cannot_verify_mapped_dish(no_card_scene):
+    # STAGE 5: explicit None head == failing head on a mapped dish
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene) | {"weight_head": None})
-    assert out["portion"]["grams_source"] == "geometry"
-    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
-    # STAGE 3: the substitution is reported, never silent
-    assert out["degradations"] == ["weight_head_unavailable"]
-    assert out["path_used"] == "prior_geometry"
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None               # no grams reach the wire
+    assert out["path_used"] is None
+    assert out["degradations"] == []
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
+
+
+def test_missing_checkpoint_cannot_verify_mapped_dish(no_card_scene):
+    # STAGE 5: no weight_head in deps -> _get_weight_head() -> the hermetic
+    # registry pin (a stand-in for a missing data/weight_head.pt) -> None.
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene))
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["path_used"] is None
+    assert out["degradations"] == []
+    assert len(out["failures"]) == 1
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
 
 
 def test_learned_head_not_used_when_card_measured(scene):

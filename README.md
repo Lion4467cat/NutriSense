@@ -112,7 +112,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 **Implemented and tested (114 pytest + 43 vitest green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
-- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; any failure silently degrades to geometry (ADR 0002)
+- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
@@ -267,7 +267,7 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ### Example Response — `/analyze`
 
-Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `learned_head` | `prior_geometry`, null when no portion ran); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried` and `weight_head_unavailable` (empty when nothing degraded); `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
+Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `learned_head` | `prior_geometry`, null when no portion ran); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried` (empty when nothing degraded); `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
 
 ```json
 {

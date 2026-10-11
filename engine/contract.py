@@ -16,8 +16,8 @@ Rules:
   * path_used  — which portion path produced the grams (card_geometry |
                  learned_head | prior_geometry); null when no portion ran.
   * degradations — machine-readable tags for substitutions that still
-                 produced a result (e.g. gpu_oom_retried, weight_head_
-                 unavailable); always present, [] when nothing degraded.
+                 produced a result (e.g. gpu_oom_retried); always present,
+                 [] when nothing degraded.
   * nullables  — a null detail block means "this stage was never reached".
   * paths      — never appear in error or reason text (redacted here, at the
                  single point every Failure/Reason passes through).
