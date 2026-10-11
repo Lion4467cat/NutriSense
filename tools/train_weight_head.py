@@ -146,10 +146,18 @@ def run_epoch(model, loader, device, optimizer=None, scheduler=None):
 
 
 @torch.no_grad()
-def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]]]:
+def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]],
+                                                  dict[int, list[float]]]:
+    """-> (overall MAE, per-class residuals pred-gt, per-class ground truth).
+
+    The ground-truth map is kept alongside the residuals because sigma_rel
+    must be normalised by the class's mean gram weight (sigma / mean_gt) —
+    residuals are signed and average to the model's bias, which is ~0 and
+    would collapse the divisor to the max(1.0, ...) floor."""
     model.eval()
     errs: list[float] = []
     per_class: dict[int, list[float]] = defaultdict(list)
+    per_class_gt: dict[int, list[float]] = defaultdict(list)
     for batch in loader:
         imgs = torch.stack([s["img"] for s in batch]).to(device)
         feats = model.encode(imgs)
@@ -159,8 +167,9 @@ def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]]]:
         for p, g, c in zip(preds.cpu().numpy(), weights.cpu().numpy(), cls_ids.cpu().numpy()):
             errs.append(float(p - g))
             per_class[int(c)].append(float(p - g))
+            per_class_gt[int(c)].append(float(g))
     mae = float(np.abs(np.array(errs)).mean()) if errs else float("nan")
-    return mae, per_class
+    return mae, per_class, per_class_gt
 
 
 @torch.no_grad()
@@ -258,7 +267,7 @@ def main() -> None:
     t0 = time.time()
     for epoch in range(1, args.epochs + 1):
         tr = run_epoch(model, train_loader, device, optimizer, scheduler)
-        va, _ = evaluate_mae(model, val_loader, device)
+        va, _, _ = evaluate_mae(model, val_loader, device)
         if va < best_val:
             best_val = va
             best_state = {k: v.detach().clone() for k, v in model.head_mlp.state_dict().items()}
@@ -267,14 +276,14 @@ def main() -> None:
                   f"(best {best_val:.2f})  [{time.time() - t0:.0f}s]", flush=True)
 
     model.head_mlp.load_state_dict(best_state)
-    _, per_class_val = evaluate_mae(model, val_loader, device)
-    test_mae, per_class_test = evaluate_mae(model, test_loader, device)
+    _, per_class_val, gt_val = evaluate_mae(model, val_loader, device)
+    test_mae, per_class_test, _ = evaluate_mae(model, test_loader, device)
 
     id_map = json.loads((_ROOT / "data" / "wed" / "index_map.json").read_text())
     id2name = {int(k) - 1: v for k, v in id_map.items() if v != "background"}
     sigma = {id2name[c]: round(float(np.std(v)), 2)
              for c, v in sorted(per_class_val.items()) if len(v) >= 3}
-    rel = {name: round(sigma[name] / max(1.0, float(np.mean(per_class_val[c]))), 4)
+    rel = {name: round(sigma[name] / max(1.0, float(np.mean(gt_val[c]))), 4)
            for c, name in id2name.items() if name in sigma}
 
     from datetime import date
@@ -289,7 +298,8 @@ def main() -> None:
         "sigma_g": sigma,
         "sigma_rel": rel,
         "note": "per-class residual std on the carved val split (train plates); "
-                "feeds MC lognormal grams sigma in engine/mc.py",
+                "sigma_rel = sigma_g / mean GT grams on the same split; feeds MC "
+                "lognormal grams sigma in engine/mc.py",
     }
     Path(args.sigma_out).write_text(yaml.safe_dump(sigma_doc, sort_keys=False))
 

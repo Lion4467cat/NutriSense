@@ -47,43 +47,43 @@ sigma_g:
   Banana: 11.78
   Muskmelon: 12.27
 sigma_rel:
-  aloo-capsicum: 4.35
-  aloo-curry: 0.8129
-  aloo-fry: 1.3955
-  beans-curry: 86.08
-  beetroot-kobari: 23.82
-  beetroot-poriyal: 4.99
-  bisi-bele-bath: 3.1843
-  boondi: 5.16
-  cabbage-dry: 14.02
-  channa-brinjal: 42.09
-  chicken-dum-biryani: 21.3
-  chutney: 1.7141
-  curd: 9.9827
-  dondakaya-fry: 3.31
-  kakarakaya-fry: 0.615
-  kofta-curry: 3.8316
-  leaf-dal: 10.97
-  mango-pickle: 4.65
-  mirchi-ka-salan: 14.3
-  muddha-pappu: 11.27
-  non-spicy-curry: 1.0886
-  non-spicy-dal: 43.1
-  pachi-pulusu: 22.0035
-  papad: 2.38
-  payasam: 0.8895
-  phulka: 22.5
-  raita: 7.26
-  rajma: 7.1667
-  salad: 3.9499
-  sambar: 29.78
-  steamed-rice: 51.19
-  tomato-pappu: 29.39
-  veg-dum-briyani: 0.7497
-  veg-pulao: 1.2232
-  Watermelon: 1.1496
-  Papaya: 1.8257
-  Banana: 2.9844
-  Muskmelon: 3.9655
-note: per-class residual std on the carved val split (train plates); feeds MC lognormal
-  grams sigma in engine/mc.py
+  aloo-capsicum: 0.0904
+  aloo-curry: 0.1393
+  aloo-fry: 0.1727
+  beans-curry: 0.9541
+  beetroot-kobari: 0.2814
+  beetroot-poriyal: 0.1527
+  bisi-bele-bath: 0.0604
+  boondi: 0.3804
+  cabbage-dry: 0.3201
+  channa-brinjal: 0.2737
+  chicken-dum-biryani: 0.1564
+  chutney: 0.375
+  curd: 0.1284
+  dondakaya-fry: 0.0712
+  kakarakaya-fry: 0.3512
+  kofta-curry: 0.1926
+  leaf-dal: 0.1977
+  mango-pickle: 0.2429
+  mirchi-ka-salan: 0.1165
+  muddha-pappu: 0.1233
+  non-spicy-curry: 0.3431
+  non-spicy-dal: 0.3241
+  pachi-pulusu: 0.2384
+  papad: 0.3146
+  payasam: 0.0947
+  phulka: 0.3914
+  raita: 0.0644
+  rajma: 0.274
+  salad: 0.326
+  sambar: 0.2039
+  steamed-rice: 0.3515
+  tomato-pappu: 0.1937
+  veg-dum-briyani: 0.2037
+  veg-pulao: 0.3101
+  Watermelon: 0.3346
+  Papaya: 0.5404
+  Banana: 0.1119
+  Muskmelon: 0.1676
+note: per-class residual std on the carved val split (train plates); sigma_rel = sigma_g
+  / mean GT grams on the same split; feeds MC lognormal grams sigma in engine/mc.py
