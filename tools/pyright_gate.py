@@ -21,7 +21,7 @@ BASELINE = _ROOT / "pyright.baseline"
 def count_errors() -> int:
     exe = Path(sys.executable).with_name("pyright")
     proc = subprocess.run([str(exe), "--outputjson"], cwd=_ROOT,
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, check=False)
     payload = proc.stdout
     start = payload.find("{")
     if start < 0:
