@@ -81,9 +81,14 @@ class WeightHead(nn.Module):
 
     @classmethod
     def load(cls, path: str | Path, device: str | torch.device = "cpu") -> "WeightHead":
+        """Rebuild the frozen backbone from torchvision (IMAGENET1K_V2) and
+        swap in the trained head. The checkpoint stores the head only, so the
+        encoder MUST be the same pretrained weights training used — a random
+        encoder feeds untrained features to the head and yields kilogram-scale
+        garbage predictions."""
         ckpt = torch.load(Path(path), map_location=device, weights_only=True)
         model = cls(num_classes=ckpt.get("num_classes", WED_NUM_CLASSES),
-                    roi_res=ckpt.get("roi_res", ROI_RES), pretrained=False)
+                    roi_res=ckpt.get("roi_res", ROI_RES), pretrained=True)
         model.head_mlp.load_state_dict(ckpt["head_mlp"])
         model.to(device).eval()
         model.meta = ckpt.get("meta", {})
