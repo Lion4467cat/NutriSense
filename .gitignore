@@ -8,6 +8,7 @@ frontend/dist/
 
 # Test caches
 .pytest_cache/
+.ruff_cache/
 
 # Backend logs (RotatingFileHandler)
 logs/
