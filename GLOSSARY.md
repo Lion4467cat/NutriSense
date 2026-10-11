@@ -4,11 +4,12 @@ Domain terms as the code uses them. Terms map to `engine/contract.py` unless not
 
 **Verdict**
 The single scored outcome of an analysis: `PASS`, `BORDERLINE`, `FAIL`,
-`cannot_verify`, or `out_of_scope` — plus `ESTIMATED`, which is shown but
-never scored: it marks a prior-tier (no reference card) plate whose numbers
-are estimates (learned weight model when available, size priors otherwise).
-Owned by the compliance stage (`engine/compliance.py`); carried as a closed
-vocabulary on the wire.
+`cannot_verify`, or `out_of_scope`. Owned by the compliance stage
+(`engine/compliance.py`); carried as a closed vocabulary on the wire.
+`ESTIMATED` remains a valid wire value **only for legacy records** — since
+the 2026-10-11 graduation, no-card plates are scored like any other plate
+and instead lead their reasons with the no-reference-card estimate
+disclaimer.
 
 **Reason**
 A canonical, human-readable explanation of *why* a verdict came out as it
@@ -32,8 +33,10 @@ One guarded step of the pipeline: `input`, `anchor`, `segment`, `classify`,
 
 **Anchor tier**
 How scale was measured: `measured` (reference card detected) or
-`prior` (size/assumption priors). Prior tier caps coverage at
-`anchor_prior_cap` and verdicts `ESTIMATED` instead of PASS/BORDERLINE/FAIL.
+`prior` (size/assumption priors). Prior tier sets coverage by grams source —
+`estimated_weight` (0.90, learned head) or `anchor_prior` (0.60, geometry;
+still can never issue PASS/FAIL) — and every prior-tier verdict leads its
+reasons with the `no_reference_card` estimate disclaimer.
 
 **Learned weight tier**
 Prior-tier grams from the WED-trained head (`models/weight_head.pt`,
@@ -41,8 +44,10 @@ Prior-tier grams from the WED-trained head (`models/weight_head.pt`,
 the anchor is `prior` and the checkpoint loads; any failure silently
 degrades to the geometry path. Reported as `grams_source: learned_weight`
 with `base_method: learned_weight`; per-class σ comes from the carved
-validation split (`data/weight_head_sigma.yaml`). Graduation to scored
-output is gated on WED test MAE + local spot-check (ADR 0002).
+validation split (`data/weight_head_sigma.yaml`). Graduated 2026-10-11
+(ADR 0002 amendment): scored like a measured plate under the
+`estimated_weight` coverage factor (0.90), always with the no-card
+estimate disclaimer; local spot-check remains as follow-up evidence.
 
 **Policy**
 The whole rule set an analysis was judged by — verdict P-zones (`pass_p`,

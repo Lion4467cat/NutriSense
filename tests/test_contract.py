@@ -97,6 +97,7 @@ def test_policy_matches_yaml_sources():
     assert p.pass_min == standards["compliance"]["coverage"]["pass_min"]
     assert p.fail_min == standards["compliance"]["coverage"]["fail_min"]
     assert p.anchor_prior_cap == ledger["coverage_anchor_prior"]["value"]
+    assert p.estimated_weight == ledger["coverage_estimated_weight"]["value"]
     assert p.depth_uncalibrated == ledger["coverage_depth_uncalibrated"]["value"]
     assert p.lint_min_side_px == ledger["lint_min_side_px"]["value"]
 
@@ -155,7 +156,8 @@ def test_every_verdict_rule_change_moves_the_digest(monkeypatch):
             std = copy.deepcopy(std0)
             std["bands"][band][key]["direction"] = "max"
             moved(f"bands.{band}.{key}.direction", std=std)
-    for key in ("coverage_anchor_prior", "coverage_base_table_prior",
+    for key in ("coverage_anchor_prior", "coverage_estimated_weight",
+                "coverage_base_table_prior",
                 "coverage_quality_degraded", "coverage_depth_uncalibrated",
                 "lint_min_side_px"):
         ledger = copy.deepcopy(ledger0)

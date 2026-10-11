@@ -49,16 +49,37 @@ def test_borderline_probabilities():
     assert 0.1 < out.probs["kcal"] < 0.9
 
 
-def test_prior_anchor_is_estimated_never_pass_fail():
-    """No reference card -> ESTIMATED: numbers shown, verdict never PASS/FAIL."""
+def test_geometry_prior_still_capped_with_disclaimer():
+    """No card + geometry grams: coverage stays 0.60, so the scored verdict
+    can only be BORDERLINE — and the no-card disclaimer leads the reasons."""
     mc = _mc(np.full(1000, 600.0), np.full(1000, 15.0))
     out = assess(mc, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
-    assert out.verdict == "ESTIMATED"
+    assert out.verdict == "BORDERLINE"           # zone met, C=0.60 < 0.85 gate
     assert out.coverage["score"] == pytest.approx(0.60)
-    assert any(r.kind == ReasonKind.NO_REFERENCE_CARD for r in out.reasons)
+    assert out.reasons[0].kind == ReasonKind.NO_REFERENCE_CARD
     mc2 = _mc(np.full(1000, 300.0), np.full(1000, 6.0))
     out2 = assess(mc2, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
-    assert out2.verdict == "ESTIMATED"  # fail zone shown in reasons, never stamped FAIL
+    assert out2.verdict == "BORDERLINE"          # fail zone met, C < 0.90 gate
+    assert out2.reasons[0].kind == ReasonKind.NO_REFERENCE_CARD
+
+
+def test_learned_prior_is_scored_with_no_card_disclaimer():
+    """Graduation (2026-10-11, ADR-0002 amendment): learned grams without a
+    card ARE scored — coverage 0.90 keeps PASS and FAIL reachable — with the
+    no-card disclaimer as the first reason."""
+    mc = _mc(np.full(1000, 600.0), np.full(1000, 15.0))
+    portion = _portion(anchor="prior")
+    portion["grams_source"] = "learned_weight"
+    out = assess(mc, portion, DISHES["rice_sambar"], "1-5", "prior")
+    assert out.verdict == "PASS"
+    assert out.coverage["score"] == pytest.approx(0.90)
+    assert out.reasons[0].kind == ReasonKind.NO_REFERENCE_CARD
+    assert "estimate" in out.reasons[0].text and "No reference card" in out.reasons[0].text
+    # fail zone is reachable too (0.90 >= fail gate 0.90)
+    mc2 = _mc(np.full(1000, 300.0), np.full(1000, 6.0))
+    out2 = assess(mc2, dict(portion), DISHES["rice_sambar"], "1-5", "prior")
+    assert out2.verdict == "FAIL"
+    assert out2.reasons[0].kind == ReasonKind.NO_REFERENCE_CARD
 
 
 def test_estimated_reason_names_learned_source():
@@ -66,7 +87,7 @@ def test_estimated_reason_names_learned_source():
     portion = _portion(anchor="prior")
     portion["grams_source"] = "learned_weight"
     out = assess(mc, portion, DISHES["rice_sambar"], "1-5", "prior")
-    assert out.verdict == "ESTIMATED"
+    assert out.verdict == "PASS"                 # scored — ESTIMATED is legacy-only
     assert any("learned model" in r.text for r in out.reasons)
     assert any("learned weight head" in a for a in out.assumptions)
 
@@ -103,6 +124,12 @@ def test_coverage_function_factors():
     s, f = coverage(_portion(base="table_prior", flags=["depth_partial"]), "prior")
     assert f.keys() == {"anchor_prior", "base_table_prior", "quality_degraded"}
     assert s == pytest.approx(0.60 * 0.85 * 0.90, rel=1e-6)
+    # learned grams without a card: estimated_weight replaces anchor_prior
+    lp = _portion(anchor="prior")
+    lp["grams_source"] = "learned_weight"
+    s, f = coverage(lp, "prior")
+    assert f == {"estimated_weight": 0.90}
+    assert s == pytest.approx(0.90)
 
 
 def test_coverage_depth_uncalibrated_factor():

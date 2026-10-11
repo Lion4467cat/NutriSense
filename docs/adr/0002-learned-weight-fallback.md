@@ -72,3 +72,29 @@ ourselves on the public dataset.
   them nullable); the frontend renders "—". No fake geometry numbers.
 - The head runs only on no-card captures of WED-mapped dishes; unmapped or
   out-of-scope dishes behave exactly as before.
+
+## Amendment (2026-10-11, graduation decision)
+
+The user graduated the head on the evidence in hand and chose a
+**disclaimer instead of a cap**:
+
+1. **No-card plates are scored.** The `ESTIMATED` short-circuit in
+   `assess()` is removed — prior-tier plates run the same P-zone logic as
+   measured plates. `ESTIMATED` stays a wire value only for legacy
+   records; nothing emits it anymore.
+2. **The disclaimer is reasons[0].** Every prior verdict leads with
+   `no_reference_card`: *"No reference card — this photo has no measured
+   scale, so its weight is an estimate (…); the verdict is computed from
+   estimated grams."* The result UI shows the same warning as a banner.
+3. **Coverage carries the trust, not the verdict.** New factor
+   `coverage_estimated_weight` = 0.90 (params_status) applies when the
+   anchor is prior and `grams_source == learned_weight` — PASS (≥0.85) and
+   FAIL (≥0.90) both stay reachable. Geometry-prior grams keep
+   `coverage_anchor_prior` = 0.60 and therefore still cannot PASS/FAIL
+   (the 1,464 g baseline says they should not).
+4. **Digest moved:** `8e75c97be3e0` → `7d3431caec4b` (policy now carries
+   `estimated_weight`; re-pinned in `tests/test_config.py`).
+5. **Follow-up evidence, not a gate:** the 10-plate kitchen-scale
+   spot-check (M1) remains the way to measure how much the 0.90 factor
+   should actually be — tune `coverage_estimated_weight` and re-pin when
+   those numbers exist.

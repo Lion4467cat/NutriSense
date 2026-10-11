@@ -88,7 +88,7 @@ def test_anchor_raise_degrades_to_prior(scene, monkeypatch):
     body = _post(scene["image_bgr"])
     assert body["failures"] == []            # degrade: silent, no failures[]
     assert body["anchor"]["tier"] == "prior"
-    assert body["verdict"] in {"PASS", "FAIL", "BORDERLINE", "ESTIMATED",
+    assert body["verdict"] in {"PASS", "FAIL", "BORDERLINE",
                                "cannot_verify", "out_of_scope"}
 
 

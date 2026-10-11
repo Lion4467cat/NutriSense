@@ -134,8 +134,10 @@ def test_depth_scale_none_on_prior_tier(no_card_scene):
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
-    # no reference card -> ESTIMATED (ADR-0002): never PASS/FAIL
-    assert out["verdict"] == "ESTIMATED"
+    # no reference card + geometry grams -> C=0.60 cap: scored verdict can
+    # only be BORDERLINE, with the no-card disclaimer leading the reasons
+    assert out["verdict"] == "BORDERLINE"
+    assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
 
 
 # --- seam 5: portion-failure branch ---------------------------------------
@@ -346,7 +348,9 @@ def test_learned_head_replaces_prior_geometry(no_card_scene):
     assert p["sigma_grams_rel"] > 0
     assert set(p["head_slots"]) == {"33", "32"}
     assert abs(sum(p["components_g"].values()) - 310.0) < 0.5
-    assert out["verdict"] == "ESTIMATED"
+    # graduated (ADR-0002 amendment): scored verdict + no-card disclaimer
+    assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}
+    assert out["coverage"]["factors"]["estimated_weight"] == 0.9
     assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
     assert any("learned model" in r["text"] for r in out["reasons"])
     assert any("learned weight head" in a for a in out["assumptions"])
@@ -369,15 +373,15 @@ def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
     assert "size_prior_scale" in p["flags"]          # prior geometry ran
     assert "learned_weight_applied" not in p["flags"]
     assert p["mean_h_mm"] is not None
-    assert out["verdict"] == "ESTIMATED"             # still never PASS/FAIL
-    assert out["failures"] == []                     # silent degrade
+    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
+    assert out["failures"] == []                 # silent degrade
 
 
 def test_weight_head_none_disables_learned_path(no_card_scene):
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene) | {"weight_head": None})
     assert out["portion"]["grams_source"] == "geometry"
-    assert out["verdict"] == "ESTIMATED"
+    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
 
 
 def test_learned_head_not_used_when_card_measured(scene):

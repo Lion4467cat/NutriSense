@@ -58,6 +58,7 @@ export const FALLBACK_POLICY: Policy = {
   pass_min: 0.85,
   fail_min: 0.9,
   anchor_prior_cap: 0.6,
+  estimated_weight: 0.9,
   base_table_prior: 0.85,
   quality_degraded: 0.9,
   depth_uncalibrated: 0.8,

@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-08
 **Method:** TDD skill (confirmed seams → vertical slices → red→green loop)
-**Suite (historical S6 TDD run):** `89 passed in ~88s` — the current suite is **109 pytest + 43 vitest** (see README/AGENTS); counts below are the S6-time snapshot (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run; +5 for the learned-weight feature 2026-10-11, see §2b)
+**Suite (historical S6 TDD run):** `89 passed in ~88s` — the current suite is **110 pytest + 43 vitest** (see README/AGENTS); counts below are the S6-time snapshot (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run; +6 for the learned-weight feature and its same-day graduation, 2026-10-11, see §2b)
 
 ## 1. Seam inventory (confirmed with user)
 
@@ -45,23 +45,32 @@ Per the TDD skill, no test was written at an unconfirmed seam. Seven gap seams w
 **Response key-set spec (as of 2026-10-10):** exactly 16 keys — `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy`. `reasons` are `{kind, text}` objects (`ReasonKind`: zoom, unknown_day, unknown_band, out_of_scope, unrecognized, unreadable, stage_failed, in_zone, below_min, coverage_gate); `failures` is `[]` for graceful exits (gates carry their own entry, open-set abstain carries none); `policy` carries the whole rule set (`data/standards.yaml` thresholds/gates/mandatory set/band minima + `data/params_status.yaml` factors/lint) under a 12-hex `policy_version` digest, mutation-tested. `tests/test_contract_gen.py` regenerates `frontend/src/types/contract.gen.ts` (analysis + menu + health schemas) and diffs it; vitest validates all three parity fixtures (happy, unreadable, menu) against the schemas.
 - Vertical slices — each test was written, run, and settled before the next began.
 
-## 2b. Learned-weight feature slice (2026-10-11, ADR 0002)
+## 2b. Learned-weight feature slice (2026-10-11, ADR 0002 + amendment)
 
 Same method, one vertical slice at a time; the implementation was built
-alongside (P0–P4), tests written against the confirmed seams.
+alongside (P0–P4), tests written against the confirmed seams. The feature
+first shipped with an `ESTIMATED` cap; the user graduated it the same day
+(disclaimer instead of cap — ADR 0002 amendment), and the assertions below
+are the final, post-graduation forms (re-run green, full suite 110).
 
-| Slice | Test | First run | Notes |
+| Slice | Test | Result | Notes |
 |---|---|---|---|
-| compliance | `test_estimated_when_no_reference_card` (+ tightened fail-zone twin) | 🟢 | prior tier now short-circuits to ESTIMATED before any zone logic |
-| compliance | `test_estimated_reason_names_learned_source` | 🟢 | reason/assumption text carries grams source (learned model vs size-prior geometry) |
-| seam 12 | `test_learned_head_replaces_prior_geometry` | 🟢 | fake head via `deps["weight_head"]`: slots [33,32] on rice_sambar, null depth aux, ESTIMATED, model_versions entry |
-| seam 13 | `test_learned_head_failure_falls_back_to_geometry` | 🟢 | head raising → silent geometry degrade, no failure entry, still ESTIMATED |
-| seam 14 | `test_weight_head_none_disables_learned_path` | 🟢 | `weight_head: None` → geometry |
+| compliance | `test_geometry_prior_still_capped_with_disclaimer` | 🟢 | geometry grams: C=0.60 → verdict can only be BORDERLINE; `no_reference_card` is reasons[0] (both zones) |
+| compliance | `test_learned_prior_is_scored_with_no_card_disclaimer` | 🟢 | learned grams: C=0.90 → PASS **and** FAIL reachable; disclaimer leads reasons |
+| compliance | `test_estimated_reason_names_learned_source` | 🟢 | reason/assumption text names the grams source (learned model vs size-prior geometry) |
+| compliance | `test_coverage_function_factors` (extended) | 🟢 | learned prior → `{estimated_weight: 0.90}`; geometry prior → `{anchor_prior: 0.60}` |
+| seam 12 | `test_learned_head_replaces_prior_geometry` | 🟢 | fake head via `deps["weight_head"]`: slots [33,32] on rice_sambar, null depth aux, scored verdict + `estimated_weight` factor + disclaimer, model_versions entry |
+| seam 13 | `test_learned_head_failure_falls_back_to_geometry` | 🟢 | head raising → silent geometry degrade, no failure entry, BORDERLINE (0.60 cap), disclaimer |
+| seam 14 | `test_weight_head_none_disables_learned_path` | 🟢 | `weight_head: None` → geometry, BORDERLINE |
 | seam 15 | `test_learned_head_not_used_when_card_measured` | 🟢 | measured tier: head never called, verdict still PASS/BORDERLINE/FAIL |
 
-Frontend counterparts: `verdictMeta` exhaustiveness test bumped 5 → 6 keys;
-vitest 43/43, `tsc --noEmit` clean, `npm run build` clean. Digest test still
-green on `8e75c97be3e0` — the new verdict is code-level, no yaml rule moved.
+Frontend counterparts: `verdictMeta` exhaustiveness test 5 → 6 keys (pill
+kept for legacy records); policy literals (FALLBACK_POLICY + 3 test
+fixtures) gained `estimated_weight`; `verdictMeta`/parity fixtures
+regenerated (`CONTRACT_FIXTURE_WRITE=1`); vitest 43/43, `tsc --noEmit`
+clean, `npm run build` clean. Digest mutation test covers the new factor
+(`coverage_estimated_weight` in the hardcoded move-list); pinned digest
+`8e75c97be3e0` → **`7d3431caec4b`**.
 
 ## 3. Final suite
 
@@ -122,8 +131,8 @@ flowchart TD
     MC --> VER{"8 · Compliance"}
     VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
     VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
-    VER -->|no reference card| EST["≈ ESTIMATED<br/>numbers shown · never scored"]
     VER -->|else| BORD["⚠ BORDERLINE"]
+    VER -.->|"no card: reasons[0]"| DISC["📋 weight is an estimate<br/>(no reference card)"]
 
     classDef err fill:#3d1f23,stroke:#e05252,color:#ffd9d9
     classDef oos fill:#3a3325,stroke:#c9a227,color:#f5e9c8
@@ -135,7 +144,7 @@ flowchart TD
     class PASS ok
     class FAIL err
     class BORD warn
-    class EST neutral
+    class DISC neutral
 ```
 
 ## 5. Mermaid syntax reference

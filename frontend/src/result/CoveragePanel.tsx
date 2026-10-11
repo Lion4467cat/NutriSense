@@ -4,6 +4,7 @@ import { formatPct } from  "../utils/format";
 
 const FACTOR_LABELS: Record<string, string> = {
   anchor_prior: "Prior-tier scale",
+  estimated_weight: "Estimated weight (no card)",
   base_table_prior: "Base estimation prior",
   quality_degraded: "Capture quality",
   depth_uncalibrated: "Depth uncalibrated",
@@ -70,11 +71,12 @@ export default function CoveragePanel({ result }: { result: AnalyzeResult }) {
             <div className="banner warn" style={{ marginTop: 16 }}>
               <span aria-hidden="true">!</span>
               <div>
-                <strong>No reference card — ESTIMATED</strong>
-                Weight comes from an estimate (learned WED model when available,
-                otherwise size priors), never a measured scale. The verdict is
-                ESTIMATED: full numbers and intervals are shown, but PASS/FAIL
-                is withheld until a reference marker is captured.
+                <strong>No reference card — this is an estimate</strong>
+                This photo has no measured scale, so the weight shown is an
+                estimate (learned WED model when available, otherwise size
+                priors) — not a measurement. The verdict is still scored, but
+                coverage is reduced ({result.portion?.grams_source === "learned_weight" ? "×0.90 estimated weight" : "×0.60 prior tier"})
+                and the result should be read with that in mind.
               </div>
             </div>
           )}

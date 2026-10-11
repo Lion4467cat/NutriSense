@@ -36,6 +36,7 @@ export const policySchema = z.object({
   pass_min: z.number(),
   fail_min: z.number(),
   anchor_prior_cap: z.number(),
+  estimated_weight: z.number(),
   base_table_prior: z.number(),
   quality_degraded: z.number(),
   depth_uncalibrated: z.number(),

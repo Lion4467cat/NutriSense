@@ -4,12 +4,14 @@
   PASS   iff every mandatory nutrient P >= 0.90 AND coverage C >= 0.85
   FAIL   iff any  mandatory nutrient P <= 0.10 AND coverage C >= 0.90
   BORDERLINE otherwise (including zone-met but C short of the zone gate)
-  ESTIMATED when no reference card was measured (weight is an estimate —
-             learned WED head or size-prior geometry; never PASS/FAIL)
 
-Coverage C = product of degradation factors (prior anchor, table-prior base,
-quality flags). The prior anchor tier can never PASS or FAIL. Salt is
-advisory only; raw-gram rows are diagnostic only.
+Coverage C = product of degradation factors (prior anchor, estimated weight,
+table-prior base, quality flags). No reference card (prior tier) always
+leads the reasons with the no-card disclaimer: geometry grams stay capped
+at anchor_prior (never PASS/FAIL); learned-weight grams are scored under
+the estimated_weight factor (0.90 — PASS and FAIL reachable). ESTIMATED
+remains a wire value only for legacy records; it is no longer emitted.
+Salt is advisory only; raw-gram rows are diagnostic only.
 """
 import numpy as np
 from dataclasses import dataclass, field
@@ -48,7 +50,10 @@ def coverage(portion, anchor_label, params=None, depth_scale_source=None):
     params = params if params is not None else load_params()
     factors = {}
     if anchor_label != "measured":
-        factors["anchor_prior"] = params["coverage_anchor_prior"]["value"]
+        if portion.get("grams_source") == "learned_weight":
+            factors["estimated_weight"] = params["coverage_estimated_weight"]["value"]
+        else:
+            factors["anchor_prior"] = params["coverage_anchor_prior"]["value"]
     if portion.get("base_method") == "table_prior":
         factors["base_table_prior"] = params["coverage_base_table_prior"]["value"]
     flags = set(portion.get("flags") or [])
@@ -115,25 +120,8 @@ def assess(mc, portion, dish, band, anchor_label,
     cov_score, cov_factors = coverage(portion, anchor_label, params,
                                       depth_scale_source)
 
-    if anchor_label != "measured":
-        # No reference card: grams were never measured on this capture, so the
-        # plate is ESTIMATED — full numbers shown, never PASS/FAIL (ADR-0002).
-        # Graduation (Phase 5): flip once the WED head is locally validated.
-        source = portion.get("grams_source", "geometry_prior")
-        detail = ("learned model (WED-trained, unvalidated on MDM plates)"
-                  if source == "learned_weight" else "size-prior geometry")
-        verdict = "ESTIMATED"
-        reasons = [Reason(ReasonKind.NO_REFERENCE_CARD,
-                          f"No reference card — weight estimated by {detail}")]
-        for key in probs:
-            p = probs[key]
-            if p <= thr["fail_p"]:
-                reasons.append(Reason(ReasonKind.BELOW_MIN,
-                                      f"{key}: P={p:.2f} <= {thr['fail_p']} fail zone"))
-            elif p < thr["pass_p"]:
-                reasons.append(Reason(ReasonKind.BELOW_MIN,
-                                      f"{key}: P={p:.2f} < {thr['pass_p']} pass zone"))
-    elif any_fail and cov_score >= cov_min["fail_min"]:
+    # --- verdict zones (same for every tier) ------------------------------
+    if any_fail and cov_score >= cov_min["fail_min"]:
         verdict = "FAIL"
         reasons.insert(0, Reason(ReasonKind.BELOW_MIN,
                                  "mandatory nutrient below minimum with sufficient coverage"))
@@ -150,13 +138,24 @@ def assess(mc, portion, dish, band, anchor_label,
     else:
         verdict = "BORDERLINE"
 
+    # --- no-card disclaimer (leads the reasons; verdict stays scored) -----
+    if anchor_label != "measured":
+        source = portion.get("grams_source", "geometry_prior")
+        detail = ("learned model (WED-trained, unvalidated on MDM plates)"
+                  if source == "learned_weight" else "size-prior geometry")
+        reasons.insert(0, Reason(
+            ReasonKind.NO_REFERENCE_CARD,
+            f"No reference card — this photo has no measured scale, so its weight "
+            f"is an estimate ({detail}); the verdict is computed from estimated grams"))
+
     # --- assumptions actually in play ------------------------------------
     assumptions = []
     if anchor_label != "measured":
         if portion.get("grams_source") == "learned_weight":
             assumptions.append(
                 "learned weight head (WED dataset, MIT; unvalidated on MDM plates) — "
-                "ESTIMATED verdict, never PASS/FAIL until locally validated")
+                "no reference card: weight is an estimate, verdict scored with a "
+                "no-card disclaimer")
         else:
             assumptions.append("size_prior_food_diameter_mm (assumed) — prior anchor tier")
             assumptions.append("prior_tilt_deg (assumed) — prior anchor tier")

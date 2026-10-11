@@ -146,6 +146,7 @@ class Policy:
     pass_min: float
     fail_min: float
     anchor_prior_cap: float
+    estimated_weight: float
     base_table_prior: float
     quality_degraded: float
     depth_uncalibrated: float
@@ -185,6 +186,7 @@ def policy_sources() -> list:
         (("factor", name), float(ledger[key]["value"]))
         for name, key in (
             ("anchor_prior", "coverage_anchor_prior"),
+            ("estimated_weight", "coverage_estimated_weight"),
             ("base_table_prior", "coverage_base_table_prior"),
             ("quality_degraded", "coverage_quality_degraded"),
             ("depth_uncalibrated", "coverage_depth_uncalibrated"),
@@ -208,6 +210,7 @@ def load_policy() -> Policy:
         "pass_min": float(cov["pass_min"]),
         "fail_min": float(cov["fail_min"]),
         "anchor_prior_cap": float(ledger["coverage_anchor_prior"]["value"]),
+        "estimated_weight": float(ledger["coverage_estimated_weight"]["value"]),
         "base_table_prior": float(ledger["coverage_base_table_prior"]["value"]),
         "quality_degraded": float(ledger["coverage_quality_degraded"]["value"]),
         "depth_uncalibrated": float(ledger["coverage_depth_uncalibrated"]["value"]),
