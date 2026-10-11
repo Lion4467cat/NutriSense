@@ -216,6 +216,7 @@ export const analysisSchema = z.object({{
   compliance: complianceSchema.nullable(),
   model_versions: z.record(z.string(), z.string()),
   policy: policySchema,
+  degradations: z.array(z.string()),
 }});
 export type Analysis = z.infer<typeof analysisSchema>;
 

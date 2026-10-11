@@ -57,7 +57,7 @@ describe("python→typescript contract parity", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("missing wire keys fail decode (contract is 16 keys, not a subset)", () => {
+  it("missing wire keys fail decode (the contract is closed, not a subset)", () => {
     const wire = fixture("contract.happy.json") as Record<string, unknown>;
     const { policy, ...withoutPolicy } = wire;
     expect(policy).toBeDefined();

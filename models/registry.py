@@ -67,6 +67,19 @@ def loaded() -> tuple[str, ...]:
         return tuple(sorted(_instances))
 
 
+def clear_cache() -> None:
+    """Run gc and return cached VRAM to the driver WITHOUT dropping
+    instances — used by the OOM recovery path after unload() (and alone when
+    only fragmentation needs clearing)."""
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+
+
 def unload(name: str | None = None) -> None:
     """Free one model (or all) and return GPU memory to the driver."""
     with _lock:
@@ -76,10 +89,4 @@ def unload(name: str | None = None) -> None:
         else:
             _instances.pop(name, None)
             _failed.discard(name)
-    gc.collect()
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-    except Exception:
-        pass
+    clear_cache()

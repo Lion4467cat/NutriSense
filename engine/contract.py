@@ -4,16 +4,18 @@ Python owns the result shape; the TypeScript side consumes a Zod schema
 generated from these vocabularies by tools/gen_contract_ts.py (regenerate:
 ``python -m tools.gen_contract_ts``).
 
-Wire keys (16):
+Wire keys (17):
   verdict, reasons, failures, lint, anchor, segmentation, classification,
   dish, portion, nutrition, coverage, assumptions, advisory, compliance,
-  model_versions, policy
+  model_versions, policy, degradations
 
 Rules:
   * reasons    — canonical, human-readable explanations for EVERY verdict
                  (including PASS). Each hard failure generates its own reason.
-  * failures   — hard failures only (stage crashes, rejected gates). Silent
-                 degradations stay in assumptions / coverage.factors.
+  * failures   — hard failures only (stage crashes, rejected gates).
+  * degradations — machine-readable tags for substitutions that still
+                 produced a result (e.g. gpu_oom_retried); always present,
+                 [] when nothing degraded.
   * nullables  — a null detail block means "this stage was never reached".
   * paths      — never appear in error or reason text (redacted here, at the
                  single point every Failure/Reason passes through).
@@ -41,6 +43,7 @@ WIRE_KEYS = frozenset({
     "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
     "classification", "dish", "portion", "nutrition", "coverage",
     "assumptions", "advisory", "compliance", "model_versions", "policy",
+    "degradations",
 })
 
 
@@ -307,6 +310,7 @@ class Analysis:
     compliance: dict | None = None
     model_versions: dict = field(default_factory=dict)
     policy: Policy = field(default_factory=load_policy)
+    degradations: list = field(default_factory=list)
 
     def to_wire(self) -> dict:
         return {
@@ -326,6 +330,7 @@ class Analysis:
             "compliance": self.compliance,
             "model_versions": self.model_versions,
             "policy": self.policy.to_wire(),
+            "degradations": list(self.degradations),
         }
 
 

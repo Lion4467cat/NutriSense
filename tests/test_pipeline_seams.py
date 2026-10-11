@@ -168,6 +168,7 @@ def test_result_contract_keys_and_types(scene):
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
         "assumptions", "advisory", "model_versions", "compliance", "policy",
+        "degradations",
     }
     assert out["failures"] == []
     assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280

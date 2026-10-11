@@ -4,7 +4,10 @@
 Every stage runs through engine.contract.stage(): fatal stages convert their
 exceptions into a Failure (log ERROR, cannot_verify — never a 500), the anchor
 stage degrades to the prior tier (log WARNING, continues). Every exit returns
-the 16-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+the 17-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+Model stages additionally run through _oom_guard(): a CUDA OOM clears the
+model registry (unload + cache clear) and retries once, recording the
+degradations[] tag gpu_oom_retried; a second OOM becomes a structured Failure.
 
 deps lets tests (and future alternate backends) override any stage:
   deps = {"segment": callable(image_bgr)->dict, "classify": ..., "depth": ...,
@@ -40,6 +43,44 @@ log = logging.getLogger("nutrisense")
 # Assumed relative sigma when the head exists but no per-class val sigma is
 # on disk yet (pre-training / unmapped class).
 LEARNED_SIGMA_REL_FALLBACK = 0.30
+
+
+def _is_oom(exc: BaseException) -> bool:
+    """True for torch.OutOfMemoryError (== torch.cuda.OutOfMemoryError).
+    torch is imported lazily so non-GPU paths never pay for it."""
+    try:
+        import torch
+    except Exception:
+        return False
+    return isinstance(exc, torch.OutOfMemoryError)
+
+
+def _oom_guard(fn, degradations: list):
+    """Wrap a model-stage callable with one OOM retry.
+
+    On a torch.OutOfMemoryError: record degradations["gpu_oom_retried"], drop
+    every cached model from the registry (VRAM back to the driver, sticky
+    factory failures unstuck), and retry fn once. A second OOM propagates so
+    engine.contract.stage() can turn it into a structured Failure — never a
+    500, and never a silent substitution of a different model.
+    """
+
+    def call():
+        try:
+            return fn()
+        except Exception as e:
+            if not _is_oom(e):
+                raise
+            log.warning("CUDA OOM — clearing the model registry and retrying once",
+                        exc_info=True)
+            if "gpu_oom_retried" not in degradations:
+                degradations.append("gpu_oom_retried")
+            from models import registry
+            registry.unload()
+            registry.clear_cache()
+            return fn()
+
+    return call
 
 
 def _get_depth_provider():
@@ -129,7 +170,7 @@ register_fallback("prior_anchor", _make_prior_anchor)
 
 def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             serving_style=None):
-    """Run the full pipeline on one capture. Always returns the 16-key wire
+    """Run the full pipeline on one capture. Always returns the 17-key wire
     dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | ESTIMATED |
     cannot_verify | out_of_scope)."""
     from models.dish_segmenter import segment_food
@@ -142,9 +183,11 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     exif = exif or {"focal_mm": None, "subject_distance_cm": None,
                     "digital_zoom": None, "camera": None}
     timings: dict[str, float] = {}
+    degradations: list[str] = []
     policy = load_policy()
 
     def finish(analysis: Analysis) -> dict:
+        analysis.degradations = list(degradations)
         log_analysis(str(analysis.verdict), day, band, timings)
         return analysis.to_wire()
 
@@ -205,7 +248,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         seg = segment(image_bgr)
         return seg, seg["mask"]  # missing key -> stage_failed/segment
 
-    seg_out, failure = stage(Stage.SEGMENT, _segment_step, timings=timings)
+    seg_out, failure = stage(Stage.SEGMENT, _oom_guard(_segment_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info)
     seg, mask = seg_out
@@ -229,7 +273,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                      "nutrition_source": dish.get("nutrition_source")}
         return classification, dish_info, None
 
-    cls_out, failure = stage(Stage.CLASSIFY, _classify_step, timings=timings)
+    cls_out, failure = stage(Stage.CLASSIFY, _oom_guard(_classify_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info)
@@ -262,7 +307,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 depth_m, anchor, K)
         return depth_out, depth_m, scale_factor, scale_source
 
-    depth_result, failure = stage(Stage.DEPTH, _depth_step, timings=timings)
+    depth_result, failure = stage(Stage.DEPTH, _oom_guard(_depth_step, degradations),
+                                  timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
@@ -285,7 +331,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             exc_info=True)
         return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
 
-    portion, failure = stage(Stage.PORTION, _portion_step, timings=timings)
+    portion, failure = stage(Stage.PORTION, _oom_guard(_portion_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,

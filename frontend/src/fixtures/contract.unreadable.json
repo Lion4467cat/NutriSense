@@ -5,6 +5,7 @@
   "classification": null,
   "compliance": null,
   "coverage": null,
+  "degradations": [],
   "dish": null,
   "failures": [
     {
