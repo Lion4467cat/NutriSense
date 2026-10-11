@@ -26,3 +26,9 @@ __pycache__/
 # Windows files
 Thumbs.db
 desktop.ini
+# Local scratch / derived dirs (TRACK 0)
+.playwright-mcp/
+mlruns/
+STOP
+*.bak
+data/locked_test/
