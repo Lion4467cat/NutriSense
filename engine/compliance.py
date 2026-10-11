@@ -4,10 +4,12 @@
   PASS   iff every mandatory nutrient P >= 0.90 AND coverage C >= 0.85
   FAIL   iff any  mandatory nutrient P <= 0.10 AND coverage C >= 0.90
   BORDERLINE otherwise (including zone-met but C short of the zone gate)
+  ESTIMATED when no reference card was measured (weight is an estimate —
+             learned WED head or size-prior geometry; never PASS/FAIL)
 
 Coverage C = product of degradation factors (prior anchor, table-prior base,
-quality flags). The prior anchor tier can never PASS or FAIL (C caps out at
-0.60). Salt is advisory only; raw-gram rows are diagnostic only.
+quality flags). The prior anchor tier can never PASS or FAIL. Salt is
+advisory only; raw-gram rows are diagnostic only.
 """
 import numpy as np
 from dataclasses import dataclass, field
@@ -113,7 +115,25 @@ def assess(mc, portion, dish, band, anchor_label,
     cov_score, cov_factors = coverage(portion, anchor_label, params,
                                       depth_scale_source)
 
-    if any_fail and cov_score >= cov_min["fail_min"]:
+    if anchor_label != "measured":
+        # No reference card: grams were never measured on this capture, so the
+        # plate is ESTIMATED — full numbers shown, never PASS/FAIL (ADR-0002).
+        # Graduation (Phase 5): flip once the WED head is locally validated.
+        source = portion.get("grams_source", "geometry_prior")
+        detail = ("learned model (WED-trained, unvalidated on MDM plates)"
+                  if source == "learned_weight" else "size-prior geometry")
+        verdict = "ESTIMATED"
+        reasons = [Reason(ReasonKind.NO_REFERENCE_CARD,
+                          f"No reference card — weight estimated by {detail}")]
+        for key in probs:
+            p = probs[key]
+            if p <= thr["fail_p"]:
+                reasons.append(Reason(ReasonKind.BELOW_MIN,
+                                      f"{key}: P={p:.2f} <= {thr['fail_p']} fail zone"))
+            elif p < thr["pass_p"]:
+                reasons.append(Reason(ReasonKind.BELOW_MIN,
+                                      f"{key}: P={p:.2f} < {thr['pass_p']} pass zone"))
+    elif any_fail and cov_score >= cov_min["fail_min"]:
         verdict = "FAIL"
         reasons.insert(0, Reason(ReasonKind.BELOW_MIN,
                                  "mandatory nutrient below minimum with sufficient coverage"))
@@ -133,8 +153,13 @@ def assess(mc, portion, dish, band, anchor_label,
     # --- assumptions actually in play ------------------------------------
     assumptions = []
     if anchor_label != "measured":
-        assumptions.append("size_prior_food_diameter_mm (assumed) — prior anchor tier")
-        assumptions.append("prior_tilt_deg (assumed) — prior anchor tier")
+        if portion.get("grams_source") == "learned_weight":
+            assumptions.append(
+                "learned weight head (WED dataset, MIT; unvalidated on MDM plates) — "
+                "ESTIMATED verdict, never PASS/FAIL until locally validated")
+        else:
+            assumptions.append("size_prior_food_diameter_mm (assumed) — prior anchor tier")
+            assumptions.append("prior_tilt_deg (assumed) — prior anchor tier")
     if portion.get("base_method") == "table_prior":
         assumptions.append("base_prior_height_mm + base_prior_sigma_mm (assumed) — no ring evidence")
     for gid in mc.get("assumed_nutrients", []):

@@ -11,7 +11,7 @@
 
 ## 📌 Overview
 
-NutriSense turns a single **photo of a plated mid-day meal** into a compliance verdict against the **PM POSHAN (MDM) food & nutrition guidelines**. One capture → dish identification → portion in grams → Monte Carlo nutrient intervals → **PASS / BORDERLINE / FAIL** with honest coverage and assumptions.
+NutriSense turns a single **photo of a plated mid-day meal** into a compliance verdict against the **PM POSHAN (MDM) food & nutrition guidelines**. One capture → dish identification → portion in grams → Monte Carlo nutrient intervals → **PASS / BORDERLINE / FAIL** (or **ESTIMATED** when no reference card is in frame and weight comes from the learned WED model or size priors) with honest coverage and assumptions.
 
 Everything the pipeline decides is traceable: which scale anchor was used, how large the uncertainty was, which parameters are still `assumed`, and why a verdict landed where it did. No attendance tracking, no chatbot, no database — v5 is deliberately a single, testable photo-analysis pipeline.
 
@@ -56,19 +56,24 @@ flowchart TD
     DEPTH -.->|error| WIRE
     DEPTH --> TIER{"tier?"}
     TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
-    TIER -->|prior| NOCAL["no scale reported<br/>× 0.60 coverage cap<br/>never PASS/FAIL"]
-    CAL --> PORT["6 · Portion<br/>g = area × height × ρ"]
+    TIER -->|prior| HEAD{"learned head<br/>WED checkpoint?"}
+    HEAD -->|available| LEARN["g = WeightNet<br/>frozen ResNet-50 · no geometry"]
+    HEAD -->|missing / unmapped / error| NOCAL["geometry × size priors<br/>× 0.60 coverage cap"]
+    LEARN --> PORT
     NOCAL --> PORT
+    CAL --> PORT["6 · Portion<br/>g = area × height × ρ · or learned grams"]
     PORT -.->|error| WIRE
     PORT --> MC["7 · Monte Carlo<br/>n = 4000 · seed fixed"]
 
     MC --> VER{"8 · Compliance<br/>C = Π coverage factors"}
     VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
     VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
+    VER -->|no reference card| EST["≈ ESTIMATED<br/>numbers shown · never scored"]
     VER -->|else| BORD["⚠ BORDERLINE"]
 
     PASS ==> WIRE["16-key wire · to_wire()<br/>verdict (incl. cannot_verify) · reasons · failures"]
     FAIL ==> WIRE
+    EST ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
 
@@ -77,14 +82,16 @@ flowchart TD
     classDef ok fill:#14331c,stroke:#3fae62,color:#d4f5df
     classDef warn fill:#3d3319,stroke:#d9a13a,color:#fae9c4
     classDef wire fill:#1e2430,stroke:#5b6b85,color:#dfe7f5
+    classDef neutral fill:#262b33,stroke:#8b93a7,color:#d7dbe4
     class OOS oos
     class PASS ok
     class FAIL err
     class BORD warn
+    class EST neutral
     class WIRE wire
 ```
 
-Every exit — gate, stage failure, or verdict — serializes through the same 16-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS.
+Every exit — gate, stage failure, or verdict — serializes through the same 16-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate always verdicts `ESTIMATED`: full numbers and intervals, never PASS/FAIL, until the learned head graduates (ADR 0002).
 
 ### Pipeline components
 
@@ -103,16 +110,17 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 
 ## ✨ Features
 
-**Implemented and tested (104 pytest + 43 vitest green):**
+**Implemented and tested (109 pytest + 43 vitest green):**
 
-- **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates verdict authority
+- **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates verdict authority (prior → `ESTIMATED`, never scored)
+- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; any failure silently degrades to geometry (ADR 0002)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
-- **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; prior tier and wheat products can never PASS or FAIL; salt is advisory only
+- **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; prior tier returns ESTIMATED (numbers shown, never scored) and wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
-- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
+- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / ESTIMATED / cannot_verify / out_of_scope), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
 - **Themes** — 6 full themes (Light, Dark, Sepia, Midnight, OLED, System) × 6 accent palettes, light/dark aware
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
@@ -302,7 +310,7 @@ Field essentials:
 |---|---|
 | digital zoom == 1.0 | hard gate → `cannot_verify` |
 | min side ≥ 1280 px | note in response; marker tier may fall back |
-| card marker ≥ 80 px | falls back to prior tier → coverage capped at 0.60, **can never PASS/FAIL** |
+| card marker ≥ 80 px | falls back to prior tier → coverage capped at 0.60, verdict `ESTIMATED` (learned weight head if the checkpoint is loaded, otherwise size priors) |
 | plate weight inside `plate_sanity_g` band (`data/standards.yaml`, ±25%) | flagged only — never auto-rejects |
 | day ∈ menu days, dish ∈ `data/menu.yaml` ids | `cannot_verify` |
 
@@ -318,7 +326,7 @@ Policy lives verbatim in `data/standards.yaml` (transcribed from the user's PM P
 | 6–8 | 700 kcal | 20 g |
 | 9–10 | 700 kcal | 20 g *(identical rows in the source doc)* |
 
-- **Verdicts**: PASS needs P ≥ 0.90 *and* coverage ≥ 0.85; FAIL needs P ≤ 0.10 *and* coverage ≥ 0.90; everything else is BORDERLINE
+- **Verdicts**: PASS needs P ≥ 0.90 *and* coverage ≥ 0.85; FAIL needs P ≤ 0.10 *and* coverage ≥ 0.90; everything else is BORDERLINE; a plate with no reference card verdicts ESTIMATED (shown, never scored)
 - **Coverage** multiplies ledger factors (anchor tier, base-plane method, capture quality) — a prior-tier anchor caps it at 0.60, so a guessed scale can never FAIL a plate
 - **Salt** (2 g primary / 4 g upper) is reported as an advisory only — never a verdict nutrient
 - Raw per-child/day gram allocations are surfaced as informational diagnostics, never compared against cooked plate weight

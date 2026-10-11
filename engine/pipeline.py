@@ -7,13 +7,23 @@ stage degrades to the prior tier (log WARNING, continues). Every exit returns
 the 16-key wire shape via Analysis.to_wire(), with policy thresholds attached.
 
 deps lets tests (and future alternate backends) override any stage:
-  deps = {"segment": callable(image_bgr)->dict, "classify": ..., "depth": ...}
+  deps = {"segment": callable(image_bgr)->dict, "classify": ..., "depth": ...,
+          "weight_head": <WeightHead-like or None to disable>}
 Depth callables return {"depth_m": (H,W) meters, ...}; the pipeline calibrates
 monocular scale against a measured anchor automatically.
+
+Learned weight fallback (ADR-0002): when the anchor is prior tier (no
+reference card) and a trained weight head exists (data/weight_head.pt), the
+portion step asks the head for grams (WED-trained, class-conditional) instead
+of size-prior geometry. Any head failure silently falls back to geometry.
+The verdict for every no-card plate is ESTIMATED — never PASS/FAIL.
 """
+import logging
+
 import numpy as np
 
-from config import load_anchor_config, load_menu
+from config import (load_anchor_config, load_menu, load_wed_dishes,
+                    load_wed_index, load_wed_sigma)
 from engine.compliance import assess
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
                              load_policy, log_analysis,
@@ -22,10 +32,17 @@ from engine.gates import INPUT_GATES, SCOPE_GATE, admit
 from engine.mc import sample_nutrients
 from engine.depth import MonocularDepth, calibrate_depth_scale
 from geo.pose import camera_matrix
-from models.portion_estimator import estimate_portion
+from models.portion_estimator import _components, estimate_portion
 from models.scale_anchor import estimate_anchor, prior_anchor
 
 _default_depth = None
+_default_weight_head = None
+_weight_head_missing = False
+log = logging.getLogger("nutrisense")
+
+# Assumed relative sigma when the head exists but no per-class val sigma is
+# on disk yet (pre-training / unmapped class).
+LEARNED_SIGMA_REL_FALLBACK = 0.30
 
 
 def _get_depth_provider():
@@ -33,6 +50,79 @@ def _get_depth_provider():
     if _default_depth is None:
         _default_depth = MonocularDepth()
     return _default_depth
+
+
+def _get_weight_head():
+    """Lazy-load data/weight_head.pt once. Missing checkpoint -> None (the
+    learned path is simply disabled; geometry prior keeps working)."""
+    global _default_weight_head, _weight_head_missing
+    if _weight_head_missing:
+        return None
+    if _default_weight_head is None:
+        from pathlib import Path
+        from config import DATA_DIR
+        ckpt = DATA_DIR / "weight_head.pt"
+        if not ckpt.is_file():
+            _weight_head_missing = True
+            return None
+        try:
+            from models.weight_head import WeightHead
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            _default_weight_head = WeightHead.load(ckpt, device=device)
+        except Exception:
+            log.exception("weight head checkpoint failed to load — geometry fallback")
+            _weight_head_missing = True
+            return None
+    return _default_weight_head
+
+
+def _wed_slots_for_dish(dish_key: str) -> list[int] | None:
+    """Menu dish id -> WED regression slots (0-based). None when unmapped."""
+    mapping = load_wed_dishes().get("dishes", {}).get(dish_key) or {}
+    names = mapping.get("wed_slots") or []
+    index = load_wed_index()
+    slots = [index[n] for n in names if n in index]
+    return slots or None
+
+
+def _learned_portion(image_bgr, mask, dish, dish_key, head):
+    """Learned-weight portion (no reference card): head predicts grams from
+    the segmented region; recipe components share the predicted total. The
+    geometry aux fields (height/footprint) are intentionally absent — they
+    would only carry the uncalibrated-depth bias the head exists to avoid."""
+    slots = _wed_slots_for_dish(dish_key)
+    if not slots:
+        raise ValueError(f"no WED slots mapped for dish {dish_key!r}")
+    out = head.predict(image_bgr, mask, slot_ids=slots)
+    grams = float(out["grams"])
+    if not np.isfinite(grams) or grams <= 0:
+        raise ValueError(f"head returned non-positive grams {grams}")
+    shares, _dens, rho_eff = _components(dish)
+    sigma_rel_map = load_wed_sigma()
+    index = load_wed_index()
+    slot_sigmas = []
+    for s in slots:
+        name = next((n for n, i in index.items() if i == s), None)
+        if name in sigma_rel_map:
+            slot_sigmas.append(sigma_rel_map[name])
+    sigma = max(slot_sigmas) if slot_sigmas else LEARNED_SIGMA_REL_FALLBACK
+    return {
+        "grams": grams,
+        "volume_ml": grams / rho_eff,          # implied, not depth-derived
+        "density_eff": rho_eff,
+        "components_g": {n: shares[n] * grams for n in shares},
+        "base_method": "learned_weight",
+        "scale_tier": "prior",
+        "mean_h_mm": None,
+        "area_cm2": None,
+        "sigma_grams_rel": float(sigma),
+        "sigma_rel": {"learned": float(sigma)},
+        "depth_invalid_frac": 0.0,
+        "flags": ["learned_weight_applied"],
+        "grams_source": "learned_weight",
+        "head_slots": {str(k): round(float(v), 2) for k, v in out["slots"].items()},
+    }
 
 
 def _make_prior_anchor():
@@ -46,8 +136,8 @@ register_fallback("prior_anchor", _make_prior_anchor)
 def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             serving_style=None):
     """Run the full pipeline on one capture. Always returns the 16-key wire
-    dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | cannot_verify |
-    out_of_scope)."""
+    dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | ESTIMATED |
+    cannot_verify | out_of_scope)."""
     from models.dish_segmenter import segment_food
     from models.food_classifier import classify_dish
 
@@ -186,8 +276,22 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     depth_out, depth_m, scale_factor, scale_source = depth_result
 
     # --- portion stage ----------------------------------------------------
-    portion, failure = stage(Stage.PORTION, estimate_portion, image_bgr, mask,
-                             depth_m, anchor, {"K": K}, dish, timings=timings)
+    # Learned fallback (prior tier only): head.predict -> grams; any failure
+    # silently degrades to the geometry path (never worse than today).
+    head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
+
+    def _portion_step():
+        if (anchor.get("label") != "measured" and head is not None
+                and _wed_slots_for_dish(dish_info["id"]) is not None):
+            try:
+                return _learned_portion(image_bgr, mask, dish,
+                                        dish_info["id"], head)
+            except Exception:
+                log.warning("learned weight head failed — geometry prior fallback",
+                            exc_info=True)
+        return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
+
+    portion, failure = stage(Stage.PORTION, _portion_step, timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
@@ -199,12 +303,17 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         "components_g": {k: round(v, 1) for k, v in portion["components_g"].items()},
         "base_method": portion["base_method"],
         "scale_tier": portion["scale_tier"],
-        "mean_h_mm": round(portion["mean_h_mm"], 2),
-        "area_cm2": round(portion["area_cm2"], 1),
+        "grams_source": portion.get("grams_source", "geometry"),
+        "mean_h_mm": (None if portion.get("mean_h_mm") is None
+                      else round(portion["mean_h_mm"], 2)),
+        "area_cm2": (None if portion.get("area_cm2") is None
+                     else round(portion["area_cm2"], 1)),
         "sigma_grams_rel": round(portion["sigma_grams_rel"], 4),
         "sigma_rel": {k: round(v, 4) for k, v in portion["sigma_rel"].items()},
         "flags": portion["flags"],
     }
+    if "head_slots" in portion:
+        portion_block["head_slots"] = portion["head_slots"]
 
     # --- nutrition stage (Monte Carlo) ------------------------------------
     mc, failure = stage(Stage.NUTRITION, sample_nutrients, portion, dish, band,
@@ -256,7 +365,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             "probs": score.probs,
             "nutrients": score.nutrients,
         },
-        model_versions=_model_versions(depth_out),
+        model_versions=_model_versions(depth_out, head),
     ))
 
 
@@ -278,9 +387,16 @@ def _seg_summary(seg):
     return {k: seg.get(k) for k in ("strategy", "sam_score", "area_frac", "n_candidates")}
 
 
-def _model_versions(depth_out):
-    return {
+def _model_versions(depth_out, head=None):
+    versions = {
         "segmenter": "facebook/sam2.1-hiera-large",
         "classifier": "google/siglip2-base-patch16-224",
         "depth": depth_out.get("model", "gt"),
     }
+    if head is not None:
+        meta = getattr(head, "meta", {}) or {}
+        recipe = meta.get("recipe", "wed-baseline-resnet50")
+        mae = meta.get("test_mae_g")
+        versions["weight_head"] = (f"{recipe} (test MAE {mae}g)" if mae is not None
+                                   else str(recipe))
+    return versions

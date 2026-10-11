@@ -1,5 +1,4 @@
 import type { AnalyzeResult } from  "../types/api";
-import { FALLBACK_POLICY } from  "../types/api";
 import { Card } from  "../ui/primitives";
 import { formatPct } from  "../utils/format";
 
@@ -13,7 +12,6 @@ const FACTOR_LABELS: Record<string, string> = {
 export default function CoveragePanel({ result }: { result: AnalyzeResult }) {
   const cov = result.coverage;
   const tier = result.anchor?.tier;
-  const policy = result.policy ?? FALLBACK_POLICY;
 
   return (
     <Card
@@ -72,11 +70,11 @@ export default function CoveragePanel({ result }: { result: AnalyzeResult }) {
             <div className="banner warn" style={{ marginTop: 16 }}>
               <span aria-hidden="true">!</span>
               <div>
-                <strong>Prior-tier measurement in use</strong>
-                No reference card was detected, so scale comes from size priors.
-                Coverage is capped at {policy.anchor_prior_cap} and this tier can never issue
-                PASS/FAIL — verdict is advisory until a reference marker is
-                captured.
+                <strong>No reference card — ESTIMATED</strong>
+                Weight comes from an estimate (learned WED model when available,
+                otherwise size priors), never a measured scale. The verdict is
+                ESTIMATED: full numbers and intervals are shown, but PASS/FAIL
+                is withheld until a reference marker is captured.
               </div>
             </div>
           )}

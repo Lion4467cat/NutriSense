@@ -34,7 +34,8 @@ import config
 
 log = logging.getLogger("nutrisense")
 
-Verdict = Literal["PASS", "BORDERLINE", "FAIL", "cannot_verify", "out_of_scope"]
+Verdict = Literal["PASS", "BORDERLINE", "FAIL", "ESTIMATED",
+                  "cannot_verify", "out_of_scope"]
 
 WIRE_KEYS = frozenset({
     "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
@@ -62,6 +63,7 @@ class ReasonKind(StrEnum):
     IN_ZONE = "in_zone"
     BELOW_MIN = "below_min"
     COVERAGE_GATE = "coverage_gate"
+    NO_REFERENCE_CARD = "no_reference_card"
 
 
 class Stage(StrEnum):

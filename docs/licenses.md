@@ -12,8 +12,8 @@ images, or database dumps into this repo or any artifact).
 | SAM 2.1 (segmentation) | Apache-2.0 | Meta repo | confirmed | **used** |
 | SigLIP2 `google/siglip2-base-patch16-224` | Apache-2.0 | HF model card | confirmed | **used** (gallery classifier) |
 | IFCT 2017 nutrient tables | © NIN / Govt. of India, cite | nin.res.in/ebooks/IFCT2017.pdf | confirmed | **cited**; values transcribed into derived tables with attribution |
-| Indian Thali (ICVGIP 2025) data+code | code MIT; dataset terms on site | cvit.iiit.ac.in project page | **dataset terms unconfirmed** | cite; used only as local evaluation reference if permitted |
-| ITD / WED (CVIT) | code MIT; `ITD.tar.gz`/`WED.tar.gz` terms unconfirmed | cvit.iiit.ac.in | **unconfirmed** | cite; no redistribution; local eval only |
+| Indian Thali (ICVGIP 2025) data+code | code MIT; dataset terms on site | cvit.iiit.ac.in project page | **dataset terms unconfirmed** | **used**: WeightNet architecture port (`models/weight_head.py`, `tools/train_weight_head.py`); cite the paper |
+| ITD / WED (CVIT) | code MIT; `ITD.tar.gz`/`WED.tar.gz` terms unconfirmed | cvit.iiit.ac.in | **unconfirmed** | **used for local training only**: WED images live at `data/wed/{train,test}` but are **git-ignored** (never committed; `data/wed/.gitignore`); committed derived assets are the manifest (weights from the MIT metadata JSON), the slot mapping, the head-only checkpoint, and the σ yaml; cite; no redistribution of images |
 | Kaggle "Indian Food Images (2026)" | CC BY-NC-SA 4.0 | kaggle.com dataset page | confirmed | gallery prototypes only (if used): attribution + no derivatives redistribution |
 | Omnifood-Bench (arXiv 2607.08423) | paper cite | arXiv | confirmed | benchmarks context only |
 | PM POSHAN menu + MDM F&N guidelines | user-provided document | — | confirmed | transcribed into data/menu.yaml, data/standards.yaml |

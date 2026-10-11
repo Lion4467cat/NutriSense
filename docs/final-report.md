@@ -1,14 +1,14 @@
 # NutriSense v5 — Final Build Report
 
-**Date:** 2026-10-08 (updated 2026-10-10)
-**Status:** S0–S6 complete — **104/104 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10.
+**Date:** 2026-10-08 (updated 2026-10-11)
+**Status:** S0–S6 complete — **109/109 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + `ESTIMATED` verdict landed 2026-10-11 (ADR 0002).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
 ## Test results
 
 ```
-104 passed
+109 passed
 ```
 
 | Test file | Tests | Covers |
@@ -20,12 +20,12 @@ Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance v
 | `tests/test_s2.py` | 5 | segmenter + gallery classifier |
 | `tests/test_portion.py` | 7 | S3 portion estimator (ring + prior tiers) |
 | `tests/test_mc.py` | 7 | S4 Monte Carlo engine, nutrient table |
-| `tests/test_compliance.py` | 9 | S5 verdicts, coverage, gate rules (+ depth factor) |
+| `tests/test_compliance.py` | 10 | S5 verdicts, coverage, gate rules (+ depth factor, ESTIMATED) |
 | `tests/test_api.py` | 7 | S6 pipeline + HTTP endpoints (E2E) |
 | `tests/test_config.py` | 4 | yaml loaders, ledger keys, frozen policy digest |
 | `tests/test_gates.py` | 5 | zoom/day/band/scope gates |
 | `tests/test_log_config.py` | 1 | pytest never writes the real app log |
-| `tests/test_pipeline_seams.py` | 15 | 11 pipeline seams (lint, failures, fov_x, coverage, contracts) |
+| `tests/test_pipeline_seams.py` | 19 | 15 pipeline seams (lint, failures, fov_x, coverage, contracts, learned-weight head ×4) |
 | `tests/test_contract.py` | 12 | 16-key result contract + whole-rule-set digest test |
 | `tests/test_contract_gen.py` | 4 | generated TS schema + 3 fixture parity (analyze ×2, menu) |
 | `tests/test_stage_guards.py` | 5 | per-stage failure guards (HTTP) |
@@ -79,9 +79,9 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - `data/nutrients.yaml` created; `data/menu.yaml` gains densities + shares (rice 0.6 / sambar 0.4, matching renderer GT).
 
 ### S5 — Compliance (`engine/compliance.py`)
-- **Verdict:** PASS if P≥0.9, FAIL if P≤0.1, else BORDERLINE.
-- **Coverage** `C` = product of ledger factors: `coverage_anchor_prior` 0.60 × `coverage_base_table_prior` 0.85 × `coverage_quality_degraded` 0.90 × `coverage_depth_uncalibrated` 0.80 (when a measured anchor declined depth calibration).
-- **Gates:** FAIL requires C≥0.90 (table-prior C=0.85 blocks FAIL, still allows PASS); PASS requires C≥0.85; prior tier caps C at 0.60 → never PASS/FAIL.
+- **Verdict:** PASS if P≥0.9, FAIL if P≤0.1, else BORDERLINE — except prior-tier (no-card) plates, which return `ESTIMATED`: all numbers, intervals and P values shown, never stamped PASS/FAIL (learned-weight feature, ADR 0002).
+- **Coverage** `C` = product of ledger factors: `coverage_anchor_prior` 0.60 × `coverage_base_table_prior` 0.85 × `coverage_quality_degraded` 0.90 × `coverage_depth_uncalibrated` 0.80 (when a measured anchor declined depth calibration). `base_method: learned_weight` skips the table-prior factor (the head's grams already carry model error, measured as per-class σ).
+- **Gates:** FAIL requires C≥0.90 (table-prior C=0.85 blocks FAIL, still allows PASS); PASS requires C≥0.85; prior tier caps C at 0.60 and verdicts ESTIMATED.
 - Zoom / band violations → `cannot_verify`; wheat products → `out_of_scope` (MDM scope rule).
 - Salt: advisory only, never affects verdict.
 
@@ -109,6 +109,37 @@ commit each (`7a9d8ea` … `79b1ea5`):
 | Generated-only view types (C4) | `types/api.ts` is aliases of the generated Zod; `/menu` and `/health` are decoded |
 | Records selectors (C5) | one `tally()`/`attention()`/`byNewest()`; newest-first stated as the `RecordsState` invariant |
 
+## Learned weight fallback (2026-10-11, ADR 0002)
+
+Prior tier (no reference card) used to mean geometry × uncalibrated depth.
+Measured on the full WED test split, that path is systematically biased —
+it now runs through a trained regression head instead, and the verdict for
+every no-card plate became `ESTIMATED` (numbers shown, never PASS/FAIL):
+
+| Evidence | Number |
+|---|---|
+| Prior-tier geometry baseline, WED test, per-ROI | **MAE 1,464.5 g** (median AE 917 g, bias +1,454 g; 71 empty-mask failures) — `data/reports/prior_tier_wed.json` |
+| WED-trained head, test split (248 views / 16,211 train ROIs → best val 19.73 g) | **test MAE 19.32 g** (~76× better than the prior baseline; paper's frozen-ResNet50 baseline: 14.51 g) — `data/reports/weight_head_train.json` |
+| `rice_sambar` composite (steamed-rice + sambar on merged mask) | merged-union MAE **44.3 g** ≤ per-ROI-sum 45.9 g → `merge_validated: true` — same report |
+| Head vs geometry on-card | head never runs when the anchor is `measured` (seam test) |
+
+Architecture (port of the ICVGIP 2025 "Indian Thali" baseline, trained
+ourselves — their checkpoint is unpublished): frozen ImageNet ResNet-50 →
+roi_align 7×7 over dish masks → class-conditional gram regression (41 WED
+classes). `data/wed/{train,test}` (git-ignored images), slot mapping in
+`data/wed_dishes.yaml`, head-only checkpoint `data/weight_head.pt` (~4 MB),
+per-class σ `data/weight_head_sigma.yaml` feeds the same MC engine.
+Any failure (missing checkpoint, unmapped dish, bad mask) silently falls
+back to the geometry path — measured captures are untouched.
+
+Wire: `Verdict` += `ESTIMATED`, `ReasonKind` += `no_reference_card`,
+`portion.grams_source` ∈ {`geometry`, `learned_weight`}, nullable
+`mean_h_mm`/`area_cm2` (no depth aux on the learned path), optional
+`head_slots`. Frontend: neutral pill, History filter, ESTIMATED wording in
+Menu/Coverage/Measurement details. Digest **unchanged** (`8e75c97be3e0`) —
+ESTIMATED is a code-level short-circuit over the same yaml rules; graduation
+to a scoring verdict is a digest-re-pinning commit (P5 gate, below).
+
 ## Assumptions pending physical validation (M-gates)
 
 | Item | Value | Gate |
@@ -119,6 +150,7 @@ commit each (`7a9d8ea` … `79b1ea5`):
 | `nutrient_table_sigma_pct` | 4 (literature-derived) | M4 |
 | Prior-tier geometry | base σ 4.5/6.0 mm, height 8.0 mm, diameter 170 mm, tilt 30° | M2 |
 | Depth scale (uncalibrated tier) | `depth_scale_sigma_pct` | M6 |
+| Learned weight per-class σ | `data/weight_head_sigma.yaml` (carved WED val split; fallback rel σ 0.30) | P5 graduation (WED test MAE + 10-plate local spot-check) |
 
 ## Remaining work (per plan)
 
@@ -128,6 +160,7 @@ commit each (`7a9d8ea` … `79b1ea5`):
 - **M4** — nutrient table validation.
 - **M5** — compliance pilot with real MDM day bands.
 - **M6** — depth-scale σ validation for the prior tier.
+- **P5** — graduate the learned weight head: compare WED test MAE against the paper's 14.51 g baseline and run the ~10-plate local spot-check; if both clear, flip ESTIMATED to score-eligible (digest re-pin).
 - Frontend: rebuilt (React 18 + TypeScript, hash router, localStorage history/students, 6 themes × 6 palettes) — see README screenshots.
 
 ## Environment notes

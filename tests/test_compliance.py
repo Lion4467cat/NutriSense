@@ -49,15 +49,26 @@ def test_borderline_probabilities():
     assert 0.1 < out.probs["kcal"] < 0.9
 
 
-def test_prior_anchor_cannot_pass_or_fail():
+def test_prior_anchor_is_estimated_never_pass_fail():
+    """No reference card -> ESTIMATED: numbers shown, verdict never PASS/FAIL."""
     mc = _mc(np.full(1000, 600.0), np.full(1000, 15.0))
     out = assess(mc, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
-    assert out.verdict == "BORDERLINE"
+    assert out.verdict == "ESTIMATED"
     assert out.coverage["score"] == pytest.approx(0.60)
-    assert any(r.kind == ReasonKind.COVERAGE_GATE for r in out.reasons)
+    assert any(r.kind == ReasonKind.NO_REFERENCE_CARD for r in out.reasons)
     mc2 = _mc(np.full(1000, 300.0), np.full(1000, 6.0))
     out2 = assess(mc2, _portion(anchor="prior"), DISHES["rice_sambar"], "1-5", "prior")
-    assert out2.verdict == "BORDERLINE"  # FAIL blocked by coverage
+    assert out2.verdict == "ESTIMATED"  # fail zone shown in reasons, never stamped FAIL
+
+
+def test_estimated_reason_names_learned_source():
+    mc = _mc(np.full(1000, 600.0), np.full(1000, 15.0))
+    portion = _portion(anchor="prior")
+    portion["grams_source"] = "learned_weight"
+    out = assess(mc, portion, DISHES["rice_sambar"], "1-5", "prior")
+    assert out.verdict == "ESTIMATED"
+    assert any("learned model" in r.text for r in out.reasons)
+    assert any("learned weight head" in a for a in out.assumptions)
 
 
 def test_coverage_gate_fail_needs_090():

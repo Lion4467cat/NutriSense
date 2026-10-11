@@ -4,8 +4,11 @@ Domain terms as the code uses them. Terms map to `engine/contract.py` unless not
 
 **Verdict**
 The single scored outcome of an analysis: `PASS`, `BORDERLINE`, `FAIL`,
-`cannot_verify`, or `out_of_scope`. Owned by the compliance stage
-(`engine/compliance.py`); carried as a closed vocabulary on the wire.
+`cannot_verify`, or `out_of_scope` — plus `ESTIMATED`, which is shown but
+never scored: it marks a prior-tier (no reference card) plate whose numbers
+are estimates (learned weight model when available, size priors otherwise).
+Owned by the compliance stage (`engine/compliance.py`); carried as a closed
+vocabulary on the wire.
 
 **Reason**
 A canonical, human-readable explanation of *why* a verdict came out as it
@@ -30,7 +33,16 @@ One guarded step of the pipeline: `input`, `anchor`, `segment`, `classify`,
 **Anchor tier**
 How scale was measured: `measured` (reference card detected) or
 `prior` (size/assumption priors). Prior tier caps coverage at
-`anchor_prior_cap`, so it can never issue PASS/FAIL.
+`anchor_prior_cap` and verdicts `ESTIMATED` instead of PASS/BORDERLINE/FAIL.
+
+**Learned weight tier**
+Prior-tier grams from the WED-trained head (`models/weight_head.pt`,
+`data/wed_dishes.yaml` mapping) instead of geometry. Triggered only when
+the anchor is `prior` and the checkpoint loads; any failure silently
+degrades to the geometry path. Reported as `grams_source: learned_weight`
+with `base_method: learned_weight`; per-class σ comes from the carved
+validation split (`data/weight_head_sigma.yaml`). Graduation to scored
+output is gated on WED test MAE + local spot-check (ADR 0002).
 
 **Policy**
 The whole rule set an analysis was judged by — verdict P-zones (`pass_p`,

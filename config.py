@@ -20,6 +20,9 @@ NUTRIENTS_PATH = DATA_DIR / "nutrients.yaml"
 YIELDS_PATH = DATA_DIR / "conversions.yaml"
 ANCHOR_CONFIG_PATH = DATA_DIR / "anchor_config.json"
 GALLERY_PATH = DATA_DIR / "gallery.npz"
+WED_DISHES_PATH = DATA_DIR / "wed_dishes.yaml"
+WED_INDEX_PATH = DATA_DIR / "wed" / "index_map.json"
+WED_SIGMA_PATH = DATA_DIR / "weight_head_sigma.yaml"
 
 _CACHE: dict = {}
 
@@ -91,3 +94,43 @@ def load_gallery(path=None) -> dict:
         return _CACHE["gallery"]
     with np.load(path, allow_pickle=False) as z:
         return {k: z[k] for k in z.files}
+
+
+def load_wed_dishes() -> dict:
+    """WED <-> menu mapping (data/wed_dishes.yaml). Missing file -> {}."""
+    if "wed_dishes" not in _CACHE:
+        if WED_DISHES_PATH.is_file():
+            with open(WED_DISHES_PATH) as f:
+                _CACHE["wed_dishes"] = yaml.safe_load(f) or {}
+        else:
+            _CACHE["wed_dishes"] = {}
+    return _CACHE["wed_dishes"]
+
+
+def load_wed_index() -> dict:
+    """WED dish name -> 0-based regression slot (index_map id - 1). {} if absent."""
+    if "wed_index" not in _CACHE:
+        if WED_INDEX_PATH.is_file():
+            with open(WED_INDEX_PATH) as f:
+                raw = json.load(f)
+            _CACHE["wed_index"] = {
+                name: int(cid) - 1 for cid, name in raw.items()
+                if str(name).lower() != "background"
+            }
+        else:
+            _CACHE["wed_index"] = {}
+    return _CACHE["wed_index"]
+
+
+def load_wed_sigma() -> dict:
+    """WED dish name -> relative sigma from the trained head's val residuals.
+    Empty dict before the first training run (learned path then assumes)."""
+    if "wed_sigma" not in _CACHE:
+        if WED_SIGMA_PATH.is_file():
+            with open(WED_SIGMA_PATH) as f:
+                doc = yaml.safe_load(f) or {}
+            _CACHE["wed_sigma"] = {k: float(v) for k, v in
+                                   (doc.get("sigma_rel") or {}).items()}
+        else:
+            _CACHE["wed_sigma"] = {}
+    return _CACHE["wed_sigma"]

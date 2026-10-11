@@ -88,6 +88,7 @@ export default function HistoryPage() {
           <option value="PASS">PASS</option>
           <option value="BORDERLINE">BORDERLINE</option>
           <option value="FAIL">FAIL</option>
+          <option value="ESTIMATED">ESTIMATED</option>
           <option value="cannot_verify">CANNOT VERIFY</option>
           <option value="out_of_scope">OUT OF SCOPE</option>
         </select>

@@ -168,6 +168,7 @@
     "density_eff": 0.842,
     "flags": [],
     "grams": 429.7,
+    "grams_source": "geometry",
     "mean_h_mm": 18.99,
     "scale_tier": "measured",
     "sigma_grams_rel": 0.2799,

@@ -1,0 +1,124 @@
+{
+  "split": "test",
+  "views": 248,
+  "per_roi": {
+    "n": 2793,
+    "mae": 1464.466845390272,
+    "median_ae": 916.8344025377883,
+    "bias": 1453.8862292008562
+  },
+  "per_roi_mape_pct": 3756.098235925257,
+  "merged_plate": {
+    "n": 248,
+    "mae": 5123.596128133864,
+    "median_ae": 4411.609322656375,
+    "bias": 5123.596128133864
+  },
+  "per_class_mae": {
+    "Banana": 4170.070079950435,
+    "Bottle-gourd-curry": 1796.6020135997928,
+    "Muskmelon": 2065.7437068514364,
+    "Papaya": 3826.398679205985,
+    "Watermelon": 2998.34658880404,
+    "aloo-capsicum": 1521.1423507642876,
+    "aloo-curry": 2647.3115715127806,
+    "aloo-fry": 1403.9396146824422,
+    "beans-curry": 1690.57422966136,
+    "beetroot-kobari": 2177.90931419992,
+    "beetroot-poriyal": 2012.646299289534,
+    "bisi-bele-bath": 4856.156736916067,
+    "boondi": 955.0255568294705,
+    "cabbage-dry": 1251.655487531034,
+    "channa-brinjal": 2265.4472674617573,
+    "chicken-dum-biryani": 991.3585620159732,
+    "chutney": 1372.1359027988674,
+    "curd": 889.3832822799062,
+    "dondakaya-fry": 1514.2431322030302,
+    "kakarakaya-fry": 2398.1424821596743,
+    "kofta-curry": 1387.1642144487396,
+    "leaf-dal": 1089.9029180632572,
+    "mango-pickle": 1106.8775029932194,
+    "masoor-dal": 111.68521895123031,
+    "mirchi-ka-salan": 418.36568482311293,
+    "muddha-pappu": 857.3310751998367,
+    "non-spicy-curry": 2550.3578287336936,
+    "non-spicy-dal": 903.4476073963784,
+    "pachi-pulusu": 760.9489322295274,
+    "papad": 2179.2144911200353,
+    "payasam": 447.52256024810737,
+    "phulka": 1890.783669164512,
+    "raita": 1016.216674047983,
+    "rajma": 602.1133135493734,
+    "rasam": 301.38526196678293,
+    "salad": 1295.8783898718302,
+    "sambar": 592.367472127232,
+    "steamed-rice": 800.1055281282054,
+    "tomato-pappu": 950.5881329816638,
+    "veg-dum-briyani": 1197.6690759220774,
+    "veg-pulao": 820.422120431205
+  },
+  "failures": 71,
+  "failure_examples": [
+    {
+      "row": 26,
+      "stage": "roi",
+      "name": "papad",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 40,
+      "stage": "roi",
+      "name": "dondakaya-fry",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 45,
+      "stage": "roi",
+      "name": "chutney",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 46,
+      "stage": "roi",
+      "name": "curd",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 46,
+      "stage": "roi",
+      "name": "tomato-pappu",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 47,
+      "stage": "roi",
+      "name": "beetroot-kobari",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 48,
+      "stage": "roi",
+      "name": "curd",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 50,
+      "stage": "roi",
+      "name": "salad",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 52,
+      "stage": "roi",
+      "name": "beetroot-kobari",
+      "why": "mask too small (0 px)"
+    },
+    {
+      "row": 52,
+      "stage": "roi",
+      "name": "chutney",
+      "why": "mask too small (0 px)"
+    }
+  ],
+  "elapsed_s": 507.0
+}

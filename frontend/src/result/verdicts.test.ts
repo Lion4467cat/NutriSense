@@ -25,7 +25,7 @@ describe("reasonTone", () => {
 
 describe("verdictMeta", () => {
   it("covers every closed verdict", () => {
-    expect(Object.keys(VERDICT_META)).toHaveLength(5);
+    expect(Object.keys(VERDICT_META)).toHaveLength(6);
   });
 
   it("falls back to cannot_verify for unknown or missing verdicts", () => {

@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "dataset": "WED (ICVGIP 2025)",
+    "recipe": "baseline rgb/no-attn/geom-none",
+    "val_mae_g": 19.73,
+    "test_mae_g": 19.32,
+    "epochs": 100,
+    "seed": 42,
+    "trained": "2026-10-11",
+    "paper_baseline_mae_g": 14.51
+  },
+  "test_mae_g": 19.322142703790114,
+  "test_per_class_mae": {
+    "Bottle-gourd-curry": 15.52,
+    "aloo-capsicum": 11.98,
+    "aloo-curry": 46.93,
+    "aloo-fry": 9.79,
+    "beans-curry": 19.0,
+    "beetroot-kobari": 23.35,
+    "beetroot-poriyal": 8.36,
+    "bisi-bele-bath": 7.16,
+    "boondi": 2.0,
+    "cabbage-dry": 20.45,
+    "channa-brinjal": 30.29,
+    "chicken-dum-biryani": 24.32,
+    "chutney": 5.75,
+    "curd": 15.8,
+    "dondakaya-fry": 7.43,
+    "kakarakaya-fry": 2.16,
+    "kofta-curry": 18.29,
+    "leaf-dal": 17.11,
+    "mango-pickle": 2.13,
+    "masoor-dal": 22.86,
+    "mirchi-ka-salan": 9.76,
+    "muddha-pappu": 11.44,
+    "non-spicy-curry": 26.33,
+    "non-spicy-dal": 32.95,
+    "pachi-pulusu": 21.4,
+    "papad": 2.71,
+    "payasam": 14.44,
+    "phulka": 18.08,
+    "raita": 10.64,
+    "rajma": 26.29,
+    "rasam": 6.22,
+    "salad": 14.63,
+    "sambar": 15.86,
+    "steamed-rice": 42.63,
+    "tomato-pappu": 30.9,
+    "veg-dum-briyani": 45.58,
+    "veg-pulao": 23.32,
+    "Watermelon": 29.79,
+    "Papaya": 19.81,
+    "Banana": 9.03,
+    "Muskmelon": 16.5
+  },
+  "merge_check": {
+    "plates": 128,
+    "merged_union_mae": {
+      "n": 128,
+      "mae": 44.28586059808731
+    },
+    "per_roi_sum_mae": {
+      "n": 125,
+      "mae": 45.85958435058594
+    }
+  }
+}

@@ -81,7 +81,8 @@ export default function MenuPage() {
           Verdict rules (backend-owned): PASS needs P ≥ {fmtP(policy.pass_p)} on
           every mandatory nutrient with coverage ≥ {fmtP(policy.pass_min)} · FAIL
           needs P ≤ {fmtP(policy.fail_p)} with coverage ≥ {fmtP(policy.fail_min)} ·
-          anything else is BORDERLINE.
+          anything else is BORDERLINE · no reference card means ESTIMATED —
+          numbers shown, never PASS/FAIL.
         </p>
       </Card>
 

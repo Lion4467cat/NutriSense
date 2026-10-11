@@ -1,0 +1,42 @@
+# WED (Indian Thali Weight Estimation Dataset) ↔ NutriSense menu mapping.
+# Source: Arora et al., "What is there in an Indian Thali?", ICVGIP 2025
+# (MIT license). WED class ids come from data/wed/index_map.json; dish names
+# are the dataset's food_item slugs. Training uses ALL 41 WED classes; this
+# file only decides which class slots the learned weight head reads at
+# inference for each of our menu dishes.
+#
+# wed_slots: WED class(es) whose regression slot(s) sum to the dish grams.
+#   Composite dishes (rice+sambar stirred) read two slots on the merged mask;
+#   the merge behaviour is validated on the WED test split (tools/eval merge
+#   check). If merge error is poor, the pipeline keeps the geometry prior for
+#   that dish and learned_weight_applied stays false.
+
+dishes:
+  rice_sambar:
+    wed_slots: [steamed-rice, sambar]     # composite plate rule (mixed)
+    merge_validated: true                 # full-train merge_check: merged-union 44.3g <= per-ROI-sum 45.9g (report)
+  vegetable_rice:
+    wed_slots: [veg-pulao]
+  bisibelebath:
+    wed_slots: [bisi-bele-bath]
+  wheat_product:
+    wed_slots: [phulka]                   # roti/chapati/pulka class in WED
+
+# Non-dish generic items (menu.yaml generic_items) — recognition context only
+generics:
+  curd: [curd]
+  buttermilk: []                          # absent from WED (41 classes)
+  banana: [Banana]                        # capitalised in index_map
+  egg: []
+  sambar: [sambar]
+  chutney: [chutney]
+  pickle: [mango-pickle]
+
+# Training split on disk (verified 2026-10-10):
+#   train: 1,146 views / test: 248 views (1,394 total; paper = 1,394)
+#   data/wed/{train,test}/<dd>-<mon>/.../setN/   (images not committed — see
+#   data/wed/.gitignore; metadata JSONs are tracked)
+dataset:
+  root: data/wed             # relative to repo root; resolved by the tools
+  weights_json: data/wed/all_food_data.json
+  index_map: data/wed/index_map.json

@@ -6,11 +6,11 @@
 import { z } from "zod";
 
 /** Open vocabularies: the backend may add kinds; the UI shows a default glyph. */
-export const REASON_KINDS = ["zoom", "unknown_day", "unknown_band", "out_of_scope", "unrecognized", "unreadable", "stage_failed", "in_zone", "below_min", "coverage_gate"] as const;
+export const REASON_KINDS = ["zoom", "unknown_day", "unknown_band", "out_of_scope", "unrecognized", "unreadable", "stage_failed", "in_zone", "below_min", "coverage_gate", "no_reference_card"] as const;
 export const FAILURE_KINDS = ["gate_rejected", "input_unreadable", "stage_failed"] as const;
 export const STAGE_NAMES = ["input", "anchor", "segment", "classify", "depth", "portion", "nutrition", "compliance"] as const;
 /** Closed: every verdict/stage value is known today. */
-export const VERDICTS = ["PASS", "BORDERLINE", "FAIL", "cannot_verify", "out_of_scope"] as const;
+export const VERDICTS = ["PASS", "BORDERLINE", "FAIL", "ESTIMATED", "cannot_verify", "out_of_scope"] as const;
 
 export type Verdict = (typeof VERDICTS)[number];
 export type StageName = (typeof STAGE_NAMES)[number];
@@ -100,11 +100,13 @@ export const portionSchema = z.object({
   components_g: z.record(z.string(), z.number()),
   base_method: z.string(),
   scale_tier: z.string(),
-  mean_h_mm: z.number(),
-  area_cm2: z.number(),
+  grams_source: z.string().optional(),
+  mean_h_mm: z.number().nullable(),
+  area_cm2: z.number().nullable(),
   sigma_grams_rel: z.number(),
   sigma_rel: z.record(z.string(), z.number()),
   flags: z.array(z.string()),
+  head_slots: z.record(z.string(), z.number()).optional(),
 });
 export type PortionBlock = z.infer<typeof portionSchema>;
 

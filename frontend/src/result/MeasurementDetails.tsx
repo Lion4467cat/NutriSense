@@ -82,12 +82,36 @@ export default function MeasurementDetails({ result }: { result: AnalyzeResult }
             <KV k="Volume" v={p ? `${formatNum(p.volume_ml, 0)} ml` : "—"} />
             <KV k="Base method" v={p ? p.base_method.replace(/_/g, " ") : "—"} />
             <KV
+              k="Weight source"
+              v={
+                p
+                  ? p.grams_source === "learned_weight"
+                    ? "learned estimate"
+                    : p.scale_tier === "measured"
+                      ? "measured scale"
+                      : "geometry estimate"
+                  : "—"
+              }
+              sub={
+                p?.grams_source === "learned_weight"
+                  ? "WED model — no reference card"
+                  : undefined
+              }
+            />
+            <KV
               k="Uncertainty"
               v={p ? `±${Math.round(p.sigma_grams_rel * 100)}%` : "—"}
               sub="relative σ on grams"
             />
-            <KV k="Height" v={p ? `${formatNum(p.mean_h_mm, 1)} mm` : "—"} />
-            <KV k="Footprint" v={p ? `${formatNum(p.area_cm2, 1)} cm²` : "—"} />
+            <KV
+              k="Height"
+              v={p && p.mean_h_mm != null ? `${formatNum(p.mean_h_mm, 1)} mm` : "—"}
+              sub={p?.grams_source === "learned_weight" ? "not used by learned head" : undefined}
+            />
+            <KV
+              k="Footprint"
+              v={p && p.area_cm2 != null ? `${formatNum(p.area_cm2, 1)} cm²` : "—"}
+            />
           </div>
           {p && p.flags.length > 0 && (
             <div className="chip-row" style={{ marginTop: 10 }}>

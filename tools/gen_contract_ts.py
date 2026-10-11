@@ -30,8 +30,8 @@ def generate() -> str:
     failure_kinds = _literals(k.value for k in FailureKind)
     stages = _literals(s.value for s in Stage)
     verdicts = _literals(Verdict for Verdict in
-                         ("PASS", "BORDERLINE", "FAIL", "cannot_verify",
-                          "out_of_scope"))
+                         ("PASS", "BORDERLINE", "FAIL", "ESTIMATED",
+                          "cannot_verify", "out_of_scope"))
     numeric_policy = [f.name for f in Policy.__dataclass_fields__.values()
                       if f.name != "policy_version"]
 
@@ -129,11 +129,13 @@ export const portionSchema = z.object({{
   components_g: z.record(z.string(), z.number()),
   base_method: z.string(),
   scale_tier: z.string(),
-  mean_h_mm: z.number(),
-  area_cm2: z.number(),
+  grams_source: z.string().optional(),
+  mean_h_mm: z.number().nullable(),
+  area_cm2: z.number().nullable(),
   sigma_grams_rel: z.number(),
   sigma_rel: z.record(z.string(), z.number()),
   flags: z.array(z.string()),
+  head_slots: z.record(z.string(), z.number()).optional(),
 }});
 export type PortionBlock = z.infer<typeof portionSchema>;
 

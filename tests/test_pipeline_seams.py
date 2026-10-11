@@ -134,8 +134,8 @@ def test_depth_scale_none_on_prior_tier(no_card_scene):
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
-    # plan rule: prior tier caps coverage at 0.60 -> never PASS/FAIL
-    assert out["verdict"] == "BORDERLINE"
+    # no reference card -> ESTIMATED (ADR-0002): never PASS/FAIL
+    assert out["verdict"] == "ESTIMATED"
 
 
 # --- seam 5: portion-failure branch ---------------------------------------
@@ -310,3 +310,81 @@ def test_uncalibrated_measured_depth_cannot_certify(scene, monkeypatch):
     assert factors["depth_uncalibrated"] == 0.80
     assert out["coverage"]["score"] == 0.80
     assert out["verdict"] == "BORDERLINE"  # C < pass_min: no PASS/FAIL
+
+
+# --- seam 12: learned weight head (no reference card, ADR-0002) -----------
+
+class _FakeHead:
+    """WeightHead stand-in: same predict() contract, deterministic grams."""
+
+    meta = {"recipe": "fake-test-head", "test_mae_g": 14.51}
+
+    def __init__(self, grams=310.0):
+        self.grams = grams
+        self.calls = []
+
+    def predict(self, image_bgr, mask, slot_ids, device=None):
+        self.calls.append(list(slot_ids))
+        n = len(slot_ids)
+        per = {s: round(self.grams / n, 2) for s in slot_ids}
+        return {"grams": self.grams, "slots": per, "slots_clamped": False}
+
+
+def test_learned_head_replaces_prior_geometry(no_card_scene):
+    head = _FakeHead(310.0)
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene) | {"weight_head": head})
+    # rice_sambar maps to [steamed-rice, sambar] slots in wed_dishes.yaml
+    assert head.calls and head.calls[0] == [33, 32]
+    p = out["portion"]
+    assert p["grams"] == 310.0
+    assert p["base_method"] == "learned_weight"
+    assert p["grams_source"] == "learned_weight"
+    assert p["scale_tier"] == "prior"
+    assert p["mean_h_mm"] is None and p["area_cm2"] is None  # no depth aux
+    assert "learned_weight_applied" in p["flags"]
+    assert p["sigma_grams_rel"] > 0
+    assert set(p["head_slots"]) == {"33", "32"}
+    assert abs(sum(p["components_g"].values()) - 310.0) < 0.5
+    assert out["verdict"] == "ESTIMATED"
+    assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
+    assert any("learned model" in r["text"] for r in out["reasons"])
+    assert any("learned weight head" in a for a in out["assumptions"])
+    assert out["model_versions"]["weight_head"] == "fake-test-head (test MAE 14.51g)"
+    assert out["failures"] == []
+
+
+def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
+    class Boom:
+        meta = {}
+
+        def predict(self, *a, **k):
+            raise RuntimeError("cuda exploded")
+
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene) | {"weight_head": Boom()})
+    p = out["portion"]
+    assert p["grams_source"] == "geometry"
+    assert p["base_method"] in {"ring", "table_prior"}
+    assert "size_prior_scale" in p["flags"]          # prior geometry ran
+    assert "learned_weight_applied" not in p["flags"]
+    assert p["mean_h_mm"] is not None
+    assert out["verdict"] == "ESTIMATED"             # still never PASS/FAIL
+    assert out["failures"] == []                     # silent degrade
+
+
+def test_weight_head_none_disables_learned_path(no_card_scene):
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene) | {"weight_head": None})
+    assert out["portion"]["grams_source"] == "geometry"
+    assert out["verdict"] == "ESTIMATED"
+
+
+def test_learned_head_not_used_when_card_measured(scene):
+    head = _FakeHead(310.0)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene) | {"weight_head": head})
+    assert head.calls == []                          # measured tier wins
+    assert out["portion"]["base_method"] == "ring"
+    assert out["portion"]["grams_source"] == "geometry"
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}

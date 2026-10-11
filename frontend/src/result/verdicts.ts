@@ -32,6 +32,14 @@ export const VERDICT_META: Record<Verdict, VerdictMeta> = {
     cls: "fail",
     blurb: "Mandatory nutrition is below the required minimum with sufficient coverage.",
   },
+  ESTIMATED: {
+    key: "ESTIMATED",
+    label: "ESTIMATED",
+    icon: "≈",
+    cls: "neutral",
+    blurb:
+      "No reference card — weight is an estimate (learned model or size prior), never PASS/FAIL.",
+  },
   cannot_verify: {
     key: "cannot_verify",
     label: "CANNOT VERIFY",
