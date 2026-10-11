@@ -188,6 +188,8 @@ def test_result_contract_keys_and_types(scene):
     assert out["dish"]["serving_style"] == "mixed"
     assert out["dish"]["id"] == "rice_sambar"
     assert isinstance(out["assumptions"], list)
+    assert out["degradations"] == []            # nothing degraded on this run
+    assert out["path_used"] == "card_geometry"  # measured tier ran geometry
 
 
 def test_result_contract_flags_populated_on_ring_path(scene):
@@ -357,6 +359,8 @@ def test_learned_head_replaces_prior_geometry(no_card_scene):
     assert any("learned weight head" in a for a in out["assumptions"])
     assert out["model_versions"]["weight_head"] == "fake-test-head (test MAE 14.51g)"
     assert out["failures"] == []
+    assert out["path_used"] == "learned_head"   # head produced the grams
+    assert out["degradations"] == []            # head present: nothing degraded
 
 
 def test_learned_head_failure_cannot_verify(no_card_scene):
@@ -383,6 +387,9 @@ def test_weight_head_none_disables_learned_path(no_card_scene):
                        deps=make_deps(no_card_scene) | {"weight_head": None})
     assert out["portion"]["grams_source"] == "geometry"
     assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
+    # STAGE 3: the substitution is reported, never silent
+    assert out["degradations"] == ["weight_head_unavailable"]
+    assert out["path_used"] == "prior_geometry"
 
 
 def test_learned_head_not_used_when_card_measured(scene):
