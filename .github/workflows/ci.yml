@@ -1,4 +1,5 @@
-# STAGE 5 — CI, written locally. NOT pushed, NOT run remotely.
+# STAGE 5 — CI. Pushed with track0-stability and run on GitHub Actions
+# (2026-10-12).
 #
 # Needs no GPU, no secrets, no datasets and no model downloads: ruff, the
 # pyright baseline gate, pytest -m "not gpu" with TORCH_HOME/HF_HOME pointed
@@ -16,15 +17,19 @@ on:
 permissions:
   contents: read
 
+# Runner pin: both jobs use ubuntu-24.04 instead of ubuntu-latest so the
+# image cannot change under us when ubuntu-latest migrates to Ubuntu 26
+# (announced for 2026-10-19). REVISIT LATER: re-validate on a newer image
+# and move back to ubuntu-latest (or the new LTS tag) once that is done.
 jobs:
   backend:
     name: backend — ruff, pyright, pytest (not gpu)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.14"
           enable-cache: true
@@ -50,7 +55,7 @@ jobs:
 
   frontend:
     name: frontend — tsc, vitest, build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
