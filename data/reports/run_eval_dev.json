@@ -1,0 +1,85 @@
+{
+  "tier": "dev",
+  "n_views": 108,
+  "n_plates": 21,
+  "n_samples": 1218,
+  "mae_g": 20.298,
+  "mae_g_bootstrap_95ci": [
+    17.247,
+    24.295
+  ],
+  "mape_pct": 24.14,
+  "n_mape_excluded_lt1g": 0,
+  "coverage_90": 0.8645,
+  "coverage_bootstrap_95ci": [
+    0.812,
+    0.907
+  ],
+  "mean_interval_width_g": 82.06,
+  "n_skipped_no_sigma": 0,
+  "per_dish_mae_g": {
+    "beans-curry": 42.47,
+    "steamed-rice": 39.06,
+    "non-spicy-curry": 33.43,
+    "pachi-pulusu": 31.05,
+    "non-spicy-dal": 31.05,
+    "channa-brinjal": 30.06,
+    "sambar": 28.98,
+    "Watermelon": 28.86,
+    "tomato-pappu": 28.56,
+    "Papaya": 28.41,
+    "chicken-dum-biryani": 27.63,
+    "curd": 19.07,
+    "bisi-bele-bath": 18.7,
+    "phulka": 18.42,
+    "rajma": 18.31,
+    "raita": 18.18,
+    "beetroot-kobari": 17.8,
+    "cabbage-dry": 17.08,
+    "kofta-curry": 17.01,
+    "mirchi-ka-salan": 16.81,
+    "aloo-curry": 16.76,
+    "payasam": 16.55,
+    "veg-pulao": 16.12,
+    "veg-dum-briyani": 15.18,
+    "Banana": 13.37,
+    "Muskmelon": 11.8,
+    "salad": 10.08,
+    "leaf-dal": 9.78,
+    "aloo-capsicum": 9.68,
+    "aloo-fry": 8.88,
+    "kakarakaya-fry": 8.36,
+    "muddha-pappu": 7.42,
+    "beetroot-poriyal": 7.39,
+    "boondi": 5.08,
+    "mango-pickle": 4.5,
+    "chutney": 4.3,
+    "dondakaya-fry": 3.15,
+    "papad": 2.35
+  },
+  "worst3_dishes": [
+    [
+      "beans-curry",
+      42.47
+    ],
+    [
+      "steamed-rice",
+      39.06
+    ],
+    [
+      "non-spicy-curry",
+      33.43
+    ]
+  ],
+  "split": "WED val carve from train plates (seed 42, 10% of plates)",
+  "seed": 42,
+  "split_seed": 42,
+  "val_frac": 0.1,
+  "bootstrap_reps": 2000,
+  "z90": 1.644854,
+  "device": "cuda",
+  "checkpoint": "data/weight_head.pt",
+  "limit": null,
+  "stress": null,
+  "dev_real": null
+}
