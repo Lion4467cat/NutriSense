@@ -33,3 +33,5 @@ mlruns/
 STOP
 *.bak
 data/locked_test/
+# Experiment run log — append-only local bookkeeping (tools/log_run.py)
+runs/

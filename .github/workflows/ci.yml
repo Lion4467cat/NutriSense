@@ -10,8 +10,9 @@ name: CI
 
 on:
   push:
-    branches: [track0-stability]
+    branches: [main, "iter-*", "loop-*", "card-*", "fallback-*", "ui-*", "track*"]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

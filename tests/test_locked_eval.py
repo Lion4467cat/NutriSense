@@ -1,14 +1,18 @@
-"""Protection + CLI guards for the WED evaluation (loop-setup chunk A).
+"""Protection + CLI guards for the WED evaluation (loop-setup chunks A+B).
 
-Four things are pinned here:
+Five things are pinned here:
   1. docs/locked_manifest.txt covers every file the evaluation is made of
-     (code, split data, locked images) and check_locked agrees with it;
+     (eval code, the split definition, locked images) and check_locked
+     agrees with it;
   2. check_locked actually FAILS on a changed/missing/unpinned entry —
-     a lock that never fires is not a lock;
+     a lock that never fires is not a lock — and REJECTS model/training
+     artifacts, which are deliberately outside the pin set;
   3. tools/run_eval refuses the locked tier without the deliberate flag and
      refuses --stress anywhere but DEV, and the DEV tier never reads the
      test split;
-  4. tools/stress_suite stays behaviourally identical to the STAGE 1B
+  4. tools/run_eval's locked path works end-to-end on a tiny fake dataset
+     (temp dir, temp access log — the real log is never touched);
+  5. tools/stress_suite stays behaviourally identical to the STAGE 1B
      perturbations in tools/bn_experiment.py (frozen copy, not an import).
 
 No test here loads a model or touches the GPU.
@@ -31,10 +35,9 @@ MANIFEST = ROOT / "docs" / "locked_manifest.txt"
 REQUIRED_PINS = [
     "tools/run_eval.py",
     "tools/stress_suite.py",
+    "tools/compare_runs.py",
     "tools/check_locked.py",
     "tools/build_wed_manifest.py",
-    "tools/train_weight_head.py",
-    "models/weight_head.py",
     "data/wed_manifest.jsonl",
 ]
 
@@ -44,9 +47,21 @@ def test_manifest_pins_the_eval_code_data_and_locked_images():
     entries = check_locked.read_manifest(MANIFEST)
     for rel in REQUIRED_PINS:
         assert rel in entries, f"{rel} not pinned"
-    assert "data/weight_head_sigma.yaml" in entries
     assert any(k.startswith("data/wed/test/") for k in entries), \
         "locked images must be pinned"
+
+
+def test_model_and_training_artifacts_are_not_pinned(tmp_path):
+    """The model is what gets evaluated — it must stay outside the lock."""
+    entries = check_locked.read_manifest(MANIFEST)
+    for rel in check_locked.MODEL_ARTIFACTS:
+        assert rel not in entries, f"{rel} must not be pinned"
+        assert rel not in REQUIRED_PINS
+    # and the guard actively rejects them if they sneak into a manifest
+    bad = tmp_path / "manifest.txt"
+    bad.write_text(f"{'0' * 64}  models/weight_head.py\n"
+                   f"{'0' * 64}  data/weight_head_sigma.yaml\n")
+    assert check_locked.check(bad, ROOT, quiet=True) == 1
 
 
 def test_check_locked_passes_on_this_repo():
@@ -201,6 +216,88 @@ def test_stress_suite_matches_the_bn_experiment():
 def test_stress_is_labelled_as_not_real_world():
     assert stress_suite.STRESS_LABEL == "WED stress test, not real-world"
     assert len(stress_suite.PERTURBATIONS) == 5
+
+
+# ------------------------------------------------ locked path (fake data) --
+def _prepare_fake_locked(tmp_path, monkeypatch):
+    """Tiny synthetic 'WED test' dataset + a stub head; nothing real is read."""
+    import torch
+    from PIL import Image
+
+    wed = tmp_path / "wed"
+    wed.mkdir()
+    rows = []
+    for vi in range(2):
+        img = np.full((32, 32, 3), 120 + 20 * vi, dtype=np.uint8)
+        mask = np.zeros((32, 32), dtype=np.uint8)
+        mask[:16, :] = 1          # class_id 1 -> slot 0
+        mask[16:, :] = 2          # class_id 2 -> slot 1
+        Image.fromarray(img).save(wed / f"img{vi}.png")
+        Image.fromarray(mask).save(wed / f"mask{vi}.png")
+        rows.append({
+            "split": "test", "date_key": f"2026010{vi}", "set": "set1",
+            "image": f"img{vi}.png", "mask": f"mask{vi}.png",
+            "dishes": [{"class_id": 1, "name": "steamed-rice", "weight_g": 100.0},
+                       {"class_id": 2, "name": "sambar", "weight_g": 50.0}],
+        })
+
+    class _StubHead:
+        def eval(self):
+            return self
+
+        def encode(self, imgs):
+            return torch.zeros(imgs.shape[0], 4, 4, 4, device=imgs.device)
+
+        def __call__(self, feats, rois):
+            return torch.full((rois.shape[0], 2), 60.0, device=rois.device)
+
+    class _StubWeightHead:
+        @staticmethod
+        def load(path, device=None):
+            return _StubHead()
+
+    log = tmp_path / "locked_access_log.txt"
+    monkeypatch.setattr(run_eval, "WeightHead", _StubWeightHead)
+    monkeypatch.setattr(run_eval, "wed_root", lambda: wed)
+    monkeypatch.setattr(run_eval, "slot_names",
+                        lambda: {0: "steamed-rice", 1: "sambar"})
+    monkeypatch.setattr(run_eval, "sigma_map", lambda: {"steamed-rice": 20.0})
+    monkeypatch.setattr(run_eval, "LOCKED_LOG", log)
+    monkeypatch.setattr(run_eval, "load_manifest",
+                        lambda split: [dict(r) for r in rows])
+    run_eval.LOADED.clear()
+    return log
+
+
+def test_locked_path_refuses_without_the_flag(tmp_path, monkeypatch):
+    log = _prepare_fake_locked(tmp_path, monkeypatch)
+    with pytest.raises(SystemExit) as exc:
+        run_eval.main(["--tier", "locked", "--out", str(tmp_path / "r.json")])
+    assert exc.value.code != 0
+    assert not log.exists()
+    assert run_eval.LOADED == []            # nothing was read
+
+
+def test_locked_path_runs_and_appends_exactly_one_line(tmp_path, monkeypatch):
+    import json
+    real_log = ROOT / "docs" / "locked_access_log.txt"
+    before = real_log.read_text() if real_log.exists() else None
+    log = _prepare_fake_locked(tmp_path, monkeypatch)
+    out = tmp_path / "run_eval_locked.json"
+    rc = run_eval.main(["--tier", "locked", "--i-know-this-is-locked",
+                        "--out", str(out)])
+    assert rc == 0
+    lines = log.read_text().splitlines()
+    assert len(lines) == 1, "exactly one access-log line per locked run"
+    assert "tier=locked" in lines[0]
+    assert "--i-know-this-is-locked" in lines[0]
+    rep = json.loads(out.read_text())
+    assert rep["tier"] == "locked"
+    assert sorted(rep["per_plate"]) == ["20260100_set1", "20260101_set1"]
+    assert isinstance(rep["wall_s"], float)
+    assert run_eval.LOADED == ["test"]
+    after = real_log.read_text() if real_log.exists() else None
+    assert after == before                 # the real access log is never touched
 
 
 if __name__ == "__main__":

@@ -43,6 +43,7 @@ import json
 import random
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -180,6 +181,23 @@ def bootstrap(samples: list[dict], has_sigma: list[bool], covered: list[bool | N
     return ci(maes), ci(covs)
 
 
+def per_plate(samples: list[dict], has_sigma: list[bool],
+              covered: list[bool | None]) -> dict[str, dict]:
+    """Per-plate aggregates — the resampling unit tools/compare_runs.py pairs on."""
+    agg: dict[str, dict] = {}
+    for s, hs, cv in zip(samples, has_sigma, covered):
+        a = agg.setdefault(s["plate"], {"n": 0, "sum_abs_err": 0.0,
+                                        "n_sigma": 0, "n_covered": 0})
+        a["n"] += 1
+        a["sum_abs_err"] += abs(s["err"])
+        if hs:
+            a["n_sigma"] += 1
+            a["n_covered"] += 1 if cv else 0
+    return {k: {"n": v["n"], "sum_abs_err": round(v["sum_abs_err"], 4),
+                "n_sigma": v["n_sigma"], "n_covered": v["n_covered"]}
+            for k, v in sorted(agg.items())}
+
+
 def summarize(samples: list[dict], *, tier: str, seed: int, views: int) -> dict:
     if not samples:
         raise RuntimeError(f"tier {tier}: no samples scored")
@@ -227,6 +245,7 @@ def summarize(samples: list[dict], *, tier: str, seed: int, views: int) -> dict:
         "n_skipped_no_sigma": skipped,
         "per_dish_mae_g": per_dish_mae,
         "worst3_dishes": list(per_dish_mae.items())[:3],
+        "per_plate": per_plate(samples, has_sigma, covered),
     }
 
 
@@ -299,6 +318,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.stress and args.tier != "dev":
         ap.error("--stress is DEV-only (the WED stress suite runs on the "
                  "DEV carve, never on train or locked)")
+    t0 = time.time()
 
     if args.tier == "train":
         rows = train_rows()
@@ -315,6 +335,8 @@ def main(argv: list[str] | None = None) -> int:
         rows = rows[:args.limit]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats()
     out = Path(args.out) if args.out else (
         _ROOT / "data" / "reports" / f"run_eval_{args.tier}"
         f"{'_stress' if args.stress else ''}.json")
@@ -352,12 +374,15 @@ def main(argv: list[str] | None = None) -> int:
                       flush=True)
             rep["stress"] = stress
 
+    rep["wall_s"] = round(time.time() - t0, 2)
+    rep["peak_vram_mb"] = (round(torch.cuda.max_memory_allocated() / 2**20, 1)
+                           if device.type == "cuda" else None)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rep, indent=2) + "\n")
     print(f"tier={args.tier} wrote {_rel(out)}", flush=True)
     if args.tier == "locked":
         _append_locked_log(rep, out)
-        print(f"tier=locked appended {LOCKED_LOG.relative_to(_ROOT)}", flush=True)
+        print(f"tier=locked appended {_rel(LOCKED_LOG)}", flush=True)
     return 0
 
 

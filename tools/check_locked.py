@@ -2,14 +2,25 @@
 
 docs/locked_manifest.txt pins a SHA-256 for:
 
-  (a) eval code     — tools/run_eval.py, tools/stress_suite.py,
-                      tools/check_locked.py, tools/build_wed_manifest.py,
-                      tools/train_weight_head.py (split + ROI scoring),
-                      models/weight_head.py (deployable load path)
-  (b) eval data     — data/wed_manifest.jsonl (the split definition),
-                      data/weight_head_sigma.yaml (interval widths)
+  (a) eval code     — tools/run_eval.py (tiers, metrics, bootstrap),
+                      tools/stress_suite.py (frozen perturbations),
+                      tools/compare_runs.py (paired candidate-vs-baseline),
+                      tools/check_locked.py (this guard),
+                      tools/build_wed_manifest.py (builds the split definition)
+  (b) eval data     — data/wed_manifest.jsonl (the train/test row set the
+                      tiers are carved from)
   (c) locked images — every file under data/wed/test/ (present locally only;
                       the dataset is git-ignored, so CI sees none of them)
+
+NOT pinned, deliberately — the model is what gets evaluated, so model and
+training artifacts may change between runs (retraining, new sigma, new
+architecture) without invalidating the evaluation harness:
+
+  models/weight_head.py, tools/train_weight_head.py,
+  data/weight_head_sigma.yaml, data/weight_head.pt
+
+Those four are listed in MODEL_ARTIFACTS below and are REJECTED if they ever
+re-appear in the manifest.
 
 Any entry whose hash differs, or any (a)/(b) entry that is missing, exits 1.
 (c) entries that are absent locally are reported as SKIP and do not fail —
@@ -40,14 +51,20 @@ LOCAL_ONLY = "data/wed/test/"          # git-ignored: absent locally is SKIP
 CODE = (
     "tools/run_eval.py",
     "tools/stress_suite.py",
+    "tools/compare_runs.py",
     "tools/check_locked.py",
     "tools/build_wed_manifest.py",
-    "tools/train_weight_head.py",
-    "models/weight_head.py",
 )
 DATA = (
     "data/wed_manifest.jsonl",
+)
+# Model / training artifacts — may change with a retrain, so they are NOT
+# part of the lock. Presence in the manifest is itself a failure.
+MODEL_ARTIFACTS = (
+    "models/weight_head.py",
+    "tools/train_weight_head.py",
     "data/weight_head_sigma.yaml",
+    "data/weight_head.pt",
 )
 
 
@@ -87,10 +104,13 @@ def write_manifest(path: Path = MANIFEST, root: Path = _ROOT) -> int:
     rows = locked_paths(root)
     lines = [
         "# docs/locked_manifest.txt — SHA-256 pins for the WED evaluation.",
-        "# Scope: eval code (tools/run_eval, tools/stress_suite, tools/check_locked,",
-        "# tools/build_wed_manifest, tools/train_weight_head, models/weight_head),",
-        "# split/sigma data, and every file under data/wed/test/ (git-ignored —",
-        "# present locally only). Verify: .venv/bin/python -m tools.check_locked",
+        "# Scope: eval code (tools/run_eval, tools/stress_suite,",
+        "# tools/compare_runs, tools/check_locked, tools/build_wed_manifest),",
+        "# the split definition data/wed_manifest.jsonl, and every file under",
+        "# data/wed/test/ (git-ignored — present locally only).",
+        "# Model/training artifacts are deliberately NOT pinned: models/weight_head.py,",
+        "# tools/train_weight_head.py, data/weight_head_sigma.yaml, data/weight_head.pt.",
+        "# Verify: .venv/bin/python -m tools.check_locked",
         "# Regenerate ONLY deliberately, with approval:",
         "#   .venv/bin/python -m tools.check_locked --write",
         f"# written: {datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}  files: {len(rows)}",
@@ -111,6 +131,11 @@ def check(path: Path = MANIFEST, root: Path = _ROOT, *, quiet: bool = False) -> 
         return 1
     failed = skipped = ok = 0
     for rel, want in entries.items():
+        if rel in MODEL_ARTIFACTS:
+            failed += 1
+            print(f"MODEL_ARTIFACT_PINNED {rel} "
+                  "(model/training artifact must not be pinned)")
+            continue
         target = root / rel
         if not target.exists():
             if rel.startswith(LOCAL_ONLY):
