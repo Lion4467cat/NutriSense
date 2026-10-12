@@ -4,7 +4,10 @@
 Every stage runs through engine.contract.stage(): fatal stages convert their
 exceptions into a Failure (log ERROR, cannot_verify — never a 500), the anchor
 stage degrades to the prior tier (log WARNING, continues). Every exit returns
-the 16-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+the 18-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+Model stages additionally run through _oom_guard(): a CUDA OOM clears the
+model registry (unload + cache clear) and retries once, recording the
+degradations[] tag gpu_oom_retried; a second OOM becomes a structured Failure.
 
 deps lets tests (and future alternate backends) override any stage:
   deps = {"segment": callable(image_bgr)->dict, "classify": ..., "depth": ...,
@@ -12,11 +15,15 @@ deps lets tests (and future alternate backends) override any stage:
 Depth callables return {"depth_m": (H,W) meters, ...}; the pipeline calibrates
 monocular scale against a measured anchor automatically.
 
-Learned weight fallback (ADR-0002): when the anchor is prior tier (no
-reference card) and a trained weight head exists (data/weight_head.pt), the
-portion step asks the head for grams (WED-trained, class-conditional) instead
-of size-prior geometry. Any head failure silently falls back to geometry.
-The verdict for every no-card plate is ESTIMATED — never PASS/FAIL.
+Learned weight (ADR-0002): when the anchor is prior tier (no reference card)
+and a trained weight head exists (data/weight_head.pt), the portion step asks
+the head for grams (WED-trained, class-conditional) instead of size-prior
+geometry. A head that fails — or is absent (checkpoint missing or failed to
+load) — on a WED-mapped dish raises WeightHeadUnavailable -> cannot_verify
+with the weight_head_unavailable reason and no grams; geometry is never
+silently substituted. Dishes with no WED mapping never consult the head and
+keep the geometry path. No-card plates are scored like any other, leading
+their reasons with the no_reference_card estimate disclaimer.
 """
 import logging
 
@@ -26,7 +33,7 @@ from config import (load_anchor_config, load_menu, load_wed_dishes,
                     load_wed_index, load_wed_sigma)
 from engine.compliance import assess
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
-                             load_policy, log_analysis,
+                             WeightHeadUnavailable, load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
 from engine.gates import INPUT_GATES, SCOPE_GATE, admit
 from engine.mc import sample_nutrients
@@ -35,9 +42,6 @@ from geo.pose import camera_matrix
 from models.portion_estimator import _components, estimate_portion
 from models.scale_anchor import estimate_anchor, prior_anchor
 
-_default_depth = None
-_default_weight_head = None
-_weight_head_missing = False
 log = logging.getLogger("nutrisense")
 
 # Assumed relative sigma when the head exists but no per-class val sigma is
@@ -45,36 +49,71 @@ log = logging.getLogger("nutrisense")
 LEARNED_SIGMA_REL_FALLBACK = 0.30
 
 
+def _is_oom(exc: BaseException) -> bool:
+    """True for torch.OutOfMemoryError (== torch.cuda.OutOfMemoryError).
+    torch is imported lazily so non-GPU paths never pay for it."""
+    try:
+        import torch
+    except Exception:
+        return False
+    return isinstance(exc, torch.OutOfMemoryError)
+
+
+def _oom_guard(fn, degradations: list):
+    """Wrap a model-stage callable with one OOM retry.
+
+    On a torch.OutOfMemoryError: record degradations["gpu_oom_retried"], drop
+    every cached model from the registry (VRAM back to the driver, sticky
+    factory failures unstuck), and retry fn once. A second OOM propagates so
+    engine.contract.stage() can turn it into a structured Failure — never a
+    500, and never a silent substitution of a different model.
+    """
+
+    def call():
+        try:
+            return fn()
+        except Exception as e:
+            if not _is_oom(e):
+                raise
+            log.warning("CUDA OOM — clearing the model registry and retrying once",
+                        exc_info=True)
+            if "gpu_oom_retried" not in degradations:
+                degradations.append("gpu_oom_retried")
+            from models import registry
+            registry.unload()
+            registry.clear_cache()
+            return fn()
+
+    return call
+
+
 def _get_depth_provider():
-    global _default_depth
-    if _default_depth is None:
-        _default_depth = MonocularDepth()
-    return _default_depth
+    from models import registry
+    return registry.get_or_create("depth_provider", MonocularDepth)
+
+
+def _make_weight_head():
+    from config import DATA_DIR
+    from models.weight_head import WeightHead
+    import torch
+    ckpt = DATA_DIR / "weight_head.pt"
+    if not ckpt.is_file():
+        raise FileNotFoundError(ckpt)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return WeightHead.load(ckpt, device=device)
 
 
 def _get_weight_head():
     """Lazy-load data/weight_head.pt once. Missing checkpoint -> None (the
     learned path is simply disabled; geometry prior keeps working)."""
-    global _default_weight_head, _weight_head_missing
-    if _weight_head_missing:
+    from models import registry
+    try:
+        return registry.get_or_create("weight_head", _make_weight_head)
+    except FileNotFoundError:
         return None
-    if _default_weight_head is None:
-        from pathlib import Path
-        from config import DATA_DIR
-        ckpt = DATA_DIR / "weight_head.pt"
-        if not ckpt.is_file():
-            _weight_head_missing = True
-            return None
-        try:
-            from models.weight_head import WeightHead
-            import torch
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            _default_weight_head = WeightHead.load(ckpt, device=device)
-        except Exception:
-            log.exception("weight head checkpoint failed to load — geometry fallback")
-            _weight_head_missing = True
-            return None
-    return _default_weight_head
+    except Exception:
+        log.exception("weight head checkpoint failed to load — geometry fallback")
+        return None
 
 
 def _wed_slots_for_dish(dish_key: str) -> list[int] | None:
@@ -135,7 +174,7 @@ register_fallback("prior_anchor", _make_prior_anchor)
 
 def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             serving_style=None):
-    """Run the full pipeline on one capture. Always returns the 16-key wire
+    """Run the full pipeline on one capture. Always returns the 17-key wire
     dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | ESTIMATED |
     cannot_verify | out_of_scope)."""
     from models.dish_segmenter import segment_food
@@ -148,9 +187,18 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     exif = exif or {"focal_mm": None, "subject_distance_cm": None,
                     "digital_zoom": None, "camera": None}
     timings: dict[str, float] = {}
+    degradations: list[str] = []
     policy = load_policy()
 
     def finish(analysis: Analysis) -> dict:
+        analysis.degradations = list(degradations)
+        if analysis.path_used is None and analysis.portion is not None:
+            if (analysis.anchor or {}).get("tier") == "measured":
+                analysis.path_used = "card_geometry"
+            elif analysis.portion.get("base_method") == "learned_weight":
+                analysis.path_used = "learned_head"
+            else:
+                analysis.path_used = "prior_geometry"
         log_analysis(str(analysis.verdict), day, band, timings)
         return analysis.to_wire()
 
@@ -211,7 +259,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         seg = segment(image_bgr)
         return seg, seg["mask"]  # missing key -> stage_failed/segment
 
-    seg_out, failure = stage(Stage.SEGMENT, _segment_step, timings=timings)
+    seg_out, failure = stage(Stage.SEGMENT, _oom_guard(_segment_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info)
     seg, mask = seg_out
@@ -235,7 +284,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                      "nutrition_source": dish.get("nutrition_source")}
         return classification, dish_info, None
 
-    cls_out, failure = stage(Stage.CLASSIFY, _classify_step, timings=timings)
+    cls_out, failure = stage(Stage.CLASSIFY, _oom_guard(_classify_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info)
@@ -268,7 +318,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 depth_m, anchor, K)
         return depth_out, depth_m, scale_factor, scale_source
 
-    depth_result, failure = stage(Stage.DEPTH, _depth_step, timings=timings)
+    depth_result, failure = stage(Stage.DEPTH, _oom_guard(_depth_step, degradations),
+                                  timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
@@ -276,22 +327,33 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     depth_out, depth_m, scale_factor, scale_source = depth_result
 
     # --- portion stage ----------------------------------------------------
-    # Learned fallback (prior tier only): head.predict -> grams; any failure
-    # silently degrades to the geometry path (never worse than today).
+    # Learned path (prior tier only): head.predict -> grams. An absent head
+    # (checkpoint missing/load failed) and a failing head are treated the
+    # same on a WED-mapped dish: WeightHeadUnavailable -> cannot_verify with
+    # the weight_head_unavailable reason, no grams, path_used null. Unmapped
+    # dishes and the measured tier keep the geometry path.
     head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
 
     def _portion_step():
-        if (anchor.get("label") != "measured" and head is not None
+        if (anchor.get("label") != "measured"
                 and _wed_slots_for_dish(dish_info["id"]) is not None):
+            if head is None:
+                raise WeightHeadUnavailable(
+                    f"weight head unavailable for {dish_info['id']}: "
+                    "checkpoint missing or failed to load")
             try:
                 return _learned_portion(image_bgr, mask, dish,
                                         dish_info["id"], head)
-            except Exception:
-                log.warning("learned weight head failed — geometry prior fallback",
-                            exc_info=True)
+            except Exception as e:
+                if _is_oom(e):
+                    raise  # _oom_guard retries; a second OOM is a Failure
+                raise WeightHeadUnavailable(
+                    f"learned weight head failed: {type(e).__name__}: {e}"
+                ) from e
         return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
 
-    portion, failure = stage(Stage.PORTION, _portion_step, timings=timings)
+    portion, failure = stage(Stage.PORTION, _oom_guard(_portion_step, degradations),
+                             timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,

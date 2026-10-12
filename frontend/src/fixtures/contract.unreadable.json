@@ -5,6 +5,7 @@
   "classification": null,
   "compliance": null,
   "coverage": null,
+  "degradations": [],
   "dish": null,
   "failures": [
     {
@@ -16,6 +17,7 @@
   "lint": null,
   "model_versions": {},
   "nutrition": null,
+  "path_used": null,
   "policy": {
     "anchor_prior_cap": 0.6,
     "base_table_prior": 0.85,

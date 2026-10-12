@@ -8,6 +8,7 @@ frontend/dist/
 
 # Test caches
 .pytest_cache/
+.ruff_cache/
 
 # Backend logs (RotatingFileHandler)
 logs/
@@ -26,3 +27,9 @@ __pycache__/
 # Windows files
 Thumbs.db
 desktop.ini
+# Local scratch / derived dirs (TRACK 0)
+.playwright-mcp/
+mlruns/
+STOP
+*.bak
+data/locked_test/

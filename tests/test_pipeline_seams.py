@@ -14,6 +14,8 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
+import engine.pipeline as _pipeline
+import models.dish_segmenter as dish_segmenter
 import models.food_classifier as fc
 from engine.pipeline import analyze as pipe_analyze
 from main import app
@@ -129,14 +131,16 @@ def test_depth_scale_calibrated_and_recorded(scene):
 
 
 def test_depth_scale_none_on_prior_tier(no_card_scene):
+    # STAGE 5: a headless no-card run on a mapped dish cannot verify, so a
+    # working fake head is injected to reach the prior-tier depth wiring.
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene))
+                       deps=make_deps(no_card_scene) | {"weight_head": _FakeHead(310.0)})
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
-    # no reference card + geometry grams -> C=0.60 cap: scored verdict can
-    # only be BORDERLINE, with the no-card disclaimer leading the reasons
-    assert out["verdict"] == "BORDERLINE"
+    # no reference card + learned grams -> scored verdict with the
+    # no-card disclaimer leading the reasons
+    assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}
     assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
 
 
@@ -168,6 +172,7 @@ def test_result_contract_keys_and_types(scene):
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
         "assumptions", "advisory", "model_versions", "compliance", "policy",
+        "path_used", "degradations",
     }
     assert out["failures"] == []
     assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280
@@ -187,6 +192,8 @@ def test_result_contract_keys_and_types(scene):
     assert out["dish"]["serving_style"] == "mixed"
     assert out["dish"]["id"] == "rice_sambar"
     assert isinstance(out["assumptions"], list)
+    assert out["degradations"] == []            # nothing degraded on this run
+    assert out["path_used"] == "card_geometry"  # measured tier ran geometry
 
 
 def test_result_contract_flags_populated_on_ring_path(scene):
@@ -216,7 +223,13 @@ def test_http_missing_required_field_422(jpg_bytes):
     assert any("band" in loc for loc in locs)
 
 
-def test_http_serving_style_echo(jpg_bytes, monkeypatch):
+def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
+    # HTTP does not cross the deps seam: stub segment/depth at the exact
+    # points analyze() resolves them (as test_stage_guards does) so this
+    # non-gpu test never loads SAM2/MoGe weights.
+    deps = make_deps(scene)
+    monkeypatch.setattr(dish_segmenter, "segment_food", deps["segment"])
+    monkeypatch.setattr(_pipeline, "_get_depth_provider", lambda: deps["depth"])
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
         "match_score": 0.9, "margin": None, "scores": {}, "uncovered": [],
@@ -356,9 +369,11 @@ def test_learned_head_replaces_prior_geometry(no_card_scene):
     assert any("learned weight head" in a for a in out["assumptions"])
     assert out["model_versions"]["weight_head"] == "fake-test-head (test MAE 14.51g)"
     assert out["failures"] == []
+    assert out["path_used"] == "learned_head"   # head produced the grams
+    assert out["degradations"] == []            # head present: nothing degraded
 
 
-def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
+def test_learned_head_failure_cannot_verify(no_card_scene):
     class Boom:
         meta = {}
 
@@ -367,21 +382,44 @@ def test_learned_head_failure_falls_back_to_geometry(no_card_scene):
 
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene) | {"weight_head": Boom()})
-    p = out["portion"]
-    assert p["grams_source"] == "geometry"
-    assert p["base_method"] in {"ring", "table_prior"}
-    assert "size_prior_scale" in p["flags"]          # prior geometry ran
-    assert "learned_weight_applied" not in p["flags"]
-    assert p["mean_h_mm"] is not None
-    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
-    assert out["failures"] == []                 # silent degrade
+    # STAGE 3: no silent geometry substitution — the plate cannot be verified
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None                 # no grams reach the wire
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "cuda exploded" in out["reasons"][0]["text"]
+    assert out["path_used"] is None               # no portion path ran
 
 
-def test_weight_head_none_disables_learned_path(no_card_scene):
+def test_weight_head_none_cannot_verify_mapped_dish(no_card_scene):
+    # STAGE 5: explicit None head == failing head on a mapped dish
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene) | {"weight_head": None})
-    assert out["portion"]["grams_source"] == "geometry"
-    assert out["verdict"] == "BORDERLINE"        # geometry prior: C=0.60 cap
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None               # no grams reach the wire
+    assert out["path_used"] is None
+    assert out["degradations"] == []
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
+
+
+def test_missing_checkpoint_cannot_verify_mapped_dish(no_card_scene):
+    # STAGE 5: no weight_head in deps -> _get_weight_head() -> the hermetic
+    # registry pin (a stand-in for a missing data/weight_head.pt) -> None.
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene))
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["path_used"] is None
+    assert out["degradations"] == []
+    assert len(out["failures"]) == 1
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+    assert out["failures"][0]["stage"] == "portion"
+    assert out["reasons"][0]["kind"] == "weight_head_unavailable"
+    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
 
 
 def test_learned_head_not_used_when_card_measured(scene):

@@ -25,10 +25,14 @@ def scene():
 
 def _stub_stages(scene, monkeypatch, *, classify=None):
     """Wire GT stubs in exactly where analyze() resolves them (no models)."""
+    from tests.test_pipeline_seams import _FakeHead
     deps = make_deps(scene, classify=classify)
     monkeypatch.setattr(dish_segmenter, "segment_food", deps["segment"])
     monkeypatch.setattr(food_classifier, "classify_dish", deps["classify"])
     monkeypatch.setattr(pipeline, "_get_depth_provider", lambda: deps["depth"])
+    # STAGE 5: a headless prior-tier run on a mapped dish cannot verify —
+    # stub a working head so these guard tests keep exercising their stage.
+    monkeypatch.setattr(pipeline, "_get_weight_head", lambda: _FakeHead(310.0))
 
 
 def _post(image_bgr, day="mon", band="1-5"):

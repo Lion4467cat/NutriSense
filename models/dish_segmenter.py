@@ -28,30 +28,36 @@ SOLIDITY_MIN = 0.85
 AREA_MIN, AREA_MAX = 0.005, 0.7
 PARENT_FRAC = 0.90          # area(i ∩ j) / area(i) >= this => i ⊂ j
 
-_STATE = {}
-
 
 def _device():
     import torch
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
-def _load():
-    if _STATE:
-        return _STATE["proc"], _STATE["model"]
+def _make_state():
     from transformers import Sam2Model, Sam2Processor
     dev = _device()
     proc = Sam2Processor.from_pretrained(MODEL_ID)
     model = Sam2Model.from_pretrained(MODEL_ID).to(dev).eval()
-    _STATE.update(proc=proc, model=model, device=dev)
-    return proc, model
+    return {"proc": proc, "model": model, "device": dev}
+
+
+def _state():
+    from models import registry
+    return registry.get_or_create("sam2", _make_state)
+
+
+def _load():
+    s = _state()
+    return s["proc"], s["model"]
 
 
 def _query(rgb, pt, box=None):
     """One SAM2 forward; returns [(small_mask, small_logits, score), ...]."""
     import numpy as _np
     import torch
-    proc, model, dev = _STATE["proc"], _STATE["model"], _STATE["device"]
+    st = _state()
+    proc, model, dev = st["proc"], st["model"], st["device"]
     kw = dict(images=rgb,
               input_points=_np.array([[[[pt[0], pt[1]]]]], dtype=_np.float32),
               input_labels=_np.array([[[1]]], dtype=_np.int32),

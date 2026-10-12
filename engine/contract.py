@@ -4,16 +4,20 @@ Python owns the result shape; the TypeScript side consumes a Zod schema
 generated from these vocabularies by tools/gen_contract_ts.py (regenerate:
 ``python -m tools.gen_contract_ts``).
 
-Wire keys (16):
+Wire keys (18):
   verdict, reasons, failures, lint, anchor, segmentation, classification,
   dish, portion, nutrition, coverage, assumptions, advisory, compliance,
-  model_versions, policy
+  model_versions, policy, path_used, degradations
 
 Rules:
   * reasons    — canonical, human-readable explanations for EVERY verdict
                  (including PASS). Each hard failure generates its own reason.
-  * failures   — hard failures only (stage crashes, rejected gates). Silent
-                 degradations stay in assumptions / coverage.factors.
+  * failures   — hard failures only (stage crashes, rejected gates).
+  * path_used  — which portion path produced the grams (card_geometry |
+                 learned_head | prior_geometry); null when no portion ran.
+  * degradations — machine-readable tags for substitutions that still
+                 produced a result (e.g. gpu_oom_retried); always present,
+                 [] when nothing degraded.
   * nullables  — a null detail block means "this stage was never reached".
   * paths      — never appear in error or reason text (redacted here, at the
                  single point every Failure/Reason passes through).
@@ -41,7 +45,11 @@ WIRE_KEYS = frozenset({
     "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
     "classification", "dish", "portion", "nutrition", "coverage",
     "assumptions", "advisory", "compliance", "model_versions", "policy",
+    "path_used", "degradations",
 })
+
+# Closed vocabulary of portion paths (source for tools/gen_contract_ts.py).
+PATH_USED_VALUES = ("card_geometry", "learned_head", "prior_geometry")
 
 
 # --- vocabularies ---------------------------------------------------------
@@ -50,6 +58,7 @@ class FailureKind(StrEnum):
     GATE_REJECTED = "gate_rejected"
     INPUT_UNREADABLE = "input_unreadable"
     STAGE_FAILED = "stage_failed"
+    WEIGHT_HEAD_UNAVAILABLE = "weight_head_unavailable"
 
 
 class ReasonKind(StrEnum):
@@ -64,6 +73,7 @@ class ReasonKind(StrEnum):
     BELOW_MIN = "below_min"
     COVERAGE_GATE = "coverage_gate"
     NO_REFERENCE_CARD = "no_reference_card"
+    WEIGHT_HEAD_UNAVAILABLE = "weight_head_unavailable"
 
 
 class Stage(StrEnum):
@@ -133,8 +143,17 @@ def reason_for_failure(failure: Failure) -> Reason:
         return Reason(ReasonKind.UNREADABLE, failure.error)
     if failure.kind is FailureKind.GATE_REJECTED:
         return Reason(ReasonKind.STAGE_FAILED, failure.error)
+    if failure.kind is FailureKind.WEIGHT_HEAD_UNAVAILABLE:
+        return Reason(ReasonKind.WEIGHT_HEAD_UNAVAILABLE, failure.error)
     return Reason(ReasonKind.STAGE_FAILED,
                   f"{failure.stage} failed: {failure.error}")
+
+
+class WeightHeadUnavailable(Exception):
+    """The learned weight head was expected (prior tier + WED-mapped dish)
+    but could not deliver grams. stage() converts it into a structured
+    Failure with kind weight_head_unavailable — the pipeline never silently
+    substitutes the geometry path in its place."""
 
 
 # --- policy ---------------------------------------------------------------
@@ -266,6 +285,10 @@ def stage(name, fn, *args, timings=None, **kwargs):
     value, failure = None, None
     try:
         value = fn(*args, **kwargs)
+    except WeightHeadUnavailable as e:
+        failure = Failure(FailureKind.WEIGHT_HEAD_UNAVAILABLE, stage_v, str(e))
+        log.error("stage=%s weight head unavailable: %s", stage_v,
+                  failure.error, exc_info=True)
     except Exception as e:
         failure = Failure(FailureKind.STAGE_FAILED, stage_v,
                           f"{type(e).__name__}: {e}")
@@ -307,6 +330,8 @@ class Analysis:
     compliance: dict | None = None
     model_versions: dict = field(default_factory=dict)
     policy: Policy = field(default_factory=load_policy)
+    path_used: str | None = None
+    degradations: list = field(default_factory=list)
 
     def to_wire(self) -> dict:
         return {
@@ -326,6 +351,8 @@ class Analysis:
             "compliance": self.compliance,
             "model_versions": self.model_versions,
             "policy": self.policy.to_wire(),
+            "path_used": self.path_used,
+            "degradations": list(self.degradations),
         }
 
 

@@ -67,6 +67,7 @@
     "pass_min": 0.85,
     "score": 1.0
   },
+  "degradations": [],
   "dish": {
     "band": "1-5",
     "day": "mon",
@@ -146,6 +147,7 @@
     "seed": 1234,
     "wider_ranges": false
   },
+  "path_used": "card_geometry",
   "policy": {
     "anchor_prior_cap": 0.6,
     "base_table_prior": 0.85,

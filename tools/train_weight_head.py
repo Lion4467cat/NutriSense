@@ -6,15 +6,25 @@ conditional MLP head. Recipe faithful to Arora et al. ICVGIP 2025 baseline:
 SmoothL1 loss, AdamW + OneCycleLR (max_lr 1e-3), random hflip, 224x224.
 
 Methodology (keeps the test split clean):
-  train      — fit head weights (90% of train plates)
+  train      — fit head weights (90% of train plates); STAGE 1A option A: the
+               encoder is frozen (no grads) and pinned to eval() during
+               training so BN keeps stock ImageNet running stats — the
+               deployable path (WeightHead.load + .eval()) then sees the exact
+               same statistics (option B, train-mode BN, was rejected at the
+               1A gate: perspective-warp MAE blew up 24.7 -> 74.7 g).
   val        — 10% of train plates, by plate (date_key+set): model selection
-               + per-class residual sigma -> data/weight_head_sigma.yaml
-  test       — final MAE report only (P5 graduation evidence)
+               + per-class residual sigma -> data/weight_head_sigma.yaml;
+               MAE / residuals are always re-measured after a save->load
+               round-trip through WeightHead (deployable path), never from
+               the in-process training model.
+  test       — final MAE report only (P5 graduation evidence); skipped
+               entirely (not even loaded) with --skip-test.
   merge check— steamed-rice + sambar slots read on the UNION mask vs summed
                GT (validates the composite rice_sambar fallback); if poor,
                the pipeline keeps the geometry prior for composites.
 
 Run:  .venv/bin/python -m tools.train_weight_head [--epochs 100] [--batch 4]
+      [--seed 42] [--workers 1] [--skip-test]
 """
 from __future__ import annotations
 
@@ -123,6 +133,8 @@ def build_rois(batch: list[dict], feats: torch.Tensor) -> tuple[torch.Tensor, to
 def run_epoch(model, loader, device, optimizer=None, scheduler=None):
     train = optimizer is not None
     model.train(train)
+    if train:
+        model.encoder.eval()
     crit = nn.SmoothL1Loss()
     total, n = 0.0, 0
     for batch in loader:
@@ -146,10 +158,18 @@ def run_epoch(model, loader, device, optimizer=None, scheduler=None):
 
 
 @torch.no_grad()
-def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]]]:
+def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]],
+                                                  dict[int, list[float]]]:
+    """-> (overall MAE, per-class residuals pred-gt, per-class ground truth).
+
+    The ground-truth map is kept alongside the residuals because sigma_rel
+    must be normalised by the class's mean gram weight (sigma / mean_gt) —
+    residuals are signed and average to the model's bias, which is ~0 and
+    would collapse the divisor to the max(1.0, ...) floor."""
     model.eval()
     errs: list[float] = []
     per_class: dict[int, list[float]] = defaultdict(list)
+    per_class_gt: dict[int, list[float]] = defaultdict(list)
     for batch in loader:
         imgs = torch.stack([s["img"] for s in batch]).to(device)
         feats = model.encode(imgs)
@@ -159,8 +179,9 @@ def evaluate_mae(model, loader, device) -> tuple[float, dict[int, list[float]]]:
         for p, g, c in zip(preds.cpu().numpy(), weights.cpu().numpy(), cls_ids.cpu().numpy()):
             errs.append(float(p - g))
             per_class[int(c)].append(float(p - g))
+            per_class_gt[int(c)].append(float(g))
     mae = float(np.abs(np.array(errs)).mean()) if errs else float("nan")
-    return mae, per_class
+    return mae, per_class, per_class_gt
 
 
 @torch.no_grad()
@@ -211,6 +232,10 @@ def main() -> None:
     ap.add_argument("--val-frac", type=float, default=0.10)
     ap.add_argument("--workers", type=int, default=2,
                     help="dataloader workers (keep low on small-RAM boxes)")
+    ap.add_argument("--skip-test", action="store_true",
+                    help="never load or evaluate the WED test split "
+                         "(no test MAE, no merge_check) — rebuild the "
+                         "deployable artifact from train+val only")
     ap.add_argument("--out", default=str(_ROOT / "data" / "weight_head.pt"))
     ap.add_argument("--sigma-out", default=str(_ROOT / "data" / "weight_head_sigma.yaml"))
     ap.add_argument("--report-out", default=str(_ROOT / "data" / "reports" / "weight_head_train.json"))
@@ -227,7 +252,7 @@ def main() -> None:
         wed_root = _ROOT / wed_root
 
     rows = load_manifest("train")
-    test_rows = load_manifest("test")
+    test_rows = [] if args.skip_test else load_manifest("test")
     plates = sorted({plate_key(r) for r in rows})
     random.Random(args.seed).shuffle(plates)
     n_val = max(1, int(len(plates) * args.val_frac))
@@ -243,11 +268,18 @@ def main() -> None:
     val_loader = DataLoader(WedPlates(val_rows, wed_root, train=False),
                             batch_size=args.batch, shuffle=False,
                             collate_fn=collate, num_workers=args.workers)
-    test_loader = DataLoader(WedPlates(test_rows, wed_root, train=False),
-                             batch_size=args.batch, shuffle=False,
-                             collate_fn=collate, num_workers=args.workers)
+    test_loader = (None if args.skip_test else
+                   DataLoader(WedPlates(test_rows, wed_root, train=False),
+                              batch_size=args.batch, shuffle=False,
+                              collate_fn=collate, num_workers=args.workers))
 
     model = WeightHead().to(device)
+    enc_sd = model.encoder.state_dict()
+    bn_names = [k for k in enc_sd
+                if k.endswith(("running_mean", "running_var",
+                               "num_batches_tracked"))]
+    assert bn_names, "no BN buffers found in encoder"
+    bn_stock = {k: enc_sd[k].clone() for k in bn_names}
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = AdamW(params, lr=args.lr, weight_decay=1e-4)
     steps = args.epochs * len(train_loader)
@@ -258,7 +290,7 @@ def main() -> None:
     t0 = time.time()
     for epoch in range(1, args.epochs + 1):
         tr = run_epoch(model, train_loader, device, optimizer, scheduler)
-        va, _ = evaluate_mae(model, val_loader, device)
+        va, _, _ = evaluate_mae(model, val_loader, device)
         if va < best_val:
             best_val = va
             best_state = {k: v.detach().clone() for k, v in model.head_mlp.state_dict().items()}
@@ -267,42 +299,58 @@ def main() -> None:
                   f"(best {best_val:.2f})  [{time.time() - t0:.0f}s]", flush=True)
 
     model.head_mlp.load_state_dict(best_state)
-    _, per_class_val = evaluate_mae(model, val_loader, device)
-    test_mae, per_class_test = evaluate_mae(model, test_loader, device)
+    enc_now = model.encoder.state_dict()
+    drifted = [k for k in bn_names if not torch.equal(bn_stock[k], enc_now[k])]
+    assert not drifted, (f"encoder BN statistics changed during training "
+                         f"({len(drifted)} of {len(bn_names)} buffers): "
+                         f"{drifted[:3]}")
+
+    from datetime import date
+    meta = {"dataset": "WED (ICVGIP 2025)", "recipe": "baseline rgb/no-attn/geom-none",
+            "bn_mode": "frozen_encoder_eval", "epochs": args.epochs,
+            "seed": args.seed, "trained": date.today().isoformat(),
+            "val_mae_in_process_g": round(best_val, 2),
+            "paper_baseline_mae_g": 14.51}
+    model.save(args.out, meta=meta)
+
+    deployable = WeightHead.load(args.out, device=device)
+    deploy_mae, per_class_val, gt_val = evaluate_mae(deployable, val_loader, device)
+    meta["val_mae_g"] = round(deploy_mae, 2)
 
     id_map = json.loads((_ROOT / "data" / "wed" / "index_map.json").read_text())
     id2name = {int(k) - 1: v for k, v in id_map.items() if v != "background"}
     sigma = {id2name[c]: round(float(np.std(v)), 2)
              for c, v in sorted(per_class_val.items()) if len(v) >= 3}
-    rel = {name: round(sigma[name] / max(1.0, float(np.mean(per_class_val[c]))), 4)
+    rel = {name: round(sigma[name] / max(1.0, float(np.mean(gt_val[c]))), 4)
            for c, name in id2name.items() if name in sigma}
 
-    from datetime import date
-    meta = {"dataset": "WED (ICVGIP 2025)", "recipe": "baseline rgb/no-attn/geom-none",
-            "val_mae_g": round(best_val, 2), "test_mae_g": round(test_mae, 2),
-            "epochs": args.epochs, "seed": args.seed,
-            "trained": date.today().isoformat(), "paper_baseline_mae_g": 14.51}
+    report = {"meta": meta, "val_mae_in_process_g": round(best_val, 2),
+              "val_mae_deployable_g": round(deploy_mae, 2)}
+    if not args.skip_test:
+        test_mae, per_class_test, _ = evaluate_mae(deployable, test_loader, device)
+        meta["test_mae_g"] = round(test_mae, 2)
+        report["test_mae_g"] = test_mae
+        report["test_per_class_mae"] = {
+            id2name[c]: round(float(np.abs(np.array(v)).mean()), 2)
+            for c, v in sorted(per_class_test.items())}
+        report["merge_check"] = merge_check(deployable, test_rows, wed_root, device)
     model.save(args.out, meta=meta)
 
     sigma_doc = {
         "_meta": meta,
         "sigma_g": sigma,
         "sigma_rel": rel,
-        "note": "per-class residual std on the carved val split (train plates); "
-                "feeds MC lognormal grams sigma in engine/mc.py",
+        "note": "per-class residual std on the carved val split (train plates), "
+                "measured on the reloaded checkpoint (deployable path, "
+                "WeightHead.load); sigma_rel = sigma_g / mean GT grams on the "
+                "same split; feeds MC lognormal grams sigma in engine/mc.py",
     }
     Path(args.sigma_out).write_text(yaml.safe_dump(sigma_doc, sort_keys=False))
 
-    merge = merge_check(model, test_rows, wed_root, device)
-    report = {"meta": meta, "test_mae_g": test_mae,
-              "test_per_class_mae": {id2name[c]: round(float(np.abs(np.array(v)).mean()), 2)
-                                     for c, v in sorted(per_class_test.items())},
-              "merge_check": merge}
     out = Path(args.report_out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps({"meta": meta, "test_mae_g": test_mae, "merge_check": merge},
-                     indent=2))
+    print(json.dumps(report, indent=2))
     print(f"wrote {args.out}, {args.sigma_out}, {out}")
 
 

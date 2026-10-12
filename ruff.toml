@@ -1,0 +1,44 @@
+# Ruff — STAGE 5 first pass. REPORT ONLY: no code, format, or autofix was
+# applied; the `ignore` list below is exactly the set of rules the current
+# code violates (117 findings against ruff 0.17.0 defaults, counted
+# 2026-10-12, re-measured after the STAGE 5 test-stub commit — see README
+# "Lint" for the per-rule counts and the reasons).
+#
+# Rules kept active and relaxed only where a single known location is at
+# fault live under [lint.per-file-ignores], so new findings of those rules
+# anywhere else still fail the check.
+
+[lint]
+ignore = [
+  "I001",     # 26  unsorted-imports (would churn every touched file)
+  "F401",     # 17  unused-import (real dead imports; cleanup deferred)
+  "RUF100",   # 13  unused-noqa (stale noqas left in place this pass)
+  "BLE001",   # 9   blind-except (broad catches are deliberate: registry, OOM guard)
+  "RUF046",   # 9   unnecessary-cast-to-int
+  "C408",     # 7   unnecessary-collection-call
+  "PLR0402",  # 7   manual-from-import
+  "RUF059",   # 5   unused-unpacked-variable
+  "RUF012",   # 3   mutable-class-default
+  "F841",     # 3   unused-variable
+  "UP035",    # 2   deprecated-import
+  "SIM401",   # 2   if-else-block-instead-of-dict-get
+  "S110",     # 2   try-except-pass (intentional: registry.clear_cache, anchor probe)
+  "B008",     # 1   function-call-in-default-argument (FastAPI File() idiom, main.py:110)
+  "B009",     # 1   get-attr-with-constant
+  "G201",     # 1   logging-exc-info (.error(..., exc_info=True) used on purpose)
+  "UP037",    # 1   quoted-annotation
+  "FURB167",  # 1   regex-flag-alias
+  "RUF022",   # 1   unsorted-dunder-all (geo/__init__.py)
+]
+
+[lint.per-file-ignores]
+# Pytest fixtures imported for their side effect as fixture providers
+# (scene/no_card_scene) look unused/redefined to ruff; they are resolved by
+# pytest at runtime. F811 stays active everywhere else.
+"tests/test_oom_handling.py" = ["F811"]
+# KNOWN BUG (reported, not fixed this pass): _embed_texts() uses torch with
+# no import — it currently has no callers (gallery text embeddings are
+# precomputed), so the NameError is latent. F821 stays active everywhere else.
+"models/food_classifier.py" = ["F821"]
+# Shebang present, file not executable; left as-is this pass.
+"tools/make_reference_card.py" = ["EXE001"]

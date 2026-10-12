@@ -1,0 +1,82 @@
+# STAGE 5 — CI. Pushed with track0-stability and run on GitHub Actions
+# (2026-10-12).
+#
+# Needs no GPU, no secrets, no datasets and no model downloads: ruff, the
+# pyright baseline gate, pytest -m "not gpu" with TORCH_HOME/HF_HOME pointed
+# at empty temp dirs (offline HF), then the frontend typecheck/tests/build.
+# Every command below was run locally with identical arguments on 2026-10-12;
+# counts are in README "Lint" / "Testing".
+name: CI
+
+on:
+  push:
+    branches: [track0-stability]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Runner pin: both jobs use ubuntu-24.04 instead of ubuntu-latest so the
+# image cannot change under us when ubuntu-latest migrates to Ubuntu 26
+# (announced for 2026-10-19). REVISIT LATER: re-validate on a newer image
+# and move back to ubuntu-latest (or the new LTS tag) once that is done.
+jobs:
+  backend:
+    name: backend — ruff, pyright, pytest (not gpu)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.14"
+          enable-cache: true
+
+      - name: Install the locked environment (uv.lock — no upgrades)
+        run: uv sync --frozen
+
+      - name: ruff — lint gate
+        run: uv run --no-sync ruff check .
+
+      - name: pyright — fails only on NEW type errors (baseline gate)
+        run: uv run --no-sync python -m tools.pyright_gate
+
+      - name: pytest -m "not gpu" — hermetic model caches
+        env:
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_OFFLINE: "1"
+        run: |
+          mkdir -p "$RUNNER_TEMP/torch-home" "$RUNNER_TEMP/hf-home"
+          TORCH_HOME="$RUNNER_TEMP/torch-home" \
+          HF_HOME="$RUNNER_TEMP/hf-home" \
+            uv run --no-sync pytest -m "not gpu" -q
+
+  frontend:
+    name: frontend — tsc, vitest, build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps from package-lock.json
+        run: npm ci
+
+      - name: tsc --noEmit
+        run: npx tsc --noEmit
+
+      - name: vitest
+        run: npm test
+
+      - name: build
+        run: npm run build
