@@ -1,7 +1,8 @@
 # Ruff — STAGE 5 first pass. REPORT ONLY: no code, format, or autofix was
 # applied; the `ignore` list below is exactly the set of rules the current
-# code violates (116 findings against ruff 0.17.0 defaults, counted
-# 2026-10-12 — see README "Lint" for the per-rule counts).
+# code violates (117 findings against ruff 0.17.0 defaults, counted
+# 2026-10-12, re-measured after the STAGE 5 test-stub commit — see README
+# "Lint" for the per-rule counts and the reasons).
 #
 # Rules kept active and relaxed only where a single known location is at
 # fault live under [lint.per-file-ignores], so new findings of those rules
@@ -15,7 +16,7 @@ ignore = [
   "BLE001",   # 9   blind-except (broad catches are deliberate: registry, OOM guard)
   "RUF046",   # 9   unnecessary-cast-to-int
   "C408",     # 7   unnecessary-collection-call
-  "PLR0402",  # 6   manual-from-import
+  "PLR0402",  # 7   manual-from-import
   "RUF059",   # 5   unused-unpacked-variable
   "RUF012",   # 3   mutable-class-default
   "F841",     # 3   unused-variable

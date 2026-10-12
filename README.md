@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-104%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-125%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -109,7 +109,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 
 ## ✨ Features
 
-**Implemented and tested (114 pytest + 43 vitest green):**
+**Implemented and tested (125 pytest + 43 vitest green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002)
@@ -170,7 +170,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 104 tests (synthetic GT scenes + HTTP E2E + contract parity) |
+| Tests | pytest — 125 tests (synthetic GT scenes + HTTP E2E + contract parity); 116 run without a GPU |
 
 ---
 
@@ -192,7 +192,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 104 tests incl. synth/ renderer with full GT
+├── tests/                     # 125 tests incl. synth/ renderer with full GT
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -240,10 +240,80 @@ npm run dev
 
 **5. Run the tests**
 
+### 🧪 Testing
+
 ```bash
-.venv/bin/pytest -q
-cd frontend && npm test    # 43 vitest tests (wire parity, selectors, PolicyNote)
+.venv/bin/pytest -q                    # full backend: 125 passed
+.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 116 passed, 9 deselected
+.venv/bin/pytest -m gpu -q             # the 9 model tests (SAM2, SigLIP2, MoGe-2, weight head)
+cd frontend && npm test                # 43 vitest tests (wire parity, selectors, PolicyNote)
 ```
+
+Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
+
+```bash
+TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
+  .venv/bin/pytest -m "not gpu" -q     # 116 passed, 9 deselected, both dirs stay empty
+```
+
+`pytest.ini` declares the `gpu` marker; `tests/conftest.py` pins the weight head to `None`, so non-gpu runs never touch `data/weight_head.pt`.
+
+### 🔍 Lint
+
+Report-only first pass (STAGE 5). **No autofix, no repo-wide format was ever applied** — the `ignore` list in `ruff.toml` is exactly the set of rules the current code violates.
+
+```bash
+.venv/bin/ruff check .                  # the gate: 0 findings under ruff.toml
+.venv/bin/ruff check . --isolated       # report-only baseline: 117 findings / 22 rules
+```
+
+Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and why each one was left alone rather than fixed:
+
+| Rule | n | Why relaxed |
+|---|---|---|
+| I001 | 26 | unsorted imports — would churn every touched file |
+| F401 | 17 | real dead imports; cleanup deferred |
+| RUF100 | 13 | stale `noqa`s left in place this pass |
+| BLE001 | 9 | broad excepts are deliberate (registry, OOM guard) |
+| RUF046 | 9 | unnecessary-cast-to-int |
+| PLR0402 | 7 | manual-from-import (aliased submodule imports) |
+| C408 | 7 | unnecessary-collection-call |
+| RUF059 | 5 | unused-unpacked-variable |
+| F811 | 4 | per-file `tests/test_oom_handling.py` — pytest fixtures imported for their side effect; still active elsewhere |
+| RUF012 | 3 | mutable-class-default |
+| F841 | 3 | unused-variable |
+| UP035 | 2 | deprecated-import |
+| SIM401 | 2 | if-else-block-instead-of-dict-get |
+| S110 | 2 | try-except-pass is intentional (`registry.clear_cache`, anchor probe) |
+| B008 | 1 | FastAPI `File()` idiom, `main.py:110` |
+| B009 | 1 | get-attr-with-constant |
+| G201 | 1 | `logging.exc_info=True` used on purpose |
+| UP037 | 1 | quoted-annotation |
+| FURB167 | 1 | regex-flag-alias |
+| RUF022 | 1 | unsorted-`__all__` (`geo/__init__.py`) |
+| F821 | 1 | per-file `models/food_classifier.py` — **known latent bug**: `_embed_texts()` uses torch with no import, but has no callers; still active elsewhere |
+| EXE001 | 1 | per-file `tools/make_reference_card.py` — shebang on a non-executable file |
+
+(The first pass counted 116 on 2026-10-12; the 117th is one PLR0402 in `tests/test_pipeline_seams.py` added by the STAGE 5 test-stub commit. `ruff.toml` carries the same counts.)
+
+### 🧮 Typecheck
+
+```bash
+.venv/bin/python -m tools.pyright_gate   # 216 errors vs pyright.baseline 216 — fails only on NEW errors
+```
+
+`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). Existing findings do not block CI: the gate compares against `pyright.baseline` and only fails when the count rises. When errors are genuinely fixed, re-record the lower count with `--update`.
+
+### 🔒 Lockfile
+
+```bash
+uv lock --check    # read-only: uv.lock matches pyproject.toml
+uv sync --frozen   # install exactly what uv.lock pins (no upgrades) — CI does this
+```
+
+`uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync` mirrors the lockfile exactly, so it also removes anything installed outside it (e.g. `pre-commit` from `requirements-dev.txt`) — do not run it casually. Dev tools live in the `dev` dependency group.
+
+`.github/workflows/ci.yml` runs all four gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + vitest + build). It needs no GPU, secrets, datasets or model downloads; written and verified locally on 2026-10-12, **never pushed and never run remotely**.
 
 ### Access the App
 
@@ -368,7 +438,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (104 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (125 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 
