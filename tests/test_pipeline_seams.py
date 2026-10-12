@@ -14,6 +14,8 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
+import engine.pipeline as _pipeline
+import models.dish_segmenter as dish_segmenter
 import models.food_classifier as fc
 from engine.pipeline import analyze as pipe_analyze
 from main import app
@@ -221,7 +223,13 @@ def test_http_missing_required_field_422(jpg_bytes):
     assert any("band" in loc for loc in locs)
 
 
-def test_http_serving_style_echo(jpg_bytes, monkeypatch):
+def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
+    # HTTP does not cross the deps seam: stub segment/depth at the exact
+    # points analyze() resolves them (as test_stage_guards does) so this
+    # non-gpu test never loads SAM2/MoGe weights.
+    deps = make_deps(scene)
+    monkeypatch.setattr(dish_segmenter, "segment_food", deps["segment"])
+    monkeypatch.setattr(_pipeline, "_get_depth_provider", lambda: deps["depth"])
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
         "match_score": 0.9, "margin": None, "scores": {}, "uncovered": [],

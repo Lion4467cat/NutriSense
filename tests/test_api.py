@@ -117,8 +117,12 @@ def test_pipeline_gt_depth_deterministic(scene, monkeypatch):
         "match_score": 0.9, "reason": "stub"})
     deps = {
         "depth": lambda img, **_kw: {"depth_m": scene["depth_m"], "model": "gt"},
+        "segment": lambda img: {"mask": scene["mask_food"], "strategy": "stub",
+                                "sam_score": 1.0, "n_candidates": 1,
+                                "area_frac": 0.2},
         "classify": lambda img: {"dish": "rice_sambar", "confidence": 1.0,
-                                 "method": "stub", "match_score": 0.9, "reason": "stub"},
+                                 "method": "stub", "match_score": 0.9,
+                                 "reason": "stub"},
     }
     a = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps, seed=5)
     b = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps, seed=5)
