@@ -1,14 +1,14 @@
 # NutriSense v5 — Final Build Report
 
 **Date:** 2026-10-08 (updated 2026-10-12)
-**Status:** S0–S6 complete — **130/130 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + no-card scored-with-disclaimer graduation landed 2026-10-11 (ADR 0002 + amendment).
+**Status:** S0–S6 complete — **144/144 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + no-card scored-with-disclaimer graduation landed 2026-10-11 (ADR 0002 + amendment).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
 ## Test results
 
 ```
-130 passed
+144 passed
 ```
 
 | Test file | Tests | Covers |
@@ -32,6 +32,7 @@ Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance v
 | `tests/test_model_registry.py` | 6 | STAGE 2 load-once/thread-safe registry, sticky failures, unload (fakes only) |
 | `tests/test_oom_handling.py` | 4 | STAGE 3 OOM retry/failure seams + registry recovery |
 | `tests/test_weight_head_load.py` | 4 | weight-head guards: encoder checksum, plausible grams, BN vs stock ImageNet, golden val MAE (`-m gpu`) |
+| `tests/test_locked_eval.py` | 14 | eval-lock pins + check_locked failure modes, run_eval tier/stress gates, plate bootstrap, stress-suite parity |
 
 ## Phase delivery
 
