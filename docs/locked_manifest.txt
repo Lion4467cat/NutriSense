@@ -8,7 +8,7 @@
 # Verify: .venv/bin/python -m tools.check_locked
 # Regenerate ONLY deliberately, with approval:
 #   .venv/bin/python -m tools.check_locked --write
-# written: 2026-10-12T13:43:47Z  files: 502
+# written: 2026-10-12T15:30:38Z  files: 503
 1e3f2666744332d4c16af5ba5bc66d0a27bba729c334e1beb824ca8232d1b53b  data/wed/test/12-may/gtFine/default/set25/20250512_163527_gtFine_labelIds.png
 e386302dd1d6fde9e50b214e6b26a106d30903481989baf6532505033bf7e3d4  data/wed/test/12-may/gtFine/default/set25/20250512_163533_gtFine_labelIds.png
 306089dcda4a7db75a553598d2302e24847d20652eb6ad0ea96ab95e28da914c  data/wed/test/12-may/gtFine/default/set25/20250512_163536_gtFine_labelIds.png
@@ -507,7 +507,8 @@ d2bdc751a0e62b9bd587e6451cac467a09d4422e8fd4d4a3463fef924d26364e  data/wed/test/
 986164869a6f0135239d907514127865b0358eb16f8c14f99c5a893b2402b6b2  data/wed/test/26-may/imgsFine/leftImg8bit/default/set9/20250526_151137_leftImg8bit.jpg
 f5bad6b32963c7ee2ed0ad3cddd7ca02d2d912c90b36c9b3cde7e82fb989214d  data/wed_manifest.jsonl
 cf95d224781f7cc0fcaafc875ab1738ee09e58b59b8e21c24fb333fbb3815479  tools/build_wed_manifest.py
-18f5a40e1105c77547e1e9fb4d54de44275d5e67526b98a3b9ee5da897185531  tools/check_locked.py
+07fde556e5aaa579e88912e99a2ceb76b997d3ce601a713a40f6046ffcb7524e  tools/card_stress.py
+4d20f6479c951fed0451f23dae4b2506ab6d227793eb53258a2450baa3dace64  tools/check_locked.py
 c686da9c9003b736162729c557c73815a4cf721617dc0f85c39aeec63b6c48d8  tools/compare_runs.py
 bfab09a8212f8e45ed4eb351f2474af5a928f6a98ffef163ec2d361d515d721a  tools/run_eval.py
 011ec1ecf77b1ab4c8cc5629dc10f91738de7216fd9aa0fe91b8bd553bef6e44  tools/stress_suite.py

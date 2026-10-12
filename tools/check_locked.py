@@ -54,6 +54,7 @@ CODE = (
     "tools/compare_runs.py",
     "tools/check_locked.py",
     "tools/build_wed_manifest.py",
+    "tools/card_stress.py",
 )
 DATA = (
     "data/wed_manifest.jsonl",

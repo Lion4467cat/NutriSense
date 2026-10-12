@@ -89,6 +89,44 @@ Every stress result carries the label **"WED stress test, not real-world"**
 (`data/reports/run_eval_dev_stress.json`): these are corruptions of WED
 photos, not measurements of canteen capture conditions.
 
+### Card path (synthetic baseline)
+
+`tools/card_stress.py` measures the reference-card path on synthetic
+renders (`tests/synth/`), labelled **"synthetic, not real-world"**:
+9 perturbation groups / 31 levels, 30 scenes per level, seed 42, scene
+bootstrap 2000 reps. Scenes are framed with the camera azimuth at
+255–275° from the card so plate and card share depth and incidence — the
+condition under which the renderer's own ±7% volume claim holds. Report:
+`data/reports/card_stress_baseline.json` (2026-10-12, `4f313fd`,
+wall 350 s).
+
+Detection first drops below 95% at: card distance 78 px → 0.00
+(`min_marker_side_px` 80), dim_light mild (exposure 0.65) → 0.00 (the
+white quiet zone fails the detector's fixed brightness gate), glare mild
+→ 0.867, marker occlusion 10% → 0.10. Card tilt 0–60°, blur σ≤5, JPEG
+q30, resolution ≥0.125 and plate/food state all stay at 1.00. False
+accepts (cm/px error >5%) occur only at occlusion 10%: 0.067 [0, 0.167].
+Where detected, median cm/px error ≤ 1.3%. Tilt-estimation median error
+≤ 0.51° for tilt 15–60°; at tilt 0 it is 5.1° with 1/30 non-finite
+(fronto-parallel pose is ill-conditioned — counted, never imputed).
+
+Card-path portion error on the same renders, split by card tilt
+(volume is the ±7% claim metric; grams additionally carries the dish
+density convention bias ≈ −11.5%):
+
+| card tilt | n | volume median abs [95% CI] | p90 | worst | volume signed median | grams signed median |
+|---|---|---|---|---|---|---|
+| 0° | 30 | 0.015 [0.013, 0.015] | 0.018 | 0.021 | −0.015 | −0.127 |
+| 15° | 30 | 0.064 [0.040, 0.077] | 0.106 | 0.137 | +0.064 | −0.057 |
+| 30° | 30 | 0.136 [0.108, 0.175] | 0.233 | 0.305 | +0.136 | +0.006 |
+| 45° | 30 | 0.204 [0.146, 0.261] | 0.339 | 0.464 | +0.204 | +0.066 |
+| 60° | 30 | 0.227 [0.120, 0.305] | 0.410 | 0.638 | +0.227 | +0.087 |
+
+The ±7% claim holds at low tilt (median ≤ 6.4% through 15°) and degrades
+monotonically beyond it. Real photos of `../DATASET` (46/46) contain no
+reference card — all fall back to `prior` — so no real-world card
+cm/px/tilt distribution exists yet.
+
 ## Commands
 
 ```bash
@@ -100,7 +138,8 @@ photos, not measurements of canteen capture conditions.
 .venv/bin/python -m tools.check_locked --write                 # approved re-pin
 .venv/bin/python -m tools.compare_runs base.json cand.json --out compare.json
 .venv/bin/python -m tools.log_run data/reports/run_eval_dev.json --note "…"
-.venv/bin/pytest tests/test_locked_eval.py tests/test_compare_runs.py -q
+.venv/bin/python -m tools.card_stress                    # card path, synthetic
+.venv/bin/pytest tests/test_locked_eval.py tests/test_compare_runs.py tests/test_card_stress.py -q
 ```
 
 `--seed` (default 42) seeds the bootstrap only; the split carve seed is
@@ -133,7 +172,7 @@ bare "MAE improved" is not a result.
 
 - **(a) eval code** — `tools/run_eval.py`, `tools/stress_suite.py`,
   `tools/compare_runs.py`, `tools/check_locked.py`,
-  `tools/build_wed_manifest.py`;
+  `tools/build_wed_manifest.py`, `tools/card_stress.py`;
 - **(b) eval data** — `data/wed_manifest.jsonl` (the split definition);
 - **(c) locked images** — every file under `data/wed/test/` (git-ignored, so
   present locally only; CI sees none and skips them).

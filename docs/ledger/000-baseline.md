@@ -106,3 +106,73 @@ evaluated* — and adds `tools/compare_runs.py` (paired plate bootstrap),
   `data/reports/run_eval_dev.json` with `tools/compare_runs.py`.
 - Consider tightening interval width (82 g mean on a ~20 g MAE) without
   losing coverage — separate entry, DEV only.
+
+## Chunk C1 — card-path baseline (2026-10-12, `loop-baseline`)
+
+- **branch**: `loop-baseline` (from main @ `4f313fd`, the merged loop-setup)
+- **scope**: measurement only — no model, threshold or existing test changed.
+
+### Success criterion (prescribed by chunk C1, written before coding)
+
+`tools/card_stress.py` runs the 9 × 31 level matrix (30 scenes/level,
+seed 42) and reports per-level detection / false-accept / cm/px / tilt
+stats, first level below 95% detection per group, the three weakest
+conditions, and the card-path portion error distribution split by tilt
+level with bootstrap CIs; a read-only pass over `../DATASET` counts
+detectable cards; the tool joins the lock with exactly one new manifest
+entry; gates stay green (ruff 0, pyright ≤ 216, full pytest).
+
+### Change
+
+- `tools/card_stress.py` — new stress suite (pinned in
+  `docs/locked_manifest.txt` via the approved `check_locked --write`,
+  502 → 503 files; the only other manifest changes are `check_locked.py`'s
+  own self-hash and the header count).
+- `docs/eval_protocol.md` — "Card path (synthetic baseline)" section +
+  `tools/card_stress.py` added to the pinned eval-code list.
+- `tests/test_card_stress.py` — seed determinism + false-accept guard.
+
+### Result (data/reports/card_stress_baseline.json, 2026-10-12, 4f313fd)
+
+Detection first below 95%: `card_distance_px` 78 → 0.00
+(`min_marker_side_px` = 80), `dim_light` mild → 0.00 (quiet zone
+205×0.65 = 133 < the detector's fixed 170 brightness gate),
+`glare` mild → 0.867, `marker_occlusion_pct` 10 → 0.10. Card tilt
+0–60°, blur σ ≤ 5, JPEG q30, resolution ≥ 0.125, plate/food state: all
+1.00 at their worst level. False accepts: only occlusion 10%,
+0.067 [0, 0.167] (2/30); zero everywhere else. Median cm/px error
+≤ 1.3% where detected. Tilt-estimation median error ≤ 0.51° for
+15–60°; 5.05° at 0° with 1/30 non-finite pose (counted as
+`n_tilt_nan`, never imputed).
+
+Portion error by card tilt (volume = the ±7% claim metric; n = 30 per
+level, 2000-rep scene bootstrap):
+
+| tilt | volume median abs [95% CI] | p90 | worst | volume signed | grams signed |
+| --- | --- | --- | --- | --- | --- |
+| 0° | 0.015 [0.013, 0.015] | 0.018 | 0.021 | −0.015 | −0.127 |
+| 15° | 0.064 [0.040, 0.077] | 0.106 | 0.137 | +0.064 | −0.057 |
+| 30° | 0.136 [0.108, 0.175] | 0.233 | 0.305 | +0.136 | +0.006 |
+| 45° | 0.204 [0.146, 0.261] | 0.339 | 0.464 | +0.204 | +0.066 |
+| 60° | 0.227 [0.120, 0.305] | 0.410 | 0.638 | +0.227 | +0.087 |
+
+Grams add a ≈ −11.5% dish-density convention bias on top of the volume
+error (render density 0.95 vs `rho_eff` 0.8415), which is why the grams
+signed median is *smallest* at mid tilt — the two errors cancel.
+
+Framing note (found during this chunk, recorded so it is never
+"fixed" by accident): scenes aim the camera at the card with azimuth
+255–275° so plate and card share depth/incidence. Card-centred azimuth
+(±40°) makes the plate 15–20° more oblique than the card and produces
+−45%…−61% volume error — a scale-transfer artefact of the framing, not
+a property the pipeline claims to correct.
+
+`../DATASET`: 46/46 photos contain no reference card (visually
+confirmed; all return `prior`, reason "no reference card in frame") —
+0 detectable, no cm/px or tilt distribution, no outliers to report.
+
+### Decision (chunk C1)
+
+- **keep** — baseline recorded; the ±7% claim holds through 15° tilt and
+  degrades monotonically to a 22.7% median at 60°; all later card-path
+  experiments compare against `data/reports/card_stress_baseline.json`.
