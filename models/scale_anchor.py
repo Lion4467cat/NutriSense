@@ -20,15 +20,17 @@ from config import load_anchor_config as load_config
 from geo import camera_matrix, mean_side_px, pose_from_marker
 
 _REL_Z = 1.645          # one-sided 90% normal quantile
-_EXIF_FOCAL = 41486     # FocalLength (Exif IFD)
-_EXIF_SUBJ_DIST = 37386 # SubjectDistance (Exif IFD)
-_EXIF_DIGI_ZOOM = 41540 # DigitalZoomRatio (Exif IFD)
+_EXIF_FOCAL = 37386     # FocalLength (Exif sub-IFD)
+_EXIF_SUBJ_DIST = 37382 # SubjectDistance (Exif sub-IFD)
+_EXIF_DIGI_ZOOM = 41988 # DigitalZoomRatio (Exif sub-IFD)
+_EXIF_FOCAL_35 = 41989  # FocalLengthIn35mmFilm (Exif sub-IFD)
 _EXIF_IFD = 0x8769      # pointer to the Exif sub-IFD
 
 
 def read_exif(path):
     """Best-effort EXIF: focal_mm, subject_distance_cm, digital_zoom, camera."""
-    out = {"focal_mm": None, "subject_distance_cm": None, "digital_zoom": None, "camera": None}
+    out = {"focal_mm": None, "subject_distance_cm": None, "digital_zoom": None,
+           "focal_length_35mm": None, "camera": None}
     try:
         with Image.open(path) as im:
             ex = im.getexif()
@@ -38,8 +40,8 @@ def read_exif(path):
 
     def _get(tag):
         # these tags live in the Exif sub-IFD; some writers put them in IFD0
-        v = ex.get(tag)
-        return exif_ifd.get(tag) if v is None else v
+        v = exif_ifd.get(tag)
+        return ex.get(tag) if v is None else v
 
     def _rational(v):
         try:
@@ -51,6 +53,9 @@ def read_exif(path):
     focal = _rational(_get(_EXIF_FOCAL))
     if focal:
         out["focal_mm"] = focal
+    f35 = _rational(_get(_EXIF_FOCAL_35))
+    if f35:
+        out["focal_length_35mm"] = f35
     dz = _rational(_get(_EXIF_DIGI_ZOOM))
     if dz:
         out["digital_zoom"] = dz

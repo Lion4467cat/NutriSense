@@ -92,9 +92,10 @@ def test_exif_tags_read_from_exif_ifd(tmp_path):
     im = Image.new("RGB", (64, 64), 128)
     ex = im.getexif()
     ifd = ex.get_ifd(0x8769)
-    ifd[41486] = 3.98     # FocalLength
-    ifd[37386] = "45/1"   # SubjectDistance
-    ifd[41540] = 1.0      # DigitalZoomRatio
+    ifd[37386] = 3.98     # FocalLength
+    ifd[37382] = "45/1"   # SubjectDistance
+    ifd[41988] = 1.0      # DigitalZoomRatio
+    ifd[41989] = 26       # FocalLengthIn35mmFilm
     ex[0x8769] = ifd
     im.save(p, exif=ex)
 
@@ -103,6 +104,31 @@ def test_exif_tags_read_from_exif_ifd(tmp_path):
     assert out["subject_distance_cm"] == 45.0
     # 1.0 is a reported, protocol-compliant value — not swallowed as absent
     assert out["digital_zoom"] == 1.0
+    assert out["focal_length_35mm"] == 26.0
+
+
+def test_real_photos_exif_focal_length():
+    """Assert focal length equals exif_dump.csv values for vivo, moto, and Galaxy."""
+    from pathlib import Path
+    candidates = [
+        Path("/home/tinkerer/Desktop/Nutrisense/CARD_PHOTOS"),
+        Path("/home/tinkerer/Desktop/AruCo 7ID _plain _60mm/CARD_PHOTOS"),
+        Path(__file__).resolve().parent.parent.parent / "CARD_PHOTOS",
+    ]
+    root = next((p for p in candidates if p.is_dir()), None)
+    assert root is not None, "CARD_PHOTOS directory not found"
+
+    expected = [
+        ("existing_29/IMG_20261013_110219.jpg", 4.84),     # vivo vivo T4 5G
+        ("existing_29/IMG_20261013_110823870.jpg", 4.266), # motorola moto g82 5G
+        ("ruler/20261013_201052.jpg", 6.5),                 # samsung Galaxy S26 Ultra
+    ]
+    for rel_path, exp_focal in expected:
+        p = root / rel_path
+        assert p.exists(), f"Photo not found: {p}"
+        ex = read_exif(p)
+        assert ex["focal_mm"] is not None
+        assert abs(ex["focal_mm"] - exp_focal) < 1e-3
 
 
 def test_config_loads_tiers():
