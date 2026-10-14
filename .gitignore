@@ -35,3 +35,7 @@ STOP
 data/locked_test/
 # Experiment run log — append-only local bookkeeping (tools/log_run.py)
 runs/
+# agent-tooling scaffolding (local-only, like STOP) — decided in grill Q19
+.agents/
+.claude/
+skills-lock.json
