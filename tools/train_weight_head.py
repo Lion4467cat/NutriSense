@@ -51,7 +51,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from models.weight_head import RESIZE, WED_NUM_CLASSES, WeightHead  # noqa: E402
+from models.weight_head import RESIZE, WeightHead  # noqa: E402
 
 RGB_TF = transforms.Compose([
     transforms.Resize(RESIZE),

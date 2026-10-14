@@ -11,7 +11,6 @@ import argparse
 import glob
 import os
 
-import cv2
 import numpy as np
 
 from config import GALLERY_PATH
@@ -23,6 +22,8 @@ DUP_SIM = 0.9995
 
 def scan_source(source):
     """-> list of (path, dish_key); raises on unknown class dirs."""
+    if not os.path.isdir(source):
+        raise SystemExit(f"source directory does not exist: {source}")
     entries = []
     dirs = sorted(d for d in os.listdir(source)
                   if os.path.isdir(os.path.join(source, d)))

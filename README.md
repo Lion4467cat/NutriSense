@@ -221,7 +221,7 @@ cd NutriSense
 
 ```bash
 uv venv --python 3.14 .venv
-uv pip install --python .venv/bin/python -r requirements.txt -r requirements-cv.txt
+uv sync --frozen --all-groups
 ```
 
 **3. Run the backend (port 8731)**
@@ -311,7 +311,7 @@ uv lock --check    # read-only: uv.lock matches pyproject.toml
 uv sync --frozen   # install exactly what uv.lock pins (no upgrades) — CI does this
 ```
 
-`uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync` mirrors the lockfile exactly, so it also removes anything installed outside it (e.g. `pre-commit` from `requirements-dev.txt`) — do not run it casually. Dev tools live in the `dev` dependency group.
+`uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync --frozen` installs exactly what uv.lock pins (no upgrades) and removes anything installed outside it — do not run it casually. Dev tools live in the `dev` dependency group, included by `--all-groups`.
 
 `.github/workflows/ci.yml` runs all four gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + vitest + build). It needs no GPU, secrets, datasets or model downloads; written and verified locally on 2026-10-12, **never pushed and never run remotely**.
 

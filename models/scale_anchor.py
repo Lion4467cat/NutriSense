@@ -29,8 +29,10 @@ _EXIF_IFD = 0x8769      # pointer to the Exif sub-IFD
 
 def read_exif(path):
     """Best-effort EXIF: focal_mm, subject_distance_cm, digital_zoom, camera."""
-    out = {"focal_mm": None, "subject_distance_cm": None, "digital_zoom": None,
-           "focal_length_35mm": None, "camera": None}
+    out: dict[str, float | str | None] = {
+        "focal_mm": None, "subject_distance_cm": None, "digital_zoom": None,
+        "focal_length_35mm": None, "camera": None,
+    }
     try:
         with Image.open(path) as im:
             ex = im.getexif()
@@ -175,7 +177,7 @@ def _try_card(img_bgr, cfg, exif, notes):
         "extras": {"marker_side_px": float(side), "distance_cm": distance_cm,
                    "focal_mm": exif.get("focal_mm"),
                    "marker_corners_px": np.asarray(corners, dtype=np.float64)
-                                        .reshape(4, 2).tolist()},
+                                          .reshape(4, 2).tolist()},
     }
 
 

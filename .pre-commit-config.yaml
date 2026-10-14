@@ -1,8 +1,0 @@
-# STAGE 5: ruff check only — no formatter, no other hooks. The git hook is
-# NOT installed yet (run `pre-commit install` yourself when you want it).
-# Local run without touching git: pre-commit run --all-files
-repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.0 # ruff==0.17.0 (requirements-dev.txt)
-    hooks:
-      - id: ruff

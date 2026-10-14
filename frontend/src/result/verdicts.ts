@@ -37,8 +37,7 @@ export const VERDICT_META: Record<Verdict, VerdictMeta> = {
     label: "ESTIMATED",
     icon: "≈",
     cls: "neutral",
-    blurb:
-      "No reference card — weight is an estimate (learned model or size prior), never PASS/FAIL.",
+    blurb: "Legacy verdict (pre-2026-10-11): no reference card, weight was an estimate and never PASS/FAIL. Current no-card plates are scored (PASS/FAIL/BORDERLINE) with a no-reference-card disclaimer and a coverage reduction -- see the Measurement confidence panel on the result page.",
   },
   cannot_verify: {
     key: "cannot_verify",

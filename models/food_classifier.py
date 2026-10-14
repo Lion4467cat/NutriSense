@@ -15,7 +15,6 @@ Model: google/siglip2-base-patch16-224 (Apache-2.0, docs/licenses.md).
 Weights download on first use (run with HF_HUB_DISABLE_XET=1 — the xet
 backend stalls in this environment).
 """
-import glob
 import os
 
 import cv2
@@ -63,7 +62,6 @@ def _device():
 
 
 def _make_state():
-    import torch
     from transformers import AutoModel, AutoProcessor
     dev = _device()
     proc = AutoProcessor.from_pretrained(MODEL_ID)
@@ -92,14 +90,6 @@ def embed_image(image_bgr):
     e = (e / e.norm(dim=-1, keepdim=True))[0]
     return e.cpu().numpy().astype(np.float32)
 
-
-def _embed_texts(prompts):
-    proc, model, dev = _load()
-    inputs = proc(text=prompts, padding="max_length", truncation=True,
-                  return_tensors="pt").to(dev)
-    with torch.no_grad():
-        t = _pool(model.get_text_features(**inputs))
-    return (t / t.norm(dim=-1, keepdim=True)).cpu().numpy().astype(np.float32)
 
 
 # --- gallery ----------------------------------------------------------------

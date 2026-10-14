@@ -28,11 +28,11 @@ export default function CaptureQuality({ result }: { result: AnalyzeResult }) {
   const anchor = result.anchor;
   rows.push({
     name: "Reference marker",
-    level: anchor ? (anchor.tier === "measured" ? "good" : "warn") : "idle",
+    level: anchor ? (anchor.tier === "measured" ? "good" : "idle") : "idle",
     value: anchor
       ? anchor.tier === "measured"
         ? `${anchor.method}`
-        : "prior tier — no marker"
+        : "prior tier — estimated scale"
       : "not assessed",
   });
 

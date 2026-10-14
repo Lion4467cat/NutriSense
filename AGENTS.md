@@ -32,8 +32,7 @@
 - Tests, no GPU: `.venv/bin/pytest -m "not gpu" -q` — **150 passed, 9 deselected**; hermetic form CI uses: `TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 .venv/bin/pytest -m "not gpu" -q` (both dirs stay empty — no downloads)
 - Lint: `.venv/bin/ruff check .` — gate, 0 findings; report-only first pass `ruff check . --isolated` = 117 findings / 22 rules, every one of them relaxed in `ruff.toml` (counts + reasons in README **Lint**). No autofix, no repo-wide format ever applied.
 - Typecheck: `.venv/bin/python -m tools.pyright_gate` — basic mode, 216 errors vs `pyright.baseline` 216; fails only on NEW errors, `--update` re-records a lower count once fixed.
-- Lockfile: `uv lock --check` (read-only) · `uv sync --frozen` (install exact pins — also strips anything installed outside the lock, e.g. `pre-commit` from `requirements-dev.txt`, so don't run it casually)
-- Pre-commit: `.pre-commit-config.yaml` runs ruff check only; **hook NOT installed** — run manually with `pre-commit run --all-files`, enable with `pre-commit install`
+- Lockfile: `uv lock --check` (read-only) · `uv sync --frozen` (install exact pins from uv.lock — anything not pinned, including the dev dependency group, is removed; the dev group is already pinned so a normal dev env is preserved) — do not run it casually
 - Frontend gates: `cd frontend && npx tsc --noEmit && npm test && npm run build` (43 vitest tests)
 - CI: `.github/workflows/ci.yml` — ruff, pyright gate, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then tsc/vitest/build; needs no GPU, secrets, datasets or model downloads. Triggers: `pull_request`→`main`, `push`→`main` and to `iter-*`/`loop-*`/`card-*`/`fallback-*`/`ui-*`/`track*`, plus `workflow_dispatch`. Last green run: `38235913138` on `loop-setup` (backend 2m21s / frontend 26s / 135 passed).
 - API: `.venv/bin/uvicorn main:app --port 8731`
@@ -49,7 +48,7 @@
 - Kill switch: `.venv/bin/python -m tools.should_stop || exit 0` — MUST be the first command of every loop iteration; exit 1 while `STOP` exists in the repo root (`touch STOP` pauses, `rm STOP` resumes; `STOP` is gitignored)
 - Ledger: every substantive eval-affecting change gets an entry in `docs/ledger/` (rules in `docs/ledger/README.md`, blank in `_template.md`, baseline in `000-baseline.md`) — success criterion written BEFORE coding, result reported as a paired CI with its data tier, decision `keep` or `revert` + reason
 - HF downloads: prefix with `HF_HUB_DISABLE_XET=1` — the xet backend stalls indefinitely in this environment.
-- CV stack installed (torch 2.13 cu130 + transformers 5.16.1 + sentencepiece + moge + httpx): `requirements-cv.txt`.
+- CV stack installed (torch 2.13 cu130 + transformers 5.16.1 + sentencepiece + moge + httpx): declared in pyproject.toml `[project]` dependencies and installed via `uv sync` (torch + torchvision + transformers + safetensors + tokenizers + regex + tqdm + scipy).
 - OpenCV 5 gotchas: `generateImageMarker` (not generateMarker); `getPerspectiveTransform` needs float32; numpy≥2 has no 2-D `np.cross`.
 - Transformers 5 gotchas: load SigLIP2 with `AutoModel` (its config is `model_type: siglip`; `Siglip2Model.from_pretrained` fails shape checks); SigLIP logits = `cos·exp(logit_scale)+logit_bias` (model params); SAM2 points need 4-dim `[image, object, point, xy]` nesting, boxes 3-dim; SAM2 masks come back at 256×256 — resize logits to full res.
 - Depth gotchas: install MoGe with `--no-deps` (its pyproject drags gradio/flex-gemm); calibration compares must be meters; `unit_interval`/`interval_90` MC summary key; mc sample key is `protein_g_samples` (matches standards nutrient key).

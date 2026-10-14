@@ -18,8 +18,6 @@ Model: facebook/sam2.1-hiera-large (Apache-2.0, docs/licenses.md).
 Weights download on first use (HF_HUB_DISABLE_XET=1 is recommended —
 the xet backend stalls in this environment).
 """
-import os
-
 import cv2
 import numpy as np
 

@@ -199,7 +199,7 @@ export default function AnalyzePage() {
                   <li>Digital zoom must be off (EXIF zoom = 1.0)</li>
                   <li>Use the original photo — not a screenshot or edit</li>
                   <li>Entire tray / vessel visible in frame</li>
-                  <li>Reference card beside the vessel (required in every photo)</li>
+                  <li>Reference card beside the vessel (required for a measured scale; without it the weight is an estimate)</li>
                   <li>Marker clearly visible, not covered by food</li>
                   <li>Min resolution 1280px on the short side</li>
                 </ul>

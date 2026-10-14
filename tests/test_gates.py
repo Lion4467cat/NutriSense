@@ -5,7 +5,6 @@ with stage attribution zoom/day/band -> input and scope -> classify.
 """
 import pytest
 
-from engine.contract import FailureKind, ReasonKind, Stage
 from engine.pipeline import analyze as pipe_analyze
 from tests.test_pipeline_seams import make_deps
 

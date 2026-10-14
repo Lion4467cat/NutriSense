@@ -36,9 +36,5 @@ ignore = [
 # (scene/no_card_scene) look unused/redefined to ruff; they are resolved by
 # pytest at runtime. F811 stays active everywhere else.
 "tests/test_oom_handling.py" = ["F811"]
-# KNOWN BUG (reported, not fixed this pass): _embed_texts() uses torch with
-# no import — it currently has no callers (gallery text embeddings are
-# precomputed), so the NameError is latent. F821 stays active everywhere else.
-"models/food_classifier.py" = ["F821"]
 # Shebang present, file not executable; left as-is this pass.
 "tools/make_reference_card.py" = ["EXE001"]
