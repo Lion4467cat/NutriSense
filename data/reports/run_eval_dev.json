@@ -71,6 +71,134 @@
       33.43
     ]
   ],
+  "per_plate": {
+    "20250512_set14": {
+      "n": 72,
+      "sum_abs_err": 1394.7044,
+      "n_sigma": 72,
+      "n_covered": 57
+    },
+    "20250512_set22": {
+      "n": 84,
+      "sum_abs_err": 1168.7393,
+      "n_sigma": 84,
+      "n_covered": 76
+    },
+    "20250515_set11": {
+      "n": 55,
+      "sum_abs_err": 736.344,
+      "n_sigma": 55,
+      "n_covered": 53
+    },
+    "20250515_set20": {
+      "n": 58,
+      "sum_abs_err": 960.9795,
+      "n_sigma": 58,
+      "n_covered": 47
+    },
+    "20250516_set10": {
+      "n": 50,
+      "sum_abs_err": 943.4567,
+      "n_sigma": 50,
+      "n_covered": 49
+    },
+    "20250516_set19": {
+      "n": 54,
+      "sum_abs_err": 891.636,
+      "n_sigma": 54,
+      "n_covered": 50
+    },
+    "20250516_set21": {
+      "n": 54,
+      "sum_abs_err": 993.8554,
+      "n_sigma": 54,
+      "n_covered": 51
+    },
+    "20250517_set14": {
+      "n": 49,
+      "sum_abs_err": 1228.0283,
+      "n_sigma": 49,
+      "n_covered": 43
+    },
+    "20250517_set16": {
+      "n": 50,
+      "sum_abs_err": 854.4991,
+      "n_sigma": 50,
+      "n_covered": 48
+    },
+    "20250517_set3": {
+      "n": 49,
+      "sum_abs_err": 1501.521,
+      "n_sigma": 49,
+      "n_covered": 39
+    },
+    "20250517_set30": {
+      "n": 49,
+      "sum_abs_err": 2145.2692,
+      "n_sigma": 49,
+      "n_covered": 39
+    },
+    "20250517_set7": {
+      "n": 49,
+      "sum_abs_err": 868.6233,
+      "n_sigma": 49,
+      "n_covered": 48
+    },
+    "20250519_set10": {
+      "n": 54,
+      "sum_abs_err": 864.2786,
+      "n_sigma": 54,
+      "n_covered": 49
+    },
+    "20250519_set6": {
+      "n": 59,
+      "sum_abs_err": 661.3846,
+      "n_sigma": 59,
+      "n_covered": 57
+    },
+    "20250521_set12": {
+      "n": 67,
+      "sum_abs_err": 1336.0923,
+      "n_sigma": 67,
+      "n_covered": 54
+    },
+    "20250521_set15": {
+      "n": 70,
+      "sum_abs_err": 1230.7331,
+      "n_sigma": 70,
+      "n_covered": 59
+    },
+    "20250521_set21": {
+      "n": 69,
+      "sum_abs_err": 1098.2673,
+      "n_sigma": 69,
+      "n_covered": 60
+    },
+    "20250523_set1": {
+      "n": 53,
+      "sum_abs_err": 2530.4989,
+      "n_sigma": 53,
+      "n_covered": 23
+    },
+    "20250523_set9": {
+      "n": 55,
+      "sum_abs_err": 1110.407,
+      "n_sigma": 55,
+      "n_covered": 51
+    },
+    "20250524_set12": {
+      "n": 60,
+      "sum_abs_err": 1052.4816,
+      "n_sigma": 60,
+      "n_covered": 54
+    },
+    "20250524_set15": {
+      "n": 58,
+      "sum_abs_err": 1151.7308,
+      "n_sigma": 58,
+      "n_covered": 46
+    }
+  },
   "split": "WED val carve from train plates (seed 42, 10% of plates)",
   "seed": 42,
   "split_seed": 42,
@@ -80,6 +208,1024 @@
   "device": "cuda",
   "checkpoint": "data/weight_head.pt",
   "limit": null,
-  "stress": null,
-  "dev_real": null
+  "stress": {
+    "brightness_contrast_0.7": {
+      "tier": "dev",
+      "n_views": 108,
+      "n_plates": 21,
+      "n_samples": 1218,
+      "mae_g": 21.034,
+      "mae_g_bootstrap_95ci": [
+        17.647,
+        25.296
+      ],
+      "mape_pct": 24.15,
+      "n_mape_excluded_lt1g": 0,
+      "coverage_90": 0.8571,
+      "coverage_bootstrap_95ci": [
+        0.804,
+        0.903
+      ],
+      "mean_interval_width_g": 82.06,
+      "n_skipped_no_sigma": 0,
+      "per_dish_mae_g": {
+        "beans-curry": 42.92,
+        "steamed-rice": 38.01,
+        "pachi-pulusu": 33.68,
+        "non-spicy-dal": 32.98,
+        "channa-brinjal": 32.95,
+        "non-spicy-curry": 32.94,
+        "chicken-dum-biryani": 31.54,
+        "sambar": 29.97,
+        "tomato-pappu": 29.12,
+        "Papaya": 28.37,
+        "Watermelon": 26.47,
+        "raita": 24.06,
+        "bisi-bele-bath": 22.36,
+        "curd": 22.29,
+        "mirchi-ka-salan": 20.49,
+        "phulka": 19.49,
+        "rajma": 19.43,
+        "aloo-curry": 18.49,
+        "kofta-curry": 18.4,
+        "cabbage-dry": 17.06,
+        "Muskmelon": 17.05,
+        "beetroot-kobari": 16.01,
+        "payasam": 15.2,
+        "veg-dum-briyani": 15.0,
+        "veg-pulao": 14.98,
+        "Banana": 14.59,
+        "aloo-capsicum": 11.99,
+        "salad": 9.56,
+        "leaf-dal": 9.46,
+        "kakarakaya-fry": 8.27,
+        "beetroot-poriyal": 7.48,
+        "aloo-fry": 7.1,
+        "muddha-pappu": 6.56,
+        "boondi": 4.79,
+        "dondakaya-fry": 4.64,
+        "mango-pickle": 4.58,
+        "chutney": 4.37,
+        "papad": 2.27
+      },
+      "worst3_dishes": [
+        [
+          "beans-curry",
+          42.92
+        ],
+        [
+          "steamed-rice",
+          38.01
+        ],
+        [
+          "pachi-pulusu",
+          33.68
+        ]
+      ],
+      "per_plate": {
+        "20250512_set14": {
+          "n": 72,
+          "sum_abs_err": 1334.8171,
+          "n_sigma": 72,
+          "n_covered": 60
+        },
+        "20250512_set22": {
+          "n": 84,
+          "sum_abs_err": 1121.8603,
+          "n_sigma": 84,
+          "n_covered": 78
+        },
+        "20250515_set11": {
+          "n": 55,
+          "sum_abs_err": 750.4429,
+          "n_sigma": 55,
+          "n_covered": 50
+        },
+        "20250515_set20": {
+          "n": 58,
+          "sum_abs_err": 911.0618,
+          "n_sigma": 58,
+          "n_covered": 44
+        },
+        "20250516_set10": {
+          "n": 50,
+          "sum_abs_err": 899.8156,
+          "n_sigma": 50,
+          "n_covered": 48
+        },
+        "20250516_set19": {
+          "n": 54,
+          "sum_abs_err": 836.6903,
+          "n_sigma": 54,
+          "n_covered": 50
+        },
+        "20250516_set21": {
+          "n": 54,
+          "sum_abs_err": 1053.383,
+          "n_sigma": 54,
+          "n_covered": 51
+        },
+        "20250517_set14": {
+          "n": 49,
+          "sum_abs_err": 1458.9001,
+          "n_sigma": 49,
+          "n_covered": 42
+        },
+        "20250517_set16": {
+          "n": 50,
+          "sum_abs_err": 911.431,
+          "n_sigma": 50,
+          "n_covered": 47
+        },
+        "20250517_set3": {
+          "n": 49,
+          "sum_abs_err": 1762.5157,
+          "n_sigma": 49,
+          "n_covered": 36
+        },
+        "20250517_set30": {
+          "n": 49,
+          "sum_abs_err": 2193.6185,
+          "n_sigma": 49,
+          "n_covered": 37
+        },
+        "20250517_set7": {
+          "n": 49,
+          "sum_abs_err": 1064.654,
+          "n_sigma": 49,
+          "n_covered": 46
+        },
+        "20250519_set10": {
+          "n": 54,
+          "sum_abs_err": 829.9773,
+          "n_sigma": 54,
+          "n_covered": 51
+        },
+        "20250519_set6": {
+          "n": 59,
+          "sum_abs_err": 731.6718,
+          "n_sigma": 59,
+          "n_covered": 58
+        },
+        "20250521_set12": {
+          "n": 67,
+          "sum_abs_err": 1386.6263,
+          "n_sigma": 67,
+          "n_covered": 52
+        },
+        "20250521_set15": {
+          "n": 70,
+          "sum_abs_err": 1374.2133,
+          "n_sigma": 70,
+          "n_covered": 57
+        },
+        "20250521_set21": {
+          "n": 69,
+          "sum_abs_err": 1117.3702,
+          "n_sigma": 69,
+          "n_covered": 56
+        },
+        "20250523_set1": {
+          "n": 53,
+          "sum_abs_err": 2557.0294,
+          "n_sigma": 53,
+          "n_covered": 23
+        },
+        "20250523_set9": {
+          "n": 55,
+          "sum_abs_err": 1086.6532,
+          "n_sigma": 55,
+          "n_covered": 53
+        },
+        "20250524_set12": {
+          "n": 60,
+          "sum_abs_err": 1030.1366,
+          "n_sigma": 60,
+          "n_covered": 55
+        },
+        "20250524_set15": {
+          "n": 58,
+          "sum_abs_err": 1206.2605,
+          "n_sigma": 58,
+          "n_covered": 50
+        }
+      },
+      "label": "WED stress test, not real-world"
+    },
+    "gaussian_blur_k9": {
+      "tier": "dev",
+      "n_views": 108,
+      "n_plates": 21,
+      "n_samples": 1218,
+      "mae_g": 20.929,
+      "mae_g_bootstrap_95ci": [
+        18.012,
+        24.566
+      ],
+      "mape_pct": 24.92,
+      "n_mape_excluded_lt1g": 0,
+      "coverage_90": 0.8588,
+      "coverage_bootstrap_95ci": [
+        0.813,
+        0.901
+      ],
+      "mean_interval_width_g": 82.06,
+      "n_skipped_no_sigma": 0,
+      "per_dish_mae_g": {
+        "beans-curry": 42.34,
+        "steamed-rice": 39.61,
+        "non-spicy-curry": 38.12,
+        "non-spicy-dal": 33.58,
+        "Papaya": 32.28,
+        "channa-brinjal": 32.23,
+        "pachi-pulusu": 31.61,
+        "Watermelon": 29.93,
+        "chicken-dum-biryani": 29.25,
+        "sambar": 26.73,
+        "tomato-pappu": 25.65,
+        "phulka": 20.32,
+        "raita": 19.89,
+        "bisi-bele-bath": 19.84,
+        "curd": 19.65,
+        "rajma": 18.73,
+        "mirchi-ka-salan": 17.88,
+        "aloo-curry": 17.86,
+        "kofta-curry": 16.92,
+        "cabbage-dry": 16.73,
+        "beetroot-kobari": 16.68,
+        "veg-dum-briyani": 16.49,
+        "payasam": 16.12,
+        "veg-pulao": 16.04,
+        "Banana": 14.8,
+        "Muskmelon": 14.33,
+        "salad": 10.29,
+        "beetroot-poriyal": 9.59,
+        "kakarakaya-fry": 9.28,
+        "aloo-capsicum": 8.95,
+        "muddha-pappu": 8.69,
+        "leaf-dal": 8.69,
+        "aloo-fry": 7.64,
+        "boondi": 4.87,
+        "mango-pickle": 4.19,
+        "chutney": 3.85,
+        "dondakaya-fry": 2.89,
+        "papad": 2.53
+      },
+      "worst3_dishes": [
+        [
+          "beans-curry",
+          42.34
+        ],
+        [
+          "steamed-rice",
+          39.61
+        ],
+        [
+          "non-spicy-curry",
+          38.12
+        ]
+      ],
+      "per_plate": {
+        "20250512_set14": {
+          "n": 72,
+          "sum_abs_err": 1484.1644,
+          "n_sigma": 72,
+          "n_covered": 54
+        },
+        "20250512_set22": {
+          "n": 84,
+          "sum_abs_err": 1248.4784,
+          "n_sigma": 84,
+          "n_covered": 80
+        },
+        "20250515_set11": {
+          "n": 55,
+          "sum_abs_err": 806.6585,
+          "n_sigma": 55,
+          "n_covered": 53
+        },
+        "20250515_set20": {
+          "n": 58,
+          "sum_abs_err": 961.1121,
+          "n_sigma": 58,
+          "n_covered": 42
+        },
+        "20250516_set10": {
+          "n": 50,
+          "sum_abs_err": 969.8046,
+          "n_sigma": 50,
+          "n_covered": 46
+        },
+        "20250516_set19": {
+          "n": 54,
+          "sum_abs_err": 848.8784,
+          "n_sigma": 54,
+          "n_covered": 51
+        },
+        "20250516_set21": {
+          "n": 54,
+          "sum_abs_err": 1007.5987,
+          "n_sigma": 54,
+          "n_covered": 50
+        },
+        "20250517_set14": {
+          "n": 49,
+          "sum_abs_err": 1170.6444,
+          "n_sigma": 49,
+          "n_covered": 47
+        },
+        "20250517_set16": {
+          "n": 50,
+          "sum_abs_err": 916.3042,
+          "n_sigma": 50,
+          "n_covered": 48
+        },
+        "20250517_set3": {
+          "n": 49,
+          "sum_abs_err": 1420.3975,
+          "n_sigma": 49,
+          "n_covered": 40
+        },
+        "20250517_set30": {
+          "n": 49,
+          "sum_abs_err": 2226.0818,
+          "n_sigma": 49,
+          "n_covered": 39
+        },
+        "20250517_set7": {
+          "n": 49,
+          "sum_abs_err": 991.8962,
+          "n_sigma": 49,
+          "n_covered": 46
+        },
+        "20250519_set10": {
+          "n": 54,
+          "sum_abs_err": 817.9481,
+          "n_sigma": 54,
+          "n_covered": 48
+        },
+        "20250519_set6": {
+          "n": 59,
+          "sum_abs_err": 634.0874,
+          "n_sigma": 59,
+          "n_covered": 57
+        },
+        "20250521_set12": {
+          "n": 67,
+          "sum_abs_err": 1457.8142,
+          "n_sigma": 67,
+          "n_covered": 53
+        },
+        "20250521_set15": {
+          "n": 70,
+          "sum_abs_err": 1306.0224,
+          "n_sigma": 70,
+          "n_covered": 58
+        },
+        "20250521_set21": {
+          "n": 69,
+          "sum_abs_err": 1243.672,
+          "n_sigma": 69,
+          "n_covered": 57
+        },
+        "20250523_set1": {
+          "n": 53,
+          "sum_abs_err": 2323.5274,
+          "n_sigma": 53,
+          "n_covered": 29
+        },
+        "20250523_set9": {
+          "n": 55,
+          "sum_abs_err": 1166.1962,
+          "n_sigma": 55,
+          "n_covered": 52
+        },
+        "20250524_set12": {
+          "n": 60,
+          "sum_abs_err": 1117.6884,
+          "n_sigma": 60,
+          "n_covered": 52
+        },
+        "20250524_set15": {
+          "n": 58,
+          "sum_abs_err": 1372.7338,
+          "n_sigma": 58,
+          "n_covered": 44
+        }
+      },
+      "label": "WED stress test, not real-world"
+    },
+    "perspective_30deg": {
+      "tier": "dev",
+      "n_views": 108,
+      "n_plates": 21,
+      "n_samples": 1218,
+      "mae_g": 25.933,
+      "mae_g_bootstrap_95ci": [
+        23.02,
+        29.306
+      ],
+      "mape_pct": 32.54,
+      "n_mape_excluded_lt1g": 0,
+      "coverage_90": 0.7471,
+      "coverage_bootstrap_95ci": [
+        0.711,
+        0.78
+      ],
+      "mean_interval_width_g": 82.06,
+      "n_skipped_no_sigma": 0,
+      "per_dish_mae_g": {
+        "channa-brinjal": 56.85,
+        "steamed-rice": 50.15,
+        "Papaya": 47.41,
+        "non-spicy-curry": 46.3,
+        "beans-curry": 44.46,
+        "non-spicy-dal": 40.63,
+        "pachi-pulusu": 36.24,
+        "Watermelon": 36.05,
+        "tomato-pappu": 34.32,
+        "mirchi-ka-salan": 32.47,
+        "veg-dum-briyani": 30.64,
+        "aloo-curry": 29.4,
+        "sambar": 27.56,
+        "chicken-dum-biryani": 26.64,
+        "curd": 26.25,
+        "payasam": 24.95,
+        "muddha-pappu": 24.41,
+        "kofta-curry": 24.24,
+        "bisi-bele-bath": 20.7,
+        "rajma": 19.16,
+        "cabbage-dry": 18.41,
+        "Muskmelon": 18.39,
+        "beetroot-kobari": 18.24,
+        "raita": 18.02,
+        "veg-pulao": 17.53,
+        "Banana": 17.04,
+        "phulka": 16.41,
+        "salad": 14.78,
+        "leaf-dal": 12.29,
+        "kakarakaya-fry": 10.36,
+        "aloo-capsicum": 9.16,
+        "beetroot-poriyal": 8.68,
+        "aloo-fry": 7.93,
+        "mango-pickle": 7.78,
+        "boondi": 5.37,
+        "chutney": 5.32,
+        "dondakaya-fry": 4.63,
+        "papad": 3.91
+      },
+      "worst3_dishes": [
+        [
+          "channa-brinjal",
+          56.85
+        ],
+        [
+          "steamed-rice",
+          50.15
+        ],
+        [
+          "Papaya",
+          47.41
+        ]
+      ],
+      "per_plate": {
+        "20250512_set14": {
+          "n": 72,
+          "sum_abs_err": 1353.4826,
+          "n_sigma": 72,
+          "n_covered": 56
+        },
+        "20250512_set22": {
+          "n": 84,
+          "sum_abs_err": 1575.1311,
+          "n_sigma": 84,
+          "n_covered": 67
+        },
+        "20250515_set11": {
+          "n": 55,
+          "sum_abs_err": 1111.583,
+          "n_sigma": 55,
+          "n_covered": 44
+        },
+        "20250515_set20": {
+          "n": 58,
+          "sum_abs_err": 1269.0194,
+          "n_sigma": 58,
+          "n_covered": 41
+        },
+        "20250516_set10": {
+          "n": 50,
+          "sum_abs_err": 1746.4106,
+          "n_sigma": 50,
+          "n_covered": 33
+        },
+        "20250516_set19": {
+          "n": 54,
+          "sum_abs_err": 1161.4826,
+          "n_sigma": 54,
+          "n_covered": 43
+        },
+        "20250516_set21": {
+          "n": 54,
+          "sum_abs_err": 1568.4763,
+          "n_sigma": 54,
+          "n_covered": 45
+        },
+        "20250517_set14": {
+          "n": 49,
+          "sum_abs_err": 1335.9874,
+          "n_sigma": 49,
+          "n_covered": 36
+        },
+        "20250517_set16": {
+          "n": 50,
+          "sum_abs_err": 1113.5061,
+          "n_sigma": 50,
+          "n_covered": 41
+        },
+        "20250517_set3": {
+          "n": 49,
+          "sum_abs_err": 1344.1726,
+          "n_sigma": 49,
+          "n_covered": 39
+        },
+        "20250517_set30": {
+          "n": 49,
+          "sum_abs_err": 2406.4268,
+          "n_sigma": 49,
+          "n_covered": 35
+        },
+        "20250517_set7": {
+          "n": 49,
+          "sum_abs_err": 1624.491,
+          "n_sigma": 49,
+          "n_covered": 36
+        },
+        "20250519_set10": {
+          "n": 54,
+          "sum_abs_err": 1027.0823,
+          "n_sigma": 54,
+          "n_covered": 49
+        },
+        "20250519_set6": {
+          "n": 59,
+          "sum_abs_err": 899.7888,
+          "n_sigma": 59,
+          "n_covered": 51
+        },
+        "20250521_set12": {
+          "n": 67,
+          "sum_abs_err": 1626.6444,
+          "n_sigma": 67,
+          "n_covered": 49
+        },
+        "20250521_set15": {
+          "n": 70,
+          "sum_abs_err": 1387.5525,
+          "n_sigma": 70,
+          "n_covered": 54
+        },
+        "20250521_set21": {
+          "n": 69,
+          "sum_abs_err": 1650.2659,
+          "n_sigma": 69,
+          "n_covered": 49
+        },
+        "20250523_set1": {
+          "n": 53,
+          "sum_abs_err": 1904.5442,
+          "n_sigma": 53,
+          "n_covered": 31
+        },
+        "20250523_set9": {
+          "n": 55,
+          "sum_abs_err": 1605.379,
+          "n_sigma": 55,
+          "n_covered": 41
+        },
+        "20250524_set12": {
+          "n": 60,
+          "sum_abs_err": 1946.1922,
+          "n_sigma": 60,
+          "n_covered": 38
+        },
+        "20250524_set15": {
+          "n": 58,
+          "sum_abs_err": 1928.8725,
+          "n_sigma": 58,
+          "n_covered": 32
+        }
+      },
+      "label": "WED stress test, not real-world"
+    },
+    "jpeg_q30": {
+      "tier": "dev",
+      "n_views": 108,
+      "n_plates": 21,
+      "n_samples": 1218,
+      "mae_g": 20.47,
+      "mae_g_bootstrap_95ci": [
+        17.482,
+        24.312
+      ],
+      "mape_pct": 24.69,
+      "n_mape_excluded_lt1g": 0,
+      "coverage_90": 0.8629,
+      "coverage_bootstrap_95ci": [
+        0.819,
+        0.902
+      ],
+      "mean_interval_width_g": 82.06,
+      "n_skipped_no_sigma": 0,
+      "per_dish_mae_g": {
+        "beans-curry": 42.26,
+        "steamed-rice": 40.72,
+        "non-spicy-curry": 38.47,
+        "pachi-pulusu": 33.01,
+        "non-spicy-dal": 30.8,
+        "Watermelon": 30.04,
+        "channa-brinjal": 28.03,
+        "Papaya": 28.03,
+        "tomato-pappu": 27.74,
+        "sambar": 27.31,
+        "chicken-dum-biryani": 26.51,
+        "payasam": 19.13,
+        "phulka": 19.05,
+        "aloo-curry": 18.35,
+        "bisi-bele-bath": 18.23,
+        "raita": 18.14,
+        "rajma": 17.94,
+        "curd": 17.52,
+        "mirchi-ka-salan": 17.51,
+        "veg-dum-briyani": 17.45,
+        "Banana": 16.3,
+        "kofta-curry": 16.14,
+        "beetroot-kobari": 16.03,
+        "veg-pulao": 15.83,
+        "cabbage-dry": 15.7,
+        "Muskmelon": 14.86,
+        "leaf-dal": 10.63,
+        "salad": 9.62,
+        "aloo-capsicum": 9.16,
+        "aloo-fry": 9.01,
+        "kakarakaya-fry": 8.67,
+        "beetroot-poriyal": 7.91,
+        "muddha-pappu": 5.78,
+        "mango-pickle": 4.87,
+        "boondi": 4.41,
+        "chutney": 4.09,
+        "papad": 2.75,
+        "dondakaya-fry": 2.66
+      },
+      "worst3_dishes": [
+        [
+          "beans-curry",
+          42.26
+        ],
+        [
+          "steamed-rice",
+          40.72
+        ],
+        [
+          "non-spicy-curry",
+          38.47
+        ]
+      ],
+      "per_plate": {
+        "20250512_set14": {
+          "n": 72,
+          "sum_abs_err": 1443.3711,
+          "n_sigma": 72,
+          "n_covered": 58
+        },
+        "20250512_set22": {
+          "n": 84,
+          "sum_abs_err": 1228.313,
+          "n_sigma": 84,
+          "n_covered": 75
+        },
+        "20250515_set11": {
+          "n": 55,
+          "sum_abs_err": 775.044,
+          "n_sigma": 55,
+          "n_covered": 54
+        },
+        "20250515_set20": {
+          "n": 58,
+          "sum_abs_err": 910.6783,
+          "n_sigma": 58,
+          "n_covered": 44
+        },
+        "20250516_set10": {
+          "n": 50,
+          "sum_abs_err": 1020.3313,
+          "n_sigma": 50,
+          "n_covered": 49
+        },
+        "20250516_set19": {
+          "n": 54,
+          "sum_abs_err": 739.5617,
+          "n_sigma": 54,
+          "n_covered": 51
+        },
+        "20250516_set21": {
+          "n": 54,
+          "sum_abs_err": 943.8807,
+          "n_sigma": 54,
+          "n_covered": 50
+        },
+        "20250517_set14": {
+          "n": 49,
+          "sum_abs_err": 1181.7309,
+          "n_sigma": 49,
+          "n_covered": 46
+        },
+        "20250517_set16": {
+          "n": 50,
+          "sum_abs_err": 854.0041,
+          "n_sigma": 50,
+          "n_covered": 47
+        },
+        "20250517_set3": {
+          "n": 49,
+          "sum_abs_err": 1388.6511,
+          "n_sigma": 49,
+          "n_covered": 41
+        },
+        "20250517_set30": {
+          "n": 49,
+          "sum_abs_err": 2227.5088,
+          "n_sigma": 49,
+          "n_covered": 39
+        },
+        "20250517_set7": {
+          "n": 49,
+          "sum_abs_err": 1032.8907,
+          "n_sigma": 49,
+          "n_covered": 45
+        },
+        "20250519_set10": {
+          "n": 54,
+          "sum_abs_err": 812.8759,
+          "n_sigma": 54,
+          "n_covered": 50
+        },
+        "20250519_set6": {
+          "n": 59,
+          "sum_abs_err": 642.749,
+          "n_sigma": 59,
+          "n_covered": 57
+        },
+        "20250521_set12": {
+          "n": 67,
+          "sum_abs_err": 1377.8532,
+          "n_sigma": 67,
+          "n_covered": 54
+        },
+        "20250521_set15": {
+          "n": 70,
+          "sum_abs_err": 1150.9989,
+          "n_sigma": 70,
+          "n_covered": 60
+        },
+        "20250521_set21": {
+          "n": 69,
+          "sum_abs_err": 1193.4525,
+          "n_sigma": 69,
+          "n_covered": 56
+        },
+        "20250523_set1": {
+          "n": 53,
+          "sum_abs_err": 2425.958,
+          "n_sigma": 53,
+          "n_covered": 27
+        },
+        "20250523_set9": {
+          "n": 55,
+          "sum_abs_err": 1127.0093,
+          "n_sigma": 55,
+          "n_covered": 49
+        },
+        "20250524_set12": {
+          "n": 60,
+          "sum_abs_err": 1184.8526,
+          "n_sigma": 60,
+          "n_covered": 53
+        },
+        "20250524_set15": {
+          "n": 58,
+          "sum_abs_err": 1271.272,
+          "n_sigma": 58,
+          "n_covered": 46
+        }
+      },
+      "label": "WED stress test, not real-world"
+    },
+    "half_resolution": {
+      "tier": "dev",
+      "n_views": 108,
+      "n_plates": 21,
+      "n_samples": 1218,
+      "mae_g": 20.55,
+      "mae_g_bootstrap_95ci": [
+        17.52,
+        24.455
+      ],
+      "mape_pct": 24.51,
+      "n_mape_excluded_lt1g": 0,
+      "coverage_90": 0.8612,
+      "coverage_bootstrap_95ci": [
+        0.808,
+        0.904
+      ],
+      "mean_interval_width_g": 82.06,
+      "n_skipped_no_sigma": 0,
+      "per_dish_mae_g": {
+        "beans-curry": 42.72,
+        "steamed-rice": 39.93,
+        "non-spicy-curry": 34.63,
+        "pachi-pulusu": 32.21,
+        "non-spicy-dal": 31.59,
+        "Watermelon": 30.78,
+        "channa-brinjal": 29.82,
+        "Papaya": 29.04,
+        "sambar": 28.72,
+        "tomato-pappu": 27.83,
+        "chicken-dum-biryani": 27.41,
+        "bisi-bele-bath": 19.29,
+        "curd": 19.21,
+        "rajma": 18.82,
+        "phulka": 18.68,
+        "aloo-curry": 17.98,
+        "beetroot-kobari": 17.47,
+        "veg-pulao": 17.05,
+        "kofta-curry": 17.0,
+        "raita": 16.98,
+        "cabbage-dry": 16.95,
+        "mirchi-ka-salan": 15.97,
+        "payasam": 15.92,
+        "veg-dum-briyani": 15.75,
+        "Banana": 13.1,
+        "Muskmelon": 12.44,
+        "salad": 10.26,
+        "leaf-dal": 9.6,
+        "aloo-capsicum": 8.82,
+        "aloo-fry": 8.74,
+        "kakarakaya-fry": 8.24,
+        "beetroot-poriyal": 7.55,
+        "muddha-pappu": 6.94,
+        "boondi": 4.95,
+        "mango-pickle": 4.42,
+        "chutney": 4.2,
+        "dondakaya-fry": 3.22,
+        "papad": 2.44
+      },
+      "worst3_dishes": [
+        [
+          "beans-curry",
+          42.72
+        ],
+        [
+          "steamed-rice",
+          39.93
+        ],
+        [
+          "non-spicy-curry",
+          34.63
+        ]
+      ],
+      "per_plate": {
+        "20250512_set14": {
+          "n": 72,
+          "sum_abs_err": 1449.4747,
+          "n_sigma": 72,
+          "n_covered": 57
+        },
+        "20250512_set22": {
+          "n": 84,
+          "sum_abs_err": 1210.9578,
+          "n_sigma": 84,
+          "n_covered": 76
+        },
+        "20250515_set11": {
+          "n": 55,
+          "sum_abs_err": 757.9122,
+          "n_sigma": 55,
+          "n_covered": 53
+        },
+        "20250515_set20": {
+          "n": 58,
+          "sum_abs_err": 958.4933,
+          "n_sigma": 58,
+          "n_covered": 44
+        },
+        "20250516_set10": {
+          "n": 50,
+          "sum_abs_err": 949.1667,
+          "n_sigma": 50,
+          "n_covered": 49
+        },
+        "20250516_set19": {
+          "n": 54,
+          "sum_abs_err": 902.2192,
+          "n_sigma": 54,
+          "n_covered": 50
+        },
+        "20250516_set21": {
+          "n": 54,
+          "sum_abs_err": 1026.9589,
+          "n_sigma": 54,
+          "n_covered": 51
+        },
+        "20250517_set14": {
+          "n": 49,
+          "sum_abs_err": 1226.4463,
+          "n_sigma": 49,
+          "n_covered": 45
+        },
+        "20250517_set16": {
+          "n": 50,
+          "sum_abs_err": 867.8386,
+          "n_sigma": 50,
+          "n_covered": 48
+        },
+        "20250517_set3": {
+          "n": 49,
+          "sum_abs_err": 1503.676,
+          "n_sigma": 49,
+          "n_covered": 38
+        },
+        "20250517_set30": {
+          "n": 49,
+          "sum_abs_err": 2168.8687,
+          "n_sigma": 49,
+          "n_covered": 40
+        },
+        "20250517_set7": {
+          "n": 49,
+          "sum_abs_err": 884.2246,
+          "n_sigma": 49,
+          "n_covered": 47
+        },
+        "20250519_set10": {
+          "n": 54,
+          "sum_abs_err": 870.121,
+          "n_sigma": 54,
+          "n_covered": 48
+        },
+        "20250519_set6": {
+          "n": 59,
+          "sum_abs_err": 651.5787,
+          "n_sigma": 59,
+          "n_covered": 55
+        },
+        "20250521_set12": {
+          "n": 67,
+          "sum_abs_err": 1343.0579,
+          "n_sigma": 67,
+          "n_covered": 54
+        },
+        "20250521_set15": {
+          "n": 70,
+          "sum_abs_err": 1225.4583,
+          "n_sigma": 70,
+          "n_covered": 60
+        },
+        "20250521_set21": {
+          "n": 69,
+          "sum_abs_err": 1122.5105,
+          "n_sigma": 69,
+          "n_covered": 60
+        },
+        "20250523_set1": {
+          "n": 53,
+          "sum_abs_err": 2492.4077,
+          "n_sigma": 53,
+          "n_covered": 23
+        },
+        "20250523_set9": {
+          "n": 55,
+          "sum_abs_err": 1142.7782,
+          "n_sigma": 55,
+          "n_covered": 52
+        },
+        "20250524_set12": {
+          "n": 60,
+          "sum_abs_err": 1092.542,
+          "n_sigma": 60,
+          "n_covered": 54
+        },
+        "20250524_set15": {
+          "n": 58,
+          "sum_abs_err": 1183.1919,
+          "n_sigma": 58,
+          "n_covered": 45
+        }
+      },
+      "label": "WED stress test, not real-world"
+    }
+  },
+  "dev_real": null,
+  "wall_s": 23.23,
+  "peak_vram_mb": 149.7
 }
