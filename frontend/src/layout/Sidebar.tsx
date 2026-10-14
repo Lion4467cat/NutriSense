@@ -1,4 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useMenu } from "../context/menu";
 import { useRecords } from "../context/records";
 import { apiBase } from  "../services/api";
@@ -25,6 +27,9 @@ const NAV = [
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { apiUp, menu } = useMenu();
   const { records } = useRecords();
+  const { pathname } = useLocation();
+  const isActive = (to: string, end?: boolean) =>
+    end ? pathname === to : pathname.startsWith(to);
   const statusLabel =
     apiUp === true ? "API connected" : apiUp === false ? "API unreachable" : "Connecting…";
 
@@ -48,8 +53,16 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
             onClick={onNavigate}
           >
+            {isActive(to, end) && (
+              <motion.span
+                className="nav-glider"
+                layoutId="nav-glider"
+                transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                aria-hidden="true"
+              />
+            )}
             <Icon size={17} />
-            {label}
+            <span>{label}</span>
             {to === "/history" && records.length > 0 && (
               <span className="nav-badge num">{records.length}</span>
             )}
@@ -65,8 +78,16 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
           onClick={onNavigate}
         >
+          {isActive("/settings", true) && (
+            <motion.span
+              className="nav-glider"
+              layoutId="nav-glider"
+              transition={{ type: "spring", stiffness: 480, damping: 38 }}
+              aria-hidden="true"
+            />
+          )}
           <IconSettings size={17} />
-          Settings
+          <span>Settings</span>
         </NavLink>
       </nav>
 

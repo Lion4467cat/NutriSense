@@ -587,6 +587,22 @@ table.data tbody tr.clickable:hover {
   }
 }
 
+.celebrate {
+  position: absolute;
+  top: 50%;
+  left: 64px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
 /* route-transition container: keep full height while pages swap */
 .route-anim {
   min-height: 100%;

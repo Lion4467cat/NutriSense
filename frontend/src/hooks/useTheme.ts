@@ -31,7 +31,9 @@ export type AccentId =
   | "ocean"
   | "teal"
   | "magenta"
-  | "graphite";
+  | "graphite"
+  | "citrus"
+  | "ruby";
 
 export const ACCENTS: { id: AccentId; label: string; swatch: string }[] = [
   { id: "indigo", label: "Indigo", swatch: "#4f46e5" },
@@ -40,6 +42,8 @@ export const ACCENTS: { id: AccentId; label: string; swatch: string }[] = [
   { id: "teal", label: "Teal", swatch: "#0f766e" },
   { id: "magenta", label: "Magenta", swatch: "#be185d" },
   { id: "graphite", label: "Graphite", swatch: "#475569" },
+  { id: "citrus", label: "Citrus", swatch: "#c97a10" },
+  { id: "ruby", label: "Ruby", swatch: "#dc2626" },
 ];
 
 export function resolveTheme(

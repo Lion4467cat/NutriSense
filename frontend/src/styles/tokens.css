@@ -76,6 +76,21 @@
   --r-xl: 16px;
   --r-pill: 999px;
 
+  /* gradient + glow system (theme-aware via accents) */
+  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ffffff));
+  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)) 0%, var(--surface) 42%);
+  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent),
+    0 4px 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 30%, transparent),
+    0 4px 18px -4px color-mix(in srgb, var(--pass) 50%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 80%, transparent);
+  --glass-border: color-mix(in srgb, var(--border-strong) 55%, transparent);
+
+  /* ambient aurora (applied to the shell backdrop in shell.css) */
+  --aurora-1: color-mix(in srgb, var(--accent) 13%, transparent);
+  --aurora-2: color-mix(in srgb, var(--pass) 8%, transparent);
+  --aurora-3: color-mix(in srgb, var(--info) 9%, transparent);
+
   /* elevation */
   --shadow-1: 0 1px 2px rgba(16, 18, 22, 0.05);
   --shadow-2: 0 1px 2px rgba(16, 18, 22, 0.05), 0 8px 24px -14px rgba(
@@ -136,6 +151,20 @@
   --accent-soft: #f1f4f8;
   --accent-soft-border: #dbe2ea;
   --accent-text: #334155;
+}
+[data-accent="citrus"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
+  --accent: #c97a10;
+  --accent-hover: #b96c08;
+  --accent-soft: #fdf4e3;
+  --accent-soft-border: #f3e2c0;
+  --accent-text: #a35d00;
+}
+[data-accent="ruby"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
+  --accent: #dc2626;
+  --accent-hover: #b91c1c;
+  --accent-soft: #fdf1f1;
+  --accent-soft-border: #fbd5d5;
+  --accent-text: #b91c1c;
 }
 
 [data-theme="dark"] {
@@ -216,6 +245,20 @@
   --accent-soft: #23272e;
   --accent-soft-border: #383e48;
   --accent-text: #e2e8f0;
+}
+:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="citrus"] {
+  --accent: #f5a637;
+  --accent-hover: #f7b65a;
+  --accent-soft: #2c2010;
+  --accent-soft-border: #53381e;
+  --accent-text: #f9c780;
+}
+:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="ruby"] {
+  --accent: #f87171;
+  --accent-hover: #fb8f8f;
+  --accent-soft: #2d1616;
+  --accent-soft-border: #552929;
+  --accent-text: #fca5a5;
 }
 
 /* ---- full themes: warm paper ---- */
