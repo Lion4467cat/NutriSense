@@ -25,10 +25,16 @@ Methodology (keeps the test split clean):
 
 Run:  .venv/bin/python -m tools.train_weight_head [--epochs 100] [--batch 4]
       [--seed 42] [--workers 1] [--skip-test]
+
+Ledger 001 (branch loop-aug-run1): train-only photometric augmentation
+(brightness/contrast/saturation jitter, Gaussian blur, JPEG re-compression)
+plus RandomErasing cutout was added after the hflip — single-variable
+change vs the entry-000 recipe; val/test paths stay unaugmented.
 """
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import random
 import sys
@@ -64,6 +70,47 @@ MASK_TF = transforms.Compose([
 ])
 
 
+class RandomJpeg:
+    """Train-only: PIL-frame JPEG re-compression (compression-noise axis of
+    the frozen stress suite). Callable on an already-resized 224px frame so
+    the encode cost is per-tile, not per-original-image."""
+
+    def __init__(self, p: float = 0.3, q_range: tuple[int, int] = (45, 95)):
+        self.p, self.q_range = p, q_range
+
+    def __call__(self, img: Image.Image) -> Image.Image:
+        if random.random() >= self.p:
+            return img
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG",
+                 quality=random.randint(*self.q_range))
+        buf.seek(0)
+        return Image.open(buf).convert("RGB")
+
+    def __repr__(self) -> str:
+        return f"RandomJpeg(p={self.p}, q_range={self.q_range})"
+
+
+# Train-only RGB pipeline (ledger 001). Photometric ops run on the PIL frame
+# AFTER Resize (cheap at 224px) and BEFORE ToTensor/Normalize; RandomErasing
+# runs on the normalized tensor with value=0 (= ImageNet-mean gray fill,
+# matching Cutout semantics). Val/test keep the plain RGB_TF path.
+RGB_TRAIN_TF = transforms.Compose([
+    transforms.Resize(RESIZE),
+    transforms.RandomApply([
+        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3)],
+        p=0.8),
+    transforms.RandomApply([transforms.GaussianBlur(kernel_size=5,
+                                                    sigma=(0.5, 1.5))],
+                           p=0.3),
+    RandomJpeg(p=0.3, q_range=(45, 95)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.RandomErasing(p=0.25, scale=(0.02, 0.12), ratio=(0.3, 3.3),
+                             value=0),
+])
+
+
 def load_manifest(split: str) -> list[dict]:
     rows = []
     with (_ROOT / "data" / "wed_manifest.jsonl").open() as fh:
@@ -94,7 +141,7 @@ class WedPlates(Dataset):
         if self.train and random.random() < 0.5:
             img = TF.hflip(img)
             mask = TF.hflip(mask)
-        img_t = RGB_TF(img)
+        img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
         mask_arr = np.array(MASK_TF(mask).squeeze(0))
         H, W = img_t.shape[1:]
         bboxes, weights, cls_ids = [], [], []
