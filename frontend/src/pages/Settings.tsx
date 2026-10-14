@@ -67,7 +67,7 @@ export default function SettingsPage() {
                 colors. System follows your OS preference.
               </div>
             </div>
-            <div className="swatch-row" role="radiogroup" aria-label="Theme">
+            <div className="theme-grid" role="radiogroup" aria-label="Theme">
               {THEME_OPTS.map((t) => (
                 <button
                   key={t.id}
@@ -75,14 +75,34 @@ export default function SettingsPage() {
                   aria-checked={prefs.theme === t.id}
                   aria-label={t.label}
                   title={t.label}
-                  className={prefs.theme === t.id ? "swatch active" : "swatch"}
+                  className={
+                    prefs.theme === t.id ? "theme-tile active" : "theme-tile"
+                  }
                   onClick={() => setPrefs({ theme: t.id })}
                 >
                   <span
-                    className="swatch-dot"
-                    style={{ background: t.dot }}
-                  />
-                  {t.label}
+                    className="theme-mini"
+                    style={{
+                      background: t.bg,
+                      "--tile-accent": t.accent,
+                      "--tile-fg": t.fg,
+                      "--tile-c1": t.c1,
+                      "--tile-c2": t.c2,
+                    } as React.CSSProperties}
+                    aria-hidden="true"
+                  >
+                    <span className="tm-bar" />
+                    <span className="tm-line" style={{ width: "86%" }} />
+                    <span className="tm-line" style={{ width: "70%" }} />
+                    <span className="tm-chips">
+                      <span className="tm-chip" />
+                      <span className="tm-chip" />
+                    </span>
+                  </span>
+                  <span className="theme-tile-name">
+                    {t.label}
+                    <span className="swatch-dot" style={{ background: t.dot }} />
+                  </span>
                 </button>
               ))}
             </div>

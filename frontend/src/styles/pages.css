@@ -1095,12 +1095,12 @@
   gap: 7px;
 }
 
-/* ---------------- settings ---------------- */
+/* ---------------- settings (bento grid) ---------------- */
 .settings-stack {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
   gap: var(--sp-4);
-  max-width: 720px;
+  align-items: start;
 }
 
 .setting-row {
@@ -1108,7 +1108,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  padding: var(--sp-3) 0;
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }

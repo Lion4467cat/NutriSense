@@ -699,7 +699,99 @@ table.data tbody tr.clickable:hover {
   margin-bottom: 2px;
 }
 
-/* ---------------- accent swatches (Settings) ---------------- */
+/* ---------------- theme preview tiles (Settings) ---------------- */
+/* Each tile renders a miniature UI preview in that theme's own palette —
+   the picker shows what you get, not what to read. Data comes from
+   THEME_OPTS dot strings (bg), and tile-internal swatches from per-theme
+   accent/pass/bg triplets rendered in Settings. */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+}
+
+.theme-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px;
+  font-family: inherit;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast),
+    transform var(--t-fast);
+}
+
+.theme-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.theme-tile.active {
+  border-color: var(--accent);
+  box-shadow: var(--glow-accent);
+}
+
+.theme-mini {
+  height: 64px;
+  border-radius: 8px;
+  border: 1px solid var(--tile-border, rgba(128, 128, 128, 0.25));
+  background: var(--tile-bg);
+  padding: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.theme-mini .tm-bar {
+  height: 5px;
+  width: 62%;
+  border-radius: 3px;
+  background: var(--tile-accent);
+}
+
+.theme-mini .tm-line {
+  height: 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--tile-fg) 55%, transparent);
+}
+
+.theme-mini .tm-chips {
+  margin-top: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.theme-mini .tm-chip {
+  height: 9px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--tile-c1);
+}
+
+.theme-mini .tm-chip:last-child {
+  background: var(--tile-c2);
+}
+
+.theme-tile-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  font-weight: 620;
+  color: var(--text);
+}
+
+.theme-tile-name .swatch-dot {
+  width: 12px;
+  height: 12px;
+}
+
 .swatch-row {
   display: flex;
   flex-wrap: wrap;
