@@ -64,12 +64,38 @@ keep this entry, proceed to lever (b) as a new entry.
 
 ## Result
 
-TBD — DEV run + stress + paired comparison pending.
+Paired comparison (same eval code; entry-000 baseline re-run with per-plate
+aggregates + stress blocks because `compare_runs` refuses older reports —
+both runs reproduce the baseline headline exactly: 20.298 g [17.247, 24.295]):
+
+| comparison | tier | mae_g base → cand | paired diff [95% CI] | coverage base → cand |
+| --- | --- | --- | --- | --- |
+| main | dev | 20.298 → 19.159 | **−1.14 [−1.92, −0.303]** | 0.8645 → 0.8621 (−0.0025 [−0.0231, +0.0156]) |
+| stress brightness_contrast_0.7 | dev | 21.034 → 19.101 | −1.933 [−2.962, −0.925] | — |
+| stress gaussian_blur_k9 | dev | 20.929 → 18.962 | −1.967 [−2.859, −0.925] | — |
+| stress half_resolution | dev | 20.55 → 19.201 | −1.349 [−2.138, −0.473] | — |
+| stress jpeg_q30 | dev | 20.47 → 18.775 | −1.696 [−2.542, −0.814] | — |
+| stress perspective_30deg | dev | 25.933 → 23.136 | −2.797 [−3.985, −1.68] | — |
+
+Stress deltas: every axis improves with its CI excluding 0 ("WED stress
+test, not real-world"). Mean interval width 82.06 → 76.89 g (narrower at
+equal coverage). Deployable checkpoint: save→load val symmetry holds
+(19.16 in-process == 19.16 deployable); load-guard tests 4/4 after golden
+re-pin 16.21 → 13.88 g (30-view val subset, same subset definition).
 
 ## Decision
 
-TBD.
+- **keep** — the pre-committed criterion is fully met: paired ΔMAE CI
+  excludes 0 in the improving direction, no stress axis worsens (all five
+  improve beyond CI), DEV coverage_90 stayed in [0.80, 0.95]. Checkpoint,
+  sigma, and the golden are re-pinned together as one change.
 
 ## Follow-ups
 
-TBD.
+- The Q3 aspiration (DEV ≤ 18 g) is not reached (19.159) — lever (b)
+  architecture/encoder is next as a separate entry.
+- Per-class sigma from the new head produced narrower intervals at equal
+  coverage; M6 area (calibrated-vs-prior tier gap) untouched.
+- The refreshed baseline report `run_eval_dev.json` (with per-plate +
+  stress blocks, same headline) replaces the pre-chunk-B JSON so future
+  pairings don't refuse.

@@ -89,12 +89,16 @@ def test_encoder_bn_matches_stock_imagenet(head, imagenet_ref) -> None:
         f"({drifted[:3]}) — train-mode BN drift crept back into training?")
 
 
-# Golden 16.21 g: first 30 rows of the seed-42 VAL carve (manifest order,
-# 6 plates), measured 2026-10-11 through the deployable path (WeightHead.load)
-# from the frozen-encoder-BN checkpoint deployed 2026-10-11 (full 108-view
-# val MAE 20.30 g). Re-derive with tools.train_weight_head helpers; the WED
-# test split is never read here.
-_GOLDEN_VAL30_MAE_G = 16.21
+# Golden 13.88 g: first 30 rows of the seed-42 VAL carve (manifest order,
+# 6 plates), measured 2026-10-14 through the deployable path (WeightHead.load)
+# from the ledger-001 augmented-F recipe checkpoint deployed 2026-10-14
+# (full 108-view val MAE 19.16 g; DEV deployable 19.159 g, paired-vs-baseline
+# CI [-1.92, -0.303] in docs/ledger/001-aug-run1.md). Re-pinning documented
+# there: the head CHANGED ON PURPOSE (photometric augs + RandomErasing); the
+# test exists to catch corruption, not to forbid retraining.
+# Re-derive with tools.train_weight_head helpers; the WED test split is never
+# read here.
+_GOLDEN_VAL30_MAE_G = 13.88
 
 
 @_needs_artifacts
