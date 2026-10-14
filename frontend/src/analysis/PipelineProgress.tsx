@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { STAGES } from "./stages";
 
 interface Props {
@@ -30,7 +31,13 @@ export default function PipelineProgress({ running, failed = false }: Props) {
   if (!running && !failed) return null;
 
   return (
-    <div className="card card-pad progress-panel" aria-live="polite">
+    <motion.div
+      className="card card-pad progress-panel"
+      aria-live="polite"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="card-head">
         <div>
           <h2 className="card-title">
@@ -77,6 +84,6 @@ export default function PipelineProgress({ running, failed = false }: Props) {
         complete only when the backend responds. Verdicts are always computed
         server-side.
       </p>
-    </div>
+    </motion.div>
   );
 }

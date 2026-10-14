@@ -1,8 +1,15 @@
+import { motion } from "framer-motion";
 import type { AnalyzeResult } from  "../types/api";
 import { verdictMeta } from  "./verdicts";
 import { formatPct } from  "../utils/format";
 import { firstReasonText } from  "../utils/reasons";
+import { EASE, popIn, revealContainer, revealItem } from "../ui/motion";
 
+/**
+ * Wave-1 verdict reveal: staggered fade-up on first paint with a spring pop
+ * on the glyph. Reduced-motion users (MotionConfig in App) get opacity-only
+ * — the scales/transforms never run for them.
+ */
 export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const meta = verdictMeta(result.verdict);
   const cov = result.coverage;
@@ -10,16 +17,25 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const conf = result.classification?.confidence;
 
   return (
-    <section className={`verdict-card ${meta.cls}`} aria-labelledby="verdict-label">
-      <span className="verdict-ico" aria-hidden="true">
+    <motion.section
+      className={`verdict-card ${meta.cls}`}
+      aria-labelledby="verdict-label"
+      variants={revealContainer}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.span className="verdict-ico" aria-hidden="true" variants={popIn}>
         {meta.icon}
-      </span>
-      <div style={{ minWidth: 0 }}>
+      </motion.span>
+      <motion.div style={{ minWidth: 0 }} variants={revealItem}>
         <h2 className="verdict-label" id="verdict-label">
           {meta.label}
         </h2>
         <p className="verdict-msg">{firstReasonText(result.reasons) || meta.blurb}</p>
-        <div className="verdict-meta">
+        <motion.div
+          className="verdict-meta"
+          variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.35, ease: EASE } } }}
+        >
           {dish && (
             <span className="tag">
               {dish.display_name || dish.id}
@@ -37,15 +53,15 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
                 : ""}
             </span>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {cov && (
-        <div className="verdict-coverage">
+        <motion.div className="verdict-coverage" variants={revealItem}>
           <div className="cap">Coverage</div>
           <div className="big">{formatPct(cov.score, 0)}</div>
-        </div>
+        </motion.div>
       )}
-    </section>
+    </motion.section>
   );
 }

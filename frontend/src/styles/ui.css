@@ -2,13 +2,22 @@
 /* UI primitives                                                       */
 /* ------------------------------------------------------------------ */
 
-/* ---------------- cards ---------------- */
-.card {
+/* ---------------- cards ---------------- */.card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-2);
-  transition: box-shadow var(--t-med), border-color var(--t-med);
+  transition: box-shadow var(--t-med), border-color var(--t-med),
+    transform var(--t-med);
+}
+
+/* wave-1 hover lift (disabled instantly under prefers-reduced-motion
+   via the base.css 0.01ms guard) */
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2),
+    0 6px 16px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .card-pad {
@@ -548,6 +557,50 @@ table.data tbody tr.clickable:hover {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+.skel {
+  display: grid;
+  gap: 10px;
+}
+
+.skel-line {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--border) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 400% 100%;
+  animation: skel-shimmer 1.4s ease infinite;
+}
+
+@keyframes skel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/* route-transition container: keep full height while pages swap */
+.route-anim {
+  min-height: 100%;
+}
+
+/* dashboard compliance bars grow from the baseline on first paint */
+.day-stack {
+  transform-origin: bottom;
+  animation: bar-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
   }
 }
 

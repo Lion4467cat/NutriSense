@@ -57,6 +57,27 @@ export function Card({
   );
 }
 
+/* ---------------- skeleton (wave-1 loading polish) ---------------- */
+
+/**
+ * Honesty rule mirrors PipelineProgress: skeletons mark real pending
+ * state (menu/health fetch), never simulate progress. Pure CSS shimmer;
+ * the base.css prefers-reduced-motion guard neutralizes it.
+ */
+export function Skeleton({ lines = 3 }: { lines?: number }) {
+  return (
+    <div className="skel" aria-hidden="true">
+      {Array.from({ length: lines }, (_, i) => (
+        <span
+          key={i}
+          className="skel-line"
+          style={{ width: `${88 - i * 20}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ---------------- status mark ---------------- */
 
 export function StatusMark({ level }: { level: "good" | "warn" | "bad" | "idle" }) {

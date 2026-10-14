@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { FALLBACK_POLICY } from "../types/api";
-import { Card, EmptyState } from "../ui/primitives";
+import { Card, EmptyState, Skeleton } from "../ui/primitives";
 import { IconBook } from "../ui/Icon";
 
 export default function MenuPage() {
@@ -17,21 +17,26 @@ export default function MenuPage() {
           </div>
         </div>
         <Card>
-          <EmptyState
-            icon={<IconBook size={20} />}
-            title={menuError ? "Menu unavailable" : "Loading menu…"}
-            action={
-              menuError ? (
+          {menuError ? (
+            <EmptyState
+              icon={<IconBook size={20} />}
+              title="Menu unavailable"
+              action={
                 <button className="btn btn-primary" onClick={reloadMenu}>
                   Retry
                 </button>
-              ) : undefined
-            }
-          >
-            {menuError
-              ? "The backend did not return /menu. Check the API connection."
-              : "Fetching bands, dishes and capture fields from the backend."}
-          </EmptyState>
+              }
+            >
+              The backend did not return /menu. Check the API connection.
+            </EmptyState>
+          ) : (
+            <>
+              <Skeleton lines={4} />
+              <p className="muted" style={{ marginTop: 10 }}>
+                Fetching bands, dishes and capture fields from the backend.
+              </p>
+            </>
+          )}
         </Card>
       </div>
     );
