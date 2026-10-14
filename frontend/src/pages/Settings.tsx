@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMenu } from "../context/menu";
-import { ACCENTS, THEME_OPTS } from "../hooks/useTheme";
+import { THEME_OPTS } from "../hooks/useTheme";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
 import { Card, StatusMark } from "../ui/primitives";
@@ -63,7 +63,8 @@ export default function SettingsPage() {
             <div className="setting-info">
               <div className="si-title">Theme</div>
               <div className="si-desc">
-                Six looks — or follow your system preference with System.
+                Seven curated looks — each with its own coordinated accent
+                colors. System follows your OS preference.
               </div>
             </div>
             <div className="swatch-row" role="radiogroup" aria-label="Theme">
@@ -82,28 +83,6 @@ export default function SettingsPage() {
                     style={{ background: t.dot }}
                   />
                   {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="setting-row">
-            <div className="setting-info">
-              <div className="si-title">Color palette</div>
-              <div className="si-desc">Accent used for buttons, links and highlights.</div>
-            </div>
-            <div className="swatch-row" role="radiogroup" aria-label="Color palette">
-              {ACCENTS.map((a) => (
-                <button
-                  key={a.id}
-                  role="radio"
-                  aria-checked={prefs.accent === a.id}
-                  aria-label={a.label}
-                  title={a.label}
-                  className={prefs.accent === a.id ? "swatch active" : "swatch"}
-                  onClick={() => setPrefs({ accent: a.id })}
-                >
-                  <span className="swatch-dot" style={{ background: a.swatch }} />
-                  {a.label}
                 </button>
               ))}
             </div>

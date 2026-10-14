@@ -87,7 +87,9 @@ export default function Topbar({
         ? "dark"
         : "light";
   const darkish =
-    resolved === "dark" || resolved === "midnight" || resolved === "oled";
+    resolved === "dark" || resolved === "nord" ||
+    resolved === "rosepine" || resolved === "dracula" ||
+    resolved === "catppuccin";
 
   const crumbRoot =
     pathname === "/" ? "Workspace" : pathname.startsWith("/result")

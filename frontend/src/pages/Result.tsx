@@ -7,6 +7,7 @@ import WhyVerdict from "../result/WhyVerdict";
 import CoveragePanel from "../result/CoveragePanel";
 import NutrientIntervals from "../result/NutrientIntervals";
 import MeasurementDetails from "../result/MeasurementDetails";
+import MethodologyCard from "../result/MethodologyCard";
 import CaptureQuality from "../result/CaptureQuality";
 import { EmptyState } from "../ui/primitives";
 import { IconArrowLeft, IconHistory, IconSparkle } from "../ui/Icon";
@@ -97,6 +98,8 @@ export default function ResultPage() {
         </div>
 
         <MeasurementDetails result={r} />
+
+        <MethodologyCard result={r} />
       </div>
     </div>
   );

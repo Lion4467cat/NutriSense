@@ -83,12 +83,12 @@ describe("usePrefs", () => {
         <PrefsProvider storage={storage}>{children}</PrefsProvider>
       ),
     });
-    act(() => result.current.setPrefs({ theme: "midnight" }));
-    expect(result.current.prefs.theme).toBe("midnight");
+    act(() => result.current.setPrefs({ theme: "nord" }));
+    expect(result.current.prefs.theme).toBe("nord");
     expect(result.current.prefs.accent).toBe("teal");
     expect(JSON.parse(storage.get(PREFS_KEY)!)).toEqual({
       accent: "teal",
-      theme: "midnight",
+      theme: "nord",
       userName: "",
       defaultDay: "",
       defaultBand: "",

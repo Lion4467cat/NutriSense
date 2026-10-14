@@ -1,29 +1,42 @@
 import { useEffect } from "react";
 
 export type ThemeChoice =
+  | "system"
   | "light"
   | "dark"
-  | "system"
-  | "sepia"
-  | "midnight"
-  | "oled";
+  | "nord"
+  | "rosepine"
+  | "dracula"
+  | "catppuccin"
+  | "dawn";
 
 export const THEME_OPTS: {
   id: ThemeChoice;
   label: string;
   dot: string;
 }[] = [
-  { id: "light", label: "Light", dot: "#f6f5f2" },
+  { id: "system", label: "System", dot: "conic-gradient(#f6f5f2 0 50%, #16181c 50% 100%)" },
+  { id: "light", label: "Light", dot: "#faf9f7" },
   { id: "dark", label: "Dark", dot: "#16181c" },
-  { id: "sepia", label: "Sepia", dot: "#efe2c6" },
-  { id: "midnight", label: "Midnight", dot: "#0a0e1a" },
-  { id: "oled", label: "OLED", dot: "#000000" },
-  {
-    id: "system",
-    label: "System",
-    dot: "conic-gradient(#f6f5f2 0 50%, #16181c 50% 100%)",
-  },
+  { id: "nord", label: "Nord", dot: "#2e3440" },
+  { id: "rosepine", label: "Rosé Pine", dot: "#191724" },
+  { id: "dracula", label: "Dracula", dot: "#282a36" },
+  { id: "catppuccin", label: "Catppuccin", dot: "#1e1e2e" },
+  { id: "dawn", label: "Rosé Dawn", dot: "#faf4ed" },
 ];
+
+/**
+ * Legacy ids (pre-consolidation themes) map into the curated seven so
+ * stored prefs never render an undefined theme. Accent ids stored by
+ * older builds are ignored visually: each theme now bakes its own
+ * coordinated accent (the "color palette" dimension was merged into the
+ * themes per the design decision).
+ */
+const LEGACY_THEME_MAP: Record<string, ThemeChoice> = {
+  sepia: "dawn",
+  midnight: "nord",
+  oled: "dark",
+};
 
 export type AccentId =
   | "indigo"
@@ -35,21 +48,12 @@ export type AccentId =
   | "citrus"
   | "ruby";
 
-export const ACCENTS: { id: AccentId; label: string; swatch: string }[] = [
-  { id: "indigo", label: "Indigo", swatch: "#4f46e5" },
-  { id: "violet", label: "Violet", swatch: "#7c3aed" },
-  { id: "ocean", label: "Ocean", swatch: "#0369a1" },
-  { id: "teal", label: "Teal", swatch: "#0f766e" },
-  { id: "magenta", label: "Magenta", swatch: "#be185d" },
-  { id: "graphite", label: "Graphite", swatch: "#475569" },
-  { id: "citrus", label: "Citrus", swatch: "#c97a10" },
-  { id: "ruby", label: "Ruby", swatch: "#dc2626" },
-];
-
 export function resolveTheme(
   choice: ThemeChoice
-): "light" | "dark" | "sepia" | "midnight" | "oled" {
-  if (choice !== "system") return choice;
+): "light" | "dark" | "nord" | "rosepine" | "dracula" | "catppuccin" | "dawn" {
+  if (choice !== "system") {
+    return (LEGACY_THEME_MAP[choice] ?? choice) as Exclude<ThemeChoice, "system">;
+  }
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
@@ -57,16 +61,19 @@ export function resolveTheme(
 
 const THEME_COLORS: Record<string, string> = {
   light: "#faf9f7",
-  sepia: "#f6efe2",
   dark: "#0e0f11",
-  midnight: "#0a0e1a",
-  oled: "#000000",
+  nord: "#2e3440",
+  rosepine: "#191724",
+  dracula: "#282a36",
+  catppuccin: "#1e1e2e",
+  dawn: "#faf4ed",
 };
 
 /**
- * Apply theme + accent to the document (data-theme/data-accent, theme-color
- * meta, system-preference listener). Called once by PrefsProvider so it runs
- * app-wide regardless of which page is mounted.
+ * Apply theme (+ the legacy accent attr, ignored by tokens but kept for
+ * affinity with previously stored prefs) to the document, plus the
+ * theme-color meta and the system-preference listener. Called once by
+ * PrefsProvider so it runs app-wide.
  */
 export function useTheme(theme: ThemeChoice, accent: AccentId): void {
   useEffect(() => {
@@ -75,7 +82,7 @@ export function useTheme(theme: ThemeChoice, accent: AccentId): void {
       document.documentElement.dataset.theme = resolved;
       document.documentElement.dataset.accent = accent;
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", THEME_COLORS[resolved]);
+      if (meta) meta.setAttribute("content", THEME_COLORS[resolved] ?? "#16181c");
     };
     apply();
     if (theme !== "system") return;

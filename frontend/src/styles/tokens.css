@@ -1,11 +1,15 @@
 /* ------------------------------------------------------------------ */
 /* NutriSense design tokens                                            */
+/* Curated theme set (design decision): ONE simple light + ONE simple  */
+/* dark + five distinctive free-culture looks (Nord, Rosé Pine,        */
+/* Dracula, Catppuccin, Rosé Dawn). Accent colors are baked into each  */
+/* theme — there is no separate accent dimension anymore.              */
 /* ------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
 
-  /* palette — light */
+  /* palette — light (simple paper look) */
   --bg: #faf9f7;
   --bg-subtle: #f3f2ef;
   --surface: #ffffff;
@@ -17,7 +21,7 @@
   --text-2: #565b64;
   --text-3: #8a9099;
 
-  /* brand */
+  /* brand (baked accent — indigo) */
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-soft: #eef0ff;
@@ -76,21 +80,6 @@
   --r-xl: 16px;
   --r-pill: 999px;
 
-  /* gradient + glow system (theme-aware via accents) */
-  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ffffff));
-  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)) 0%, var(--surface) 42%);
-  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent),
-    0 4px 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
-  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 30%, transparent),
-    0 4px 18px -4px color-mix(in srgb, var(--pass) 50%, transparent);
-  --glass: color-mix(in srgb, var(--surface) 80%, transparent);
-  --glass-border: color-mix(in srgb, var(--border-strong) 55%, transparent);
-
-  /* ambient aurora (applied to the shell backdrop in shell.css) */
-  --aurora-1: color-mix(in srgb, var(--accent) 13%, transparent);
-  --aurora-2: color-mix(in srgb, var(--pass) 8%, transparent);
-  --aurora-3: color-mix(in srgb, var(--info) 9%, transparent);
-
   /* elevation */
   --shadow-1: 0 1px 2px rgba(16, 18, 22, 0.05);
   --shadow-2: 0 1px 2px rgba(16, 18, 22, 0.05), 0 8px 24px -14px rgba(
@@ -114,57 +103,21 @@
   /* motion */
   --t-fast: 140ms ease;
   --t-med: 220ms ease;
-}
 
-/* ---- accent palettes — light (indigo is the :root default) ---- */
-[data-accent="violet"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-soft: #f4f0ff;
-  --accent-soft-border: #e6ddfb;
-  --accent-text: #6d28d9;
-}
-[data-accent="ocean"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #0369a1;
-  --accent-hover: #075985;
-  --accent-soft: #eef7fc;
-  --accent-soft-border: #cfe7f5;
-  --accent-text: #075985;
-}
-[data-accent="teal"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #0f766e;
-  --accent-hover: #0d665f;
-  --accent-soft: #ecfdf8;
-  --accent-soft-border: #c7ebe3;
-  --accent-text: #115e59;
-}
-[data-accent="magenta"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #be185d;
-  --accent-hover: #a21651;
-  --accent-soft: #fdf0f6;
-  --accent-soft-border: #f8d5e5;
-  --accent-text: #9d174d;
-}
-[data-accent="graphite"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #475569;
-  --accent-hover: #3b4757;
-  --accent-soft: #f1f4f8;
-  --accent-soft-border: #dbe2ea;
-  --accent-text: #334155;
-}
-[data-accent="citrus"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #c97a10;
-  --accent-hover: #b96c08;
-  --accent-soft: #fdf4e3;
-  --accent-soft-border: #f3e2c0;
-  --accent-text: #a35d00;
-}
-[data-accent="ruby"]:not(:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])) {
-  --accent: #dc2626;
-  --accent-hover: #b91c1c;
-  --accent-soft: #fdf1f1;
-  --accent-soft-border: #fbd5d5;
-  --accent-text: #b91c1c;
+  /* gradient + glow system */
+  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ffffff));
+  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)) 0%, var(--surface) 42%);
+  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent),
+    0 4px 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 30%, transparent),
+    0 4px 18px -4px color-mix(in srgb, var(--pass) 50%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 80%, transparent);
+  --glass-border: color-mix(in srgb, var(--border-strong) 55%, transparent);
+
+  /* ambient aurora */
+  --aurora-1: color-mix(in srgb, var(--accent) 13%, transparent);
+  --aurora-2: color-mix(in srgb, var(--pass) 8%, transparent);
+  --aurora-3: color-mix(in srgb, var(--info) 9%, transparent);
 }
 
 [data-theme="dark"] {
@@ -210,147 +163,222 @@
   --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.5), 0 16px 40px -18px rgba(0, 0, 0, 0.7);
 }
 
-/* ---- accent palettes — dark (indigo is the [data-theme=dark] default) ---- */
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="violet"] {
-  --accent: #a78bfa;
-  --accent-hover: #b4a3fb;
-  --accent-soft: #2a2242;
-  --accent-soft-border: #3f3463;
-  --accent-text: #c4b5fd;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="ocean"] {
-  --accent: #38bdf8;
-  --accent-hover: #5cc8fa;
-  --accent-soft: #122533;
-  --accent-soft-border: #1e4059;
-  --accent-text: #7dd3fc;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="teal"] {
-  --accent: #2dd4bf;
-  --accent-hover: #4dddc9;
-  --accent-soft: #102624;
-  --accent-soft-border: #1e4a45;
-  --accent-text: #5eead4;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="magenta"] {
-  --accent: #f472b6;
-  --accent-hover: #f68cc4;
-  --accent-soft: #2e1626;
-  --accent-soft-border: #572943;
-  --accent-text: #f9a8d4;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="graphite"] {
-  --accent: #cbd5e1;
-  --accent-hover: #d8e0ea;
-  --accent-soft: #23272e;
-  --accent-soft-border: #383e48;
-  --accent-text: #e2e8f0;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="citrus"] {
-  --accent: #f5a637;
-  --accent-hover: #f7b65a;
-  --accent-soft: #2c2010;
-  --accent-soft-border: #53381e;
-  --accent-text: #f9c780;
-}
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="ruby"] {
-  --accent: #f87171;
-  --accent-hover: #fb8f8f;
-  --accent-soft: #2d1616;
-  --accent-soft-border: #552929;
-  --accent-text: #fca5a5;
+/* ---- full theme: Nord (nordtheme.com, MIT) — cool blue-grey night ---- */
+[data-theme="nord"] {
+  color-scheme: dark;
+
+  --bg: #2e3440;
+  --bg-subtle: #353c4a;
+  --surface: #3b4252;
+  --surface-2: #434c5e;
+  --surface-3: #4c566a;
+  --border: #434c5e;
+  --border-strong: #4c566a;
+  --text: #eceff4;
+  --text-2: #d8dee9;
+  --text-3: #a7b0bd;
+
+  --accent: #88c0d0;
+  --accent-hover: #8fbcbb;
+  --accent-soft: #3d4a58;
+  --accent-soft-border: #4c6472;
+  --accent-text: #8fbcbb;
+
+  --pass: #a3be8c;
+  --pass-soft: #3b4436;
+  --pass-border: #55624a;
+  --warn: #ebcb8b;
+  --warn-soft: #4a4334;
+  --warn-border: #6e6349;
+  --fail: #bf616a;
+  --fail-soft: #4a3236;
+  --fail-border: #6e4950;
+  --neutral: #d8dee9;
+  --neutral-soft: #3b4252;
+  --neutral-border: #50596b;
+  --info: #81a1c1;
+  --info-soft: #33415a;
+
+  --chart-grid: #3b4252;
+  --chart-axis: #616e84;
+
+  --shadow-1: 0 1px 2px rgba(20, 26, 36, 0.5);
+  --shadow-2: 0 1px 2px rgba(20, 26, 36, 0.5), 0 8px 24px -14px rgba(20, 26, 36, 0.75);
+  --shadow-pop: 0 2px 6px rgba(20, 26, 36, 0.6), 0 16px 40px -18px rgba(20, 26, 36, 0.85);
 }
 
-/* ---- full themes: warm paper ---- */
-[data-theme="sepia"] {
+/* ---- full theme: Rosé Pine (rosepinetheme.com, MIT) — moody purple night ---- */
+[data-theme="rosepine"] {
+  color-scheme: dark;
+
+  --bg: #191724;
+  --bg-subtle: #1f1d2e;
+  --surface: #1f1d2e;
+  --surface-2: #26233a;
+  --surface-3: #2f2b45;
+  --border: #26233a;
+  --border-strong: #342f4c;
+  --text: #e0def4;
+  --text-2: #c4bff0;
+  --text-3: #908caa;
+
+  --accent: #c4a7e7;
+  --accent-hover: #d3b8f0;
+  --accent-soft: #2a2440;
+  --accent-soft-border: #3f3560;
+  --accent-text: #d3b8f0;
+
+  --pass: #9ccfd8;
+  --pass-soft: #1d2f34;
+  --pass-border: #2f4d54;
+  --warn: #f6c177;
+  --warn-soft: #3a2e1e;
+  --warn-border: #5c4830;
+  --fail: #eb6f92;
+  --fail-soft: #3a2029;
+  --fail-border: #5c3240;
+  --neutral: #c4bff0;
+  --neutral-soft: #26233a;
+  --neutral-border: #3a3556;
+  --info: #9ccfd8;
+  --info-soft: #182830;
+
+  --chart-grid: #26233a;
+  --chart-axis: #514f77;
+
+  --shadow-1: 0 1px 2px rgba(8, 6, 18, 0.55);
+  --shadow-2: 0 1px 2px rgba(8, 6, 18, 0.55), 0 8px 24px -14px rgba(8, 6, 18, 0.8);
+  --shadow-pop: 0 2px 6px rgba(8, 6, 18, 0.65), 0 16px 40px -18px rgba(8, 6, 18, 0.9);
+}
+
+/* ---- full theme: Dracula (draculatheme.com, MIT) — iconic neon night ---- */
+[data-theme="dracula"] {
+  color-scheme: dark;
+
+  --bg: #21222c;
+  --bg-subtle: #282a36;
+  --surface: #2b2d3a;
+  --surface-2: #343746;
+  --surface-3: #44475a;
+  --border: #343746;
+  --border-strong: #44475a;
+  --text: #f8f8f2;
+  --text-2: #e0e0d8;
+  --text-3: #a4a7bd;
+
+  --accent: #bd93f9;
+  --accent-hover: #cfa6fb;
+  --accent-soft: #37304a;
+  --accent-soft-border: #524672;
+  --accent-text: #cfa6fb;
+
+  --pass: #50fa7b;
+  --pass-soft: #1c3a26;
+  --pass-border: #2f5c3e;
+  --warn: #f1fa8c;
+  --warn-soft: #3a3a1e;
+  --warn-border: #5d5c30;
+  --fail: #ff5555;
+  --fail-soft: #42222a;
+  --fail-border: #643238;
+  --neutral: #e0e0d8;
+  --neutral-soft: #343746;
+  --neutral-border: #4a4e63;
+  --info: #8be9fd;
+  --info-soft: #1c343d;
+
+  --chart-grid: #343746;
+  --chart-axis: #62658a;
+
+  --shadow-1: 0 1px 2px rgba(10, 10, 18, 0.55);
+  --shadow-2: 0 1px 2px rgba(10, 10, 18, 0.55), 0 8px 24px -14px rgba(10, 10, 18, 0.8);
+  --shadow-pop: 0 2px 6px rgba(10, 10, 18, 0.65), 0 16px 40px -18px rgba(10, 10, 18, 0.9);
+}
+
+/* ---- full theme: Catppuccin Mocha (catppuccin, MIT) — pastel cozy dark ---- */
+[data-theme="catppuccin"] {
+  color-scheme: dark;
+
+  --bg: #181825;
+  --bg-subtle: #1e1e2e;
+  --surface: #1e1e2e;
+  --surface-2: #313244;
+  --surface-3: #3b3c54;
+  --border: #313244;
+  --border-strong: #45475a;
+  --text: #cdd6f4;
+  --text-2: #bac2de;
+  --text-3: #9399b2;
+
+  --accent: #cba6f7;
+  --accent-hover: #d7b8fa;
+  --accent-soft: #332c44;
+  --accent-soft-border: #4b4166;
+  --accent-text: #d7b8fa;
+
+  --pass: #a6e3a1;
+  --pass-soft: #26332b;
+  --pass-border: #3d5243;
+  --warn: #f9e2af;
+  --warn-soft: #3d3728;
+  --warn-border: #625540;
+  --fail: #f38ba8;
+  --fail-soft: #42293a;
+  --fail-border: #6b3f57;
+  --neutral: #bac2de;
+  --neutral-soft: #313244;
+  --neutral-border: #494d64;
+  --info: #89dceb;
+  --info-soft: #1b323b;
+
+  --chart-grid: #313244;
+  --chart-axis: #585b70;
+
+  --shadow-1: 0 1px 2px rgba(8, 8, 16, 0.55);
+  --shadow-2: 0 1px 2px rgba(8, 8, 16, 0.55), 0 8px 24px -14px rgba(8, 8, 16, 0.8);
+  --shadow-pop: 0 2px 6px rgba(8, 8, 16, 0.65), 0 16px 40px -18px rgba(8, 8, 16, 0.9);
+}
+
+/* ---- full theme: Rosé Pine Dawn (rosepinetheme.com, MIT) — warm luminous light ---- */
+[data-theme="dawn"] {
   color-scheme: light;
-  --bg: #f6efe2;
-  --bg-subtle: #efe6d4;
-  --surface: #fbf6ec;
-  --surface-2: #f4ecdc;
-  --surface-3: #ebe1cd;
-  --border: #e3d7bf;
-  --border-strong: #d2c1a3;
-  --text: #2b2619;
-  --text-2: #5f5540;
-  --text-3: #8f8469;
-  --chart-grid: #e8dcc4;
-  --chart-axis: #c4b294;
-}
 
-/* ---- full themes: deep blue night ---- */
-[data-theme="midnight"] {
-  color-scheme: dark;
-  --bg: #0a0e1a;
-  --bg-subtle: #0d1220;
-  --surface: #111629;
-  --surface-2: #161c33;
-  --surface-3: #1d2440;
-  --border: #222a47;
-  --border-strong: #2f3a60;
-  --text: #e6e9f5;
-  --text-2: #9aa3c2;
-  --text-3: #6d769a;
-  --pass: #4ade80;
-  --pass-soft: #12251a;
-  --pass-border: #1e4630;
-  --warn: #fbbf24;
-  --warn-soft: #2a2113;
-  --warn-border: #56431d;
-  --fail: #f87171;
-  --fail-soft: #2b1618;
-  --fail-border: #5c2427;
-  --neutral: #9aa3c2;
-  --neutral-soft: #1a2138;
-  --neutral-border: #2c3552;
-  --info: #8ba3ff;
-  --info-soft: #141c36;
-  --chart-grid: #1b2340;
-  --chart-axis: #3b466e;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -14px rgba(0, 0, 0, 0.7);
-  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.6), 0 16px 40px -18px rgba(0, 0, 0, 0.8);
-}
+  --bg: #faf4ed;
+  --bg-subtle: #f4ede8;
+  --surface: #fffaf3;
+  --surface-2: #f4ede8;
+  --surface-3: #ece0da;
+  --border: #e8e0da;
+  --border-strong: #d9cbc4;
+  --text: #575279;
+  --text-2: #6c6788;
+  --text-3: #a19b9e;
 
-/* ---- full themes: true black ---- */
-[data-theme="oled"] {
-  color-scheme: dark;
-  --bg: #000000;
-  --bg-subtle: #050505;
-  --surface: #0a0a0a;
-  --surface-2: #101010;
-  --surface-3: #171717;
-  --border: #1e1e1e;
-  --border-strong: #2c2c2c;
-  --text: #ededed;
-  --text-2: #a3a3a3;
-  --text-3: #737373;
-  --pass: #4ade80;
-  --pass-soft: #0c1e12;
-  --pass-border: #1a3d27;
-  --warn: #fbbf24;
-  --warn-soft: #211a0e;
-  --warn-border: #4a3b18;
-  --fail: #f87171;
-  --fail-soft: #231214;
-  --fail-border: #4e1f22;
-  --neutral: #a3a3a3;
-  --neutral-soft: #161616;
-  --neutral-border: #2a2a2a;
-  --info: #7aa2ff;
-  --info-soft: #10182e;
-  --chart-grid: #191919;
-  --chart-axis: #3d3d3d;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.7);
-  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.7), 0 8px 24px -14px rgba(0, 0, 0, 0.9);
-  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.8), 0 16px 40px -18px rgba(0, 0, 0, 0.95);
-}
+  --accent: #907aa9;
+  --accent-hover: #7d6794;
+  --accent-soft: #f1e9f2;
+  --accent-soft-border: #e0d0e6;
+  --accent-text: #7d6794;
 
-/* ---- indigo accent for dark-skinned themes ---- */
-:is([data-theme="dark"], [data-theme="midnight"], [data-theme="oled"])[data-accent="indigo"] {
-  --accent: #7c74f2;
-  --accent-hover: #8f88f5;
-  --accent-soft: #23233c;
-  --accent-soft-border: #34345c;
-  --accent-text: #a9a3f7;
+  --pass: #286983;
+  --pass-soft: #e7f0f5;
+  --pass-border: #c2d8e6;
+  --warn: #ea9d34;
+  --warn-soft: #fdf3e3;
+  --warn-border: #f2dcb8;
+  --fail: #b4637a;
+  --fail-soft: #f9ecee;
+  --fail-border: #e9c6cf;
+  --neutral: #6c6788;
+  --neutral-soft: #f0e8e2;
+  --neutral-border: #ddd2cc;
+  --info: #56949f;
+  --info-soft: #e9f2f4;
+
+  --chart-grid: #e8e0da;
+  --chart-axis: #b8a8b0;
+
+  --shadow-1: 0 1px 2px rgba(87, 82, 121, 0.06);
+  --shadow-2: 0 1px 2px rgba(87, 82, 121, 0.06), 0 8px 24px -14px rgba(87, 82, 121, 0.2);
+  --shadow-pop: 0 2px 6px rgba(87, 82, 121, 0.1), 0 16px 40px -18px rgba(87, 82, 121, 0.3);
 }
