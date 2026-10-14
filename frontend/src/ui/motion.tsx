@@ -1,5 +1,5 @@
-import { motion, type Transition, type Variants } from "framer-motion";
-import type { ReactNode } from "react";
+import { animate, motion, useReducedMotion, type Transition, type Variants } from "framer-motion";
+import { useEffect, useState, type ReactNode } from "react";
 
 /**
  * Wave-1 motion kit (ui-motion-polish): shared variants + transitions so
@@ -57,3 +57,32 @@ export const popIn: Variants = {
     transition: { type: "spring", stiffness: 320, damping: 22 },
   },
 };
+
+/**
+ * Wave-2 count-up: animates 0→target on mount and returns the FORMATTED
+ * string via `fmt`, so pages keep their exact formatting. The final frame
+ * lands exactly on `fmt(target)` — headless tests that assert the settled
+ * text still see the target value semantics. prefers-reduced-motion skips
+ * the animation entirely (immediate target), per MotionConfig elsewhere.
+ */
+export function useCountUp(
+  to: number,
+  fmt: (v: number) => string,
+  duration = 0.9
+): string {
+  const reduced = useReducedMotion();
+  const [value, setValue] = useState(reduced ? to : 0);
+  useEffect(() => {
+    if (reduced || !Number.isFinite(to)) {
+      setValue(to);
+      return;
+    }
+    const controls = animate(0, to, {
+      duration,
+      ease: EASE,
+      onUpdate: (v) => setValue(v),
+    });
+    return () => controls.stop();
+  }, [to, duration, reduced]);
+  return fmt(value);
+}

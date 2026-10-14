@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
+import { revealContainer, revealItem } from "../ui/motion";
 
 type SortKey = "date" | "dish" | "verdict" | "coverage";
 
@@ -166,10 +168,15 @@ export default function HistoryPage() {
                 <th aria-label="Actions" />
               </tr>
             </thead>
-            <tbody>
+            <motion.tbody
+              variants={revealContainer}
+              initial="hidden"
+              animate="show"
+            >
               {filtered.map((r) => (
-                <tr
+                <motion.tr
                   key={r.id}
+                  variants={revealItem}
                   className="clickable"
                   onClick={() => navigate(`/result/${r.id}`)}
                   tabIndex={0}
@@ -211,9 +218,9 @@ export default function HistoryPage() {
                       <IconTrash size={15} />
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       )}

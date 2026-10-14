@@ -1,10 +1,12 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
 import { IconArrowLeft, IconUsers } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
+import { revealContainer, revealItem } from "../ui/motion";
 import {
   byNewest,
   scored as scoredRecords,
@@ -242,10 +244,11 @@ function StudentDetail({ name }: { name: string }) {
               <th>Verdict</th>
             </tr>
           </thead>
-          <tbody>
+          <motion.tbody variants={revealContainer} initial="hidden" animate="show">
             {group.records.map((r) => (
-              <tr
+              <motion.tr
                 key={r.id}
+                variants={revealItem}
                 className="clickable"
                 onClick={() => navigate(`/result/${r.id}`)}
                 tabIndex={0}
@@ -275,9 +278,9 @@ function StudentDetail({ name }: { name: string }) {
                 <td>
                   <VerdictPill verdict={r.summary.verdict} />
                 </td>
-              </tr>
+              </motion.tr>
             ))}
-          </tbody>
+          </motion.tbody>
         </table>
       </div>
     </>

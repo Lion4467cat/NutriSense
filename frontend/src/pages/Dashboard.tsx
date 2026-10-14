@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
@@ -12,11 +13,18 @@ import {
 } from "../ui/Icon";
 import { formatDate, formatNum, formatPct, localDateKey } from "../utils/format";
 import { SCORED_VERDICTS, tally, type AnalysisRecord } from "../services/records";
+import { revealContainer, revealItem, useCountUp } from "../ui/motion";
 
 function daysAgo(n: number): number {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.getTime();
+}
+
+/** Wave-2: animated numeric KPI — counts 0→to on mount, formatted by `fmt`.
+ *  The settled value is fmt(to) exactly, so steady-state UI is unchanged. */
+function CountText({ to, fmt }: { to: number; fmt: (v: number) => string }) {
+  return <>{useCountUp(to, fmt)}</>;
 }
 
 function Kpi({
@@ -26,6 +34,7 @@ function Kpi({
   trend,
   icon,
   cls,
+  count,
 }: {
   label: string;
   value: string;
@@ -33,21 +42,27 @@ function Kpi({
   trend?: { dir: "up" | "down" | "flat"; text: string };
   icon: React.ReactNode;
   cls: "pass" | "warn" | "fail" | "info";
+  count?: { to: number; fmt: (v: number) => string };
 }) {
   return (
-    <article className="kpi">
+    <motion.article
+      className="kpi"
+      variants={revealItem} // staggered by the kpi-grid motion container
+    >
       <div className="kpi-top">
         <span className="kpi-label">{label}</span>
         <span className={`kpi-ico ${cls}`} aria-hidden="true">
           {icon}
         </span>
       </div>
-      <div className="kpi-value">{value}</div>
+      <div className="kpi-value">
+        {count ? <CountText to={count.to} fmt={count.fmt} /> : value}
+      </div>
       <div className="kpi-foot">
         <span>{foot}</span>
         {trend && <span className={`kpi-trend ${trend.dir}`}>{trend.text}</span>}
       </div>
-    </article>
+    </motion.article>
   );
 }
 
@@ -212,10 +227,16 @@ export default function DashboardPage() {
         </Card>
       ) : (
         <>
-          <div className="kpi-grid">
+          <motion.div
+            className="kpi-grid"
+            variants={revealContainer}
+            initial="hidden"
+            animate="show"
+          >
             <Kpi
               label="Meals analyzed"
               value={String(records.length)}
+              count={{ to: records.length, fmt: (v) => String(Math.round(v)) }}
               foot="stored in this browser"
               trend={trend}
               icon={<IconHistory size={14} />}
@@ -224,6 +245,10 @@ export default function DashboardPage() {
             <Kpi
               label="PASS rate"
               value={rate(t.pass)}
+              count={{
+                to: t.scored ? t.pass / t.scored : 0,
+                fmt: (v) => formatPct(v, 0),
+              }}
               foot={`${t.pass} of ${t.scored} scored`}
               icon="✓"
               cls="pass"
@@ -231,6 +256,10 @@ export default function DashboardPage() {
             <Kpi
               label="BORDERLINE rate"
               value={rate(t.warn)}
+              count={{
+                to: t.scored ? t.warn / t.scored : 0,
+                fmt: (v) => formatPct(v, 0),
+              }}
               foot={`${t.warn} of ${t.scored} scored`}
               icon="!"
               cls="warn"
@@ -238,11 +267,15 @@ export default function DashboardPage() {
             <Kpi
               label="FAIL rate"
               value={rate(t.fail)}
+              count={{
+                to: t.scored ? t.fail / t.scored : 0,
+                fmt: (v) => formatPct(v, 0),
+              }}
               foot={`${t.fail} of ${t.scored} scored`}
               icon="✕"
               cls="fail"
             />
-          </div>
+          </motion.div>
 
           <div className="dash-grid">
             <Card
