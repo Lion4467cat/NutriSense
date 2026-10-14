@@ -189,7 +189,7 @@ def run_epoch(model, loader, device, optimizer=None, scheduler=None):
         if train:
             optimizer.zero_grad()
         with torch.set_grad_enabled(train):
-            feats = model.encode(imgs) if not train else model.encoder(imgs)
+            feats = model.encode(imgs, no_grad=not train)
             rois, weights, cls_ids = build_rois(batch, feats)
             preds_all = model(feats, rois)
             preds = preds_all[torch.arange(preds_all.size(0), device=device), cls_ids]
@@ -274,6 +274,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch", type=int, default=4)
+    ap.add_argument("--encoder", default="resnet50",
+                    choices=("resnet50", "dinov2"),
+                    help="frozen backbone (ledger 002 lever b); encoder_id "
+                         "is recorded in the checkpoint for load()")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--val-frac", type=float, default=0.10)
@@ -320,12 +324,19 @@ def main() -> None:
                               batch_size=args.batch, shuffle=False,
                               collate_fn=collate, num_workers=args.workers))
 
-    model = WeightHead().to(device)
+    model = WeightHead(encoder_id=args.encoder).to(device)
     enc_sd = model.encoder.state_dict()
     bn_names = [k for k in enc_sd
                 if k.endswith(("running_mean", "running_var",
                                "num_batches_tracked"))]
-    assert bn_names, "no BN buffers found in encoder"
+    if args.encoder == "dinov2":
+        # ViT-S has no BatchNorm buffers; STAGE 1B's eval() pin below instead
+        # freezes the dropout/drop-path behaviour, keeping the deployable
+        # forward identical to the training forward. The empty-BN guard only
+        # applies to the ResNet path (test_weight_head_load pins it there).
+        assert not bn_names, "dinov2 encoder unexpectedly carries BN buffers"
+    else:
+        assert bn_names, "no BN buffers found in encoder"
     bn_stock = {k: enc_sd[k].clone() for k in bn_names}
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = AdamW(params, lr=args.lr, weight_decay=1e-4)
@@ -355,6 +366,7 @@ def main() -> None:
     from datetime import date
     meta = {"dataset": "WED (ICVGIP 2025)", "recipe": "baseline rgb/no-attn/geom-none",
             "bn_mode": "frozen_encoder_eval", "epochs": args.epochs,
+            "encoder": args.encoder,
             "seed": args.seed, "trained": date.today().isoformat(),
             "val_mae_in_process_g": round(best_val, 2),
             "paper_baseline_mae_g": 14.51}

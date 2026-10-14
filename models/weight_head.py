@@ -8,8 +8,15 @@ feature map -> ROI-align 7x7 per dish bbox -> global average pool ->
 MLP(2048 -> 512 -> num_classes). The head is class-conditional: it emits
 one gram value per WED class per ROI; the dish identity selects the slot.
 
-Backbone weights come from torchvision at load time (not stored in the
-checkpoint); the checkpoint holds only the trained MLP head (~4 MB).
+Ledger 002 (lever b): `encoder_id` parameterizes the frozen backbone.
+  - "resnet50" (default): torchvision ImageNet1K_V2, feat_c 2048 — the
+    entry-000/001 recipe and every existing checkpoint/tests.
+  - "dinov2": facebook/dinov2-small patch tokens (384 ch, 16x16 at 224px)
+    as the ROI feature map — the ViT has no BatchNorm buffers, so the
+    STAGE 1B eval-pinning story is trivially preserved.
+Both keep the exact same roi_align -> avgpool -> class-conditional MLP
+shape (input dim follows the encoder). Backbones load from their caches;
+the checkpoint still holds ONLY the trained MLP (encoder id recorded).
 
 Inference (production, no reference card):
     head = WeightHead.load("data/weight_head.pt")
@@ -32,63 +39,104 @@ WED_NUM_CLASSES = 41          # index_map.json minus background
 RESIZE = (224, 224)
 ROI_RES = 7
 
+DINOV2_ID = "facebook/dinov2-small"  # patch 14 -> token grid 16x16 @ 224px
+
 
 class WeightHead(nn.Module):
-    """Frozen ResNet-50 encoder + ROI-aligned class-conditional gram head."""
+    """Frozen encoder (ResNet-50 or DINOv2-S) + ROI-aligned class-conditional
+    gram head. The encoder is never trained; checkpoints carry the head only."""
 
     def __init__(self, num_classes: int = WED_NUM_CLASSES,
-                 roi_res: int = ROI_RES, pretrained: bool = True):
+                 roi_res: int = ROI_RES, pretrained: bool = True,
+                 encoder_id: str = "resnet50"):
         super().__init__()
-        backbone = models.resnet50(
-            weights=models.ResNet50_Weights.IMAGENET1K_V2 if pretrained else None)
-        self.encoder = nn.Sequential(*list(backbone.children())[:-2])
-        for p in self.encoder.parameters():
-            p.requires_grad = False
+        self.encoder_id = encoder_id
+        if encoder_id == "dinov2":
+            self._build_dinov2(pretrained)
+        else:
+            self._build_resnet(pretrained)
         self.roi_res = roi_res
         self.num_classes = num_classes
-        feat_c = 2048
         self.head_mlp = nn.Sequential(
-            nn.Linear(feat_c, 512),
+            nn.Linear(self.feat_c, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(0.1),
             nn.Linear(512, num_classes),
         )
 
+    def _build_resnet(self, pretrained: bool) -> None:
+        backbone = models.resnet50(
+            weights=models.ResNet50_Weights.IMAGENET1K_V2 if pretrained else None)
+        self.encoder = nn.Sequential(*list(backbone.children())[:-2])
+        for p in self.encoder.parameters():
+            p.requires_grad = False
+        self.feat_c = 2048
+
+    def _build_dinov2(self, pretrained: bool) -> None:
+        # Local import keeps CI/hermetic paths transformer-free; only the
+        # dinov2 checkpoint path (training or its eval) ever needs it.
+        from transformers import AutoModel
+        m = AutoModel.from_pretrained(DINOV2_ID)
+        self.encoder = m
+        self.cls_token = None  # patch tokens only feed the ROI map
+        for p in self.encoder.parameters():
+            p.requires_grad = False
+        self.patch = self.encoder.config.patch_size
+        self.feat_c = self.encoder.config.hidden_size
+
     def forward(self, feats: torch.Tensor, rois: torch.Tensor) -> torch.Tensor:
-        """feats: (B, 2048, h, w) encoder map; rois: (K, 5) = [b, x1, y1, x2, y2]
+        """feats: (B, C, h, w) encoder map; rois: (K, 5) = [b, x1, y1, x2, y2]
         in feature-map coordinates. Returns (K, num_classes)."""
         r = roi_align(feats, rois, output_size=(self.roi_res, self.roi_res))
         r = torch.nn.functional.adaptive_avg_pool2d(r, 1).view(r.size(0), -1)
         return self.head_mlp(r)
 
-    def encode(self, images: torch.Tensor) -> torch.Tensor:
-        """images: (B, 3, H, W) ImageNet-normalised RGB in [0,1]. Frozen encoder."""
-        with torch.no_grad():
+    def encode(self, images: torch.Tensor, no_grad: bool = True) -> torch.Tensor:
+        """images: (B, 3, H, W) ImageNet/DINO-normalised RGB in [0,1].
+        Frozen encoder -> feature map: backbone "patch grid" (B, C, h, w).
+        For DINOv2 the CLS token is dropped: only the 16x16 patch grid is
+        spatially meaningful for roi_align.
+
+        no_grad=False (used by the training loop to skip building a graph
+        through the frozen encoder while still letting the head backprop
+        through these activations) — same semantics as the overridden
+        `model.encoder(images)` server trick, but encoder-agnostic."""
+        ctx = torch.no_grad() if no_grad else torch.enable_grad()
+        with ctx:
+            if getattr(self, "encoder_id", "") == "dinov2":
+                out = self.encoder(pixel_values=images)
+                tokens = out.last_hidden_state  # (B, 257, 384) = [CLS, patch]
+                t = tokens[:, 1:, :]
+                g = int(round(tokens.shape[1] - 1) ** 0.5)  # 16 @ 224/14
+                B, C = t.shape[0], t.shape[2]
+                return t.transpose(1, 2).reshape(B, C, g, g)
             return self.encoder(images)
 
     @property
     def device(self) -> torch.device:
         return next(self.head_mlp.parameters()).device
 
-    # --- checkpoint I/O (head-only; backbone rebuilt from torchvision) ----
+    # --- checkpoint I/O (head-only; encoder rebuilt from its cache) -------
     def save(self, path: str | Path, meta: dict | None = None) -> None:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         torch.save({"head_mlp": self.head_mlp.state_dict(),
                     "num_classes": self.num_classes,
                     "roi_res": self.roi_res,
+                    "encoder_id": self.encoder_id,
                     "meta": meta or {}}, path)
 
     @classmethod
     def load(cls, path: str | Path, device: str | torch.device = "cpu") -> "WeightHead":
-        """Rebuild the frozen backbone from torchvision (IMAGENET1K_V2) and
-        swap in the trained head. The checkpoint stores the head only, so the
-        encoder MUST be the same pretrained weights training used — a random
-        encoder feeds untrained features to the head and yields kilogram-scale
-        garbage predictions."""
+        """Rebuild the frozen backbone TRAINING used (encoder id recorded in
+        the checkpoint) and swap in the trained head. The checkpoint stores
+        the head only, so the encoder MUST be the same pretrained weights
+        training used — a random encoder feeds untrained features to the head
+        and yields kilogram-scale garbage predictions."""
         ckpt = torch.load(Path(path), map_location=device, weights_only=True)
         model = cls(num_classes=ckpt.get("num_classes", WED_NUM_CLASSES),
-                    roi_res=ckpt.get("roi_res", ROI_RES), pretrained=True)
+                    roi_res=ckpt.get("roi_res", ROI_RES), pretrained=True,
+                    encoder_id=ckpt.get("encoder_id", "resnet50"))
         model.head_mlp.load_state_dict(ckpt["head_mlp"])
         model.to(device).eval()
         model.meta = ckpt.get("meta", {})

@@ -1,18 +1,24 @@
-"""Regression: WeightHead.load must restore the pretrained IMAGENET1K_V2
-encoder. The head was trained on frozen *pretrained* features; the old
-load path (pretrained=False) fed untrained features to the head and produced
-kilogram-scale garbage (~870 g MAE on the WED test split instead of ~25 g).
+"""Regression: WeightHead.load must restore the SAME pretrained encoder the
+head was trained against. The head is trained on frozen *pretrained*
+features; a load path that rebuilds the backbone without pretrained weights
+feeds untrained features to the head and produces kilogram-scale garbage
+(~870 g MAE on the WED test split instead of ~25 g).
 
-STAGE 1C adds two guards on top of the checksum/plausible-range pair:
-  * encoder BN buffers must equal stock ImageNet values (option A — the
-    frozen encoder is pinned to eval() during training; train-mode BN
-    drift is what used to cost ~4 g between in-process and deployed MAE),
+Guards (STAGE 1C + ledger 002):
+  * the deployed encoder's pretrained weights match their canonical source —
+    checksummed per encoder (ResNet-50 IMAGENET1K_V2 conv1, DINOv2-S first
+    layer), so a `pretrained=False` rebuild fails loudly,
+  * ResNet: encoder BN buffers equal stock ImageNet values (option A — the
+    frozen encoder is pinned to eval() during training; train-mode BN drift
+    is what used to cost ~4 g between in-process and deployed MAE),
+    DINOv2: NO BatchNorm buffers exist (ViT — drift enters through dropout,
+    frozen by the same eval() pin),
   * a golden MAE on a fixed 30-view VAL subset via the deployable path.
 
 Every test in this module loads a model and carries the `gpu` marker; the
-model and the ImageNet reference are built once per session by fixtures.
-All tests skip when the head checkpoint or the cached torchvision
-resnet50 IMAGENET1K_V2 weights are missing — no downloads in CI.
+model and the reference are built once per session by fixtures. All tests
+skip when the deployable encoder's pretrained weights are not already
+cached — no downloads in CI (HF_HUB_OFFLINE stays honest here).
 """
 from __future__ import annotations
 
@@ -22,7 +28,7 @@ from pathlib import Path
 import pytest
 import torch
 
-from models.weight_head import WeightHead
+from models.weight_head import DINOV2_ID, WeightHead
 
 pytestmark = pytest.mark.gpu
 
@@ -30,13 +36,33 @@ _ROOT = Path(__file__).resolve().parents[1]
 CKPT = _ROOT / "data" / "weight_head.pt"
 _RESNET50_CACHE = (Path.home() / ".cache" / "torch" / "hub" / "checkpoints"
                    / "resnet50-11ad3fa6.pth")
+_DINOV2_CACHE = (Path.home() / ".cache" / "huggingface" / "hub"
+                 / "models--facebook--dinov2-small")
+
+
+def _encoder_cache_present(encoder_id: str) -> bool:
+    if encoder_id == "dinov2":
+        return _DINOV2_CACHE.is_dir() and any(_DINOV2_CACHE.rglob("*.safetensors"))
+    return _RESNET50_CACHE.is_file()
+
+
+def _checkpoints_encoder_id() -> str:
+    import json as _json
+    try:
+        ckpt = torch.load(CKPT, map_location="cpu", weights_only=True)
+        eid = ckpt.get("encoder_id", "resnet50")
+        _json.dumps(eid)  # sanity: str-able
+        return eid
+    except Exception:
+        return "resnet50"
+
 
 _needs_artifacts = pytest.mark.skipif(
-    not CKPT.is_file() or not _RESNET50_CACHE.is_file(),
-    reason="weight_head.pt or cached resnet50 IMAGENET1K_V2 weights missing")
+    not CKPT.is_file() or not _encoder_cache_present(_checkpoints_encoder_id()),
+    reason="weight_head.pt or the deployed encoder's pretrained weights missing from cache")
 
 
-def _sha(t: torch.Tensor) -> str:
+def _sha(t) -> str:
     return hashlib.sha256(t.detach().cpu().numpy().tobytes()).hexdigest()
 
 
@@ -50,15 +76,25 @@ def head() -> WeightHead:
 
 
 @pytest.fixture(scope="session")
-def imagenet_ref():
+def pretrained_ref(head):
+    """The canonical pretrained encoder for whatever the checkpoint deploys."""
+    if head.encoder_id == "dinov2":
+        from transformers import AutoModel
+        return AutoModel.from_pretrained("facebook/dinov2-small")
     from torchvision import models
     return models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V2)
 
 
 @_needs_artifacts
-def test_load_restores_pretrained_encoder(head, imagenet_ref) -> None:
-    assert _sha(head.encoder[0].weight) == _sha(imagenet_ref.conv1.weight), (
-        "loaded encoder conv1 does not match IMAGENET1K_V2 weights — "
+def test_load_restores_pretrained_encoder(head, pretrained_ref) -> None:
+    if head.encoder_id == "dinov2":
+        deployed = head.encoder.embeddings.cls_token
+        reference = pretrained_ref.embeddings.cls_token
+    else:
+        deployed = head.encoder[0].weight
+        reference = pretrained_ref.conv1.weight
+    assert _sha(deployed) == _sha(reference), (
+        "loaded encoder weights do not match their pretrained source — "
         "WeightHead.load rebuilt the backbone without pretrained=True")
 
 
@@ -74,8 +110,23 @@ def test_loaded_head_predicts_grams_not_kilograms(head) -> None:
 
 
 @_needs_artifacts
-def test_encoder_bn_matches_stock_imagenet(head, imagenet_ref) -> None:
-    ref_enc = torch.nn.Sequential(*list(imagenet_ref.children())[:-2])
+def test_encoder_buffers_match_stock_pretrained(head, pretrained_ref) -> None:
+    if head.encoder_id == "dinov2":
+        # ViT: no BatchNorm buffers exist; the eval() pin governs dropout.
+        drifted = [k for k, _ in head.encoder.state_dict().items()
+                   if k.endswith("running_mean")]
+        assert not drifted, f"unexpected BN buffers in {head.encoder_id}: {drifted[:3]}"
+        # frozen ViT weights identical to the pretrained source (spot-check
+        # two spatially-meaningful tensors beyond the cls embedding guard)
+        for dep, ref in (
+            (head.encoder.encoder.layer[0].attention.attention.query.weight,
+             pretrained_ref.encoder.layer[0].attention.attention.query.weight),
+            (head.encoder.layernorm.weight,
+             pretrained_ref.layernorm.weight),
+        ):
+            assert _sha(dep) == _sha(ref), "frozen ViT drifted from pretrained"
+        return
+    ref_enc = torch.nn.Sequential(*list(pretrained_ref.children())[:-2])
     ref_sd = ref_enc.state_dict()
     enc_sd = {k: v.detach().cpu() for k, v in head.encoder.state_dict().items()}
     assert ref_sd.keys() == enc_sd.keys()
@@ -89,16 +140,16 @@ def test_encoder_bn_matches_stock_imagenet(head, imagenet_ref) -> None:
         f"({drifted[:3]}) — train-mode BN drift crept back into training?")
 
 
-# Golden 13.88 g: first 30 rows of the seed-42 VAL carve (manifest order,
-# 6 plates), measured 2026-10-14 through the deployable path (WeightHead.load)
-# from the ledger-001 augmented-F recipe checkpoint deployed 2026-10-14
-# (full 108-view val MAE 19.16 g; DEV deployable 19.159 g, paired-vs-baseline
-# CI [-1.92, -0.303] in docs/ledger/001-aug-run1.md). Re-pinning documented
-# there: the head CHANGED ON PURPOSE (photometric augs + RandomErasing); the
-# test exists to catch corruption, not to forbid retraining.
+# Golden 10.70 g: first 30 rows of the seed-42 VAL carve (manifest order,
+# 6 plates), measured 2026-10-15 through the deployable path (WeightHead.load)
+# from the ledger-002 DINOv2-S checkpoint deployed 2026-10-15 (full 108-view
+# val MAE 15.03 g; DEV deployable 15.034 g, paired-vs-ledger-001 CI
+# [-6.23, -4.23] in docs/ledger/002-dinov2-encoder.md). Re-pinning documented
+# there: the encoder CHANGED ON PURPOSE (lever b keep). The test exists to
+# catch corruption of THIS deployable checkpoint, not to forbid retraining.
 # Re-derive with tools.train_weight_head helpers; the WED test split is never
 # read here.
-_GOLDEN_VAL30_MAE_G = 13.88
+_GOLDEN_VAL30_MAE_G = 10.70
 
 
 @_needs_artifacts
