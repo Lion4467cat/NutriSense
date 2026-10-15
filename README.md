@@ -87,7 +87,7 @@ flowchart TD
     class BORD warn
     class DISC neutral
     class WIRE wire
-
+```
 
 Every exit — gate, stage failure, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which still cannot PASS/FAIL).
 
@@ -132,8 +132,8 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 
 | | |
 |---|---|
-| ![Dark theme](docs/screenshots/result-pass-dark.jpg) | ![Settings themes](docs/screenshots/settings-appearance-light.jpg) |
-| *Result view — Dark theme* | *Settings — 6 themes × 6 palettes* |
+| ![Result PASS — Dark theme](docs/screenshots/result-pass-dark.jpg) | ![Settings themes](docs/screenshots/settings-appearance-light.jpg) |
+| *Result view — Dark theme* | *Settings — themes & palettes* |
 | ![Sepia theme](docs/screenshots/dashboard-sepia.jpg) | ![Midnight theme](docs/screenshots/dashboard-midnight.jpg) |
 | *Dashboard — Sepia* | *Dashboard — Midnight + Violet accent* |
 | ![OLED theme](docs/screenshots/dashboard-oled-teal.jpg) | ![Dark indigo](docs/screenshots/dashboard-dark.jpg) |
@@ -142,6 +142,8 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 | *History with search* | *Student records* |
 | ![Analytics](docs/screenshots/analytics-light.jpg) | ![Analyze](docs/screenshots/analyze-light.jpg) |
 | *Analytics* | *Analyze — staged progress* |
+| ![Menu & standards](docs/screenshots/menu-light.jpg) | ![Dashboard — Light](docs/screenshots/dashboard-light.jpg) |
+| *Menu & standards* | *Dashboard — Light theme* |
 
 ---
 
