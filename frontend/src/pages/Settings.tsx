@@ -5,16 +5,12 @@ import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
 import { Card, StatusMark } from "../ui/primitives";
 import { apiBase } from "../services/api";
-import { bandLabel, dayLabel } from "../utils/format";
 
 export default function SettingsPage() {
   const { prefs, setPrefs } = usePrefs();
   const { menu, apiUp, health, checkHealth } = useMenu();
   const { records, clearRecords } = useRecords();
   const [confirmClear, setConfirmClear] = useState(false);
-
-  const days = menu ? Object.keys(menu.days) : [];
-  const bands = menu ? Object.keys(menu.bands) : [];
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(records, null, 2)], {
@@ -99,10 +95,7 @@ export default function SettingsPage() {
                       <span className="tm-chip" />
                     </span>
                   </span>
-                  <span className="theme-tile-name">
-                    {t.label}
-                    <span className="swatch-dot" style={{ background: t.dot }} />
-                  </span>
+                  <span className="theme-tile-name">{t.label}</span>
                 </button>
               ))}
             </div>
@@ -137,45 +130,6 @@ export default function SettingsPage() {
               </div>
             </div>
             <span className="tag mono">{apiBase}</span>
-          </div>
-        </Card>
-
-        <Card title="Analysis preferences" sub="UI defaults only — no backend configuration.">
-          <div className="setting-row">
-            <div className="setting-info">
-              <div className="si-title">Default day</div>
-              <div className="si-desc">Pre-selected on the Analyze page.</div>
-            </div>
-            <select
-              className="select"
-              style={{ width: 170 }}
-              value={prefs.defaultDay || (days[0] ?? "")}
-              onChange={(e) => setPrefs({ defaultDay: e.target.value })}
-            >
-              {days.map((d) => (
-                <option key={d} value={d}>
-                  {dayLabel(d)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="setting-row">
-            <div className="setting-info">
-              <div className="si-title">Default class band</div>
-              <div className="si-desc">Pre-selected on the Analyze page.</div>
-            </div>
-            <select
-              className="select"
-              style={{ width: 170 }}
-              value={prefs.defaultBand || (bands[0] ?? "")}
-              onChange={(e) => setPrefs({ defaultBand: e.target.value })}
-            >
-              {bands.map((b) => (
-                <option key={b} value={b}>
-                  {bandLabel(b)}
-                </option>
-              ))}
-            </select>
           </div>
         </Card>
 

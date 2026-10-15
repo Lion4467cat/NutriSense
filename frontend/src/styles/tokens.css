@@ -1,69 +1,71 @@
 /* ------------------------------------------------------------------ */
 /* NutriSense design tokens                                            */
-/* Curated theme set (design decision): ONE simple light + ONE simple  */
-/* dark + five distinctive free-culture looks (Nord, Rosé Pine,        */
-/* Dracula, Catppuccin, Rosé Dawn). Accent colors are baked into each  */
-/* theme — there is no separate accent dimension anymore.              */
+/* Distinctive visual identity for a nutrition compliance dashboard.   */
+/* Palette: warm earth tones with verdant accent. Typography:          */
+/* Inter for data, Fraunces for display. Layout: editorial bento       */
+/* grid, glassmorphism panels, deliberate asymmetry.                  */
 /* ------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
 
-  /* palette — light (simple paper look) */
-  --bg: #faf9f7;
-  --bg-subtle: #f3f2ef;
+  /* palette — warm earth with verdant accent */
+  --bg: #faf8f5;
+  --bg-subtle: #f5f3ef;
   --surface: #ffffff;
-  --surface-2: #f7f6f3;
-  --surface-3: #efeeea;
-  --border: #e6e4df;
-  --border-strong: #d6d3cc;
-  --text: #191b1f;
-  --text-2: #565b64;
-  --text-3: #8a9099;
+  --surface-2: #f8f7f4;
+  --surface-3: #efece7;
+  --border: #e4e1da;
+  --border-strong: #d4d0c6;
+  --text: #1a1a1a;
+  --text-2: #4a4a48;
+  --text-3: #7a7872;
 
-  /* brand (baked accent — indigo) */
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-soft: #eef0ff;
-  --accent-soft-border: #dcdffe;
-  --accent-text: #4338ca;
+  /* brand — verdant green accent */
+  --accent: #2d7a52;
+  --accent-hover: #246543;
+  --accent-soft: #e8f4ed;
+  --accent-soft-border: #b5d4c2;
+  --accent-text: #1a5a3a;
 
   /* semantic verdicts */
-  --pass: #15803d;
-  --pass-soft: #ecfdf3;
-  --pass-border: #b7ebc9;
-  --warn: #b45309;
-  --warn-soft: #fdf6e7;
-  --warn-border: #f3ddb0;
+  --pass: #1a6b3d;
+  --pass-soft: #eaf5ef;
+  --pass-border: #a8d4bf;
+  --warn: #a67c00;
+  --warn-soft: #faf3e0;
+  --warn-border: #e8d9a0;
   --fail: #b91c1c;
-  --fail-soft: #fdf1f1;
-  --fail-border: #f3c6c6;
-  --neutral: #565b64;
-  --neutral-soft: #f1f2f4;
-  --neutral-border: #dcdfe3;
-  --info: #1d4ed8;
-  --info-soft: #eef3ff;
+  --fail-soft: #fce8e8;
+  --fail-border: #e8b4b4;
+  --neutral: #4a4a48;
+  --neutral-soft: #f1f0ec;
+  --neutral-border: #d8d5cc;
+  --info: #1a5a7a;
+  --info-soft: #e6f0f5;
 
   /* chart strokes */
   --chart-grid: #eceae5;
   --chart-axis: #b9b6ae;
 
-  /* typography */
+  /* typography — Inter for data, Fraunces for display */
   --font: "Inter Variable", Inter, ui-sans-serif, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
     monospace;
 
-  --fs-xs: 11.5px;
-  --fs-sm: 12.5px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
   --fs-base: 14px;
   --fs-md: 15px;
   --fs-lg: 17px;
-  --fs-xl: 21px;
-  --fs-2xl: 27px;
-  --fs-display: 32px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+  --fs-display: 36px;
+  --fs-display-alt: 48px;
 
-  /* spacing */
+  /* spacing — editorial rhythm */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -72,98 +74,101 @@
   --sp-6: 24px;
   --sp-8: 32px;
   --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
 
-  /* shape */
-  --r-sm: 6px;
-  --r-md: 9px;
+  /* shape — sharp corners for authority, soft for approachability */
+  --r-sm: 4px;
+  --r-md: 8px;
   --r-lg: 12px;
   --r-xl: 16px;
   --r-pill: 999px;
 
-  /* elevation */
-  --shadow-1: 0 1px 2px rgba(16, 18, 22, 0.05);
-  --shadow-2: 0 1px 2px rgba(16, 18, 22, 0.05), 0 8px 24px -14px rgba(
-      16,
-      18,
-      22,
-      0.18
+  /* elevation — subtle, never heavy */
+  --shadow-1: 0 1px 2px rgba(26, 26, 26, 0.04);
+  --shadow-2: 0 1px 2px rgba(26, 26, 26, 0.04), 0 4px 12px -8px rgba(
+      26,
+      26,
+      26,
+      0.12
     );
-  --shadow-pop: 0 2px 6px rgba(16, 18, 22, 0.08), 0 16px 40px -18px rgba(
-      16,
-      18,
-      22,
-      0.28
+  --shadow-pop: 0 2px 6px rgba(26, 26, 26, 0.06), 0 8px 20px -12px rgba(
+      26,
+      26,
+      26,
+      0.15
     );
 
   /* layout */
-  --sidebar-w: 236px;
-  --topbar-h: 56px;
-  --content-max: 1560px;
+  --sidebar-w: 260px;
+  --topbar-h: 60px;
+  --content-max: 1480px;
 
-  /* motion */
-  --t-fast: 140ms ease;
-  --t-med: 220ms ease;
+  /* motion — deliberate, not scattered */
+  --t-fast: 120ms ease;
+  --t-med: 200ms ease;
+  --t-slow: 300ms ease;
 
-  /* gradient + glow system */
-  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ffffff));
-  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)) 0%, var(--surface) 42%);
-  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent),
-    0 4px 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
-  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 30%, transparent),
-    0 4px 18px -4px color-mix(in srgb, var(--pass) 50%, transparent);
-  --glass: color-mix(in srgb, var(--surface) 80%, transparent);
-  --glass-border: color-mix(in srgb, var(--border-strong) 55%, transparent);
+  /* gradient + glass system */
+  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #ffffff));
+  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 4%, var(--surface)) 0%, var(--surface) 45%);
+  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 4px 16px -4px color-mix(in srgb, var(--accent) 35%, transparent);
+  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 25%, transparent),
+    0 4px 16px -4px color-mix(in srgb, var(--pass) 40%, transparent);
+  --glass: color-mix(in srgb, var(--surface) 75%, transparent);
+  --glass-border: color-mix(in srgb, var(--border-strong) 50%, transparent);
 
-  /* ambient aurora */
-  --aurora-1: color-mix(in srgb, var(--accent) 13%, transparent);
-  --aurora-2: color-mix(in srgb, var(--pass) 8%, transparent);
-  --aurora-3: color-mix(in srgb, var(--info) 9%, transparent);
+  /* ambient accents */
+  --aurora-1: color-mix(in srgb, var(--accent) 10%, transparent);
+  --aurora-2: color-mix(in srgb, var(--pass) 6%, transparent);
+  --aurora-3: color-mix(in srgb, var(--info) 7%, transparent);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0e0f11;
-  --bg-subtle: #121417;
-  --surface: #16181c;
-  --surface-2: #1b1e23;
-  --surface-3: #22262c;
-  --border: #262a30;
-  --border-strong: #343941;
-  --text: #e8eaed;
-  --text-2: #a6adb8;
-  --text-3: #7d8590;
+  --bg: #121212;
+  --bg-subtle: #1a1a1a;
+  --surface: #1f1f1f;
+  --surface-2: #262626;
+  --surface-3: #2e2e2e;
+  --border: #2a2a2a;
+  --border-strong: #353535;
+  --text: #e8e8e8;
+  --text-2: #a8a8a8;
+  --text-3: #707070;
 
-  --accent: #7c74f2;
-  --accent-hover: #8f88f5;
-  --accent-soft: #23233c;
-  --accent-soft-border: #34345c;
-  --accent-text: #a9a3f7;
+  --accent: #3d8b62;
+  --accent-hover: #2d7450;
+  --accent-soft: #1a2a20;
+  --accent-soft-border: #2a4535;
+  --accent-text: #5aa87a;
 
-  --pass: #4ade80;
-  --pass-soft: #12251a;
-  --pass-border: #1e4630;
-  --warn: #fbbf24;
-  --warn-soft: #2a2113;
-  --warn-border: #56431d;
-  --fail: #f87171;
-  --fail-soft: #2b1618;
-  --fail-border: #5c2427;
-  --neutral: #a6adb8;
-  --neutral-soft: #1f2329;
-  --neutral-border: #333941;
-  --info: #7aa2ff;
-  --info-soft: #16203a;
+  --pass: #3d8b62;
+  --pass-soft: #1a2a20;
+  --pass-border: #2a4535;
+  --warn: #c9a227;
+  --warn-soft: #2a2410;
+  --warn-border: #4a3a10;
+  --fail: #d94545;
+  --fail-soft: #2a1010;
+  --fail-border: #4a2020;
+  --neutral: #a8a8a8;
+  --neutral-soft: #1a1a1a;
+  --neutral-border: #353535;
+  --info: #4a8bbf;
+  --info-soft: #0a1a2a;
 
-  --chart-grid: #23272d;
-  --chart-axis: #4a515b;
+  --chart-grid: #2a2a2a;
+  --chart-axis: #454545;
 
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -14px rgba(0, 0, 0, 0.6);
-  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.5), 0 16px 40px -18px rgba(0, 0, 0, 0.7);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px -8px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 20px -12px rgba(0, 0, 0, 0.6);
 }
 
-/* ---- full theme: Nord (nordtheme.com, MIT) — cool blue-grey night ---- */
+/* ---- full theme: Nord (preserved for users who prefer it) ---- */
 [data-theme="nord"] {
   color-scheme: dark;
 
@@ -207,7 +212,7 @@
   --shadow-pop: 0 2px 6px rgba(20, 26, 36, 0.6), 0 16px 40px -18px rgba(20, 26, 36, 0.85);
 }
 
-/* ---- full theme: Rosé Pine (rosepinetheme.com, MIT) — moody purple night ---- */
+/* ---- full theme: Rosé Pine (preserved) ---- */
 [data-theme="rosepine"] {
   color-scheme: dark;
 
@@ -251,7 +256,7 @@
   --shadow-pop: 0 2px 6px rgba(8, 6, 18, 0.65), 0 16px 40px -18px rgba(8, 6, 18, 0.9);
 }
 
-/* ---- full theme: Dracula (draculatheme.com, MIT) — iconic neon night ---- */
+/* ---- full theme: Dracula (preserved) ---- */
 [data-theme="dracula"] {
   color-scheme: dark;
 
@@ -295,7 +300,7 @@
   --shadow-pop: 0 2px 6px rgba(10, 10, 18, 0.65), 0 16px 40px -18px rgba(10, 10, 18, 0.9);
 }
 
-/* ---- full theme: Catppuccin Mocha (catppuccin, MIT) — pastel cozy dark ---- */
+/* ---- full theme: Catppuccin Mocha (preserved) ---- */
 [data-theme="catppuccin"] {
   color-scheme: dark;
 
@@ -339,7 +344,7 @@
   --shadow-pop: 0 2px 6px rgba(8, 8, 16, 0.65), 0 16px 40px -18px rgba(8, 8, 16, 0.9);
 }
 
-/* ---- full theme: Rosé Pine Dawn (rosepinetheme.com, MIT) — warm luminous light ---- */
+/* ---- full theme: Rosé Pine Dawn (preserved) ---- */
 [data-theme="dawn"] {
   color-scheme: light;
 
