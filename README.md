@@ -39,39 +39,38 @@ flowchart TD
 
     subgraph LINT["1 · Lint gates"]
         direction LR
-        L1["zoom = 1.0"] --> L2["day valid"] --> L3["band valid"] --> L4["resolution note<br/>(< 1280px → note only)"]
+        L1["zoom = 1.0"] --> L2["day valid"] --> L3["band valid"]
+        L3 --> L4["image < 1280px → note only"]
     end
 
     LINT -.->|"any gate fails"| WIRE
-    L4 --> A["2 · Scale anchor<br/>card 60mm → prior"]
+    L4 --> A["2 · Scale anchor<br/>card 60mm → metric /<br/>no card → prior + learned-weight"]
 
     A --> SEG["3 · Segment<br/>SAM 2.1"]
     SEG -.->|error| WIRE
-    SEG --> CLS{"4 · Classify<br/>SigLIP2 gallery"}
-
+    SEG --> CLS{"4 · Classify<br/>SigLIP2 gallery<br/>(abstain if < 0.82)"}
     CLS -->|"unrecognized"| WIRE
     CLS -->|wheat| OOS["➖ out_of_scope"]
-    CLS -->|"dish found"| DEPTH["5 · Depth<br/>MoGe-2 · fov_x from K"]
-
+    CLS -->|dish found| DEPTH["5 · Depth<br/>MoGe-2 · fov_x from K<br/>card-calibrate × factor (~1.1%)"]
     DEPTH -.->|error| WIRE
     DEPTH --> TIER{"tier?"}
     TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
-    TIER -->|prior| HEAD{"learned head<br/>WED checkpoint?"}
-    HEAD -->|available| LEARN["g = WeightNet<br/>frozen ResNet-50 · no geometry"]
-    HEAD -->|missing / unmapped / error| NOCAL["geometry × size priors<br/>× 0.60 coverage cap"]
+    TIER -->|no card| HEAD{"learned head<br/>WED checkpoint?"}
+    HEAD -->|available| LEARN["g = learned weight<br/>frozen ResNet-50 ·<br/>no geometry · ×0.90 coverage"]
+    HEAD -->|missing / unmapped / error| NOCAL["geometry × size priors<br/>× 0.60 coverage cap ·<br/>never PASS/FAIL"]
     LEARN --> PORT
     NOCAL --> PORT
-    CAL --> PORT["6 · Portion<br/>g = area × height × ρ · or learned grams"]
+    CAL --> PORT["6 · Portion<br/>measured: area × height × ρ<br/>no-card: learned grams or geometry"]
     PORT -.->|error| WIRE
-    PORT --> MC["7 · Monte Carlo<br/>n = 4000 · seed fixed"]
+    PORT --> MC["7 · Monte Carlo<br/>lognormal grams · recipe noise<br/>4000 samples · fixed seed"]
 
-    MC --> VER{"8 · Compliance<br/>C = Π coverage factors"}
+    MC --> VER{"8 · Compliance<br/>P per nutrient ·<br/>C = Π coverage factors"}
     VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
     VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
     VER -->|else| BORD["⚠ BORDERLINE"]
-    VER -.->|"no card: reasons[0]"| DISC["📋 this weight is an estimate<br/>(no reference card)"]
+    VER -.->|"no card: reasons[0]"| DISC["📋 weight is an estimate<br/>(no reference card)"]
 
-    PASS ==> WIRE["18-key wire · to_wire()<br/>verdict (incl. cannot_verify) · reasons · failures"]
+    PASS ==> WIRE["18-key wire · to_wire()<br/>verdict · reasons · failures"]
     FAIL ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
@@ -88,7 +87,7 @@ flowchart TD
     class BORD warn
     class DISC neutral
     class WIRE wire
-```
+
 
 Every exit — gate, stage failure, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which still cannot PASS/FAIL).
 
