@@ -120,7 +120,7 @@ flowchart TD
     DEPTH --> TIER{"tier?"}
     TIER -->|measured| CAL["calibrate on marker<br/>≈ 1.1% error"]
     TIER -->|prior| HEAD{"learned head<br/>WED checkpoint?"}
-    HEAD -->|available| LEARN["g = WeightNet<br/>frozen ResNet-50 · no geometry"]
+    HEAD -->|available| LEARN["g = WeightNet<br/>frozen DINOv2-S · no geometry"]
     HEAD -->|missing / unmapped / error| SKIP["geometry × size priors<br/>× 0.60 coverage cap"]
     LEARN --> PORT
     SKIP --> PORT

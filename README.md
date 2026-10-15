@@ -56,7 +56,7 @@ flowchart TD
     DEPTH --> TIER{"tier?"}
     TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
     TIER -->|no card| HEAD{"learned head<br/>WED checkpoint?"}
-    HEAD -->|available| LEARN["g = learned weight<br/>frozen ResNet-50 ·<br/>no geometry · ×0.90 coverage"]
+    HEAD -->|available| LEARN["g = learned weight<br/>frozen DINOv2-S ·<br/>no geometry · ×0.90 coverage"]
     HEAD -->|missing / unmapped / error| NOCAL["geometry × size priors<br/>× 0.60 coverage cap ·<br/>never PASS/FAIL"]
     LEARN --> PORT
     NOCAL --> PORT
@@ -111,7 +111,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 **Implemented and tested (160 pytest + 43 vitest green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
-- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002)
+- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
@@ -119,7 +119,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
 - **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
-- **Themes** — 6 full themes (Light, Dark, Sepia, Midnight, OLED, System) × 6 accent palettes, light/dark aware
+- **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn), each with its own coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
 ![Analysis result — verdict, reasons, coverage](docs/screenshots/result-fail-light.jpg)
@@ -134,15 +134,15 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 |---|---|
 | ![Result PASS — Dark theme](docs/screenshots/result-pass-dark.jpg) | ![Settings themes](docs/screenshots/settings-appearance-light.jpg) |
 | *Result view — Dark theme* | *Settings — themes & palettes* |
-| ![Sepia theme](docs/screenshots/dashboard-sepia.jpg) | ![Midnight theme](docs/screenshots/dashboard-midnight.jpg) |
-| *Dashboard — Sepia* | *Dashboard — Midnight + Violet accent* |
-| ![OLED theme](docs/screenshots/dashboard-oled-teal.jpg) | ![Dark indigo](docs/screenshots/dashboard-dark.jpg) |
-| *Dashboard — OLED + Teal accent* | *Dashboard — Dark + Indigo* |
+| ![Rosé Dawn](docs/screenshots/dashboard-sepia.jpg) | ![Nord](docs/screenshots/dashboard-midnight.jpg) |
+| *Dashboard — Rosé Dawn* | *Dashboard — Nord* |
+| ![Dark + Teal](docs/screenshots/dashboard-oled-teal.jpg) | ![Dark + Indigo](docs/screenshots/dashboard-dark.jpg) |
+| *Dashboard — Dark + Teal* | *Dashboard — Dark + Indigo* |
 | ![History](docs/screenshots/history-light.jpg) | ![Students](docs/screenshots/students-light.jpg) |
 | *History with search* | *Student records* |
 | ![Analytics](docs/screenshots/analytics-light.jpg) | ![Analyze](docs/screenshots/analyze-light.jpg) |
 | *Analytics* | *Analyze — staged progress* |
-| ![Menu & standards](docs/screenshots/menu-light.jpg) | ![Dashboard — Light](docs/screenshots/dashboard-light.jpg) |
+| ![Menu & standards](docs/screenshots/menu-light.jpg)| ![Dashboard — Light](docs/screenshots/dashboard-light.jpg) |
 | *Menu & standards* | *Dashboard — Light theme* |
 
 ---
@@ -443,6 +443,19 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 
+### How far off the predictions can be (deployable path, WED val carve, 108 views / 21 plates)
+
+All numbers below are measured on the deployable checkpoint (frozen DINOv2-S head, seed 42; source: a fresh `run_eval --tier dev`, identical to the figures recorded in `docs/ledger/001-current-state.md`). Grams MAE = mean absolute error of the portion estimate; every other metric inherits it because kcal and protein are the table value × grams.
+
+| Metric | How far off it can be |
+|---|---|
+| **Portion grams** | **MAE ≈ 15 g** (95% CI [12.2, 18.9]) — about 18% MAPE. Typical dishes land at **≈ 3–15 g** mean error; the hardest blends sit at **≈ 28–41 g** (steamed-rice 28.1, non-spicy-curry 31.1, beans-curry 40.6). Lightest items are near-exact (papad ≈ 1.6 g, boondi ≈ 2.5 g, mango-pickle ≈ 3.0 g). |
+| **Energy (kcal)** | Inherits the grams error proportionally: **≈ 18% MAPE**, so a 400-kcal serving can read ~±70 kcal off at one MAE; the 90% interval is wide enough to cover that (mean grams-interval width ≈ 62 g). |
+| **Protein (g)** | Same relative error as grams (≈ 18% MAPE) — a ~12 g protein claim is typically within ≈ 2 g, but carries the same worst-dish tails. |
+| **Intervals (calibration)** | The 90% prediction intervals covered **85.2%** of outcomes (CI [79.2%, 89.9%]) — slightly below nominal 90%; treat hits at the interval edge as borderline rather than certain. |
+| **Capture robustness** | Under the frozen WED stress suite (*a lab stress test, not real-world field error*): perspective skew adds **≈ +2.9 g** MAE (17.9 g total); brightness/contrast, blur, JPEG, and half-resolution each add ≤ **0.2 g**. |
+| **Verdict edge cases** | PASS/FAIL requires P ≥ 0.9 / ≤ 0.1 × coverage — at C = 0.90 the margins are tight, so a ~10% gram swing can flip a PASS to BORDERLINE; a compliance verdict is not a precise measurement claim. |
+
 ---
 
 ## 📚 References
@@ -452,13 +465,14 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 1. Ravi et al. (2024). *SAM 2: Segment Anything in Images and Videos.* arXiv:2408.00714. — image segmentation (S2).
 2. Tschannen et al. (2025). *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features.* arXiv:2502.14786. Google DeepMind. — dish gallery embeddings (S2).
 3. Wang et al. (2025). *MoGe-2: Accurate Monocular Geometry with Metric Scale and Sharp Details.* arXiv:2507.02546 (NeurIPS 2025). Microsoft Research. — metric depth (S3).
-4. Garrido-Jurado et al. (2014). *Automatic generation and detection of highly reliable fiducial markers under occlusion.* Pattern Recognition 48(6), 2051–2061. — ArUco reference-card detection (S1 scale anchor).
+4. Oquab et al. (2023). *DINOv2: Learning Robust Visual Features without Supervision.* arXiv:2304.07193. Meta AI. — frozen encoder for the learned weight head (no-card tier).
+5. Garrido-Jurado et al. (2014). *Automatic generation and detection of highly reliable fiducial markers under occlusion.* Pattern Recognition 48(6), 2051–2061. — ArUco reference-card detection (S1 scale anchor).
 
 **Nutrition & policy**
 
-5. National Institute of Nutrition (2017). *Indian Food Composition Tables (IFCT 2017).* NIN, Hyderabad. — literature nutrient rows in `data/nutrients.yaml`.
-6. Ministry of Education, Government of India. *PM POSHAN — Food & Nutrition Guidelines.* — band minimums & compliance rules, transcribed into `data/standards.yaml`.
-7. Government of Karnataka. *Mid-Day Meal Scheme Guidelines.* Dept. of Public Instruction. — weekly menu in `data/menu.yaml`.
+6. National Institute of Nutrition (2017). *Indian Food Composition Tables (IFCT 2017).* NIN, Hyderabad. — literature nutrient rows in `data/nutrients.yaml`.
+7. Ministry of Education, Government of India. *PM POSHAN — Food & Nutrition Guidelines.* — band minimums & compliance rules, transcribed into `data/standards.yaml`.
+8. Government of Karnataka. *Mid-Day Meal Scheme Guidelines.* Dept. of Public Instruction. — weekly menu in `data/menu.yaml`.
 
 ---
 
