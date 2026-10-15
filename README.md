@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-159%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-160%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -108,7 +108,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 
 ## ✨ Features
 
-**Implemented and tested (159 pytest + 43 vitest green):**
+**Implemented and tested (160 pytest + 43 vitest green):**
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen ResNet-50 + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002)
@@ -171,7 +171,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 159 tests (synthetic GT scenes + HTTP E2E + contract parity); 150 run without a GPU |
+| Tests | pytest — 160 tests (synthetic GT scenes + HTTP E2E + contract parity); 151 run without a GPU |
 
 ---
 
@@ -193,7 +193,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 159 tests incl. synth/ renderer with full GT
+├── tests/                     # 160 tests incl. synth/ renderer with full GT
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -244,7 +244,7 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # full backend: 159 passed
+.venv/bin/pytest -q                    # full backend: 160 passed (151 without a GPU)
 .venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 150 passed, 9 deselected
 .venv/bin/pytest -m gpu -q             # the 9 model tests (SAM2, SigLIP2, MoGe-2, weight head)
 cd frontend && npm test                # 43 vitest tests (wire parity, selectors, PolicyNote)
@@ -439,7 +439,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (159 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
+- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (160 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 

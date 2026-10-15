@@ -1,14 +1,14 @@
 # NutriSense v5 — Final Build Report
 
 **Date:** 2026-10-08 (updated 2026-10-12)
-**Status:** S0–S6 complete — **159/159 pytest + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + no-card scored-with-disclaimer graduation landed 2026-10-11 (ADR 0002 + amendment).
+**Status:** S0–S6 complete — **160/160 pytest (151 non-GPU + 9 GPU) + 43/43 vitest green**, server smoke-tested, phase `built`. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + no-card scored-with-disclaimer graduation landed 2026-10-11 (ADR 0002 + amendment).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
 ## Test results
 
 ```
-159 passed
+160 passed (151 without GPU, 9 GPU-marked)
 ```
 
 | Test file | Tests | Covers |
