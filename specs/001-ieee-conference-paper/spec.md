@@ -85,6 +85,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-020**: The full-width runtime figure MUST use a readable visual hierarchy and separated paths with sufficient whitespace; labels and connectors MUST remain legible at the compiled IEEE page size, with no overlapping or confusing branch crossings.
 - **FR-021**: The four authors MUST appear in a balanced, individually identified IEEE author layout with sufficient separation between names and contact details; long placeholder addresses MUST not crowd adjacent authors.
 - **FR-022**: The pipeline figure MUST appear in the main body before the Results section, near its System Overview discussion, rather than after the references; retain compliant IEEE float placement.
+- **FR-023**: Every in-text citation MUST resolve to one bibliography entry, and every bibliography entry MUST be cited. Each record MUST identify the source actually used (including model version and final publication metadata where available), and the nearby claim MUST be supported by that source; claims must be narrowed when a source does not justify them.
 
 ### Key Entities
 
@@ -110,6 +111,7 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-010**: At IEEE two-column page size, the flowchart's branch labels and nodes can be read without overlap or visually cramped convergence.
 - **SC-011**: The four author names and their contact lines are visually separated and balanced in the compiled title area, with no email wrapping into adjacent author blocks.
 - **SC-012**: The flowchart appears before the Results section and before the references in the compiled paper.
+- **SC-013**: A documented source-by-source audit confirms that every in-text citation has a matching, accurate bibliography record, every bibliography entry is used, and each cited source supports its associated manuscript claim.
 
 ## Assumptions
 

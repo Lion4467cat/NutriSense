@@ -65,7 +65,8 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - State exact PM POSHAN policy minima and probability/coverage gates, and identify the 9–10 band value as inherited by the project's flagged inference.
 - State that WED DEV mass evaluation uses ground-truth ROI/class labels, the plate-grouped 10% carve, fixed seed 42, and 2,000 plate-bootstrap replicates; it is not upstream or end-to-end evaluation.
 - Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
-- Cite SAM 2's ICLR 2025 paper, DINOv2's TMLR 2024 publication, the official PM POSHAN guideline dated 21 December 2022, and the Thali paper as a 9-page publication (page count, not proceedings pagination).
+- Cite SAM 2's ICLR 2025 paper and the official Meta SAM 2.1 repository, DINOv2's TMLR 2024 publication, and the official PM POSHAN guideline dated 21 December 2022. Record the Thali article's actual proceedings pages 1--9. See [citation-audit.md](citation-audit.md) for the completed source-by-source audit.
+- Audit all in-text citation keys against `references.bib`; verify titles, authors, versions, venues/years, identifiers, and claim support using the primary paper or official guideline. Use the MoGe-2 record because that is the model named by the implementation, and record all outcomes in `citation-audit.md`.
 
 ### Manuscript Structure
 

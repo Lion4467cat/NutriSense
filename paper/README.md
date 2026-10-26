@@ -40,6 +40,10 @@ The repository's synthetic SAM IoU point estimate is unresolved (0.97 versus
 0.98 in historical notes), so the paper reports the test's asserted floor and
 does not claim either point value.
 
+The source-by-source reference review, citation-key reconciliation, and claim
+scope notes are recorded in
+[`../specs/001-ieee-conference-paper/citation-audit.md`](../specs/001-ieee-conference-paper/citation-audit.md).
+
 ## Compile
 
 Run the setup script once on Linux x86-64 to install a local TeX Live 2026
@@ -68,6 +72,8 @@ unless the authors want to version a review copy.
 - Scope the DINOv2-S value to WED DEV; do not claim DINOv2-S LOCKED/test results.
 - Label synthetic and gallery leave-one-out results by their actual validation
   setting; do not present them as independent real-world test results.
+- Keep each external citation attached only to the claim its source supports;
+  use the citation audit when adding or changing references.
 - Placeholder coauthor emails are explicitly marked in the author block and must be replaced
   before submission.
 - Do not include WED images or other restricted dataset material without

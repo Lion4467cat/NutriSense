@@ -72,6 +72,16 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 **Implementation Strategy**: Preserve current WED values as development-only fallback results; do not invent project-dataset metrics. Keep the pending-results area visibly distinct and replace its pending labels only after project data collection and evaluation.
 
+## Phase 7: Citation and Source Audit (User Story 1, Priority: P1)
+
+**Goal**: Verify every citation against its actual source and ensure the manuscript's statements and bibliography metadata match.
+
+**Independent Test**: Trace each citation key from manuscript to a primary publication or official document, verify its metadata and supported claim, and confirm there are no missing or unused records.
+
+- [X] T017 [US1] Cross-check all in-text citations and bibliography entries against primary sources; correct the MoGe-2 record, exact PM POSHAN PDF, proceedings metadata, and any unsupported wording; document the source-by-source audit.
+
+**Validation**: Recompile the paper and inspect rendered references and nearby claims. Record the audit outcome in `citation-audit.md` and `quickstart.md`.
+
 ## Phase 6: Flowchart Placement (User Story 1, Priority: P1)
 
 **Goal**: Keep the architecture figure close to its first explanation, before detailed methods.

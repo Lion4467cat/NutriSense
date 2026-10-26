@@ -26,6 +26,7 @@
 - [x] Uncollected project-dataset results are explicitly reserved and kept separate from WED fallback evidence
 - [x] Figure and author-block readability requirements are stated in reviewable terms
 - [x] The architecture figure is intended to appear near its System Overview discussion
+- [x] Citation completeness, primary-source metadata, and claim support are specified and audited
 
 ## Feature Readiness
 
