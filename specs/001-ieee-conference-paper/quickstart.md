@@ -12,13 +12,15 @@ This guide covers the manuscript workflow using the source and local toolchain i
 
 ## Build
 
-From the manuscript directory:
+From the repository root, install TeX Live once on Linux x86-64 and build the paper:
 
 ```bash
-PATH="$PWD/.texlive/2026/bin/x86_64-linux:$PATH" latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+cd paper
+./setup_texlive.sh
+./build.sh
 ```
 
-If `latexmk` is unavailable, run the standard `pdflatex`, `bibtex`, `pdflatex`, `pdflatex` sequence for the manuscript's main file. Keep the output PDF alongside or in the configured output directory.
+`build.sh` uses the TeX Live installation under `paper/.texlive/` and writes `main.pdf`. For Overleaf, upload `main.tex`, `references.bib`, `IEEEtran.cls`, `IEEEtran.bst`, and `figures/pipeline.pdf`, preserving the `figures/` folder; select `main.tex` and the default pdfLaTeX compiler. Overleaf does not need the local setup or build scripts.
 
 ## Validation Scenarios
 

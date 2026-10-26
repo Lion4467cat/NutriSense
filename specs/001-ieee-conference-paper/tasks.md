@@ -99,3 +99,11 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - **Independent Test**: Compile and inspect every PDF page; author order is clear, project metrics cite their supporting repository artifacts, no multi-dish whole-meal compliance claim is made, and validation records match the rendered output.
 
 - [X] T020 [US1] Correct visible author order, cite repository evidence for project-specific metrics, clarify single-serving verdict scope, rebalance the float/reference layout, synchronize the quickstart, and recompile/inspect the paper.
+
+## Phase 9: Reproducible TeX Build and Overleaf Setup (User Story 2, Priority: P1)
+
+**Goal**: Restore a working local TeX compiler, give authors a one-command build, and keep the complete manuscript project ready for Overleaf.
+
+- **Independent Test**: `paper/build.sh` successfully compiles `main.tex`, bibliography, and project figure to `paper/main.pdf`; the Overleaf instructions identify all required files and the main document.
+
+- [X] T021 [US2] Repair the local TeX Live installation, add `paper/build.sh`, document the Overleaf project setup, update the specification and quickstart, and verify a complete build.

@@ -12,7 +12,7 @@ Revise the evidence-based IEEE conference manuscript to resolve audit findings a
 
 **Language/Version**: LaTeX source with BibTeX references; IEEEtran 1.8b conference mode, with the upstream `bare_conf.tex` retained as the source starter. Check the selected event's current author kit before submission.
 
-**Primary Dependencies**: IEEEtran conference class and supplied BibTeX style; local TeX Live 2026 (`pdflatex`, BibTeX, and `latexmk`); reproducible figure assets; primary-source references.
+**Primary Dependencies**: IEEEtran conference class and supplied BibTeX style; local TeX Live 2026 (`pdflatex`, BibTeX, and `latexmk`) driven through `paper/build.sh`; reproducible figure assets; primary-source references. Overleaf uses the same vendored project files with its hosted compiler.
 
 **Storage**: Text sources, bibliography, and figures under `paper/`; planning artifacts under `specs/001-ieee-conference-paper/`.
 

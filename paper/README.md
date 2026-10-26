@@ -47,12 +47,20 @@ scope notes are recorded in
 ## Compile
 
 Run the setup script once on Linux x86-64 to install a local TeX Live 2026
-compiler and paper dependencies, then compile from this directory:
+compiler and paper dependencies, then build from any directory:
 
 ```sh
+cd paper
 ./setup_texlive.sh
-PATH="$PWD/.texlive/2026/bin/x86_64-linux:$PATH" latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+./build.sh
 ```
+
+`build.sh` selects the paper-local TeX Live tools, runs `latexmk`, and writes
+`main.pdf` beside the source. For Overleaf, create a project and upload
+`main.tex`, `references.bib`, `IEEEtran.cls`, `IEEEtran.bst`, and
+`figures/pipeline.pdf`, preserving the `figures/` folder. Set `main.tex` as the
+main document. Overleaf supplies its own LaTeX installation; `.texlive/`, the
+local build scripts, and generated auxiliary files are not needed there.
 
 The installer follows the TeX Users Group's local installation procedure and
 uses the minimal scheme plus the recommended LaTeX and font collections. It
