@@ -107,3 +107,13 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - **Independent Test**: `paper/build.sh` successfully compiles `main.tex`, bibliography, and project figure to `paper/main.pdf`; the Overleaf instructions identify all required files and the main document.
 
 - [X] T021 [US2] Repair the local TeX Live installation, add `paper/build.sh`, document the Overleaf project setup, update the specification and quickstart, and verify a complete build.
+
+## Phase 10: Codebase Consistency Follow-up
+
+**Purpose**: Resolve remaining wording gaps found by checking the manuscript against the current implementation and evidence.
+
+- [X] T022 [US1] Qualify WED as the only current dataset-based **mass-estimation** result and define the pending project dataset as real-meal mass-annotated captures, distinguishing both from the existing 46-image classifier gallery per FR-005, FR-019, and SC-009.
+- [X] T023 [US1] Describe the DINOv2-S head as encoding the resized full capture and ROI-pooling a bounding box derived from the segmentation mask; state that the pipeline currently runs MoGe before selecting the mass path, so a depth-stage failure can prevent learned-weight estimation, per FR-004, SC-006, and `engine/pipeline.py`.
+- [X] T024 [US1] Distinguish official Bal Vatika/national coverage from the application's three configured bands (1--5, 6--8, and Karnataka 9--10), and state that no separate Bal Vatika band is exposed, per FR-015 and FR-024.
+- [X] T025 [US1] Remove the README claim that every no-card prior-tier result is unable to reach PASS/FAIL and make the overview agree with the implemented learned-weight versus size-prior geometry paths, per T005 and `engine/compliance.py`.
+- [ ] T026 [US2] Rebuild and visually inspect the paper, update the local-upload Overleaf project with the corrected source and assets, and commit/push the validated paper and documentation changes to `main`, per FR-012 and FR-027.

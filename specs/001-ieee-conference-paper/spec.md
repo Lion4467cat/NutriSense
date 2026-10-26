@@ -126,7 +126,7 @@ The authors need their names and institutional affiliation included, with the su
 - The target is a generic IEEE-sponsored conference paper; no specific conference, page limit, or submission portal has been selected.
 - The official IEEE conference template is the required baseline. Once a venue is selected, its current instructions may further constrain the manuscript.
 - The paper will summarize existing project evidence; it will not report new experiments unless the authors later authorize and conduct them.
-- The project-specific capture/annotation dataset has not yet been collected. WED DEV is the only current dataset-based fallback result; a distinct pending-results slot will be retained for the project's own dataset and completed only after collection and evaluation.
+- The project-specific real-meal capture dataset with portion-mass annotations has not yet been collected. WED DEV is the only current dataset-based mass-estimation result; the existing 46-image classifier gallery has separate leave-one-out classification evidence. A distinct pending-results slot will be retained for the project's mass-annotated dataset and completed only after collection and evaluation.
 - All authors share the affiliation BMS College of Engineering, as supplied.
 - Temporary emails for Roshanth V, Somanath S.D, and Aryan Kumar will use clearly marked `example.com` placeholders and must be replaced before submission.
 - A working title may be proposed during drafting and confirmed by the authors during review.

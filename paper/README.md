@@ -31,9 +31,10 @@ near-full conference width, including abstention and out-of-scope paths; the IEE
 double-column float appears in the main body before Results and References. The four
 authors appear in two balanced columns in the supplied visible order, each with an individually paired
 affiliation and contact line. It documents one selected food mask and one dish
-classification per capture. The only current dataset-based result is the WED
-DEV mass-head fallback using ground-truth ROI/class inputs; the project-specific
-capture dataset has not yet been collected. A pending-results subsection and
+classification per capture. The only current dataset-based mass-estimation result is the WED DEV mass-head
+fallback using ground-truth ROI/class inputs. The existing 46-image dish gallery
+has separate leave-one-out classification evidence. A project-specific real-meal
+capture dataset with portion-mass annotations has not yet been collected. A pending-results subsection and
 table reserve fields for its future sample counts, mass errors, uncertainty
 coverage, and end-to-end measures without inventing values.
 The repository's synthetic SAM IoU point estimate is unresolved (0.97 versus

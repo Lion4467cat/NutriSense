@@ -17,7 +17,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 
 **What it does:**
 
-- Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
+- Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale. Without the marker, mapped dishes use the WED-trained learned-weight head (with an estimate disclaimer); unmapped dishes use uncertain size-prior geometry, which cannot issue PASS/FAIL. A missing or failing learned head for a mapped dish returns `cannot_verify`.
 - Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
 - Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
