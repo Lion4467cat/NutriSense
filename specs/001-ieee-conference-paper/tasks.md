@@ -55,3 +55,19 @@
 ## Implementation Strategy
 
 Complete all corrections in the existing IEEE draft, then compile and visually inspect it as one reviewable deliverable. The draft remains generic because no target conference or page limit has been selected.
+
+## Phase 5: Readability and Pending Project Dataset (User Stories 1 and 2, Priority: P1)
+
+**Goal**: Address author feedback on figure and author-block readability, and make the uncollected project dataset distinct from the available WED fallback evidence.
+
+**Independent Test**: At IEEE two-column page size, the flowchart and author block have visible whitespace and no cramped/overlapping content; paper text reports only existing WED DEV data-based results, while project-dataset results are clearly marked pending.
+
+- [X] T011 [US1] Update `specs/001-ieee-conference-paper/spec.md` with the readability, author-block, and pending project-dataset requirements and success criteria.
+- [X] T012 [US1] Update `specs/001-ieee-conference-paper/plan.md` and this task plan for the new readability and pending-results scope.
+- [X] T013 [US1] Redesign `paper/figures/pipeline.svg` with spacious grouped paths and update `paper/figures/pipeline.pdf` from that source.
+- [X] T014 [US1] Clarify WED DEV as fallback dataset evidence, add a clearly labeled pending project-dataset results subsection/table, and rebalance the four-author block in `paper/main.tex`.
+- [X] T015 [US2] Compile and visually inspect `paper/main.pdf`; update `paper/README.md` and `specs/001-ieee-conference-paper/quickstart.md` with validation and outstanding data-collection/submission steps.
+
+**Dependencies & Execution Order**: T011 and T012 precede implementation. T013 and T014 can be edited independently after T012; T015 follows both.
+
+**Implementation Strategy**: Preserve current WED values as development-only fallback results; do not invent project-dataset metrics. Keep the pending-results area visibly distinct and replace its pending labels only after project data collection and evaluation.

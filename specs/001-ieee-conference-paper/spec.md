@@ -81,6 +81,9 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-016**: The evaluation protocol MUST state that WED DEV mass evaluation uses ground-truth class/ROI inputs and does not exercise upstream segmentation or classification, and MUST scope the data split and bootstrap method.
 - **FR-017**: The manuscript MUST omit or clearly qualify quantitative claims whose source evidence conflicts; specifically, no single synthetic segmentation IoU may be presented as settled until the repository evidence is reconciled.
 - **FR-018**: Bibliographic records MUST use final publication metadata when available, cite the exact official PM POSHAN guideline and date, and distinguish a paper's page count from proceedings pagination.
+- **FR-019**: The manuscript MUST distinguish existing WED development evidence from the project's own dataset, explicitly state that project-dataset collection and evaluation are pending, and reserve a clearly labeled results area for its eventual sample counts, mass errors, uncertainty coverage, and end-to-end measures without inventing values.
+- **FR-020**: The full-width runtime figure MUST use a readable visual hierarchy and separated paths with sufficient whitespace; labels and connectors MUST remain legible at the compiled IEEE page size, with no overlapping or confusing branch crossings.
+- **FR-021**: The four authors MUST appear in a balanced, individually identified IEEE author layout with sufficient separation between names and contact details; long placeholder addresses MUST not crowd adjacent authors.
 
 ### Key Entities
 
@@ -102,12 +105,16 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-006**: The diagram's branches agree with `engine/pipeline.py`, and the narrative contains no claim that the current runtime independently processes multiple dish regions.
 - **SC-007**: The policy thresholds and WED evaluation boundary are stated with the exact values and input scope used by the repository.
 - **SC-008**: All references identify traceable publication or official-document metadata; no conflicting synthetic IoU value is presented as settled evidence.
+- **SC-009**: The manuscript reports no project-collected dataset statistics before collection; its reserved project-results area labels each such value as pending and keeps WED DEV values clearly identified as external development evidence.
+- **SC-010**: At IEEE two-column page size, the flowchart's branch labels and nodes can be read without overlap or visually cramped convergence.
+- **SC-011**: The four author names and their contact lines are visually separated and balanced in the compiled title area, with no email wrapping into adjacent author blocks.
 
 ## Assumptions
 
 - The target is a generic IEEE-sponsored conference paper; no specific conference, page limit, or submission portal has been selected.
 - The official IEEE conference template is the required baseline. Once a venue is selected, its current instructions may further constrain the manuscript.
 - The paper will summarize existing project evidence; it will not report new experiments unless the authors later authorize and conduct them.
+- The project-specific capture/annotation dataset has not yet been collected. WED DEV is the only current dataset-based fallback result; a distinct pending-results slot will be retained for the project's own dataset and completed only after collection and evaluation.
 - All authors share the affiliation BMS College of Engineering, as supplied.
 - Temporary emails for Roshanth V, Somanath S.D, and Aryan Kumar will use clearly marked `example.com` placeholders and must be replaced before submission.
 - A working title may be proposed during drafting and confirmed by the authors during review.

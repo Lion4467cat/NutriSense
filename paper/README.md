@@ -26,10 +26,15 @@ apply any event-specific page limit, page size, anonymization, and PDF checks.
 The downloaded template version and any event-specific changes should be
 recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
-The paper's pipeline figure is a conference-width rendering of the runtime
-branches, including abstention and out-of-scope paths. It documents one
-selected food mask and one dish classification per capture; the WED mass-head
-evaluation uses ground-truth ROI/class inputs and is not end-to-end evaluation.
+The paper's pipeline figure uses separated stages and portion-source lanes at
+full conference width, including abstention and out-of-scope paths. The four
+authors appear in two balanced columns, each with an individually paired
+affiliation and contact line. It documents one selected food mask and one dish
+classification per capture. The only current dataset-based result is the WED
+DEV mass-head fallback using ground-truth ROI/class inputs; the project-specific
+capture dataset has not yet been collected. A pending-results subsection and
+table reserve fields for its future sample counts, mass errors, uncertainty
+coverage, and end-to-end measures without inventing values.
 The repository's synthetic SAM IoU point estimate is unresolved (0.97 versus
 0.98 in historical notes), so the paper reports the test's asserted floor and
 does not claim either point value.

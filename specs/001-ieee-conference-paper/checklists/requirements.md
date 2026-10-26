@@ -23,6 +23,8 @@
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
 - [x] Dependencies and assumptions identified
+- [x] Uncollected project-dataset results are explicitly reserved and kept separate from WED fallback evidence
+- [x] Figure and author-block readability requirements are stated in reviewable terms
 
 ## Feature Readiness
 

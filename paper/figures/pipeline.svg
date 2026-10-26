@@ -1,158 +1,155 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1510" viewBox="0 0 1600 1510">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2160" viewBox="0 0 1800 2160">
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#344256"/>
+    <marker id="arrow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#344256"/>
     </marker>
-    <marker id="warnarrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#a34343"/>
+    <marker id="warnarrow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#a34343"/>
     </marker>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #182536; text-anchor: middle; }
+      .section { font-size: 27px; font-weight: 700; fill: #53657a; letter-spacing: 1px; }
       .stage { fill: #eef4fb; stroke: #3c5874; stroke-width: 3; }
       .path { fill: #f5f7fa; stroke: #687b90; stroke-width: 3; }
       .success { fill: #e8f5ec; stroke: #32804d; stroke-width: 3; }
       .warning { fill: #fff6df; stroke: #b17a12; stroke-width: 3; }
       .failure { fill: #faeaea; stroke: #ae4545; stroke-width: 3; }
       .wire { fill: #e9edf5; stroke: #455b78; stroke-width: 3; }
-      .box { rx: 16; ry: 16; }
+      .lane { fill: #fafbfd; stroke: #d5dde7; stroke-width: 2; }
+      .box { rx: 18; ry: 18; }
       .diamond { stroke-width: 3; }
       .edge { fill: none; stroke: #344256; stroke-width: 4; marker-end: url(#arrow); }
-      .err-edge { fill: none; stroke: #a34343; stroke-width: 3.5; stroke-dasharray: 10 8; marker-end: url(#warnarrow); }
-      .label { font-size: 25px; font-weight: 600; }
-      .detail { font-size: 22px; }
-      .edge-label { font-size: 19px; font-weight: 600; fill: #344256; }
+      .err-edge { fill: none; stroke: #a34343; stroke-width: 3.5; stroke-dasharray: 11 9; marker-end: url(#warnarrow); }
+      .label { font-size: 29px; font-weight: 650; }
+      .detail { font-size: 25px; }
+      .edge-label { font-size: 23px; font-weight: 600; fill: #344256; }
     </style>
   </defs>
 
-  <!-- Capture and recognition -->
-  <rect class="stage box" x="35" y="45" width="260" height="105"/>
-  <text class="label" x="165" y="86">Meal photo + EXIF</text>
-  <text class="detail" x="165" y="121">day, band, zoom</text>
+  <!-- Intake stages: one capture produces one selected mask and one dish class. -->
+  <text class="section" x="900" y="38">ONE CAPTURE</text>
+  <rect class="stage box" x="35" y="70" width="400" height="125"/>
+  <text class="label" x="235" y="120">Meal photo + context</text>
+  <text class="detail" x="235" y="160">day, meal band, zoom</text>
 
-  <rect class="stage box" x="345" y="45" width="260" height="105"/>
-  <text class="label" x="475" y="86">Capture gates</text>
-  <text class="detail" x="475" y="121">invalid input abstains</text>
+  <rect class="stage box" x="480" y="70" width="400" height="125"/>
+  <text class="label" x="680" y="120">Capture checks</text>
+  <text class="detail" x="680" y="160">invalid fields abstain</text>
 
-  <rect class="stage box" x="655" y="45" width="260" height="105"/>
-  <text class="label" x="785" y="86">Scale anchor</text>
-  <text class="detail" x="785" y="121">60 mm ArUco on A4</text>
+  <rect class="stage box" x="925" y="70" width="400" height="125"/>
+  <text class="label" x="1125" y="120">Scale anchor</text>
+  <text class="detail" x="1125" y="160">60 mm ArUco marker on A4</text>
 
-  <rect class="stage box" x="965" y="45" width="260" height="105"/>
-  <text class="label" x="1095" y="86">SAM 2.1</text>
-  <text class="detail" x="1095" y="121">select one food mask</text>
+  <rect class="stage box" x="1370" y="70" width="400" height="125"/>
+  <text class="label" x="1570" y="120">SAM 2.1 + SigLIP 2</text>
+  <text class="detail" x="1570" y="160">one mask; one dish class</text>
 
-  <rect class="stage box" x="1275" y="45" width="290" height="105"/>
-  <text class="label" x="1420" y="86">SigLIP 2</text>
-  <text class="detail" x="1420" y="121">classify one dish</text>
+  <path class="edge" d="M435 132 H480"/>
+  <path class="edge" d="M880 132 H925"/>
+  <path class="edge" d="M1325 132 H1370"/>
 
-  <path class="edge" d="M295 98 H345"/>
-  <path class="edge" d="M605 98 H655"/>
-  <path class="edge" d="M915 98 H965"/>
-  <path class="edge" d="M1225 98 H1275"/>
+  <!-- Clearly separated terminal outcomes. -->
+  <rect class="failure box" x="60" y="270" width="500" height="135"/>
+  <text class="label" x="310" y="325">cannot_verify</text>
+  <text class="detail" x="310" y="368">invalid input, unknown dish, or stage error</text>
 
-  <!-- Early exits and accepted flow -->
-  <rect class="failure box" x="55" y="225" width="310" height="115"/>
-  <text class="label" x="210" y="270">cannot_verify</text>
-  <text class="detail" x="210" y="307">invalid / unrecognized / error</text>
+  <rect class="warning box" x="1240" y="270" width="500" height="135"/>
+  <text class="label" x="1490" y="325">out_of_scope</text>
+  <text class="detail" x="1490" y="368">unsupported dish (for example, wheat)</text>
 
-  <rect class="stage box" x="620" y="225" width="360" height="115"/>
-  <text class="label" x="800" y="270">MoGe-2 depth</text>
-  <text class="detail" x="800" y="307">marker calibrates metric scale</text>
+  <path class="err-edge" d="M680 195 V235 H310 V270"/>
+  <text class="edge-label" x="470" y="238">invalid capture</text>
+  <path class="err-edge" d="M1510 195 C1300 230 900 230 560 300"/>
+  <text class="edge-label" x="920" y="242">unrecognized / stage error</text>
+  <path class="err-edge" d="M1640 195 V270"/>
+  <text class="edge-label" x="1710" y="238">unsupported</text>
 
-  <rect class="warning box" x="1275" y="225" width="290" height="115"/>
-  <text class="label" x="1420" y="270">out_of_scope</text>
-  <text class="detail" x="1420" y="307">unsupported dish (e.g., wheat)</text>
+  <rect class="stage box" x="650" y="270" width="500" height="135"/>
+  <text class="label" x="900" y="325">MoGe-2 scene depth</text>
+  <text class="detail" x="900" y="368">accepted dish proceeds to mass estimation</text>
+  <path class="edge" d="M1570 195 C1450 235 1260 235 1150 300"/>
+  <text class="edge-label" x="1350" y="240">accepted</text>
+  <path class="edge" d="M900 405 V495"/>
 
-  <path class="edge" d="M1420 150 V225"/>
-  <text class="edge-label" x="1495" y="190">unsupported</text>
-  <path class="edge" d="M1360 150 C1280 195 1120 195 980 265"/>
-  <text class="edge-label" x="1165" y="198">accepted dish</text>
-  <path class="edge" d="M1320 150 C1170 190 740 175 365 245"/>
-  <path class="err-edge" d="M475 150 V183 H210 V225"/>
-  <path class="err-edge" d="M1095 150 V190 H310 V225"/>
+  <!-- Portion-source decisions. Each route has its own vertical space. -->
+  <text class="section" x="900" y="465">PORTION MASS SOURCE</text>
+  <polygon class="path diamond" points="900,500 1070,575 900,650 730,575"/>
+  <text class="label" x="900" y="585">Marker found?</text>
 
-  <!-- Scale tier and portion-source branches -->
-  <polygon class="path diamond" points="800,390 950,455 800,520 650,455"/>
-  <text class="label" x="800" y="450">Scale tier?</text>
-  <path class="edge" d="M800 340 V390"/>
+  <rect class="lane" x="45" y="710" width="520" height="670" rx="22"/>
+  <rect class="lane" x="640" y="710" width="520" height="670" rx="22"/>
+  <rect class="lane" x="1235" y="710" width="520" height="670" rx="22"/>
+  <text class="section" x="305" y="750">MEASURED SCALE</text>
+  <text class="section" x="900" y="750">NO MARKER · MAPPED</text>
+  <text class="section" x="1495" y="750">NO MARKER · UNMAPPED</text>
 
-  <rect class="success box" x="330" y="590" width="340" height="115"/>
-  <text class="label" x="500" y="635">Measured marker</text>
-  <text class="detail" x="500" y="674">geometry mass: area × height × density</text>
-  <path class="edge" d="M690 480 C640 520 575 540 520 590"/>
-  <text class="edge-label" x="610" y="535">measured</text>
+  <path class="edge" d="M780 625 C690 675 500 680 350 790"/>
+  <text class="edge-label" x="585" y="680">yes</text>
+  <rect class="success box" x="90" y="810" width="430" height="145"/>
+  <text class="label" x="305" y="865">Geometry mass</text>
+  <text class="detail" x="305" y="910">measured scale × area × height × density</text>
 
-  <polygon class="path diamond" points="1190,390 1360,455 1190,520 1020,455"/>
-  <text class="label" x="1190" y="450">WED mapped?</text>
-  <path class="edge" d="M910 475 C960 500 1000 475 1035 460"/>
-  <text class="edge-label" x="975" y="500">no marker</text>
+  <path class="edge" d="M1020 625 C1080 675 1010 720 950 795"/>
+  <text class="edge-label" x="1050" y="700">no</text>
+  <polygon class="path diamond" points="900,795 1070,865 900,935 730,865"/>
+  <text class="label" x="900" y="858">WED mapped?</text>
+  <text class="detail" x="900" y="895">selected dish class</text>
 
-  <polygon class="path diamond" points="1060,590 1225,650 1060,710 895,650"/>
-  <text class="label" x="1060" y="645">Head available?</text>
-  <text class="detail" x="1060" y="675">mapped dish only</text>
-  <path class="edge" d="M1120 500 L1080 590"/>
-  <text class="edge-label" x="1080" y="545">mapped</text>
+  <path class="edge" d="M900 935 V985"/>
+  <text class="edge-label" x="960" y="970">yes</text>
+  <polygon class="path diamond" points="900,985 1080,1060 900,1135 720,1060"/>
+  <text class="label" x="900" y="1053">Head available?</text>
+  <text class="detail" x="900" y="1092">mapped dish only</text>
 
-  <rect class="path box" x="1320" y="590" width="250" height="115"/>
-  <text class="label" x="1445" y="635">Unmapped dish</text>
-  <text class="detail" x="1445" y="674">size-prior geometry</text>
-  <path class="edge" d="M1325 500 L1415 590"/>
-  <text class="edge-label" x="1380" y="545">unmapped</text>
+  <path class="edge" d="M1070 865 C1210 875 1330 915 1430 1000"/>
+  <text class="edge-label" x="1270" y="915">no</text>
+  <rect class="path box" x="1280" y="1010" width="430" height="145"/>
+  <text class="label" x="1495" y="1065">Size-prior geometry</text>
+  <text class="detail" x="1495" y="1110">prior grams · coverage ×0.60</text>
 
-  <rect class="success box" x="720" y="790" width="300" height="110"/>
-  <text class="label" x="870" y="833">Learned mass</text>
-  <text class="detail" x="870" y="870">frozen DINOv2-S head</text>
-  <path class="edge" d="M985 700 C940 745 910 760 885 790"/>
-  <text class="edge-label" x="930" y="750">yes</text>
+  <path class="edge" d="M820 1120 C790 1150 760 1160 775 1190"/>
+  <text class="edge-label" x="760" y="1160">yes</text>
+  <rect class="success box" x="665" y="1190" width="220" height="145"/>
+  <text class="label" x="775" y="1245">Learned mass</text>
+  <text class="detail" x="775" y="1285">DINOv2-S head</text>
+  <text class="detail" x="775" y="1315">coverage ×0.90</text>
 
-  <rect class="failure box" x="1080" y="790" width="300" height="110"/>
-  <text class="label" x="1230" y="833">cannot_verify</text>
-  <text class="detail" x="1230" y="870">mapped head absent or fails</text>
-  <path class="err-edge" d="M1135 700 L1200 790"/>
-  <text class="edge-label" x="1185" y="748">no</text>
+  <path class="err-edge" d="M980 1120 C1010 1150 1025 1160 1025 1190"/>
+  <text class="edge-label" x="1060" y="1160">no</text>
+  <rect class="failure box" x="915" y="1190" width="220" height="145"/>
+  <text class="label" x="1025" y="1245">cannot_verify</text>
+  <text class="detail" x="1025" y="1285">head missing</text>
+  <text class="detail" x="1025" y="1315">or failed; no grams</text>
 
-  <!-- Portion uncertainty, policy, and response -->
-  <rect class="path box" x="330" y="790" width="300" height="110"/>
-  <text class="label" x="480" y="833">Measured grams</text>
-  <text class="detail" x="480" y="870">from calibrated geometry</text>
-  <path class="edge" d="M500 705 V790"/>
+  <!-- Successful estimates join after source-specific branches. -->
+  <path class="edge" d="M305 955 V1400 H650 V1460"/>
+  <path class="edge" d="M775 1335 V1400 H900 V1460"/>
+  <path class="edge" d="M1495 1155 V1400 H1150 V1460"/>
+  <rect class="stage box" x="650" y="1460" width="500" height="135"/>
+  <text class="label" x="900" y="1515">Nutrient uncertainty</text>
+  <text class="detail" x="900" y="1558">Monte Carlo propagation · 4,000 samples</text>
 
-  <rect class="path box" x="1400" y="790" width="170" height="110"/>
-  <text class="label" x="1485" y="833">Prior grams</text>
-  <text class="detail" x="1485" y="870">coverage ×0.60</text>
-  <path class="edge" d="M1445 705 V790"/>
+  <path class="edge" d="M900 1595 V1665"/>
+  <rect class="stage box" x="650" y="1665" width="500" height="150"/>
+  <text class="label" x="900" y="1715">Coverage-aware policy</text>
+  <text class="detail" x="900" y="1755">PASS: all P ≥ 0.90, C ≥ 0.85</text>
+  <text class="detail" x="900" y="1790">FAIL: any P ≤ 0.10, C ≥ 0.90</text>
 
-  <rect class="stage box" x="590" y="975" width="430" height="105"/>
-  <text class="label" x="805" y="1018">Nutrient uncertainty</text>
-  <text class="detail" x="805" y="1055">Monte Carlo, 4,000 samples</text>
-  <path class="edge" d="M480 900 V930 H690 V975"/>
-  <path class="edge" d="M870 900 V975"/>
-  <path class="edge" d="M1485 900 V930 H920 V975"/>
+  <path class="edge" d="M900 1815 V1870"/>
+  <rect class="success box" x="90" y="1870" width="390" height="100"/>
+  <rect class="warning box" x="705" y="1870" width="390" height="100"/>
+  <rect class="failure box" x="1320" y="1870" width="390" height="100"/>
+  <text class="label" x="285" y="1930">PASS</text>
+  <text class="label" x="900" y="1930">BORDERLINE</text>
+  <text class="label" x="1515" y="1930">FAIL</text>
+  <path class="edge" d="M800 1815 C720 1845 550 1845 420 1870"/>
+  <path class="edge" d="M900 1815 V1870"/>
+  <path class="edge" d="M1000 1815 C1080 1845 1250 1845 1380 1870"/>
 
-  <rect class="stage box" x="590" y="1120" width="430" height="105"/>
-  <text class="label" x="805" y="1163">Compliance policy</text>
-  <text class="detail" x="805" y="1184" style="font-size:19px">Energy/protein PASS: all P ≥ 0.90, C ≥ 0.85</text>
-  <text class="detail" x="805" y="1210" style="font-size:19px">FAIL: any P ≤ 0.10, C ≥ 0.90</text>
-  <path class="edge" d="M805 1080 V1120"/>
-
-  <rect class="success box" x="260" y="1280" width="250" height="75"/>
-  <text class="label" x="385" y="1327">PASS</text>
-  <rect class="warning box" x="680" y="1280" width="250" height="75"/>
-  <text class="label" x="805" y="1327">BORDERLINE</text>
-  <rect class="failure box" x="1100" y="1280" width="250" height="75"/>
-  <text class="label" x="1225" y="1327">FAIL</text>
-  <path class="edge" d="M740 1225 C650 1250 500 1250 410 1280"/>
-  <path class="edge" d="M805 1225 V1280"/>
-  <path class="edge" d="M870 1225 C960 1250 1110 1250 1200 1280"/>
-
-  <rect class="wire box" x="590" y="1390" width="430" height="105"/>
-  <text class="label" x="805" y="1433">Serialized response</text>
-  <text class="detail" x="805" y="1470">verdict, reasons, failures</text>
-  <path class="edge" d="M385 1355 V1370 H690 V1390"/>
-  <path class="edge" d="M805 1355 V1390"/>
-  <path class="edge" d="M1225 1355 V1370 H920 V1390"/>
-
-  <path class="err-edge" d="M210 340 V1460 H590"/>
-  <path class="err-edge" d="M1565 340 H1585 V1440 H1020"/>
-  <path class="err-edge" d="M1230 900 V1440 H1020"/>
+  <path class="edge" d="M285 1970 V1990 H700 V2020"/>
+  <path class="edge" d="M900 1970 V2020"/>
+  <path class="edge" d="M1515 1970 V1990 H1100 V2020"/>
+  <rect class="wire box" x="650" y="2020" width="500" height="110"/>
+  <text class="label" x="900" y="2065">Serialized response</text>
+  <text class="detail" x="900" y="2105">verdict, reasons, failures</text>
 </svg>

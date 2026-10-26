@@ -2,11 +2,11 @@
 
 **Branch**: `main` | **Date**: 2026-10-26 | **Spec**: [spec.md](spec.md)
 
-**Input**: Feature specification from `specs/001-ieee-conference-paper/spec.md`
+**Input**: Feature specification from `specs/001-ieee-conference-paper/spec.md`; follow-up readability and pending-dataset-results revision.
 
 ## Summary
 
-Revise the evidence-based IEEE conference manuscript to resolve the audit findings. Keep the official IEEE conference template, show the complete current single-mask runtime and its abstention/scope branches in a legible two-column-wide figure, correct the no-marker head-failure path, state policy/evaluation boundaries explicitly, remove unsettled segmentation IoU, and use traceable final bibliography metadata. Preserve the supplied authors and clearly marked dummy coauthor emails.
+Revise the evidence-based IEEE conference manuscript to resolve audit findings and author feedback. Keep the official IEEE conference template, show the runtime in a spacious two-column-wide figure with separated branches, use a neat and balanced four-author block, clearly separate current WED development evidence from the project's uncollected dataset, reserve a labeled pending-results area, correct the no-marker head-failure path, state policy/evaluation boundaries explicitly, remove unsettled segmentation IoU, and use traceable final bibliography metadata. Preserve the supplied author details and clearly marked dummy coauthor emails.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ Revise the evidence-based IEEE conference manuscript to resolve the audit findin
 
 **Storage**: Text sources, bibliography, and figures under `paper/`; planning artifacts under `specs/001-ieee-conference-paper/`.
 
-**Validation**: Compile the source and bibliography to PDF; inspect every page for template guidance text, layout overflow, figure/table readability, citation completeness, and factual consistency. Do not run application test suites for this manuscript-only change. Use IEEE PDF eXpress only if the selected conference requires it.
+**Validation**: Compile the source and bibliography to PDF; inspect every page for template guidance text, layout overflow, figure/table readability, author-block spacing, citation completeness, and factual consistency. Confirm project-specific dataset results remain marked pending while WED DEV remains clearly identified as the existing fallback evidence. Do not run application test suites for this manuscript-only change. Use IEEE PDF eXpress only if the selected conference requires it.
 
 **Target Platform**: Portable LaTeX toolchain and PDF output. Use the official template selector's generic conference template; the selected conference's page size and submission instructions take precedence when known.
 
@@ -57,6 +57,10 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 
 - Build the conference-width pipeline diagram from current runtime behavior, not the stale README fallback: mapped no-marker dish plus missing/failing learned head returns `cannot_verify`; only an unmapped no-marker dish uses size-prior geometry.
 - Explicitly represent the current one-mask/one-dish-per-image scope, unrecognized and out-of-scope outcomes, stage errors, measured/no-marker mass paths, compliance thresholds, disclaimer, and serialized response.
+- Recompose the diagram into clearly separated rows/lanes with generous whitespace and shorter labels; ensure the full-width PDF remains legible at page scale and avoid overlapping connectors.
+- Retain an explicitly labeled, pending project-dataset-results slot with fields for sample counts, mass error/intervals, uncertainty coverage, and end-to-end evaluation; do not populate it until this dataset is collected and evaluated. State that WED DEV is the only current dataset-based fallback evidence.
+- Rebalance and uncramp the IEEE author block while preserving all supplied names, affiliation, and email placeholder labels.
+- Place each of the four authors in a separate, evenly spaced conference author block with a consistent affiliation line; keep contact text small enough to fit without colliding or wrapping into another author's block.
 - State exact PM POSHAN policy minima and probability/coverage gates, and identify the 9–10 band value as inherited by the project's flagged inference.
 - State that WED DEV mass evaluation uses ground-truth ROI/class labels, the plate-grouped 10% carve, fixed seed 42, and 2,000 plate-bootstrap replicates; it is not upstream or end-to-end evaluation.
 - Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
