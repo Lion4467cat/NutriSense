@@ -79,7 +79,8 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 **Independent Test**: Trace each citation key from manuscript to a primary publication or official document, verify its metadata and supported claim, and confirm there are no missing or unused records.
 
 - [X] T017 [US1] Cross-check all in-text citations and bibliography entries against primary sources; correct the MoGe-2 record, exact PM POSHAN PDF, proceedings metadata, and any unsupported wording; document the source-by-source audit.
-- [X] T018 [US1] Verify official PM POSHAN grade coverage and nutrition bands; revise the manuscript and source audit to state Bal Vatika through class VIII coverage and identify the configured class 9–10 values as project-only.
+- [X] T018 [US1] Verify national PM POSHAN grade coverage and nutrition bands; revise the manuscript and source audit to state Bal Vatika through class VIII coverage.
+- [X] T019 [US1] Verify Karnataka's official IX–X state Mid-Day Meal extension, update the 9–10 configuration basis, and distinguish the state extension from central PM POSHAN coverage throughout the paper and audit.
 
 **Validation**: Recompile the paper and inspect rendered references and nearby claims. Record the audit outcome in `citation-audit.md` and `quickstart.md`.
 

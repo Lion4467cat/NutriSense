@@ -29,7 +29,7 @@ Date: 2026-10-26
 | SigLIP2 gallery 46/46 | README and `data/gallery.npz` build notes | Leave-one-out over the 46-image gallery, not independent test accuracy |
 | MoGe-2 calibrated depth error about 1.1% | README and project diagnostics | Rendered/synthetic card-calibration result; raw out-of-domain monocular scale is not reliable without calibration |
 | Geometry volume error (+6.6% plate, +5.6% bowl) | `docs/final-report.md` | Synthetic ground-truth renderer, not a real-meal field study |
-| PM POSHAN compliance thresholds | `data/standards.yaml` and official Ministry guidelines | Explain that system thresholds reflect the transcribed project policy and do not imply a clinical assessment |
+| National PM POSHAN and Karnataka IX–X policy bands | `data/standards.yaml`, official PM POSHAN guidelines, Karnataka FPI Research Report No. 4/2021–22, and Karnataka Legislative Council administrative report | Distinguish central Bal Vatika–VIII coverage from Karnataka's IX–X state extension; explain that the project maps the state extension to the same upper-primary 700 kcal / 20 g threshold |
 
 ## Primary sources for related work
 
@@ -43,7 +43,8 @@ Use primary papers and official project/government sources in the bibliography. 
 | Monocular geometry | Wang et al., *MoGe-2*, [arXiv:2507.02546](https://arxiv.org/abs/2507.02546) and [Microsoft's official repository](https://github.com/microsoft/MoGe) | Depth source and limits |
 | Frozen visual features | Oquab et al., *DINOv2*, [arXiv:2304.07193](https://arxiv.org/abs/2304.07193) | Current weight-head encoder; this is the correct identifier (the ledger's former `2304.15003` link was a typo and has been fixed) |
 | Indian thali / WED | Arora et al., *What is there in an Indian Thali?*, [paper PDF](https://adityaarun1.github.io/assets/files/icvgip25/thali/Thali_ICVGIP2025_main.pdf) and [project page](https://cvit.iiit.ac.in/research/projects/cvit-projects/indian_thali) | Dataset origin and published comparison; the paper's 14.51 g baseline is not NutriSense's current model result |
-| Nutrition policy | Government of India, [PM POSHAN Guidelines (2023)](https://pmposhan.education.gov.in/Files/Guidelines/2023/Guidelines%20on%20PM%20POSHAN%20SCHEME.pdf) and [scheme meal provision information](https://pmposhan.education.gov.in/Meal%20Provision.html) | Official context for program norms and policy motivation |
+| National nutrition policy | Government of India, [PM POSHAN Guidelines (2023)](https://pmposhan.education.gov.in/Files/Guidelines/2023/Guidelines%20on%20PM%20POSHAN%20SCHEME.pdf) and [scheme meal provision information](https://pmposhan.education.gov.in/Meal%20Provision.html) | Central coverage through class VIII and the central primary/upper-primary norms |
+| Karnataka state extension | [Fiscal Policy Institute, Government of Karnataka, Research Report No. 4/2021–22](https://fpibengaluru.karnataka.gov.in/storage/pdf-files/Technical%20Reports/FinalReport_PETS_08092022.pdf) and [Karnataka Legislative Council administrative report](https://kla.kar.nic.in/council/house/Paperlaid/149/22.pdf) | State-funded IX–X extension; the administrative report records the extension order and upper-primary-equivalent nutrition content |
 
 ## Field scale marker validation
 

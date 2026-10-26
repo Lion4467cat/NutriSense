@@ -1,11 +1,13 @@
-# NutriSense MDM compliance standards — transcription of the user's PM POSHAN
-# Food & Nutrition guidelines (verified against the doc 2026-10-08).
+# NutriSense MDM compliance standards — central PM POSHAN bands plus the
+# documented Karnataka state extension to classes IX-X.
 # This file is POLICY: compliance.py reads it, never re-derives it.
 
 source:
-  name: "PM POSHAN (MDM) Food & Nutrition guidelines"
-  provided_by: "user"
-  verified: 2026-10-08
+  name: "PM POSHAN central norms and Karnataka Mid-Day Meal extension"
+  central_guidelines: "https://pmposhan.education.gov.in/Files/Guidelines/2023/Guidelines%20on%20PM%20POSHAN%20SCHEME.pdf"
+  karnataka_extension_evaluation: "https://fpibengaluru.karnataka.gov.in/storage/pdf-files/Technical%20Reports/FinalReport_PETS_08092022.pdf"
+  karnataka_extension_administrative_report: "https://kla.kar.nic.in/council/house/Paperlaid/149/22.pdf"
+  verified: 2026-10-27
 
 # Energy/protein minima per student group (the two mandatory nutrients)
 bands:
@@ -14,18 +16,15 @@ bands:
     kcal: {direction: min, value: 450}
     protein_g: {direction: min, value: 12}
   "6-8":
-    classes: "6-8 and 9-10"
+    classes: "6-8"
     kcal: {direction: min, value: 700}
     protein_g: {direction: min, value: 20}
-    note: >-
-      The doc's 9-10 rows are identical to 6-8; inherits 700/20.
-      This is the single flagged inference in the transcription.
   "9-10":
     classes: "9-10"
     kcal: {direction: min, value: 700}
     protein_g: {direction: min, value: 20}
     inherited_from: "6-8"
-    inference_flag: true
+    basis: "Karnataka state Mid-Day Meal extension; same upper-primary nutrition content"
 
 # Per-child/day RAW ingredient allocations — informational only.
 # Never compare these grams directly against cooked plate weight (yield differs).
@@ -34,8 +33,8 @@ allocation_raw_per_day:
   "6-8":  {rice: 150, pulses: 30, vegetables: 75, oil: 7.5, salt: 4}
   "9-10": {rice: 150, pulses: 30, vegetables: 75, oil: 7.5, salt: 4}
 
-# Exact band table from the doc (same numbers as allocation; kept separate
-# because these rows are what reviewers compare against).
+# Ingredient rows: central norms for classes 1-8 and the documented Karnataka
+# state extension for classes 9-10. Kept separate from energy/protein minima.
 band_table:
   "1-5":  {rice: 100, dal: 20, vegetables: 50, oil: 5, salt: 2}
   "6-8":  {rice: 150, dal: 30, vegetables: 75, oil: 7.5, salt: 4}

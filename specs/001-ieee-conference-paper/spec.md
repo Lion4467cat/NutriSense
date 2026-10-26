@@ -77,7 +77,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-012**: The source and compiled PDF MUST be reviewed for formatting, figure/table readability, citation completeness, and factual consistency before delivery.
 - **FR-013**: The pipeline figure MUST be a legible, full-width, detailed representation of current runtime paths, including input/stage-failure abstention, unrecognized-dish abstention, out-of-scope dishes, measured geometry, mapped no-marker learned mass, learned-head unavailability, unmapped-dish size-prior geometry, compliance verdicts, and the serialized response.
 - **FR-014**: The paper MUST state that the current image pipeline segments one food mask and classifies one dish per capture; it MUST NOT imply independent multi-region or multi-dish inference.
-- **FR-015**: The methods MUST specify mandatory nutrients, student-band minima, probability thresholds, coverage thresholds, cooked-plate energy basis, and the repository's flagged 9–10 band inheritance.
+- **FR-015**: The methods MUST specify mandatory nutrients, student-band minima, probability thresholds, coverage thresholds, cooked-plate energy basis, and the Karnataka state basis for the configured 9–10 band.
 - **FR-016**: The evaluation protocol MUST state that WED DEV mass evaluation uses ground-truth class/ROI inputs and does not exercise upstream segmentation or classification, and MUST scope the data split and bootstrap method.
 - **FR-017**: The manuscript MUST omit or clearly qualify quantitative claims whose source evidence conflicts; specifically, no single synthetic segmentation IoU may be presented as settled until the repository evidence is reconciled.
 - **FR-018**: Bibliographic records MUST use final publication metadata when available, cite the exact official PM POSHAN guideline and date, and distinguish a paper's page count from proceedings pagination.
@@ -86,7 +86,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-021**: The four authors MUST appear in a balanced, individually identified IEEE author layout with sufficient separation between names and contact details; long placeholder addresses MUST not crowd adjacent authors.
 - **FR-022**: The pipeline figure MUST appear in the main body before the Results section, near its System Overview discussion, rather than after the references; retain compliant IEEE float placement.
 - **FR-023**: Every in-text citation MUST resolve to one bibliography entry, and every bibliography entry MUST be cited. Each record MUST identify the source actually used (including model version and final publication metadata where available), and the nearby claim MUST be supported by that source; claims must be narrowed when a source does not justify them.
-- **FR-024**: The manuscript MUST state that PM POSHAN coverage is Bal Vatika and classes I–VIII in eligible schools and distinguish its primary and upper-primary norms. Any configured classes 9–10 values MUST be labeled project-only; they MUST NOT be presented as PM POSHAN coverage, norms, or a scheme-based verdict.
+- **FR-024**: The manuscript MUST distinguish national PM POSHAN coverage (Bal Vatika and classes I–VIII) and its primary and upper-primary norms from Karnataka's state Mid-Day Meal extension to classes IX–X. The configured 9–10 band MUST be identified as representing the Karnataka extension, with its upper-primary nutrition basis supported by official Karnataka sources; it MUST NOT be described as centrally defined PM POSHAN eligibility.
 
 ### Key Entities
 
@@ -113,7 +113,7 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-011**: The four author names and their contact lines are visually separated and balanced in the compiled title area, with no email wrapping into adjacent author blocks.
 - **SC-012**: The flowchart appears before the Results section and before the references in the compiled paper.
 - **SC-013**: A documented source-by-source audit confirms that every in-text citation has a matching, accurate bibliography record, every bibliography entry is used, and each cited source supports its associated manuscript claim.
-- **SC-014**: The PM POSHAN discussion identifies Bal Vatika and classes I–VIII as the official coverage, and clearly labels any classes 9–10 values as a project-specific setting outside the cited scheme coverage.
+- **SC-014**: The policy discussion identifies Bal Vatika and classes I–VIII as national PM POSHAN coverage and accurately explains the separately documented Karnataka IX–X state extension and the 700 kcal / 20 g threshold used by the project band.
 
 ## Assumptions
 

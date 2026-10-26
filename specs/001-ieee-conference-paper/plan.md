@@ -62,7 +62,7 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Rebalance and uncramp the IEEE author block while preserving all supplied names, affiliation, and email placeholder labels.
 - Place each of the four authors in a separate, evenly spaced conference author block with a consistent affiliation line; keep contact text small enough to fit without colliding or wrapping into another author's block.
 - Place the wide pipeline float in the main body before Results and References, close to the System Overview discussion, while keeping IEEE conference float behavior.
-- State exact PM POSHAN policy minima and probability/coverage gates, and identify the 9–10 band value as inherited by the project's flagged inference.
+- State exact national PM POSHAN minima and probability/coverage gates, and distinguish these from the Karnataka state extension that supports the project's 9–10 band.
 - State that WED DEV mass evaluation uses ground-truth ROI/class labels, the plate-grouped 10% carve, fixed seed 42, and 2,000 plate-bootstrap replicates; it is not upstream or end-to-end evaluation.
 - Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
 - Cite SAM 2's ICLR 2025 paper and the official Meta SAM 2.1 repository, DINOv2's TMLR 2024 publication, and the official PM POSHAN guideline dated 21 December 2022. Record the Thali article's actual proceedings pages 1--9. See [citation-audit.md](citation-audit.md) for the completed source-by-source audit.
