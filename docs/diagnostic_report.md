@@ -1,6 +1,6 @@
 # Phase 2 — Diagnostic "State of the Project" Report
 
-Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: read every source file, executed full verification gates.
+Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: read every source file, executed full verification gates. Historical snapshot; for the current learned-weight encoder and DEV metrics, see `docs/ledger/001-current-state.md` and `docs/ledger/002-dinov2-encoder.md`.
 
 ---
 
@@ -11,7 +11,7 @@ Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: 
 - FastAPI + uvicorn (port 8731); python-multipart for file upload; pyyaml for all `data/*.yaml`.
 - CV/ML stack (S2–S3 + M6) in `requirements-cv.txt`, NOT yet installed in this environment — torch/transformers/SAM2/SigLIP2/MoGe are imported at runtime only by the deployable path; the hermetic CI runs 150 non-gpu tests with empty TORCH_HOME/HF_HOME and no downloads.
 - Depth: MoGe-2 (`microsoft/MoGe`) + a git-pinned `utils3d_moge`; DA3 rejected (numpy<2 / py≤3.13 / xformers+open3d conflicts).
-- Portion: geometry path (scale anchor → cm/px → ellipse area × mean height above base plane, ring band 1.5% inside mask, largest-plane-residual selection) + learned-weight fallback (frozen ResNet-50 → roi_align 7×7 → MLP 2048→512→41, class-conditional grams; WED-trained, val MAE 20.30 g / test 20.03 g).
+- Portion: geometry path (scale anchor → cm/px → ellipse area × mean height above base plane, ring band 1.5% inside mask, largest-plane-residual selection) + learned-weight fallback (frozen DINOv2-S/14 → roi_align → class-conditional grams; current WED DEV MAE 15.034 g; see ledger 001/002 for split and CI details).
 - Monte Carlo: `engine/mc.py` — lognormal grams from `sigma_grams_rel`, recipe-share noise, table sigma from `nutrient_table_sigma_pct`, temperature_scale widens central interval; raw-equivalent diagnostics informational only. Sole interval owner.
 - Compliance: per-mandatory-nutrient P, coverage = product of `coverage_*` params (prior anchor caps 0.60 → PASS/FAIL unreachable, ADR 0002 + amendment), salt advisory only.
 - Gates: `engine/gates.py` (zoom/day/band → input; out-of-scope dish → classify) consulted once by `analyze()` before scoring.
@@ -45,7 +45,7 @@ Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: 
 - Classifier (SigLIP2 gallery-first, text fallback): LOO 46/46 on gallery; text-only 0.60 → correctly demoted to fallback only.
 - Depth (MoGe-2 + card calibration): calibrated depth to ~1.1% median error on renders; MoGe raw scale wildly off out-of-domain (~6×) — ALWAYS calibrated via `calibrate_depth_scale(depth, anchor, K)`; units must be meters on both sides. Prior tier has NO calibration, so `depth_scale_sigma` stays unvalidated (M6 gate).
 - Portion geometry path: ±7% volume vs GT (ring path, largest-plane-residual selection); area uses `cm_px² · ((1+cos tilt)/2)² / cos tilt` (mean-side cm/px under-foreshortens; plain `/cos` overcounts 27% at 39°).
-- Learned-weight head: WED deployable MAE val 20.30 g / test 20.03 g vs paper 14.51 g vs prior-geometry baseline 1464.5 g. Old 19.32/19.73/24.65 figures were a train/deploy BatchNorm mismatch (frozen encoder ran in train mode, adapted BN stats never saved) — fixed by pinning encoder to `eval()` during training (STAGE 1B, `docs/known_issues.md`). The 24.65 g deployed-val was a real user-visible error (overstated uncertainty), now corrected.
+- Learned-weight head: the 2026-10-14 diagnostic predates the DINOv2-S encoder update. The current DINOv2-S deployable DEV result is 15.034 g MAE (95% CI [12.227, 18.889]); this is a DEV result, not a test-set result. The ResNet-50 values (20.30 g val / 20.03 g test) and BatchNorm correction are retained as historical results in `docs/known_issues.md` and the dated final report.
 - Compliance scoring: correct per-mandatory-nutrient P; coverage cap behavior correct (prior 0.60 → PASS/FAIL unreachable; learned weight 0.90 → reachable); no-card plates scored with disclaimer + `NO_REFERENCE_CARD` leading reasons.
 
 **Execution efficiency**
@@ -102,4 +102,4 @@ Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: 
 
 ## Summary
 
-The project is in notably good shape for its scope: a real CV/ML pipeline (SAM2 segmenter, SigLIP2 classifier, MoGe-2 depth, ResNet-50 learned-weight head) with measured IoU/MAE numbers, a typed full-stack contract, and a polished themed React UI. The Phase 2 findings were mostly "friction points and open uncertainties" rather than "bugs" — and the actionable ones (Analyze text, ESTIMATED blurb, CaptureQuality reference row, build_gallery source guard) are resolved in Phase 3. The remaining open items are architectural (local-only history → Phase 4) and the inherent scientific uncertainties of the stack (unvalidated prior-tier depth sigma, small gallery, learned-weight MAE vs paper). No dead/incorrect code remains that's worth removing; the bn_experiment parity study is intentionally frozen and protected.
+The project is in notably good shape for its scope: a real CV/ML pipeline (SAM2 segmenter, SigLIP2 classifier, MoGe-2 depth, DINOv2-S learned-weight head) with measured IoU/MAE numbers, a typed full-stack contract, and a polished themed React UI. The Phase 2 findings were mostly "friction points and open uncertainties" rather than "bugs" — and the actionable ones (Analyze text, ESTIMATED blurb, CaptureQuality reference row, build_gallery source guard) are resolved in Phase 3. The remaining open items are architectural (local-only history → Phase 4) and the inherent scientific uncertainties of the stack (unvalidated prior-tier depth sigma, small gallery, learned-weight MAE vs paper). No dead/incorrect code remains that's worth removing; the bn_experiment parity study is intentionally frozen and protected.
