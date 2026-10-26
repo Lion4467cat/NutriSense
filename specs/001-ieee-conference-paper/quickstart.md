@@ -25,11 +25,20 @@ If `latexmk` is unavailable, run the standard `pdflatex`, `bibtex`, `pdflatex`, 
 1. **Template and layout**: Confirm the source uses IEEE conference mode, the official bibliography style, and the page size selected by the official template or the chosen conference. Confirm no template instructions or sample content remain.
 2. **Abstract and index terms**: Confirm the abstract is one self-contained paragraph of no more than 250 words, contains no citations or equations, and is followed by 3–5 index terms. Follow stricter venue guidance if applicable.
 3. **Figures and tables**: Open every PDF page at normal size; check that figures, captions, equations, table text, author details, and references are readable and not clipped.
-4. **Claim audit**: Trace every metric to a ledger, evaluation protocol, primary paper, or official standard. Ensure the current DINOv2-S number is a WED DEV result and no current DINOv2-S LOCKED/test result is claimed. Keep synthetic validation and gallery leave-one-out results labeled as such.
+4. **Claim audit**: Trace every metric to a ledger, evaluation protocol, primary paper, or official standard. Ensure the current DINOv2-S number is a WED DEV mass-head result using ground-truth ROI/class inputs, not end-to-end pipeline performance; no current DINOv2-S LOCKED/test result is claimed. Keep synthetic validation and gallery leave-one-out results labeled as such, and do not claim a settled SAM IoU point estimate until its 0.97/0.98 conflict is resolved.
 5. **Author metadata**: Confirm all four author names and BMS College of Engineering. Verify the first author's supplied email and replace the other three `example.com` placeholders.
-6. **Reference audit**: Check each in-text citation has a complete bibliography entry and each cited source supports the associated claim. Confirm the DINOv2 paper identifier is arXiv:2304.07193.
+6. **Reference audit**: Check each in-text citation has a complete bibliography entry and each cited source supports the associated claim. Cite SAM 2 at ICLR 2025 and DINOv2 at TMLR 2024; cite the official PM POSHAN guideline and identify its 21 December 2022 date. Record the Thali work as a 9-page publication rather than proceedings pages 1--9.
 7. **Venue gate**: Once a target event is selected, compare the manuscript to that event's author kit, page limit, paper size, anonymization rules, and PDF submission checks; use IEEE PDF eXpress if the organizer requires it.
 
 ## Expected Outcome
 
-Compilation succeeds, all citations resolve, the PDF contains no overfull or clipped content, project claims retain their split and validation context, and all placeholder author emails are explicitly identified for confirmation.
+Compilation succeeds, all citations resolve, the PDF contains no overfull or clipped content, the detailed diagram matches the current runtime, project claims retain their split and validation context, and all placeholder author emails are explicitly identified for confirmation. The PDF remains a generic draft until a conference and its page limit are selected.
+
+## Current Validation Record
+
+- `paper/main.tex` compiles with the vendored IEEEtran conference class and bibliography into a four-page, US Letter review PDF.
+- The full-width runtime diagram was visually inspected at normal page scale; the measured, no-marker learned, no-marker unmapped, abstention, out-of-scope, verdict, and serialized-response paths are visible.
+- Citations resolve. The Thali entry identifies a nine-page paper and DOI; the PM POSHAN entry points to the official Ministry guideline listing and records the document date.
+- The current WED DEV result is identified as mass-head-only evaluation on ground-truth ROI/class inputs. No DINOv2-S LOCKED/test or end-to-end result is claimed.
+- The 0.97/0.98 synthetic SAM IoU conflict remains documented in the repository; the manuscript omits a settled point estimate.
+- Remaining submission gate: select the target IEEE conference, check its page limit and event-specific author kit, and replace the three visibly marked placeholder email addresses.

@@ -46,7 +46,7 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - Field data-collection marker: `docs/assets/reference_marker_A4_60mm.pdf` (A4 page, 60 mm ArUco id 7).
 
 ### S2 — Segmentation + classification
-- **Segmenter**: SAM2.1-hiera-large, IoU 0.98 on synthetic validation.
+- **Segmenter**: SAM2.1-hiera-large, synthetic component check. This historical summary recorded IoU 0.98; `models/dish_segmenter.py` records 0.97 for the synthetic scene. The test itself asserts only an IoU floor of 0.75, so the observed point value is unresolved and must not be cited as a settled result.
 - **Classifier**: SigLIP2 gallery-first (46 real dish embeddings in `data/gallery.npz`), leave-one-out **46/46**; text fallback score 0.60.
 - `gallery_match_threshold: 0.82` — synthetic renders score ~0.67 and correctly abstain; only real gallery photos or confident text matches proceed.
 

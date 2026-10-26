@@ -41,7 +41,7 @@ Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: 
 ## 2. Backend health
 
 **Accuracy**
-- Segmenter (SAM2.1, centre-point + solidity/nesting selection): IoU 0.98 on synthetic — strong.
+- Segmenter (SAM2.1, centre-point + solidity/nesting selection): synthetic component check only. Historical notes record IoU 0.97 and 0.98; the test asserts an IoU floor of 0.75, so the observed point estimate remains unresolved and is not treated as a settled result.
 - Classifier (SigLIP2 gallery-first, text fallback): LOO 46/46 on gallery; text-only 0.60 → correctly demoted to fallback only.
 - Depth (MoGe-2 + card calibration): calibrated depth to ~1.1% median error on renders; MoGe raw scale wildly off out-of-domain (~6×) — ALWAYS calibrated via `calibrate_depth_scale(depth, anchor, K)`; units must be meters on both sides. Prior tier has NO calibration, so `depth_scale_sigma` stays unvalidated (M6 gate).
 - Portion geometry path: ±7% volume vs GT (ring path, largest-plane-residual selection); area uses `cm_px² · ((1+cos tilt)/2)² / cos tilt` (mean-side cm/px under-foreshortens; plain `/cos` overcounts 27% at 39°).

@@ -8,8 +8,10 @@ Strategy (validated against the synthetic renderer, tests/test_s2.py):
      (food sits inside plate/table context), preferring one that also
      contains a smaller solid candidate (middle of a nested chain),
      tie-broken by SAM's predicted IoU score.
-     On the synthetic scene this selects the food mask (IoU 0.97 vs GT);
-     SAM's raw score alone picks a rim arc (IoU 0.38) — do not use it.
+     The synthetic-scene test asserts an IoU floor of 0.75. Historical
+     summaries record 0.97 and 0.98 for this component, so the observed
+     point estimate is not treated as reconciled evidence. SAM's raw score
+     alone can pick a rim arc; do not use it without the selection logic.
   4. Fallbacks: no parent found -> best-scoring solid mask; no solid mask
      at all -> best-scoring candidate; centre query produced nothing ->
      one box-prompted query (centre 20-80% square).

@@ -43,25 +43,27 @@ flowchart TD
         L3 --> L4["image < 1280px → note only"]
     end
 
-    LINT -.->|"any gate fails"| WIRE
+    LINT -.->|"any gate fails"| CANNOT
     L4 --> A["2 · Scale anchor<br/>60mm ArUco on A4 → metric"]
 
-    A --> SEG["3 · Segment<br/>SAM 2.1"]
-    SEG -.->|error| WIRE
-    SEG --> CLS{"4 · Classify<br/>SigLIP2 gallery<br/>(abstain if < 0.82)"}
-    CLS -->|"unrecognized"| WIRE
+    A --> SEG["3 · Select one food mask<br/>SAM 2.1"]
+    SEG -.->|error| CANNOT
+    SEG --> CLS{"4 · Classify one dish<br/>SigLIP2 gallery + text<br/>(abstain if < 0.82)"}
+    CLS -->|"unrecognized"| CANNOT
     CLS -->|wheat| OOS["➖ out_of_scope"]
     CLS -->|dish found| DEPTH["5 · Depth<br/>MoGe-2 · fov_x from K<br/>card-calibrate × factor (~1.1%)"]
-    DEPTH -.->|error| WIRE
+    DEPTH -.->|error| CANNOT
     DEPTH --> TIER{"tier?"}
     TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
-    TIER -->|no card| HEAD{"learned head<br/>WED checkpoint?"}
-    HEAD -->|available| LEARN["g = learned weight<br/>frozen DINOv2-S ·<br/>no geometry · ×0.90 coverage"]
-    HEAD -->|missing / unmapped / error| NOCAL["geometry × size priors<br/>× 0.60 coverage cap ·<br/>never PASS/FAIL"]
+    TIER -->|no card| MAP{"dish WED-mapped?"}
+    MAP -->|yes| HEAD{"learned head<br/>checkpoint available?"}
+    HEAD -->|yes| LEARN["g = learned weight<br/>frozen DINOv2-S ·<br/>no geometry · ×0.90 coverage"]
+    HEAD -.->|missing / load failure / prediction failure| CANNOT
+    MAP -->|no| NOCAL["geometry × size prior<br/>unmapped dish only ·<br/>×0.60 coverage cap"]
     LEARN --> PORT
     NOCAL --> PORT
     CAL --> PORT["6 · Portion<br/>measured: area × height × ρ<br/>no-card: learned grams or geometry"]
-    PORT -.->|error| WIRE
+    PORT -.->|error| CANNOT
     PORT --> MC["7 · Monte Carlo<br/>lognormal grams · recipe noise<br/>4000 samples · fixed seed"]
 
     MC --> VER{"8 · Compliance<br/>P per nutrient ·<br/>C = Π coverage factors"}
@@ -74,6 +76,7 @@ flowchart TD
     FAIL ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
+    CANNOT["cannot_verify<br/>invalid input / unrecognized / stage failure"]
 
     classDef err fill:#3d1f23,stroke:#e05252,color:#ffd9d9
     classDef oos fill:#3a3325,stroke:#c9a227,color:#f5e9c8
@@ -87,9 +90,10 @@ flowchart TD
     class BORD warn
     class DISC neutral
     class WIRE wire
+    class CANNOT err
 ```
 
-Every exit — gate, stage failure, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it can never issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which still cannot PASS/FAIL).
+Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
 
 ### Pipeline components
 

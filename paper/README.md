@@ -26,6 +26,14 @@ apply any event-specific page limit, page size, anonymization, and PDF checks.
 The downloaded template version and any event-specific changes should be
 recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
+The paper's pipeline figure is a conference-width rendering of the runtime
+branches, including abstention and out-of-scope paths. It documents one
+selected food mask and one dish classification per capture; the WED mass-head
+evaluation uses ground-truth ROI/class inputs and is not end-to-end evaluation.
+The repository's synthetic SAM IoU point estimate is unresolved (0.97 versus
+0.98 in historical notes), so the paper reports the test's asserted floor and
+does not claim either point value.
+
 ## Compile
 
 Run the setup script once on Linux x86-64 to install a local TeX Live 2026
@@ -54,7 +62,7 @@ unless the authors want to version a review copy.
 - Scope the DINOv2-S value to WED DEV; do not claim DINOv2-S LOCKED/test results.
 - Label synthetic and gallery leave-one-out results by their actual validation
   setting; do not present them as independent real-world test results.
-- Placeholder coauthor emails are intentionally marked and must be replaced
+- Placeholder coauthor emails are explicitly marked in the author block and must be replaced
   before submission.
 - Do not include WED images or other restricted dataset material without
   confirming reuse rights.

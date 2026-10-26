@@ -6,7 +6,7 @@
 
 ## Summary
 
-Prepare an evidence-based IEEE conference manuscript describing NutriSense's single-image meal analysis pipeline and its evaluation. Use the official IEEE conference LaTeX template in conference mode, preserve all project-specific evidence and uncertainty labels, and distinguish the current DINOv2-S DEV result from historical ResNet-50 and LOCKED test results. The author block uses the supplied four authors and BMS College of Engineering; three example email addresses remain explicit placeholders.
+Revise the evidence-based IEEE conference manuscript to resolve the audit findings. Keep the official IEEE conference template, show the complete current single-mask runtime and its abstention/scope branches in a legible two-column-wide figure, correct the no-marker head-failure path, state policy/evaluation boundaries explicitly, remove unsettled segmentation IoU, and use traceable final bibliography metadata. Preserve the supplied authors and clearly marked dummy coauthor emails.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ Prepare an evidence-based IEEE conference manuscript describing NutriSense's sin
 
 **Storage**: Text sources, bibliography, and figures under `paper/`; planning artifacts under `specs/001-ieee-conference-paper/`.
 
-**Testing**: Compile the source and bibliography to PDF; inspect every page for template guidance text, layout overflow, figure/table readability, citation completeness, and factual consistency. Use IEEE PDF eXpress only if the selected conference requires it.
+**Validation**: Compile the source and bibliography to PDF; inspect every page for template guidance text, layout overflow, figure/table readability, citation completeness, and factual consistency. Do not run application test suites for this manuscript-only change. Use IEEE PDF eXpress only if the selected conference requires it.
 
 **Target Platform**: Portable LaTeX toolchain and PDF output. Use the official template selector's generic conference template; the selected conference's page size and submission instructions take precedence when known.
 
@@ -24,7 +24,7 @@ Prepare an evidence-based IEEE conference manuscript describing NutriSense's sin
 
 **Performance Goals**: Not applicable to manuscript authoring.
 
-**Constraints**: Generic IEEE conference format; no target event or page limit selected. Use current official IEEE template files, do not redistribute restricted dataset imagery, preserve author-provided contact details, and separate DEV, TRAIN, and LOCKED evidence. Do not invent a DINOv2-S test result.
+**Constraints**: Generic IEEE conference format; no target event or page limit selected. Use current official IEEE template files, do not redistribute restricted dataset imagery, preserve author-provided contact details, and separate DEV, TRAIN, and LOCKED evidence. Do not invent a DINOv2-S test result. The runtime returns one mask and one dish classification per capture; WED evaluation uses ground-truth ROI/class inputs. A conflicting SAM synthetic IoU must be omitted until reconciled.
 
 **Scale/Scope**: One conference paper, one editable source, bibliography, figures/tables, and a compiled review PDF. No new experiments are included in this plan.
 
@@ -52,6 +52,15 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Use the provided A4 PDF as the field scale marker. It was preserved unchanged; its A4 page and 60 mm ArUco ID 7 geometry match the project detector. The former A6/100 mm graphic remains only as a synthetic fixture generator, not a field-capture asset.
 
 ## Phase 1: Design
+
+### Audit Corrections
+
+- Build the conference-width pipeline diagram from current runtime behavior, not the stale README fallback: mapped no-marker dish plus missing/failing learned head returns `cannot_verify`; only an unmapped no-marker dish uses size-prior geometry.
+- Explicitly represent the current one-mask/one-dish-per-image scope, unrecognized and out-of-scope outcomes, stage errors, measured/no-marker mass paths, compliance thresholds, disclaimer, and serialized response.
+- State exact PM POSHAN policy minima and probability/coverage gates, and identify the 9–10 band value as inherited by the project's flagged inference.
+- State that WED DEV mass evaluation uses ground-truth ROI/class labels, the plate-grouped 10% carve, fixed seed 42, and 2,000 plate-bootstrap replicates; it is not upstream or end-to-end evaluation.
+- Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
+- Cite SAM 2's ICLR 2025 paper, DINOv2's TMLR 2024 publication, the official PM POSHAN guideline dated 21 December 2022, and the Thali paper as a 9-page publication (page count, not proceedings pagination).
 
 ### Manuscript Structure
 
