@@ -78,7 +78,7 @@ capture a mix (their minimums differ: 450 kcal/12 g vs 700 kcal/20 g).
 
 ## 3. Gear checklist (pack the night before)
 
-- [ ] Reference card × 2 (laminated if possible) — `docs/assets/reference_card_A6_300dpi.png`
+- [ ] ArUco marker × 2 (laminated if possible) — `docs/assets/reference_marker_A4_60mm.pdf`
 - [ ] Steel ruler (mm scale) — to verify the printed card once (Day-0)
 - [ ] Kitchen scale, **1 g resolution**, working batteries
 - [ ] Phone + **charging cable / power bank** (transfer + long day)
@@ -89,16 +89,13 @@ capture a mix (their minimums differ: 450 kcal/12 g vs 700 kcal/20 g).
 
 ## 4. Day-0 setup (do once, before Day 1)
 
-1. **Print the card:** A6 paper (105 × 148 mm), 300 dpi asset, **100% scale —
-   printer "fit to page" OFF**, borderless if supported.
-2. **Ruler-check the black square:** it must measure **exactly 100.0 mm ± 0.5 mm**
-   edge to edge. If off → reprint, or measure the actual size, write it into
-   `data/anchor_config.json` → `card.square_mm`, then set
-   `"ruler_checked": true` with the date in `ruler_checked_note`.
-   *This square is the metric ground truth for every measured plate — 1 mm of
-   error here becomes 1% scale error in every verdict.*
-3. **Check the ArUco marker:** 60.0 mm square (DICT_4X4_50, id 7), white quiet
-   zone around it must stay clean — do not tape over it, do not fold.
+1. **Print the marker:** A4 paper, `docs/assets/reference_marker_A4_60mm.pdf`,
+   **100% scale — printer "fit to page" OFF**.
+2. **Ruler-check the ArUco marker:** its outside edge must measure 60.0 mm.
+   If it is off, reprint at 100% with fit-to-page disabled. This is the known
+   physical dimension used for metric scale and depth calibration.
+3. **Keep the marker visible:** DICT_4X4_50, id 7; keep the white quiet zone
+   clean — do not tape over it, crop it, or fold through it.
 4. **Test the scale:** weigh a known mass (e.g. an unopened 500 ml water bottle
    = 500 g). It must read within ±5 g. Zero/tare before every use.
 5. **Phone camera defaults** (see §5) set and locked in the camera app.

@@ -43,7 +43,7 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - **Tier `measured`**: 60 mm reference card detected in image → metric scale.
 - **Tier `prior`**: no marker → vessel-table prior (never PASS/FAIL, coverage capped 0.60).
 - Card result exposes `marker_corners_px` in extras — reused by depth calibration.
-- Asset: `docs/assets/reference_card_A6_300dpi.png`.
+- Field data-collection marker: `docs/assets/reference_marker_A4_60mm.pdf` (A4 page, 60 mm ArUco id 7).
 
 ### S2 — Segmentation + classification
 - **Segmenter**: SAM2.1-hiera-large, IoU 0.98 on synthetic validation.

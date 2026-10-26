@@ -17,7 +17,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 
 **What it does:**
 
-- Measures portion size from one photo using a printed **reference card** (60 mm) as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
+- Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale — or honestly degrades to a documented *prior* tier that can never issue PASS/FAIL
 - Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
 - Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
@@ -44,7 +44,7 @@ flowchart TD
     end
 
     LINT -.->|"any gate fails"| WIRE
-    L4 --> A["2 · Scale anchor<br/>card 60mm → metric /<br/>no card → prior + learned-weight"]
+    L4 --> A["2 · Scale anchor<br/>60mm ArUco on A4 → metric"]
 
     A --> SEG["3 · Segment<br/>SAM 2.1"]
     SEG -.->|error| WIRE
@@ -156,7 +156,7 @@ Every exit — gate, stage failure, or verdict — serializes through the same 1
 | Recipe assumptions | sambar, vegetable_rice, bisi_belee_bath rows (marked `assumed`) | `data/nutrients.yaml`, `data/params_status.yaml` |
 | Canteen phone photos (46) | classifier gallery | `data/gallery.npz`, `../DATASET/` |
 | Synthetic renderer | ground truth for the test suite | `tests/synth/` |
-| Reference card (A6, 300 dpi) | metric scale marker | `docs/assets/reference_card_A6_300dpi.png` |
+| Field scale marker (A4 PDF, ArUco id 7, 60 mm) | metric scale marker used during data collection | `docs/assets/reference_marker_A4_60mm.pdf` |
 
 No USDA API, no external database, no network calls at runtime — all policy lives in versioned YAML.
 
@@ -370,7 +370,7 @@ Goal: **30 golden plates** — 4 pilot / 13 dev / 13 holdout — for calibration
 
 Field essentials:
 
-- Print `docs/assets/reference_card_A6_300dpi.png` on **A6 at 100% scale (fit-to-page OFF)**; ruler-check the black square = **100.0 mm ± 0.5** before Day 1; kitchen scale with 1 g resolution, tare first.
+- Print `docs/assets/reference_marker_A4_60mm.pdf` on **A4 at 100% scale (fit-to-page OFF)**; ruler-check the ArUco's outer edge = **60.0 mm** before data collection; kitchen scale with 1 g resolution, tare first.
 - Digital zoom **OFF** (hard gate → `cannot_verify`), min side ≥ 1280 px, marker ≥ 80 px (≈ ⅛ frame width), tilt **< 50°**, EXIF intact — **transfer originals by cable, never a chat app**.
 - Golden plates live in `DATASET/golden/{pilot,dev,holdout}/plate_XX/{photo.jpg, meta.json, weights.json}` — never in gallery class folders.
 

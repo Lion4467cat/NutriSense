@@ -36,7 +36,7 @@
 - Frontend gates: `cd frontend && npx tsc --noEmit && npm test && npm run build` (43 vitest tests)
 - CI: `.github/workflows/ci.yml` — ruff, pyright gate, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then tsc/vitest/build; needs no GPU, secrets, datasets or model downloads. Triggers: `pull_request`→`main`, `push`→`main` and to `iter-*`/`loop-*`/`card-*`/`fallback-*`/`ui-*`/`track*`, plus `workflow_dispatch`. Last green run: `38235913138` on `loop-setup` (backend 2m21s / frontend 26s / 135 passed).
 - API: `.venv/bin/uvicorn main:app --port 8731`
-- Reference card: `.venv/bin/python -m tools.make_reference_card`
+- Field scale marker used for capture: `docs/assets/reference_marker_A4_60mm.pdf` (A4, 60 mm ArUco id 7). `tools.make_reference_card` generates a legacy A6 synthetic fixture for renderer tests only; do not use it for field capture.
 - Gallery: `.venv/bin/python -m tools.build_gallery --source ../DATASET --out data/gallery.npz`
 - WED manifest rebuild: `.venv/bin/python -m tools.build_wed_manifest` (paths relative to `data/wed` root; diff after: rows must stay 1394/1146/248, 267 plates, 16211 ROIs)
 - WED head training: `HF_HUB_DISABLE_XET=1 .venv/bin/python -m tools.train_weight_head --epochs 100 --workers 1` (~35 min on RTX 4060 Laptop; **--workers 1 required** or dataloader OOM; never run concurrently with pytest-with-GPU on this 15 GB box)

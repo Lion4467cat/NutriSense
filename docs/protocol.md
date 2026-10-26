@@ -10,12 +10,11 @@ tuning, and a single sealed final evaluation.
 
 ## Day-1 (before any capture)
 
-1. Print `docs/assets/reference_card_A6_300dpi.png` on **A6, 100% scale,
-   no page-fitting** (borderless if possible).
-2. Ruler-check the black square: **must be exactly 100.0 mm** (±0.5 mm).
-   If off, reprint or measure the actual square and record it in
-   `data/anchor_config.json` → `card.square_mm`, then set
-   `ruler_checked: true` with date in `ruler_checked_note`.
+1. Print `docs/assets/reference_marker_A4_60mm.pdf` on **A4 at 100% scale**
+   with page fitting disabled.
+2. Ruler-check the marker's outer edge: it must measure **60.0 mm**. If it
+   does not, reprint at 100% with page fitting disabled. The pipeline uses
+   this marker's known size for scale and depth calibration.
 3. Kitchen scale: 1 g resolution, zeroed with the empty vessel (tare).
 
 ## Per-capture rules

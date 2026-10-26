@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Generate the NutriSense A6 reference scale card.
+"""Generate the legacy A6 scale-card fixture for synthetic renderer tests.
 
-Layout: white A6 card, 100.0 mm black square, white inner gap, 60.0 mm
-ArUco DICT_4X4_50 marker (id 7) centred. Print at 100% / no-scaling and
-ruler-verify the black square before first use (set ruler_checked in
-data/anchor_config.json).
+This is not the field data-collection artifact. Field captures use the
+official-generator PDF at docs/assets/reference_marker_A4_60mm.pdf, an A4
+page containing a 60.0 mm DICT_4X4_50 ArUco marker (id 7).
+
+Synthetic layout: white A6 canvas, 100.0 mm black square, white inner gap,
+and a 60.0 mm marker centred inside it.
 
 Usage:  .venv/bin/python -m tools.make_reference_card [--dpi 300] [--outdir docs/assets]
 """
@@ -21,7 +23,7 @@ MARKER_MM = 60.0              # ArUco marker outer size (incl. black border)
 MARKER_ID = 7
 DICT_NAME = "DICT_4X4_50"
 
-TEXT_MAIN = "NutriSense scale card - verify square = 100.0 mm"
+TEXT_MAIN = "Synthetic fixture - not for field data collection"
 TEXT_SUB = f"ArUco 4x4_50 id {MARKER_ID}, marker {MARKER_MM:.1f} mm | v1"
 TEXT_FOOT = "ruler check: ______   date: ______"
 
@@ -101,19 +103,19 @@ def build_card(dpi=300):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dpi", type=int, default=300)
-    ap.add_argument("--outdir", default=str(Path(__file__).resolve().parents[1] / "docs" / "assets"))
+    ap.add_argument("--outdir", default=str(Path(__file__).resolve().parents[1] / "tests" / "synth" / "assets"))
     args = ap.parse_args()
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     img = build_card(args.dpi)
-    out = outdir / f"reference_card_A6_{args.dpi}dpi.png"
+    out = outdir / f"legacy_reference_fixture_A6_{args.dpi}dpi.png"
     cv2.imwrite(str(out), img)
     L = card_layout(args.dpi)
     print(f"wrote {out}")
     print(f"  card {L['size'][0]}x{L['size'][1]} px ({CARD_MM[0]:.0f}x{CARD_MM[1]:.0f} mm)")
     print(f"  square {mm2px(SQUARE_MM, args.dpi)} px (= {SQUARE_MM} mm)  marker {mm2px(MARKER_MM, args.dpi)} px (= {MARKER_MM} mm)")
-    print("PRINT AT 100% (no scaling), then ruler-verify the black square is exactly 100.0 mm")
+    print("Synthetic fixture only; use docs/assets/reference_marker_A4_60mm.pdf for field capture")
 
 
 if __name__ == "__main__":

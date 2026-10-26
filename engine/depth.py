@@ -9,6 +9,7 @@ Known gotchas:
   - weights: HF_HUB_DISABLE_XET=1 env needed in this environment (xet stalls)
 """
 import numpy as np
+from config import load_anchor_config
 
 MODEL_ID = "Ruicheng/moge-2-vitl"
 
@@ -17,7 +18,8 @@ def calibrate_depth_scale(depth_m, anchor, K):
     """Rescale monocular depth so a known anchor object matches its true size.
 
     Unprojects anchor pixels with the raw depth (global scale error k scales
-    every 3D distance by the same k), measures card-marker edges (60 mm), and
+    every 3D distance by the same k), measures card-marker edges using the
+    configured physical marker size, and
     returns depth * factor.
 
     Returns (depth_calibrated, factor, source). Prior tier: (depth, 1.0, "none").
@@ -37,7 +39,12 @@ def calibrate_depth_scale(depth_m, anchor, K):
     ests, trues, source = [], [], "none"
     if method == "card_aruco" and extras.get("marker_corners_px"):
         c = np.asarray(extras["marker_corners_px"], dtype=np.float64)
-        L = float(anchor.get("_marker_mm", 60.0)) / 1000.0  # meters
+        marker_mm = anchor.get("marker_mm")
+        if marker_mm is None:
+            # Preserve compatibility with older callers while keeping this
+            # fallback tied to the same configuration as scale estimation.
+            marker_mm = load_anchor_config()["card"]["marker_mm"]
+        L = float(marker_mm) / 1000.0  # meters
         pts = [_pt(u, v) for u, v in c]
         for i in range(4):
             ests.append(float(np.linalg.norm(pts[i] - pts[(i + 1) % 4])))

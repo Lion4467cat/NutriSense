@@ -55,7 +55,7 @@ deployable, keep this entry, lever comparison ends with (a) as best.
 
 ## Sources
 
-- https://arxiv.org/abs/2304.15003 — DINOv2 (dense SSL features prior art).
+- https://arxiv.org/abs/2304.07193 — DINOv2 (dense SSL features prior art).
 - `docs/ledger/001-aug-run1.md` — current baseline + kept recipe.
 - WED paper baseline (ICVGIP 2025) — 14.51 g published MAE, the reference ceiling.
 

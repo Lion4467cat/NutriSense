@@ -168,6 +168,7 @@ def _try_card(img_bgr, cfg, exif, notes):
         "method": "card_aruco",
         "label": "measured",
         "cm_per_px": float(cm_per_px),
+        "marker_mm": float(cfg["card"]["marker_mm"]),
         "interval": (float(interval[0]), float(interval[1])),
         "H": H,
         "tilt_deg": tilt_deg,
