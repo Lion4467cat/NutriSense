@@ -84,6 +84,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-019**: The manuscript MUST distinguish existing WED development evidence from the project's own dataset, explicitly state that project-dataset collection and evaluation are pending, and reserve a clearly labeled results area for its eventual sample counts, mass errors, uncertainty coverage, and end-to-end measures without inventing values.
 - **FR-020**: The full-width runtime figure MUST use a readable visual hierarchy and separated paths with sufficient whitespace; labels and connectors MUST remain legible at the compiled IEEE page size, with no overlapping or confusing branch crossings.
 - **FR-021**: The four authors MUST appear in a balanced, individually identified IEEE author layout with sufficient separation between names and contact details; long placeholder addresses MUST not crowd adjacent authors.
+- **FR-022**: The pipeline figure MUST appear in the main body before the Results section, near its System Overview discussion, rather than after the references; retain compliant IEEE float placement.
 
 ### Key Entities
 
@@ -108,6 +109,7 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-009**: The manuscript reports no project-collected dataset statistics before collection; its reserved project-results area labels each such value as pending and keeps WED DEV values clearly identified as external development evidence.
 - **SC-010**: At IEEE two-column page size, the flowchart's branch labels and nodes can be read without overlap or visually cramped convergence.
 - **SC-011**: The four author names and their contact lines are visually separated and balanced in the compiled title area, with no email wrapping into adjacent author blocks.
+- **SC-012**: The flowchart appears before the Results section and before the references in the compiled paper.
 
 ## Assumptions
 

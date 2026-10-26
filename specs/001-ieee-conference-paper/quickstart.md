@@ -38,6 +38,7 @@ Compilation succeeds, all citations resolve, the PDF contains no overfull or cli
 
 - `paper/main.tex` compiles with the vendored IEEEtran conference class and bibliography into a four-page, US Letter review PDF.
 - The full-width runtime diagram was visually inspected at normal page scale; the measured, no-marker mapped/head-available, no-marker unmapped, abstention, out-of-scope, verdict, and serialized-response paths are visible.
+- The IEEE double-column float now appears on page 3 of 4, before Results and References; it no longer sits at the end of the PDF.
 - The four authors are displayed in two balanced columns with individually paired names and contact details; the project-specific dataset-results table remains explicitly pending collection/evaluation.
 - Citations resolve. The Thali entry identifies a nine-page paper and DOI; the PM POSHAN entry points to the official Ministry guideline listing and records the document date.
 - The current WED DEV result is identified as external fallback, mass-head-only evaluation on ground-truth ROI/class inputs. No project-dataset, DINOv2-S LOCKED/test, or end-to-end result is claimed.

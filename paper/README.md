@@ -27,7 +27,8 @@ The downloaded template version and any event-specific changes should be
 recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
 The paper's pipeline figure uses separated stages and portion-source lanes at
-full conference width, including abstention and out-of-scope paths. The four
+full conference width, including abstention and out-of-scope paths; the IEEE
+double-column float appears in the main body before Results and References. The four
 authors appear in two balanced columns, each with an individually paired
 affiliation and contact line. It documents one selected food mask and one dish
 classification per capture. The only current dataset-based result is the WED

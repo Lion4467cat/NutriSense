@@ -71,3 +71,11 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 **Dependencies & Execution Order**: T011 and T012 precede implementation. T013 and T014 can be edited independently after T012; T015 follows both.
 
 **Implementation Strategy**: Preserve current WED values as development-only fallback results; do not invent project-dataset metrics. Keep the pending-results area visibly distinct and replace its pending labels only after project data collection and evaluation.
+
+## Phase 6: Flowchart Placement (User Story 1, Priority: P1)
+
+**Goal**: Keep the architecture figure close to its first explanation, before detailed methods.
+
+**Independent Test**: In the compiled PDF, the figure appears in the main body before Results and References, rather than after them.
+
+- [X] T016 [US1] Adjust the wide figure float placement in `paper/main.tex`, compile and inspect `paper/main.pdf`, and record the result in `specs/001-ieee-conference-paper/quickstart.md`.

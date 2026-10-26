@@ -34,7 +34,7 @@ Monocular geometry is ambiguous in global scale without additional constraints. 
 Fig.~\ref{fig:pipeline} shows the implemented single-capture sequence. Inputs are a meal image and capture/context fields. Lint gates reject invalid zoom, day, or meal band; low resolution creates a non-blocking note. The scale-anchor stage detects the reference marker. SAM 2.1 selects one food mask, and SigLIP 2 classifies the capture against the 46-image dish gallery, with text fallback and open-set abstention. Wheat products are outside the supported policy scope.
 
 For an accepted dish, MoGe-2 predicts scene geometry. A measured marker calibrates depth scale and supports geometric portion estimation. Without a marker, the WED-trained learned head supplies grams for mapped dishes. If that head is absent or fails for a mapped dish, the pipeline returns \texttt{cannot\_verify} without grams; an unmapped dish uses size-prior geometry. Invalid inputs and stage errors also return \texttt{cannot\_verify}, while unsupported dishes return \texttt{out\_of\_scope}.
-\begin{figure*}[t]\centering
+\begin{figure*}[!t]\centering
 \includegraphics[width=\textwidth]{figures/pipeline.pdf}
 \caption{Runtime for one meal capture, laid out in separate stages and portion-source paths. The no-marker paths differ by WED mapping: a mapped dish uses the learned head, and an unavailable or failing head abstains; only an unmapped dish uses size-prior geometry. Invalid inputs, unrecognized dishes, and stage failures return \texttt{cannot\_verify}; unsupported dishes return \texttt{out\_of\_scope}. Scoreable estimates produce a serialized verdict, reasons, and failures.}\label{fig:pipeline}\end{figure*}
 \section{Methods}

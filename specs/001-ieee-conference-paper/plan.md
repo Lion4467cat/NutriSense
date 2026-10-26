@@ -61,6 +61,7 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Retain an explicitly labeled, pending project-dataset-results slot with fields for sample counts, mass error/intervals, uncertainty coverage, and end-to-end evaluation; do not populate it until this dataset is collected and evaluated. State that WED DEV is the only current dataset-based fallback evidence.
 - Rebalance and uncramp the IEEE author block while preserving all supplied names, affiliation, and email placeholder labels.
 - Place each of the four authors in a separate, evenly spaced conference author block with a consistent affiliation line; keep contact text small enough to fit without colliding or wrapping into another author's block.
+- Place the wide pipeline float in the main body before Results and References, close to the System Overview discussion, while keeping IEEE conference float behavior.
 - State exact PM POSHAN policy minima and probability/coverage gates, and identify the 9–10 band value as inherited by the project's flagged inference.
 - State that WED DEV mass evaluation uses ground-truth ROI/class labels, the plate-grouped 10% carve, fixed seed 42, and 2,000 plate-bootstrap replicates; it is not upstream or end-to-end evaluation.
 - Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
