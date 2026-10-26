@@ -1,11 +1,12 @@
 # Paper Authoring and Validation Quickstart
 
-This guide covers the planned manuscript workflow. It becomes runnable after the paper source and official template files are added under `paper/`.
+This guide covers the manuscript workflow using the source and local toolchain in `paper/`.
 
 ## Prerequisites
 
-- Current official IEEE conference LaTeX template from the [IEEE Author Center](https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/authoring-tools-and-templates/), in conference mode.
-- A LaTeX distribution with `pdflatex` and BibTeX; `latexmk` is recommended.
+- IEEEtran conference class and BibTeX style from the template files vendored in `paper/`.
+- On Linux x86-64, run `paper/setup_texlive.sh` once to install local TeX Live 2026, `pdflatex`, BibTeX, `latexmk`, and the required packages. Other platforms can follow the [TeX Live quick-install guide](https://tug.org/texlive/quickinstall.html).
+- Before submission, compare with the selected event's author kit and the current [IEEE conference template guidance](https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/authoring-tools-and-templates/).
 - Repository evidence listed in [research.md](research.md).
 - Confirmation of placeholder email addresses before any submission-ready export.
 
@@ -14,7 +15,7 @@ This guide covers the planned manuscript workflow. It becomes runnable after the
 From the manuscript directory:
 
 ```bash
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+PATH="$PWD/.texlive/2026/bin/x86_64-linux:$PATH" latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 ```
 
 If `latexmk` is unavailable, run the standard `pdflatex`, `bibtex`, `pdflatex`, `pdflatex` sequence for the manuscript's main file. Keep the output PDF alongside or in the configured output directory.

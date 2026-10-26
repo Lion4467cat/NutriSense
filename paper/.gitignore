@@ -12,3 +12,6 @@
 *.synctex.gz
 *.toc
 main.pdf
+.tools/
+.texlive/
+.cache/

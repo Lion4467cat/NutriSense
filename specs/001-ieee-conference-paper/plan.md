@@ -10,9 +10,9 @@ Prepare an evidence-based IEEE conference manuscript describing NutriSense's sin
 
 ## Technical Context
 
-**Language/Version**: LaTeX source with BibTeX references; use the version of IEEE's official conference template obtained for the manuscript.
+**Language/Version**: LaTeX source with BibTeX references; IEEEtran 1.8b conference mode, with the upstream `bare_conf.tex` retained as the source starter. Check the selected event's current author kit before submission.
 
-**Primary Dependencies**: Official IEEE conference LaTeX template (`IEEEtran` conference mode and its supplied bibliography style); reproducible figure assets; primary-source references.
+**Primary Dependencies**: IEEEtran conference class and supplied BibTeX style; local TeX Live 2026 (`pdflatex`, BibTeX, and `latexmk`); reproducible figure assets; primary-source references.
 
 **Storage**: Text sources, bibliography, and figures under `paper/`; planning artifacts under `specs/001-ieee-conference-paper/`.
 

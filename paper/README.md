@@ -1,15 +1,21 @@
 # NutriSense IEEE conference paper
 
-This directory is the editable manuscript workspace. `main.tex` is a starter
-scaffold using IEEE's conference class and author-block structure; it is not a
-completed or submission-ready paper. The planning brief and claim constraints
-are in [`../specs/001-ieee-conference-paper/`](../specs/001-ieee-conference-paper/).
+This directory is the editable manuscript workspace. `main.tex` is based on
+IEEE's `bare_conf.tex` starter using the official IEEEtran conference class; it
+is not a completed or submission-ready paper. The planning brief and claim
+constraints are in [`../specs/001-ieee-conference-paper/`](../specs/001-ieee-conference-paper/).
 
 ## Template and venue
 
 The source selects `IEEEtran` in `conference` mode and uses the matching
-`IEEEtran` bibliography style. IEEE's conference author center directs authors
-to its conference templates in Word or LaTeX:
+`IEEEtran` bibliography style. The IEEEtran package and its original
+`bare_conf.tex` starter have been downloaded from CTAN and are included here:
+`IEEEtran.cls`, `IEEEtran.bst`, and `template/`. CTAN describes IEEEtran as the
+class and bibliography style for officially correct IEEE journal and
+conference output. The IEEE-linked ZIP endpoint returned an access challenge
+in this environment, so the CTAN distribution is the local source. IEEE's
+conference author center points authors to the official templates in Word or
+LaTeX:
 
 - <https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/authoring-tools-and-templates/>
 - <https://www.ieee.org/conferences/publishing/templates.html>
@@ -22,17 +28,23 @@ recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
 ## Compile
 
-Install a LaTeX distribution that includes `IEEEtran`, BibTeX, and `latexmk`,
-then run from this directory:
+Run the setup script once on Linux x86-64 to install a local TeX Live 2026
+compiler and paper dependencies, then compile from this directory:
 
 ```sh
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+./setup_texlive.sh
+PATH="$PWD/.texlive/2026/bin/x86_64-linux:$PATH" latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
 ```
 
-The current workspace does not have `pdflatex`, `latexmk`, or `IEEEtran.cls`
-installed, so a local PDF has not yet been built. The PDF is a generated review
-artifact and should not be committed unless the authors want a versioned review
-copy.
+The installer follows the TeX Users Group's local installation procedure and
+uses the minimal scheme plus the recommended LaTeX and font collections. It
+does not need administrator access. TeX Live is installed in `.texlive/` and
+is ignored by Git.
+
+The IEEEtran class and BibTeX style are vendored here so the manuscript uses
+the tracked template files. TeX Live, its package cache, and generated files
+are kept out of Git. The PDF is a generated review artifact and is ignored
+unless the authors want to version a review copy.
 
 ## Drafting rules
 
