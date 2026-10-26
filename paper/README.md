@@ -27,9 +27,9 @@ The downloaded template version and any event-specific changes should be
 recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
 The paper's pipeline figure uses separated stages and portion-source lanes at
-full conference width, including abstention and out-of-scope paths; the IEEE
+near-full conference width, including abstention and out-of-scope paths; the IEEE
 double-column float appears in the main body before Results and References. The four
-authors appear in two balanced columns, each with an individually paired
+authors appear in two balanced columns in the supplied visible order, each with an individually paired
 affiliation and contact line. It documents one selected food mask and one dish
 classification per capture. The only current dataset-based result is the WED
 DEV mass-head fallback using ground-truth ROI/class inputs; the project-specific
@@ -70,6 +70,8 @@ unless the authors want to version a review copy.
 - Replace each TODO only after checking the supporting source in the repository.
 - The 60 mm ArUco ID 7 marker printed on A4 is the field data-collection asset.
 - Describe national PM POSHAN as covering Bal Vatika through class VIII. The configured 9--10 band represents Karnataka's separately documented state Mid-Day Meal extension, not national PM POSHAN eligibility; see the source-by-source audit.
+- Treat the policy category as applying to the selected captured serving. One selected dish does not establish full-meal compliance when a meal contains multiple dishes.
+- Cite `nutrisense2026repository` for project-specific evaluation metrics and keep each metric's synthetic, gallery, or WED DEV scope explicit.
 - Scope the DINOv2-S value to WED DEV; do not claim DINOv2-S LOCKED/test results.
 - Label synthetic and gallery leave-one-out results by their actual validation
   setting; do not present them as independent real-world test results.

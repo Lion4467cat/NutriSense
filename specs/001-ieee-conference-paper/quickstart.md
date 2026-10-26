@@ -36,11 +36,12 @@ Compilation succeeds, all citations resolve, the PDF contains no overfull or cli
 
 ## Current Validation Record
 
-- `paper/main.tex` compiles with the vendored IEEEtran conference class and bibliography into a five-page, US Letter review PDF after adding two Karnataka government references.
+- `paper/main.tex` compiles with the vendored IEEEtran conference class and bibliography into a five-page, US Letter review PDF.
 - The full-width runtime diagram was visually inspected at normal page scale; the measured, no-marker mapped/head-available, no-marker unmapped, abstention, out-of-scope, verdict, and serialized-response paths are visible.
-- The IEEE double-column float now appears on page 3 of 4, before Results and References; it no longer sits at the end of the PDF.
-- The four authors are displayed in two balanced columns with individually paired names and contact details; the project-specific dataset-results table remains explicitly pending collection/evaluation.
-- Citations resolve. All ten bibliography entries are cited, all in-text citations resolve, and the MoGe-2 entry now matches the version named in the manuscript. The Thali entry uses proceedings pages 1--9 and DOI; PM POSHAN links directly to the official guideline PDF, records its issue date, and identifies national coverage through class VIII. Two Karnataka government sources support the separate IX--X state extension. The bibliography now continues onto page 5. Full findings are in [citation-audit.md](citation-audit.md).
+- The near-full-width diagram appears on page 3, before Results; Results begins on page 4. The diagram is legible at normal page scale, and the last-page references are balanced across both columns.
+- The four authors are displayed in two balanced columns in the supplied visible order, with individually paired names and contact details; the project-specific dataset-results table remains explicitly pending collection/evaluation.
+- Citations resolve. All eleven bibliography entries are cited, all in-text citations resolve, and the MoGe-2 entry now matches the version named in the manuscript. The Thali entry uses proceedings pages 1--9 and DOI; PM POSHAN links directly to the official guideline PDF, records its issue date, and identifies national coverage through class VIII. Two Karnataka government sources support the separate IX--X state extension. The NutriSense repository citation identifies internal project-evaluation artifacts. The PDF has no overfull-box or undefined-citation warnings; the full-height flowchart float produces expected underfull vertical-box warnings. Full findings are in [citation-audit.md](citation-audit.md).
 - The current WED DEV result is identified as external fallback, mass-head-only evaluation on ground-truth ROI/class inputs. No project-dataset, DINOv2-S LOCKED/test, or end-to-end result is claimed.
+- The paper explicitly limits its policy category to the selected captured serving; it does not claim that one dish capture establishes compliance for a multi-dish meal.
 - The 0.97/0.98 synthetic SAM IoU conflict remains documented in the repository; the manuscript omits a settled point estimate.
 - Remaining submission gate: select the target IEEE conference, check its page limit and event-specific author kit, and replace the three visibly marked placeholder email addresses.

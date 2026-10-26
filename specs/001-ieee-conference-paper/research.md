@@ -29,6 +29,7 @@ Date: 2026-10-26
 | SigLIP2 gallery 46/46 | README and `data/gallery.npz` build notes | Leave-one-out over the 46-image gallery, not independent test accuracy |
 | MoGe-2 calibrated depth error about 1.1% | README and project diagnostics | Rendered/synthetic card-calibration result; raw out-of-domain monocular scale is not reliable without calibration |
 | Geometry volume error (+6.6% plate, +5.6% bowl) | `docs/final-report.md` | Synthetic ground-truth renderer, not a real-meal field study |
+| Project metric provenance | `docs/ledger/001-current-state.md`, `docs/ledger/002-dinov2-encoder.md`, `docs/final-report.md`, `docs/diagnostic_report.md` | Cite these project artifacts for numerical claims, preserving each artifact's validation scope |
 | National PM POSHAN and Karnataka IX–X policy bands | `data/standards.yaml`, official PM POSHAN guidelines, Karnataka FPI Research Report No. 4/2021–22, and Karnataka Legislative Council administrative report | Distinguish central Bal Vatika–VIII coverage from Karnataka's IX–X state extension; explain that the project maps the state extension to the same upper-primary 700 kcal / 20 g threshold |
 
 ## Primary sources for related work

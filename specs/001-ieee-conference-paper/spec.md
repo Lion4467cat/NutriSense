@@ -87,6 +87,8 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-022**: The pipeline figure MUST appear in the main body before the Results section, near its System Overview discussion, rather than after the references; retain compliant IEEE float placement.
 - **FR-023**: Every in-text citation MUST resolve to one bibliography entry, and every bibliography entry MUST be cited. Each record MUST identify the source actually used (including model version and final publication metadata where available), and the nearby claim MUST be supported by that source; claims must be narrowed when a source does not justify them.
 - **FR-024**: The manuscript MUST distinguish national PM POSHAN coverage (Bal Vatika and classes I–VIII) and its primary and upper-primary norms from Karnataka's state Mid-Day Meal extension to classes IX–X. The configured 9–10 band MUST be identified as representing the Karnataka extension, with its upper-primary nutrition basis supported by official Karnataka sources; it MUST NOT be described as centrally defined PM POSHAN eligibility.
+- **FR-025**: Every quantitative project result in the manuscript MUST cite a repository report, evaluation record, or primary source that supports both the value and its stated evaluation setting.
+- **FR-026**: The manuscript MUST state that the current single-mask/single-dish pipeline's policy category applies only to the captured serving and cannot establish whole-meal compliance when a meal includes multiple dishes.
 
 ### Key Entities
 
@@ -114,6 +116,8 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-012**: The flowchart appears before the Results section and before the references in the compiled paper.
 - **SC-013**: A documented source-by-source audit confirms that every in-text citation has a matching, accurate bibliography record, every bibliography entry is used, and each cited source supports its associated manuscript claim.
 - **SC-014**: The policy discussion identifies Bal Vatika and classes I–VIII as national PM POSHAN coverage and accurately explains the separately documented Karnataka IX–X state extension and the 700 kcal / 20 g threshold used by the project band.
+- **SC-015**: Every project-specific numerical metric in the manuscript has a citation to an identifiable repository evaluation artifact and an explicit scope label (for example, synthetic, gallery leave-one-out, or WED DEV).
+- **SC-016**: The manuscript clearly states that its verdict concerns the selected captured serving and does not establish full-meal compliance for multi-dish meals.
 
 ## Assumptions
 

@@ -72,6 +72,14 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 **Implementation Strategy**: Preserve current WED values as development-only fallback results; do not invent project-dataset metrics. Keep the pending-results area visibly distinct and replace its pending labels only after project data collection and evaluation.
 
+## Phase 6: Flowchart Placement (User Story 1, Priority: P1)
+
+**Goal**: Keep the architecture figure close to its first explanation, before detailed methods.
+
+**Independent Test**: In the compiled PDF, the figure appears in the main body before Results and References, rather than after them.
+
+- [X] T016 [US1] Adjust the wide figure float placement in `paper/main.tex`, compile and inspect `paper/main.pdf`, and record the result in `specs/001-ieee-conference-paper/quickstart.md`.
+
 ## Phase 7: Citation and Source Audit (User Story 1, Priority: P1)
 
 **Goal**: Verify every citation against its actual source and ensure the manuscript's statements and bibliography metadata match.
@@ -84,10 +92,10 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 **Validation**: Recompile the paper and inspect rendered references and nearby claims. Record the audit outcome in `citation-audit.md` and `quickstart.md`.
 
-## Phase 6: Flowchart Placement (User Story 1, Priority: P1)
+## Phase 8: Final Manuscript Audit Corrections (User Stories 1 and 2, Priority: P1)
 
-**Goal**: Keep the architecture figure close to its first explanation, before detailed methods.
+**Goal**: Preserve supplied author order, cite project-specific evidence, bound the policy claim to the captured serving, and correct final layout/validation records.
 
-**Independent Test**: In the compiled PDF, the figure appears in the main body before Results and References, rather than after them.
+- **Independent Test**: Compile and inspect every PDF page; author order is clear, project metrics cite their supporting repository artifacts, no multi-dish whole-meal compliance claim is made, and validation records match the rendered output.
 
-- [X] T016 [US1] Adjust the wide figure float placement in `paper/main.tex`, compile and inspect `paper/main.pdf`, and record the result in `specs/001-ieee-conference-paper/quickstart.md`.
+- [X] T020 [US1] Correct visible author order, cite repository evidence for project-specific metrics, clarify single-serving verdict scope, rebalance the float/reference layout, synchronize the quickstart, and recompile/inspect the paper.
