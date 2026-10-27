@@ -45,6 +45,6 @@ This feature produces a scholarly manuscript, not a software data store. These e
 ```text
 Manuscript ── has ──> Author
 Manuscript ── describes ──> Method Component
-Manuscript ── reports ──> Evaluation Result ── supported by ──> Reference or repository report
+Manuscript ── reports ──> Evaluation Result ── described by ──> Protocol and scope
 Manuscript ── cites ──> Reference
 ```

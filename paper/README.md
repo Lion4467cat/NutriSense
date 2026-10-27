@@ -80,7 +80,7 @@ unless the authors want to version a review copy.
 - The 60 mm ArUco ID 7 marker printed on A4 is the field data-collection asset.
 - Describe national PM POSHAN as covering Bal Vatika through class VIII. The configured 9--10 band represents Karnataka's separately documented state Mid-Day Meal extension, not national PM POSHAN eligibility; see the source-by-source audit.
 - Treat the policy category as applying to the selected captured serving. One selected dish does not establish full-meal compliance when a meal contains multiple dishes.
-- Cite `nutrisense2026repository` for project-specific evaluation metrics and keep each metric's synthetic, gallery, or WED DEV scope explicit.
+- Present project-specific evaluation metrics as author-generated results, state each metric's split, sample basis, and synthetic/gallery/WED DEV scope, and do not cite the NutriSense repository in the bibliography.
 - Scope the DINOv2-S value to WED DEV; do not claim DINOv2-S LOCKED/test results.
 - Label synthetic and gallery leave-one-out results by their actual validation
   setting; do not present them as independent real-world test results.

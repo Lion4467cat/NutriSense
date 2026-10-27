@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2160" viewBox="0 0 1800 2160">
   <defs>
-    <marker id="arrow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto">
-      <path d="M0,0 L12,6 L0,12 Z" fill="#344256"/>
+    <marker id="arrow" markerWidth="24" markerHeight="20" refX="20" refY="10" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L20,10 L0,20 Z" fill="#344256"/>
     </marker>
-    <marker id="warnarrow" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto">
-      <path d="M0,0 L12,6 L0,12 Z" fill="#a34343"/>
+    <marker id="warnarrow" markerWidth="24" markerHeight="20" refX="20" refY="10" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L20,10 L0,20 Z" fill="#a34343"/>
     </marker>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #182536; text-anchor: middle; }
@@ -18,7 +18,7 @@
       .lane { fill: #fafbfd; stroke: #d5dde7; stroke-width: 2; }
       .box { rx: 18; ry: 18; }
       .diamond { stroke-width: 3; }
-      .edge { fill: none; stroke: #344256; stroke-width: 4; marker-end: url(#arrow); }
+      .edge { fill: none; stroke: #344256; stroke-width: 5; marker-end: url(#arrow); }
       .err-edge { fill: none; stroke: #a34343; stroke-width: 3.5; stroke-dasharray: 11 9; marker-end: url(#warnarrow); }
       .label { font-size: 29px; font-weight: 650; }
       .detail { font-size: 25px; }
@@ -28,25 +28,25 @@
 
   <!-- Intake stages: one capture produces one selected mask and one dish class. -->
   <text class="section" x="900" y="38">ONE CAPTURE</text>
-  <rect class="stage box" x="35" y="70" width="400" height="125"/>
-  <text class="label" x="235" y="120">Meal photo + context</text>
-  <text class="detail" x="235" y="160">day, meal band, zoom</text>
+  <rect class="stage box" x="45" y="70" width="360" height="125"/>
+  <text class="label" x="225" y="120">Meal photo + context</text>
+  <text class="detail" x="225" y="160">day, meal band, zoom</text>
 
-  <rect class="stage box" x="480" y="70" width="400" height="125"/>
-  <text class="label" x="680" y="120">Capture checks</text>
-  <text class="detail" x="680" y="160">invalid fields abstain</text>
+  <rect class="stage box" x="495" y="70" width="360" height="125"/>
+  <text class="label" x="675" y="120">Capture checks</text>
+  <text class="detail" x="675" y="160">invalid fields abstain</text>
 
-  <rect class="stage box" x="925" y="70" width="400" height="125"/>
+  <rect class="stage box" x="945" y="70" width="360" height="125"/>
   <text class="label" x="1125" y="120">Scale anchor</text>
   <text class="detail" x="1125" y="160">60 mm ArUco marker on A4</text>
 
-  <rect class="stage box" x="1370" y="70" width="400" height="125"/>
-  <text class="label" x="1570" y="120">SAM 2.1 + SigLIP 2</text>
-  <text class="detail" x="1570" y="160">one mask; one dish class</text>
+  <rect class="stage box" x="1395" y="70" width="360" height="125"/>
+  <text class="label" x="1575" y="120">SAM 2.1 + SigLIP 2</text>
+  <text class="detail" x="1575" y="160">one mask; one dish label</text>
 
-  <path class="edge" d="M435 132 H480"/>
-  <path class="edge" d="M880 132 H925"/>
-  <path class="edge" d="M1325 132 H1370"/>
+  <path class="edge" d="M405 132 H495"/>
+  <path class="edge" d="M855 132 H945"/>
+  <path class="edge" d="M1305 132 H1395"/>
 
   <!-- Clearly separated terminal outcomes. -->
   <rect class="failure box" x="60" y="270" width="500" height="135"/>

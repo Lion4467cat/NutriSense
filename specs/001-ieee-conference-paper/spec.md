@@ -67,7 +67,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-002**: The manuscript MUST describe the end-to-end workflow from a meal photograph through dish recognition, portion estimation, nutrient uncertainty, and PM POSHAN compliance assessment.
 - **FR-003**: The manuscript MUST distinguish measured scale from the 60 mm ArUco marker on A4 from prior-tier estimates used when no marker is detected.
 - **FR-004**: The manuscript MUST describe the actual model components and their roles without implying that a model or data collection step was used when it was not.
-- **FR-005**: Every quantitative result MUST identify its metric, evaluation split, sample basis, model/checkpoint where relevant, and supporting repository report or primary reference.
+- **FR-005**: Every quantitative result MUST identify its metric, evaluation split, sample basis, model/checkpoint where relevant, and enough evaluation-protocol detail to distinguish author-generated results from published evidence.
 - **FR-006**: The manuscript MUST report the current DINOv2-S WED DEV MAE and its confidence interval from the current evaluation ledger, and MUST NOT infer DINOv2-S performance on the LOCKED test split.
 - **FR-007**: The manuscript MUST identify limitations, including the distinction between DEV and test results, assumed parameters, coverage effects, and pending real-world validation.
 - **FR-008**: The manuscript MUST use the official IEEE conference template in conference mode and remove template guidance text from the paper.
@@ -87,7 +87,7 @@ The authors need their names and institutional affiliation included, with the su
 - **FR-022**: The pipeline figure MUST appear in the main body before the Results section, near its System Overview discussion, rather than after the references; retain compliant IEEE float placement.
 - **FR-023**: Every in-text citation MUST resolve to one bibliography entry, and every bibliography entry MUST be cited. Each record MUST identify the source actually used (including model version and final publication metadata where available), and the nearby claim MUST be supported by that source; claims must be narrowed when a source does not justify them.
 - **FR-024**: The manuscript MUST distinguish national PM POSHAN coverage (Bal Vatika and classes I–VIII) and its primary and upper-primary norms from Karnataka's state Mid-Day Meal extension to classes IX–X. The configured 9–10 band MUST be identified as representing the Karnataka extension, with its upper-primary nutrition basis supported by official Karnataka sources; it MUST NOT be described as centrally defined PM POSHAN eligibility.
-- **FR-025**: Every quantitative project result in the manuscript MUST cite a repository report, evaluation record, or primary source that supports both the value and its stated evaluation setting.
+- **FR-025**: Every quantitative project result in the manuscript MUST be presented as an author-generated result with its value, evaluation setting, sample basis, and protocol stated; the project's own repository MUST NOT be included as a bibliography reference.
 - **FR-026**: The manuscript MUST state that the current single-mask/single-dish pipeline's policy category applies only to the captured serving and cannot establish whole-meal compliance when a meal includes multiple dishes.
 - **FR-027**: The paper project MUST provide a one-command local build using its configured TeX Live installation and document how to compile the complete project in Overleaf using the vendored assets.
 
@@ -117,7 +117,7 @@ The authors need their names and institutional affiliation included, with the su
 - **SC-012**: The flowchart appears before the Results section and before the references in the compiled paper.
 - **SC-013**: A documented source-by-source audit confirms that every in-text citation has a matching, accurate bibliography record, every bibliography entry is used, and each cited source supports its associated manuscript claim.
 - **SC-014**: The policy discussion identifies Bal Vatika and classes I–VIII as national PM POSHAN coverage and accurately explains the separately documented Karnataka IX–X state extension and the 700 kcal / 20 g threshold used by the project band.
-- **SC-015**: Every project-specific numerical metric in the manuscript has a citation to an identifiable repository evaluation artifact and an explicit scope label (for example, synthetic, gallery leave-one-out, or WED DEV).
+- **SC-015**: Every project-specific numerical metric in the manuscript has an explicit scope label (for example, synthetic, gallery leave-one-out, or WED DEV) and enough protocol detail to identify the evaluation; the project's own repository is absent from the bibliography.
 - **SC-016**: The manuscript clearly states that its verdict concerns the selected captured serving and does not establish full-meal compliance for multi-dish meals.
 - **SC-017**: From the `paper/` directory, `./build.sh` compiles `main.tex`, its bibliography, and the pipeline figure into `main.pdf`; the documented Overleaf workflow includes all required project files and selects `main.tex`.
 

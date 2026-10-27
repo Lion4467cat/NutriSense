@@ -94,11 +94,11 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 ## Phase 8: Final Manuscript Audit Corrections (User Stories 1 and 2, Priority: P1)
 
-**Goal**: Preserve supplied author order, cite project-specific evidence, bound the policy claim to the captured serving, and correct final layout/validation records.
+**Goal**: Preserve supplied author order, document project-specific evidence without a repository self-citation, bound the policy claim to the captured serving, and correct final layout/validation records.
 
-- **Independent Test**: Compile and inspect every PDF page; author order is clear, project metrics cite their supporting repository artifacts, no multi-dish whole-meal compliance claim is made, and validation records match the rendered output.
+- **Independent Test**: Compile and inspect every PDF page; author order is clear, project metrics state their evaluation protocols without citing the project's own repository, no multi-dish whole-meal compliance claim is made, and validation records match the rendered output.
 
-- [X] T020 [US1] Correct visible author order, cite repository evidence for project-specific metrics, clarify single-serving verdict scope, rebalance the float/reference layout, synchronize the quickstart, and recompile/inspect the paper.
+- [X] T020 [US1] Correct visible author order, document project-metric evaluation protocols, clarify single-serving verdict scope, rebalance the float/reference layout, synchronize the quickstart, and recompile/inspect the paper.
 
 ## Phase 9: Reproducible TeX Build and Overleaf Setup (User Story 2, Priority: P1)
 
@@ -119,3 +119,14 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - [X] T026 [US2] Rebuild the paper and visually inspect its layout after the codebase consistency corrections, per FR-012.
 - [X] T027 [US2] Upload the corrected local source to the existing `nutrisense` Overleaf project and confirm its hosted build, per FR-027.
 - [X] T028 [US2] Commit and push the validated manuscript and documentation corrections to `main`, per FR-027.
+
+## Phase 11: Repository Citation Removal and Classifier/Diagram Precision
+
+**Goal**: Remove the project's own repository from the bibliography, accurately explain the current SigLIP 2 classifier behavior and gallery scope, and improve first-row flowchart spacing and connector visibility.
+
+**Independent Test**: No manuscript citation or bibliography entry points to the NutriSense repository; the classifier description matches the runtime (one output label per capture, current 46-image/two-class gallery, text scoring only without a gallery); the rebuilt diagram has clear arrows and contained labels.
+
+- [X] T029 [US1] Remove the NutriSense repository citation, preserve the project metrics as author-generated results with evaluation scope/protocol, and update citation-audit and authoring documentation.
+- [X] T030 [US1] Correct SigLIP 2 wording to distinguish one predicted dish label per capture from the number of candidate classes/model capacity, and state that the current gallery has 46 images across two dish classes.
+- [X] T031 [US1] Widen the first-row flowchart gaps, strengthen arrowheads/strokes, compile the paper, and inspect the complete rendered diagram for overflow and readability.
+- [ ] T032 [US2] Upload the reviewed source and updated diagram asset to the existing Overleaf project, confirm its hosted build, then commit and push all changes to `main`.

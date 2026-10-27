@@ -26,7 +26,7 @@ Date: 2026-10-26
 | Paired DEV change 20.298 → 15.034 g; Δ −5.264 g, 95% CI [−6.232, −4.227] | `docs/ledger/002-dinov2-encoder.md` | Paired evaluation on same DEV plates; not a comparison against a test-set score |
 | DEV coverage_90 0.8522 [0.792, 0.899] | `docs/ledger/001-current-state.md`, `docs/eval_protocol.md` | Coverage uses per-class residual sigma; describe its evaluation definition |
 | SAM2.1 IoU 0.98 | README and project model notes | Synthetic validation only |
-| SigLIP2 gallery 46/46 | README and `data/gallery.npz` build notes | Leave-one-out over the 46-image gallery, not independent test accuracy |
+| SigLIP2 gallery 46/46 | `data/gallery.npz` and evaluation records | Leave-one-out over the current 46-image gallery (two dish classes), not independent test accuracy; runtime returns one predicted dish label per capture |
 | MoGe-2 calibrated depth error about 1.1% | README and project diagnostics | Rendered/synthetic card-calibration result; raw out-of-domain monocular scale is not reliable without calibration |
 | Geometry volume error (+6.6% plate, +5.6% bowl) | `docs/final-report.md` | Synthetic ground-truth renderer, not a real-meal field study |
 | Project metric provenance | `docs/ledger/001-current-state.md`, `docs/ledger/002-dinov2-encoder.md`, `docs/final-report.md`, `docs/diagnostic_report.md` | Cite these project artifacts for numerical claims, preserving each artifact's validation scope |

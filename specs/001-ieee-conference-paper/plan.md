@@ -28,6 +28,8 @@ Revise the evidence-based IEEE conference manuscript to resolve audit findings a
 
 **Scale/Scope**: One conference paper, one editable source, bibliography, figures/tables, and a compiled review PDF. No new experiments are included in this plan.
 
+**Citation policy for project results**: Report in-house metrics as author-generated results with their evaluation protocol, split, sample basis, and scope stated in the manuscript. Do not include the NutriSense repository itself as a bibliography reference.
+
 ## Constitution Check
 
 **Pre-design gate**
@@ -48,7 +50,7 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Select IEEE's official conference LaTeX template in conference mode. IEEE provides Word and LaTeX templates; the target conference's current instructions take precedence over generic defaults.
 - Structure the paper around the pipeline and its evidence: card-based metric scale, fallback paths, dish localization/classification, learned weight estimation, nutrient uncertainty, and PM POSHAN policy scoring.
 - Treat the current result as WED DEV performance: 15.034 g MAE on 108 views / 21 plates / 1,218 ROIs with a plate-bootstrap 95% interval of [12.227, 18.889]. The paired DEV difference against the ResNet-50 baseline is −5.264 g [−6.232, −4.227]. Do not claim a DINOv2-S LOCKED/test result.
-- Scope SAM2.1 IoU 0.98, geometry volume errors, and MoGe's 1.1% depth calibration error to their synthetic/rendered validation. Scope SigLIP2 46/46 to gallery leave-one-out, not independent test performance.
+- Scope SAM2.1 IoU 0.98, geometry volume errors, and MoGe's 1.1% depth calibration error to their synthetic/rendered validation. Scope SigLIP2 46/46 to gallery leave-one-out, not independent test performance. The current gallery contains 46 images from two dish classes; the runtime returns one predicted label or abstention per capture and uses text-prompt scores only when no gallery is available.
 - Use the provided A4 PDF as the field scale marker. It was preserved unchanged; its A4 page and 60 mm ArUco ID 7 geometry match the project detector. The former A6/100 mm graphic remains only as a synthetic fixture generator, not a field-capture asset.
 
 ## Phase 1: Design
@@ -67,6 +69,7 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Remove the disputed synthetic IoU point estimate from the paper; the module note says 0.97 while summary reports say 0.98.
 - Cite SAM 2's ICLR 2025 paper and the official Meta SAM 2.1 repository, DINOv2's TMLR 2024 publication, and the official PM POSHAN guideline dated 21 December 2022. Record the Thali article's actual proceedings pages 1--9. See [citation-audit.md](citation-audit.md) for the completed source-by-source audit.
 - Audit all in-text citation keys against `references.bib`; verify titles, authors, versions, venues/years, identifiers, and claim support using the primary paper or official guideline. Use the MoGe-2 record because that is the model named by the implementation, and record all outcomes in `citation-audit.md`.
+- Keep project evaluation records out of the bibliography; state project metrics as author-generated and provide enough protocol detail to understand each result.
 
 ### Manuscript Structure
 
