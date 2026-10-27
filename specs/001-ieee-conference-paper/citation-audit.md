@@ -27,7 +27,7 @@
 
 ## Citation-key reconciliation
 
-All ten bibliography keys are cited in `paper/main.tex`; each citation resolves to one record, and no record is unused. The manuscript does not include the NutriSense GitHub repository as a bibliography item. The fresh `paper/build.sh` run produced a five-page PDF and IEEE bibliography with no undefined-citation or overfull-box warnings. The only LaTeX notices were the existing float-only page and underfull vertical-box notices for the full-width flowchart.
+All ten bibliography keys are cited in `paper/main.tex`; each citation resolves to one record, and no record is unused. The manuscript does not include the NutriSense GitHub repository as a bibliography item. The fresh `paper/build.sh` run produced a five-page PDF and IEEE bibliography with no undefined-citation or overfull-box warnings. The updated `main.tex` and `references.bib` were also uploaded to the existing Overleaf `nutrisense` project and recompiled; its log reports zero errors, one float-only-page warning, and one underfull vertical-box notice for the full-width flowchart.
 
 ## Claim boundaries retained
 

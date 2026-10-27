@@ -146,4 +146,4 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 **Independent Test**: Every in-text key resolves to one bibliography record, every record is cited, metadata matches its source, the source supports the nearby claim, and the compiled IEEE bibliography has no unresolved citation warnings.
 
-- [X] T035 [US1] Reverify all ten citations and source claims; update MoGe-2 to its final NeurIPS 2025 record, clarify the Karnataka 9--10 threshold as an application mapping, record the WED pagination evidence limits, and rebuild the manuscript.
+- [X] T035 [US1] Reverify all ten citations and source claims; update MoGe-2 to its final NeurIPS 2025 record, clarify the Karnataka 9--10 threshold as an application mapping, record the WED pagination evidence limits, rebuild the manuscript locally and in Overleaf, and confirm zero hosted compile errors.
