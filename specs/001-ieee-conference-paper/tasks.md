@@ -130,3 +130,12 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - [X] T030 [US1] Correct SigLIP 2 wording to distinguish one predicted dish label per capture from the number of candidate classes/model capacity, and state that the current gallery has 46 images across two dish classes.
 - [X] T031 [US1] Widen the first-row flowchart gaps, strengthen arrowheads/strokes, compile the paper, and inspect the complete rendered diagram for overflow and readability.
 - [X] T032 [US2] Upload the reviewed source and updated diagram asset to the existing Overleaf project, confirm its hosted build, then commit and push all changes to `main`.
+
+## Phase 12: Flowchart Text Containment
+
+**Goal**: Keep all flowchart labels inside their node boundaries in the compiled paper and in the Overleaf project.
+
+**Independent Test**: Render the SVG and the compiled IEEE PDF; confirm each node's text stays inside its shape, then verify Overleaf compiles the updated `figures/pipeline.pdf` with zero errors.
+
+- [X] T033 [US1] Wrap the measured-scale geometry detail into centered lines that fit inside its node and inspect all flowchart node text bounds.
+- [X] T034 [US2] Regenerate the vector PDF, rebuild and visually inspect the paper, replace the `figures/pipeline.pdf` asset in Overleaf, verify the hosted build, and commit and push the updated diagram to `main`.

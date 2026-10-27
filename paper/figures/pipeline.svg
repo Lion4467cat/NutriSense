@@ -87,7 +87,8 @@
   <text class="edge-label" x="585" y="680">yes</text>
   <rect class="success box" x="90" y="810" width="430" height="145"/>
   <text class="label" x="305" y="865">Geometry mass</text>
-  <text class="detail" x="305" y="910">measured scale × area × height × density</text>
+  <text class="detail" x="305" y="900">measured scale × area</text>
+  <text class="detail" x="305" y="930">× height × density</text>
 
   <path class="edge" d="M1020 625 C1080 675 1010 720 950 795"/>
   <text class="edge-label" x="1050" y="700">no</text>

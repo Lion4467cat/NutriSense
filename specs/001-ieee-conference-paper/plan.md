@@ -70,6 +70,7 @@ See [research.md](research.md) for the source-by-source decisions and caveats. K
 - Cite SAM 2's ICLR 2025 paper and the official Meta SAM 2.1 repository, DINOv2's TMLR 2024 publication, and the official PM POSHAN guideline dated 21 December 2022. Record the Thali article's actual proceedings pages 1--9. See [citation-audit.md](citation-audit.md) for the completed source-by-source audit.
 - Audit all in-text citation keys against `references.bib`; verify titles, authors, versions, venues/years, identifiers, and claim support using the primary paper or official guideline. Use the MoGe-2 record because that is the model named by the implementation, and record all outcomes in `citation-audit.md`.
 - Keep project evaluation records out of the bibliography; state project metrics as author-generated and provide enough protocol detail to understand each result.
+- Keep every flowchart label inside its node shape at the rendered PDF scale. Break long descriptions across lines where needed, and upload the vector PDF to the exact `figures/pipeline.pdf` path referenced by `main.tex`.
 
 ### Manuscript Structure
 
