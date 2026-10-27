@@ -129,4 +129,4 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - [X] T029 [US1] Remove the NutriSense repository citation, preserve the project metrics as author-generated results with evaluation scope/protocol, and update citation-audit and authoring documentation.
 - [X] T030 [US1] Correct SigLIP 2 wording to distinguish one predicted dish label per capture from the number of candidate classes/model capacity, and state that the current gallery has 46 images across two dish classes.
 - [X] T031 [US1] Widen the first-row flowchart gaps, strengthen arrowheads/strokes, compile the paper, and inspect the complete rendered diagram for overflow and readability.
-- [ ] T032 [US2] Upload the reviewed source and updated diagram asset to the existing Overleaf project, confirm its hosted build, then commit and push all changes to `main`.
+- [X] T032 [US2] Upload the reviewed source and updated diagram asset to the existing Overleaf project, confirm its hosted build, then commit and push all changes to `main`.
