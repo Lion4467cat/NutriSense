@@ -117,5 +117,5 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 - [X] T024 [US1] Distinguish official Bal Vatika/national coverage from the application's three configured bands (1--5, 6--8, and Karnataka 9--10), and state that no separate Bal Vatika band is exposed, per FR-015 and FR-024.
 - [X] T025 [US1] Remove the README claim that every no-card prior-tier result is unable to reach PASS/FAIL and make the overview agree with the implemented learned-weight versus size-prior geometry paths, per T005 and `engine/compliance.py`.
 - [X] T026 [US2] Rebuild the paper and visually inspect its layout after the codebase consistency corrections, per FR-012.
-- [ ] T027 [US2] Upload the corrected local source to the existing `nutrisense` Overleaf project and confirm its hosted build, per FR-027.
+- [X] T027 [US2] Upload the corrected local source to the existing `nutrisense` Overleaf project and confirm its hosted build, per FR-027.
 - [X] T028 [US2] Commit and push the validated manuscript and documentation corrections to `main`, per FR-027.
