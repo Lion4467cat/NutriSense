@@ -139,3 +139,11 @@ Complete all corrections in the existing IEEE draft, then compile and visually i
 
 - [X] T033 [US1] Wrap the measured-scale geometry detail into centered lines that fit inside its node and inspect all flowchart node text bounds.
 - [X] T034 [US2] Regenerate the vector PDF, rebuild and visually inspect the paper, replace the `figures/pipeline.pdf` asset in Overleaf, verify the hosted build, and commit and push the updated diagram to `main`.
+
+## Phase 13: Citation Verification Refresh
+
+**Goal**: Recheck every manuscript citation against current primary sources, use final publication records where available, and bound government-policy claims to the evidence.
+
+**Independent Test**: Every in-text key resolves to one bibliography record, every record is cited, metadata matches its source, the source supports the nearby claim, and the compiled IEEE bibliography has no unresolved citation warnings.
+
+- [X] T035 [US1] Reverify all ten citations and source claims; update MoGe-2 to its final NeurIPS 2025 record, clarify the Karnataka 9--10 threshold as an application mapping, record the WED pagination evidence limits, and rebuild the manuscript.
