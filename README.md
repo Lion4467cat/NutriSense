@@ -121,7 +121,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
-- **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
+- **FastAPI service** — `GET /health`, `GET /menu`, `GET /goals`, `POST /analyze` with full diagnostics in every response
 - **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
 - **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn), each with its own coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
@@ -158,6 +158,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 | PM POSHAN menu + F&N guidelines (user-provided doc) | dishes, days, class bands, kcal/protein minimums | `data/menu.yaml`, `data/standards.yaml` |
 | IFCT 2017 (NIN Hyderabad) | boiled-rice / curd nutrient values (literature rows) | `data/nutrients.yaml` |
 | Recipe assumptions | sambar, vegetable_rice, bisi_belee_bath rows (marked `assumed`) | `data/nutrients.yaml`, `data/params_status.yaml` |
+| WHO/FAO/UNU energy (2004) + protein (TRS 935, 2007) | General-mode Daily-goal values by age band, sex, activity level (per-entry status + provenance; research `docs/research/who-goals.md`) | `data/goals_who.yaml` |
 | Canteen phone photos (46) | classifier gallery | `data/gallery.npz`, `../DATASET/` |
 | Synthetic renderer | ground truth for the test suite | `tests/synth/` |
 | Field scale marker (A4 PDF, ArUco id 7, 60 mm) | metric scale marker used during data collection | `docs/assets/reference_marker_A4_60mm.pdf` |
@@ -175,7 +176,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 160 tests (synthetic GT scenes + HTTP E2E + contract parity); 151 run without a GPU |
+| Tests | pytest — 178 tests (synthetic GT scenes + HTTP E2E + contract parity); 169 run without a GPU |
 
 ---
 
@@ -183,7 +184,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 
 ```
 NutriSense/
-├── main.py                    # FastAPI: /health /menu /analyze
+├── main.py                    # FastAPI: /health /menu /goals /analyze
 ├── geo/                       # camera pose, planes, quads, back-projection
 ├── models/
 │   ├── scale_anchor.py        # S1: card / prior tiers
@@ -248,8 +249,8 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # full backend: 160 passed (151 without a GPU)
-.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 150 passed, 9 deselected
+.venv/bin/pytest -q                    # full backend: 178 passed (169 without a GPU)
+.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 169 passed, 9 deselected
 .venv/bin/pytest -m gpu -q             # the 9 model tests (SAM2, SigLIP2, MoGe-2, weight head)
 cd frontend && npm test                # 43 vitest tests (wire parity, selectors, PolicyNote)
 ```
@@ -258,7 +259,7 @@ Hermetic subset — exactly what CI runs, with empty model caches so nothing can
 
 ```bash
 TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
-  .venv/bin/pytest -m "not gpu" -q     # 150 passed, 9 deselected, both dirs stay empty
+  .venv/bin/pytest -m "not gpu" -q     # 169 passed, 9 deselected, both dirs stay empty
 ```
 
 `pytest.ini` declares the `gpu` marker; `tests/conftest.py` pins the weight head to `None`, so non-gpu runs never touch `data/weight_head.pt`.
@@ -338,6 +339,7 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 | GET | `/` | Server status |
 | GET | `/health` | Health check (`phase`) |
 | GET | `/menu` | Dishes, days, class bands, capture fields (single source of truth) |
+| GET | `/goals` | WHO Daily-goal values (General mode): energy kcal/day + protein g/day by age band × sex × activity level, status + provenance included |
 | POST | `/analyze` | Multipart upload (`file`, `day`, `band`, `serving_style`) → full analysis |
 
 ### Example Response — `/analyze`

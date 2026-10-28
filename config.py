@@ -18,6 +18,7 @@ STANDARDS_PATH = DATA_DIR / "standards.yaml"
 PARAMS_PATH = DATA_DIR / "params_status.yaml"
 NUTRIENTS_PATH = DATA_DIR / "nutrients.yaml"
 YIELDS_PATH = DATA_DIR / "conversions.yaml"
+GOALS_PATH = DATA_DIR / "goals_who.yaml"
 ANCHOR_CONFIG_PATH = DATA_DIR / "anchor_config.json"
 GALLERY_PATH = DATA_DIR / "gallery.npz"
 WED_DISHES_PATH = DATA_DIR / "wed_dishes.yaml"
@@ -73,6 +74,16 @@ def load_yields() -> dict:
         with open(YIELDS_PATH) as f:
             _CACHE["yields"] = yaml.safe_load(f)["yields"]
     return _CACHE["yields"]
+
+
+def load_goals() -> dict:
+    """WHO daily-goal table (data/goals_who.yaml): energy kcal/day + protein
+    g/day by age band, sex and activity level, with per-entry status and
+    provenance. General-mode data only — school compliance never reads it."""
+    if "goals" not in _CACHE:
+        with open(GOALS_PATH) as f:
+            _CACHE["goals"] = yaml.safe_load(f)
+    return _CACHE["goals"]
 
 
 def load_anchor_config(path=None) -> dict:

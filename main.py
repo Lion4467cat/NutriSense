@@ -1,4 +1,4 @@
-"""NutriSense API (S6): /health, /menu, /analyze."""
+"""NutriSense API (S6): /health, /menu, /goals, /analyze."""
 import logging
 import os
 import tempfile
@@ -10,7 +10,7 @@ import numpy as np
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import load_menu, load_standards
+from config import load_goals, load_menu, load_standards
 from engine.contract import load_policy, log_analysis, unreadable_analysis
 from engine.pipeline import analyze
 from models.scale_anchor import read_exif
@@ -102,6 +102,26 @@ def menu():
         "capture_fields": m["capture_fields"],
         "remarks": m["remarks"],
         "policy": load_policy().to_wire(),
+    }
+
+
+@app.get("/goals")
+def goals():
+    """WHO daily-goal values (General mode, spec 002) — read-only like /menu.
+
+    Shapes the data file's `bands` table as `daily`, with the vocabulary and
+    activity-level lists the frontend renders as pickers. Provenance and
+    status travel with each profile; /analyze is untouched (ADR 0003).
+    """
+    g = load_goals()
+    return {
+        "age_bands": list(g["bands"]),
+        "sexes": g["vocabulary"]["sexes"],
+        "activity_levels": list(g["activity_levels"]),
+        "units": g["units"],
+        "daily": g["bands"],
+        "source": g["source"],
+        "caveats": g["caveats"],
     }
 
 
