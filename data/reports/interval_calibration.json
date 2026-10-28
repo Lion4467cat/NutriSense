@@ -1,0 +1,1326 @@
+{
+  "ticket": "03-interval-calibration",
+  "ledger_entry": "004",
+  "date": "2026-10-28",
+  "n_samples": 1218,
+  "n_plates": 21,
+  "n_folds": 21,
+  "alpha": 0.1,
+  "z90": 1.644854,
+  "min_fold_count": 3,
+  "grid": {
+    "lo": 0.5,
+    "hi": 1.5,
+    "step": 0.005
+  },
+  "nominal_check": {
+    "oof_coverage_90_band_at_multiplier_1.0": 0.8103,
+    "full_dev_band_coverage_90_at_file_sigma": 0.8522,
+    "full_dev_split_conformal_quantile": 1.1989,
+    "full_dev_coverage_90_at_conformal_quantile": 0.9015
+  },
+  "per_fold": [
+    {
+      "plate": "20250512_set14",
+      "n_held": 72,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.5917,
+      "fold_heldout_coverage_at_c_f": 0.9167
+    },
+    {
+      "plate": "20250512_set22",
+      "n_held": 84,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 0.7982,
+      "fold_heldout_coverage_at_c_f": 0.9167
+    },
+    {
+      "plate": "20250515_set11",
+      "n_held": 55,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 2.2374,
+      "fold_heldout_coverage_at_c_f": 0.9273
+    },
+    {
+      "plate": "20250515_set20",
+      "n_held": 58,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 3.1384,
+      "fold_heldout_coverage_at_c_f": 0.931
+    },
+    {
+      "plate": "20250516_set10",
+      "n_held": 50,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.4352,
+      "fold_heldout_coverage_at_c_f": 0.92
+    },
+    {
+      "plate": "20250516_set19",
+      "n_held": 54,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 0.9577,
+      "fold_heldout_coverage_at_c_f": 0.9259
+    },
+    {
+      "plate": "20250516_set21",
+      "n_held": 54,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 0.7081,
+      "fold_heldout_coverage_at_c_f": 0.9259
+    },
+    {
+      "plate": "20250517_set14",
+      "n_held": 49,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.1005,
+      "fold_heldout_coverage_at_c_f": 0.9184
+    },
+    {
+      "plate": "20250517_set16",
+      "n_held": 50,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.0078,
+      "fold_heldout_coverage_at_c_f": 0.92
+    },
+    {
+      "plate": "20250517_set3",
+      "n_held": 49,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.6167,
+      "fold_heldout_coverage_at_c_f": 0.9184
+    },
+    {
+      "plate": "20250517_set30",
+      "n_held": 49,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 12.4785,
+      "fold_heldout_coverage_at_c_f": 0.9184
+    },
+    {
+      "plate": "20250517_set7",
+      "n_held": 49,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.1122,
+      "fold_heldout_coverage_at_c_f": 0.9184
+    },
+    {
+      "plate": "20250519_set10",
+      "n_held": 54,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 0.9598,
+      "fold_heldout_coverage_at_c_f": 0.9259
+    },
+    {
+      "plate": "20250519_set6",
+      "n_held": 59,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.6224,
+      "fold_heldout_coverage_at_c_f": 0.9153
+    },
+    {
+      "plate": "20250521_set12",
+      "n_held": 67,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 2.3036,
+      "fold_heldout_coverage_at_c_f": 0.9254
+    },
+    {
+      "plate": "20250521_set15",
+      "n_held": 70,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.2054,
+      "fold_heldout_coverage_at_c_f": 0.9143
+    },
+    {
+      "plate": "20250521_set21",
+      "n_held": 69,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.3926,
+      "fold_heldout_coverage_at_c_f": 0.913
+    },
+    {
+      "plate": "20250523_set1",
+      "n_held": 53,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 2.668,
+      "fold_heldout_coverage_at_c_f": 0.9245
+    },
+    {
+      "plate": "20250523_set9",
+      "n_held": 55,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 1.3753,
+      "fold_heldout_coverage_at_c_f": 0.9273
+    },
+    {
+      "plate": "20250524_set12",
+      "n_held": 60,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 2.427,
+      "fold_heldout_coverage_at_c_f": 0.9167
+    },
+    {
+      "plate": "20250524_set15",
+      "n_held": 58,
+      "fallback_samples": 0,
+      "fold_conformal_multiplier": 3.3344,
+      "fold_heldout_coverage_at_c_f": 0.931
+    }
+  ],
+  "per_fold_procedure_pooled_oof_coverage_90": 0.9212,
+  "stage_c": {
+    "stage": "C",
+    "multiplier": 1.47,
+    "oof_coverage_90_band": 0.9007,
+    "band_width_growth_pct": 47.0,
+    "gate": {
+      "oof_coverage_90_ge_0.90": true,
+      "width_growth_le_25pct": false
+    },
+    "oof_coverage_90_wire": 0.9039,
+    "wire_width_growth_pct": 46.11
+  },
+  "stage_b": {
+    "stage": "B",
+    "multiplier_per_class": {
+      "beetroot-poriyal": 1.5,
+      "cabbage-dry": 1.425,
+      "chutney": 1.48,
+      "curd": 0.975,
+      "papad": 1.285,
+      "phulka": 1.445,
+      "rajma": 1.34,
+      "salad": 0.995,
+      "sambar": 1.5,
+      "steamed-rice": 1.035,
+      "veg-pulao": 1.17,
+      "Watermelon": 1.5,
+      "bisi-bele-bath": 1.5,
+      "boondi": 1.5,
+      "dondakaya-fry": 1.5,
+      "kakarakaya-fry": 1.5,
+      "leaf-dal": 1.5,
+      "non-spicy-dal": 1.195,
+      "payasam": 1.5,
+      "Papaya": 1.5,
+      "channa-brinjal": 1.5,
+      "tomato-pappu": 1.445,
+      "beetroot-kobari": 1.5,
+      "beans-curry": 1.5,
+      "kofta-curry": 1.01,
+      "mango-pickle": 1.5,
+      "non-spicy-curry": 1.07,
+      "pachi-pulusu": 1.195,
+      "Banana": 1.275,
+      "aloo-fry": 1.5,
+      "Muskmelon": 1.5,
+      "aloo-capsicum": 1.5,
+      "aloo-curry": 1.5,
+      "chicken-dum-biryani": 1.165,
+      "mirchi-ka-salan": 1.5,
+      "raita": 1.085,
+      "veg-dum-briyani": 1.29,
+      "muddha-pappu": 1.5
+    },
+    "oof_coverage_90_band": 0.8736,
+    "band_width_growth_pct": 27.12,
+    "classes_capped_at_grid_ceiling": [
+      "beetroot-poriyal",
+      "sambar",
+      "Watermelon",
+      "bisi-bele-bath",
+      "boondi",
+      "dondakaya-fry",
+      "kakarakaya-fry",
+      "leaf-dal",
+      "payasam",
+      "Papaya",
+      "channa-brinjal",
+      "beetroot-kobari",
+      "beans-curry",
+      "mango-pickle",
+      "aloo-fry",
+      "Muskmelon",
+      "aloo-capsicum",
+      "aloo-curry",
+      "mirchi-ka-salan",
+      "muddha-pappu"
+    ],
+    "gate": {
+      "oof_coverage_90_ge_0.90": false,
+      "width_growth_le_25pct": false
+    },
+    "oof_coverage_90_wire": 0.8612,
+    "wire_width_growth_pct": 26.35
+  },
+  "deployed_stage": null,
+  "deployed_multiplier": null,
+  "deployed_multiplier_per_class": null,
+  "oof_coverage_90_band": null,
+  "oof_coverage_90_wire": null,
+  "band_width_growth_pct": null,
+  "wire_width_growth_pct": null,
+  "fallback_samples_total": 0,
+  "fallback_fraction": 0.0,
+  "per_class": {
+    "beetroot-poriyal": {
+      "n": 13,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8462,
+      "oof_coverage_90_b": 0.8462
+    },
+    "cabbage-dry": {
+      "n": 23,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9565,
+      "oof_coverage_90_b": 0.913
+    },
+    "chutney": {
+      "n": 54,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8889,
+      "oof_coverage_90_b": 0.9074
+    },
+    "curd": {
+      "n": 106,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9434,
+      "oof_coverage_90_b": 0.9057
+    },
+    "papad": {
+      "n": 62,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9032,
+      "oof_coverage_90_b": 0.9032
+    },
+    "phulka": {
+      "n": 67,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9403,
+      "oof_coverage_90_b": 0.9104
+    },
+    "rajma": {
+      "n": 23,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.913,
+      "oof_coverage_90_b": 0.913
+    },
+    "salad": {
+      "n": 104,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9808,
+      "oof_coverage_90_b": 0.9038
+    },
+    "sambar": {
+      "n": 48,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8542,
+      "oof_coverage_90_b": 0.875
+    },
+    "steamed-rice": {
+      "n": 108,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9537,
+      "oof_coverage_90_b": 0.9074
+    },
+    "veg-pulao": {
+      "n": 23,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9565,
+      "oof_coverage_90_b": 0.913
+    },
+    "Watermelon": {
+      "n": 36,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8889,
+      "oof_coverage_90_b": 0.8889
+    },
+    "bisi-bele-bath": {
+      "n": 10,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8,
+      "oof_coverage_90_b": 0.8
+    },
+    "boondi": {
+      "n": 7,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.5714,
+      "oof_coverage_90_b": 0.5714
+    },
+    "dondakaya-fry": {
+      "n": 10,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.6,
+      "oof_coverage_90_b": 0.6
+    },
+    "kakarakaya-fry": {
+      "n": 10,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.5,
+      "oof_coverage_90_b": 0.5
+    },
+    "leaf-dal": {
+      "n": 9,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.4444,
+      "oof_coverage_90_b": 0.4444
+    },
+    "non-spicy-dal": {
+      "n": 75,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9733,
+      "oof_coverage_90_b": 0.9067
+    },
+    "payasam": {
+      "n": 10,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.7,
+      "oof_coverage_90_b": 0.7
+    },
+    "Papaya": {
+      "n": 20,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.75,
+      "oof_coverage_90_b": 0.75
+    },
+    "channa-brinjal": {
+      "n": 25,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.84,
+      "oof_coverage_90_b": 0.84
+    },
+    "tomato-pappu": {
+      "n": 25,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.92,
+      "oof_coverage_90_b": 0.92
+    },
+    "beetroot-kobari": {
+      "n": 23,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8261,
+      "oof_coverage_90_b": 0.8261
+    },
+    "beans-curry": {
+      "n": 35,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8571,
+      "oof_coverage_90_b": 0.8571
+    },
+    "kofta-curry": {
+      "n": 34,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9706,
+      "oof_coverage_90_b": 0.9118
+    },
+    "mango-pickle": {
+      "n": 33,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8485,
+      "oof_coverage_90_b": 0.8485
+    },
+    "non-spicy-curry": {
+      "n": 33,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9697,
+      "oof_coverage_90_b": 0.9091
+    },
+    "pachi-pulusu": {
+      "n": 35,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 1.0,
+      "oof_coverage_90_b": 0.9143
+    },
+    "Banana": {
+      "n": 40,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.975,
+      "oof_coverage_90_b": 0.9
+    },
+    "aloo-fry": {
+      "n": 9,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.7778,
+      "oof_coverage_90_b": 0.7778
+    },
+    "Muskmelon": {
+      "n": 8,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.5,
+      "oof_coverage_90_b": 0.5
+    },
+    "aloo-capsicum": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.6,
+      "oof_coverage_90_b": 0.6667
+    },
+    "aloo-curry": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.6667,
+      "oof_coverage_90_b": 0.7333
+    },
+    "chicken-dum-biryani": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 1.0,
+      "oof_coverage_90_b": 0.9333
+    },
+    "mirchi-ka-salan": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8667,
+      "oof_coverage_90_b": 0.8667
+    },
+    "raita": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9333,
+      "oof_coverage_90_b": 0.9333
+    },
+    "veg-dum-briyani": {
+      "n": 15,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.9333,
+      "oof_coverage_90_b": 0.9333
+    },
+    "muddha-pappu": {
+      "n": 10,
+      "fallback_samples": 0,
+      "oof_coverage_90_c": 0.8,
+      "oof_coverage_90_b": 0.8
+    }
+  },
+  "per_class_spread": {
+    "min": 0.4444,
+    "mean": 0.8329,
+    "max": 1.0
+  },
+  "oof_curve": [
+    [
+      0.5,
+      0.5747
+    ],
+    [
+      0.505,
+      0.5764
+    ],
+    [
+      0.51,
+      0.5796
+    ],
+    [
+      0.515,
+      0.5846
+    ],
+    [
+      0.52,
+      0.5903
+    ],
+    [
+      0.525,
+      0.5911
+    ],
+    [
+      0.53,
+      0.5944
+    ],
+    [
+      0.535,
+      0.5977
+    ],
+    [
+      0.54,
+      0.6034
+    ],
+    [
+      0.545,
+      0.6059
+    ],
+    [
+      0.55,
+      0.61
+    ],
+    [
+      0.555,
+      0.6133
+    ],
+    [
+      0.56,
+      0.6149
+    ],
+    [
+      0.565,
+      0.6174
+    ],
+    [
+      0.57,
+      0.6232
+    ],
+    [
+      0.575,
+      0.6248
+    ],
+    [
+      0.58,
+      0.6264
+    ],
+    [
+      0.585,
+      0.6322
+    ],
+    [
+      0.59,
+      0.6346
+    ],
+    [
+      0.595,
+      0.6355
+    ],
+    [
+      0.6,
+      0.6388
+    ],
+    [
+      0.605,
+      0.647
+    ],
+    [
+      0.61,
+      0.6478
+    ],
+    [
+      0.615,
+      0.6527
+    ],
+    [
+      0.62,
+      0.6568
+    ],
+    [
+      0.625,
+      0.6609
+    ],
+    [
+      0.63,
+      0.6626
+    ],
+    [
+      0.635,
+      0.665
+    ],
+    [
+      0.64,
+      0.6667
+    ],
+    [
+      0.645,
+      0.6683
+    ],
+    [
+      0.65,
+      0.6708
+    ],
+    [
+      0.655,
+      0.6741
+    ],
+    [
+      0.66,
+      0.6765
+    ],
+    [
+      0.665,
+      0.6806
+    ],
+    [
+      0.67,
+      0.6823
+    ],
+    [
+      0.675,
+      0.6847
+    ],
+    [
+      0.68,
+      0.6864
+    ],
+    [
+      0.685,
+      0.6872
+    ],
+    [
+      0.69,
+      0.6897
+    ],
+    [
+      0.695,
+      0.6954
+    ],
+    [
+      0.7,
+      0.6995
+    ],
+    [
+      0.705,
+      0.7028
+    ],
+    [
+      0.71,
+      0.7053
+    ],
+    [
+      0.715,
+      0.7061
+    ],
+    [
+      0.72,
+      0.7094
+    ],
+    [
+      0.725,
+      0.7135
+    ],
+    [
+      0.73,
+      0.7159
+    ],
+    [
+      0.735,
+      0.7217
+    ],
+    [
+      0.74,
+      0.7266
+    ],
+    [
+      0.745,
+      0.7266
+    ],
+    [
+      0.75,
+      0.7299
+    ],
+    [
+      0.755,
+      0.7315
+    ],
+    [
+      0.76,
+      0.7348
+    ],
+    [
+      0.765,
+      0.7397
+    ],
+    [
+      0.77,
+      0.7422
+    ],
+    [
+      0.775,
+      0.743
+    ],
+    [
+      0.78,
+      0.7455
+    ],
+    [
+      0.785,
+      0.7479
+    ],
+    [
+      0.79,
+      0.7496
+    ],
+    [
+      0.795,
+      0.7504
+    ],
+    [
+      0.8,
+      0.7553
+    ],
+    [
+      0.805,
+      0.7586
+    ],
+    [
+      0.81,
+      0.7594
+    ],
+    [
+      0.815,
+      0.7611
+    ],
+    [
+      0.82,
+      0.7627
+    ],
+    [
+      0.825,
+      0.7652
+    ],
+    [
+      0.83,
+      0.766
+    ],
+    [
+      0.835,
+      0.7677
+    ],
+    [
+      0.84,
+      0.7693
+    ],
+    [
+      0.845,
+      0.7701
+    ],
+    [
+      0.85,
+      0.7709
+    ],
+    [
+      0.855,
+      0.7726
+    ],
+    [
+      0.86,
+      0.7759
+    ],
+    [
+      0.865,
+      0.7759
+    ],
+    [
+      0.87,
+      0.7767
+    ],
+    [
+      0.875,
+      0.7783
+    ],
+    [
+      0.88,
+      0.7791
+    ],
+    [
+      0.885,
+      0.7824
+    ],
+    [
+      0.89,
+      0.7824
+    ],
+    [
+      0.895,
+      0.7841
+    ],
+    [
+      0.9,
+      0.7857
+    ],
+    [
+      0.905,
+      0.7865
+    ],
+    [
+      0.91,
+      0.7882
+    ],
+    [
+      0.915,
+      0.789
+    ],
+    [
+      0.92,
+      0.789
+    ],
+    [
+      0.925,
+      0.789
+    ],
+    [
+      0.93,
+      0.7906
+    ],
+    [
+      0.935,
+      0.7906
+    ],
+    [
+      0.94,
+      0.7923
+    ],
+    [
+      0.945,
+      0.7939
+    ],
+    [
+      0.95,
+      0.7964
+    ],
+    [
+      0.955,
+      0.7972
+    ],
+    [
+      0.96,
+      0.7997
+    ],
+    [
+      0.965,
+      0.8005
+    ],
+    [
+      0.97,
+      0.8021
+    ],
+    [
+      0.975,
+      0.8046
+    ],
+    [
+      0.98,
+      0.8054
+    ],
+    [
+      0.985,
+      0.8062
+    ],
+    [
+      0.99,
+      0.8071
+    ],
+    [
+      0.995,
+      0.8103
+    ],
+    [
+      1.0,
+      0.8103
+    ],
+    [
+      1.005,
+      0.812
+    ],
+    [
+      1.01,
+      0.8128
+    ],
+    [
+      1.015,
+      0.8144
+    ],
+    [
+      1.02,
+      0.8153
+    ],
+    [
+      1.025,
+      0.8161
+    ],
+    [
+      1.03,
+      0.8169
+    ],
+    [
+      1.035,
+      0.8186
+    ],
+    [
+      1.04,
+      0.8194
+    ],
+    [
+      1.045,
+      0.8202
+    ],
+    [
+      1.05,
+      0.821
+    ],
+    [
+      1.055,
+      0.8218
+    ],
+    [
+      1.06,
+      0.8227
+    ],
+    [
+      1.065,
+      0.8235
+    ],
+    [
+      1.07,
+      0.8251
+    ],
+    [
+      1.075,
+      0.8251
+    ],
+    [
+      1.08,
+      0.8276
+    ],
+    [
+      1.085,
+      0.8292
+    ],
+    [
+      1.09,
+      0.8309
+    ],
+    [
+      1.095,
+      0.8309
+    ],
+    [
+      1.1,
+      0.8317
+    ],
+    [
+      1.105,
+      0.8342
+    ],
+    [
+      1.11,
+      0.8358
+    ],
+    [
+      1.115,
+      0.8366
+    ],
+    [
+      1.12,
+      0.8366
+    ],
+    [
+      1.125,
+      0.8407
+    ],
+    [
+      1.13,
+      0.8424
+    ],
+    [
+      1.135,
+      0.8432
+    ],
+    [
+      1.14,
+      0.8432
+    ],
+    [
+      1.145,
+      0.844
+    ],
+    [
+      1.15,
+      0.844
+    ],
+    [
+      1.155,
+      0.844
+    ],
+    [
+      1.16,
+      0.844
+    ],
+    [
+      1.165,
+      0.8465
+    ],
+    [
+      1.17,
+      0.8481
+    ],
+    [
+      1.175,
+      0.8489
+    ],
+    [
+      1.18,
+      0.8489
+    ],
+    [
+      1.185,
+      0.8489
+    ],
+    [
+      1.19,
+      0.8489
+    ],
+    [
+      1.195,
+      0.8506
+    ],
+    [
+      1.2,
+      0.853
+    ],
+    [
+      1.205,
+      0.8539
+    ],
+    [
+      1.21,
+      0.8555
+    ],
+    [
+      1.215,
+      0.8563
+    ],
+    [
+      1.22,
+      0.8571
+    ],
+    [
+      1.225,
+      0.8588
+    ],
+    [
+      1.23,
+      0.8596
+    ],
+    [
+      1.235,
+      0.8596
+    ],
+    [
+      1.24,
+      0.8596
+    ],
+    [
+      1.245,
+      0.8604
+    ],
+    [
+      1.25,
+      0.8612
+    ],
+    [
+      1.255,
+      0.8629
+    ],
+    [
+      1.26,
+      0.8629
+    ],
+    [
+      1.265,
+      0.8637
+    ],
+    [
+      1.27,
+      0.8637
+    ],
+    [
+      1.275,
+      0.8662
+    ],
+    [
+      1.28,
+      0.867
+    ],
+    [
+      1.285,
+      0.8686
+    ],
+    [
+      1.29,
+      0.8695
+    ],
+    [
+      1.295,
+      0.8703
+    ],
+    [
+      1.3,
+      0.8703
+    ],
+    [
+      1.305,
+      0.8711
+    ],
+    [
+      1.31,
+      0.8719
+    ],
+    [
+      1.315,
+      0.8727
+    ],
+    [
+      1.32,
+      0.8744
+    ],
+    [
+      1.325,
+      0.8768
+    ],
+    [
+      1.33,
+      0.8768
+    ],
+    [
+      1.335,
+      0.8777
+    ],
+    [
+      1.34,
+      0.8785
+    ],
+    [
+      1.345,
+      0.8793
+    ],
+    [
+      1.35,
+      0.8801
+    ],
+    [
+      1.355,
+      0.8801
+    ],
+    [
+      1.36,
+      0.8801
+    ],
+    [
+      1.365,
+      0.8801
+    ],
+    [
+      1.37,
+      0.8801
+    ],
+    [
+      1.375,
+      0.881
+    ],
+    [
+      1.38,
+      0.8842
+    ],
+    [
+      1.385,
+      0.8851
+    ],
+    [
+      1.39,
+      0.8851
+    ],
+    [
+      1.395,
+      0.8883
+    ],
+    [
+      1.4,
+      0.89
+    ],
+    [
+      1.405,
+      0.8908
+    ],
+    [
+      1.41,
+      0.8916
+    ],
+    [
+      1.415,
+      0.8916
+    ],
+    [
+      1.42,
+      0.8916
+    ],
+    [
+      1.425,
+      0.8924
+    ],
+    [
+      1.43,
+      0.8933
+    ],
+    [
+      1.435,
+      0.8933
+    ],
+    [
+      1.44,
+      0.8941
+    ],
+    [
+      1.445,
+      0.8957
+    ],
+    [
+      1.45,
+      0.8982
+    ],
+    [
+      1.455,
+      0.8982
+    ],
+    [
+      1.46,
+      0.8982
+    ],
+    [
+      1.465,
+      0.8998
+    ],
+    [
+      1.47,
+      0.9007
+    ],
+    [
+      1.475,
+      0.9007
+    ],
+    [
+      1.48,
+      0.9039
+    ],
+    [
+      1.485,
+      0.9039
+    ],
+    [
+      1.49,
+      0.9064
+    ],
+    [
+      1.495,
+      0.9072
+    ],
+    [
+      1.5,
+      0.908
+    ]
+  ],
+  "tier": "dev",
+  "limit": null,
+  "checkpoint": "data/weight_head.pt",
+  "checkpoint_meta": {
+    "dataset": "WED (ICVGIP 2025)",
+    "recipe": "baseline rgb/no-attn/geom-none",
+    "bn_mode": "frozen_encoder_eval",
+    "epochs": 100,
+    "encoder": "dinov2",
+    "seed": 42,
+    "trained": "2026-10-15",
+    "val_mae_in_process_g": 15.03,
+    "paper_baseline_mae_g": 14.51,
+    "val_mae_g": 15.03,
+    "test_mae_g": 14.67
+  },
+  "device": "cuda",
+  "applied": false,
+  "wall_s": 7.33
+}
