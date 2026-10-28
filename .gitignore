@@ -35,6 +35,9 @@ STOP
 data/locked_test/
 # Experiment run log — append-only local bookkeeping (tools/log_run.py)
 runs/
+# Frozen-encoder feature cache for head training (tools/train_weight_head.py,
+# spec 002 decision 10) — derived, box-local, ~1 GB per encoder
+data/cache/
 # agent-tooling scaffolding (local-only, like STOP) — decided in grill Q19
 .agents/
 .claude/
