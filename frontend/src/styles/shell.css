@@ -646,3 +646,15 @@
     font-size: var(--fs-xl);
   }
 }
+
+/* mode switch lives between the spacer and the search box; the search box
+ * already disappears ≤900px, so the switch keeps the room until phones */
+.topbar-mode {
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .topbar-mode {
+    display: none;
+  }
+}

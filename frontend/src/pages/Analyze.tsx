@@ -21,6 +21,10 @@ export default function AnalyzePage() {
   const { prefs } = usePrefs();
   const navigate = useNavigate();
 
+  // General mode (ADR 0003): day/band/student are school capture fields —
+  // /analyze is mode-agnostic, so General still sends served defaults.
+  const general = (prefs.mode ?? "school") === "general";
+
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [day, setDay] = useState("");
@@ -108,10 +112,13 @@ export default function AnalyzePage() {
     <div className="page">
       <div className="page-head">
         <div>
-          <h1 className="page-title">Analyze a plated meal</h1>
+          <h1 className="page-title">
+            {general ? "Analyze any meal" : "Analyze a plated meal"}
+          </h1>
           <p className="page-sub">
-            Upload an original photo of the served meal. For the most reliable
-            measurement, include the NutriSense reference card beside the vessel.
+            {general
+              ? "Any recognized Indian dish — grams, nutrients and share of your Daily goal, no compliance verdict. Include the reference card when you can; without it the weight is an estimate."
+              : "Upload an original photo of the served meal. For the most reliable measurement, include the NutriSense reference card beside the vessel."}
           </p>
         </div>
         <span className="local-note">
@@ -207,63 +214,87 @@ export default function AnalyzePage() {
             </details>
           </Card>
 
-          <Card title="Analysis details" sub="Match the serving being captured">
+          <Card
+            title="Analysis details"
+            sub={
+              general
+                ? "School capture fields (day, class band, student) are not needed in General mode"
+                : "Match the serving being captured"
+            }
+          >
             <div className="field-row">
-              <label className="field">
-                <span className="field-label">Day</span>
-                <select className="select" value={day} onChange={(e) => setDay(e.target.value)}>
-                  {days.map((d) => (
-                    <option key={d} value={d}>
-                      {dayLabel(d)}
-                    </option>
-                  ))}
-                  {!menu && <option value="">—</option>}
-                </select>
-              </label>
+              {general ? (
+                <label className="field">
+                  <span className="field-label">Serving style</span>
+                  <select className="select" value={style} onChange={(e) => setStyle(e.target.value)}>
+                    {styles.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <>
+                  <label className="field">
+                    <span className="field-label">Day</span>
+                    <select className="select" value={day} onChange={(e) => setDay(e.target.value)}>
+                      {days.map((d) => (
+                        <option key={d} value={d}>
+                          {dayLabel(d)}
+                        </option>
+                      ))}
+                      {!menu && <option value="">—</option>}
+                    </select>
+                  </label>
 
-              <label className="field">
-                <span className="field-label">Class band</span>
-                <select className="select" value={band} onChange={(e) => setBand(e.target.value)}>
-                  {bands.map((b) => (
-                    <option key={b} value={b}>
-                      {bandLabel(b)}
-                    </option>
-                  ))}
-                  {!menu && <option value="">—</option>}
-                </select>
-              </label>
+                  <label className="field">
+                    <span className="field-label">Class band</span>
+                    <select className="select" value={band} onChange={(e) => setBand(e.target.value)}>
+                      {bands.map((b) => (
+                        <option key={b} value={b}>
+                          {bandLabel(b)}
+                        </option>
+                      ))}
+                      {!menu && <option value="">—</option>}
+                    </select>
+                  </label>
 
-              <label className="field">
-                <span className="field-label">Serving style</span>
-                <select className="select" value={style} onChange={(e) => setStyle(e.target.value)}>
-                  {styles.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <label className="field">
+                    <span className="field-label">Serving style</span>
+                    <select className="select" value={style} onChange={(e) => setStyle(e.target.value)}>
+                      {styles.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
             </div>
 
-            <label className="field" style={{ marginTop: 14 }}>
-              <span className="field-label">
-                Student name{" "}
-                <span style={{ fontWeight: 500, color: "var(--text-3)" }}>(optional)</span>
-              </span>
-              <input
-                className="input"
-                type="text"
-                placeholder="e.g. Aarav S."
-                value={student}
-                onChange={(e) => setStudent(e.target.value)}
-                maxLength={60}
-                autoComplete="off"
-              />
-              <span className="field-hint">
-                Links this photo to a student record — stored only in this
-                browser for the local compliance log.
-              </span>
-            </label>
+            {!general && (
+              <label className="field" style={{ marginTop: 14 }}>
+                <span className="field-label">
+                  Student name{" "}
+                  <span style={{ fontWeight: 500, color: "var(--text-3)" }}>(optional)</span>
+                </span>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="e.g. Aarav S."
+                  value={student}
+                  onChange={(e) => setStudent(e.target.value)}
+                  maxLength={60}
+                  autoComplete="off"
+                />
+                <span className="field-hint">
+                  Links this photo to a student record — stored only in this
+                  browser for the local compliance log.
+                </span>
+              </label>
+            )}
 
             {status === "error" && error && (
               <div className="banner error" style={{ marginTop: 14 }}>
@@ -279,7 +310,11 @@ export default function AnalyzePage() {
               <button
                 type="submit"
                 className="btn btn-primary btn-lg"
-                disabled={!file || status === "loading" || !day || !band}
+                disabled={
+                  !file ||
+                  status === "loading" ||
+                  (general ? !menu : !day || !band)
+                }
               >
                 <IconCamera size={16} />
                 {status === "loading" ? "Analyzing…" : "Analyze meal"}
@@ -290,6 +325,12 @@ export default function AnalyzePage() {
                 </button>
               )}
             </div>
+            {general && !menu && (
+              <p className="field-hint" style={{ marginTop: 10 }}>
+                Waiting for the backend's dish and goal data before this meal
+                can be analyzed.
+              </p>
+            )}
           </Card>
         </div>
 
@@ -311,8 +352,9 @@ export default function AnalyzePage() {
                 ))}
               </ol>
               <p className="progress-note">
-                Every verdict ships with coverage, uncertainty intervals and the
-                assumptions behind them — nothing is hidden.
+                {general
+                  ? "Every estimate ships with uncertainty intervals and the assumptions behind them — nothing is hidden."
+                  : "Every verdict ships with coverage, uncertainty intervals and the assumptions behind them — nothing is hidden."}
               </p>
             </Card>
           )}

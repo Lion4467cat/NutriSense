@@ -247,3 +247,43 @@ export const healthSchema = z.object({
   phase: z.string(),
 });
 export type HealthResponse = z.infer<typeof healthSchema>;
+
+/** One band×sex row of the WHO daily-goal table (nested yaml is open). */
+export const goalProfileSchema = z.looseObject({
+  referent_weight_kg: z.number().optional(),
+  protein_g_per_kg_day: z.number().optional(),
+  protein_g: z.number().optional(),
+  energy_kcal: z.record(z.string(), z.number()).optional(),
+  status: z.record(z.string(), z.string()).optional(),
+  provenance: z.record(z.string(), z.string()).optional(),
+});
+export type GoalProfile = z.infer<typeof goalProfileSchema>;
+
+export const goalBandSchema = z.looseObject({
+  label: z.string().optional(),
+  male: goalProfileSchema.optional(),
+  female: goalProfileSchema.optional(),
+});
+export type GoalBand = z.infer<typeof goalBandSchema>;
+
+/** GET /goals (main.goals()) — top-level keys are closed; nested yaml is open. */
+export const goalsSchema = z.object({
+  age_bands: z.array(z.string()),
+  sexes: z.array(z.string()),
+  activity_levels: z.array(z.string()),
+  units: z.looseObject({
+    energy: z.string().optional(),
+    protein: z.string().optional(),
+    weight: z.string().optional(),
+  }),
+  daily: z.record(z.string(), goalBandSchema),
+  source: z.looseObject({
+    s1: z.string().optional(),
+    s2: z.string().optional(),
+    derivations: z.string().optional(),
+    verified: z.string().optional(),
+    currency_check: z.string().optional(),
+  }),
+  caveats: z.array(z.string()),
+});
+export type GoalsResponse = z.infer<typeof goalsSchema>;

@@ -1420,3 +1420,52 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border);
 }
+
+/* ---------------- General mode: goal shares (spec 002) ---------------- */
+
+.goal-row {
+  padding: 14px 0;
+}
+
+.goal-row + .goal-row {
+  border-top: 1px solid var(--border);
+}
+
+.goal-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.goal-share {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-share-pct {
+  color: var(--accent-text);
+}
+
+.goal-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.goal-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--grad-accent);
+  min-width: 0;
+  transition: width var(--t-slow, 240ms) ease;
+}
+
+.day-stack .seg-accent {
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+}

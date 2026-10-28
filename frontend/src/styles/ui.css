@@ -948,3 +948,10 @@ table.data tbody tr.clickable:hover {
   outline: none;
 }
 
+
+/* ---------------- app mode switch (spec 002, ADR 0003) ---------------- */
+
+.mode-switch button {
+  padding: 5px 12px;
+  font-size: var(--fs-xs);
+}

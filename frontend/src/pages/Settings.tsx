@@ -1,16 +1,60 @@
 import { useState } from "react";
+import { useGoals } from "../context/goals";
 import { useMenu } from "../context/menu";
 import { THEME_OPTS } from "../hooks/useTheme";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
 import { Card, StatusMark } from "../ui/primitives";
+import ModeSwitch from "../ui/ModeSwitch";
 import { apiBase } from "../services/api";
+import { defaultProfile, resolveGoal, type ProfilePref } from "../services/goals";
+import { formatNum } from "../utils/format";
 
 export default function SettingsPage() {
   const { prefs, setPrefs } = usePrefs();
   const { menu, apiUp, health, checkHealth } = useMenu();
+  const { goals, goalsError, reloadGoals } = useGoals();
   const { records, clearRecords } = useRecords();
   const [confirmClear, setConfirmClear] = useState(false);
+
+  const goal = resolveGoal(goals, prefs.profile, prefs.goalOverride);
+  const served = defaultProfile(goals);
+  const profile = prefs.profile ?? served;
+  const setProfileField = (patch: Partial<ProfilePref>) => {
+    if (!profile) return;
+    setPrefs({
+      profile: {
+        ageBand: profile.ageBand || "",
+        sex: profile.sex || "",
+        activityLevel: profile.activityLevel || "",
+        ...patch,
+      },
+    });
+  };
+
+  // User-entered goal override: edited in a small draft form, stored only
+  // when both values are positive — clearing reverts to the WHO default.
+  const [goalDraft, setGoalDraft] = useState<{ kcal: string; proteinG: string } | null>(
+    null
+  );
+  const saveGoal = () => {
+    if (!goalDraft) return;
+    const k = Number(goalDraft.kcal);
+    const p = Number(goalDraft.proteinG);
+    if (Number.isFinite(k) && k > 0 && Number.isFinite(p) && p > 0) {
+      setPrefs({ goalOverride: { kcal: k, proteinG: p } });
+    }
+    setGoalDraft(null);
+  };
+
+  const goalSourceLabel =
+    goal.source === "custom"
+      ? "your own goal"
+      : goal.source === "who"
+        ? goal.defaulted
+          ? "WHO default (first-served profile)"
+          : "WHO default for your profile"
+        : "no goal available";
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(records, null, 2)], {
@@ -29,11 +73,187 @@ export default function SettingsPage() {
       <div className="page-head">
         <div>
           <h1 className="page-title">Settings</h1>
-          <p className="page-sub">Appearance, API status and local preferences.</p>
+          <p className="page-sub">Appearance, app mode, Daily goal and local preferences.</p>
         </div>
       </div>
 
       <div className="settings-stack">
+        <Card
+          title="App mode"
+          sub="School keeps the compliance verdicts; General shows grams, nutrients and share of your Daily goal."
+        >
+          <div className="setting-row">
+            <div className="setting-info">
+              <div className="si-title">
+                Mode: {prefs.mode === "general" ? "General" : "School"}
+              </div>
+              <div className="si-desc">
+                {prefs.mode === "general"
+                  ? "General mode — every recognized dish gets grams + nutrients as a share of your Daily goal. No verdicts, no school capture fields."
+                  : "School mode — PM POSHAN compliance for menu dishes, judged under Policy, exactly as before."}
+              </div>
+            </div>
+            <ModeSwitch />
+          </div>
+        </Card>
+
+        <Card
+          title="Daily goal (General mode)"
+          sub="One-time profile entry — WHO defaults until you pick your own; your own goal always wins."
+        >
+          <div className="setting-row">
+            <div className="setting-info">
+              <div className="si-title">Your profile</div>
+              <div className="si-desc">
+                {profile == null
+                  ? "Goal data has not loaded yet — start the backend and retry."
+                  : prefs.profile == null
+                    ? "Showing served defaults — pick your own age band, sex and activity level to personalize."
+                    : "Used to look up the WHO Daily goal tables."}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <select
+                className="select"
+                style={{ width: 130 }}
+                value={profile?.ageBand ?? ""}
+                onChange={(e) => setProfileField({ ageBand: e.target.value })}
+                disabled={!goals}
+                aria-label="Age band"
+              >
+                {!goals && <option value="">—</option>}
+                {goals?.age_bands.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="select"
+                style={{ width: 110 }}
+                value={profile?.sex ?? ""}
+                onChange={(e) => setProfileField({ sex: e.target.value })}
+                disabled={!goals}
+                aria-label="Sex"
+              >
+                {!goals && <option value="">—</option>}
+                {goals?.sexes.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="select"
+                style={{ width: 120 }}
+                value={profile?.activityLevel ?? ""}
+                onChange={(e) => setProfileField({ activityLevel: e.target.value })}
+                disabled={!goals}
+                aria-label="Activity level"
+              >
+                {!goals && <option value="">—</option>}
+                {goals?.activity_levels.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="setting-row">
+            <div className="setting-info">
+              <div className="si-title">Daily goal</div>
+              <div className="si-desc">
+                {goal.kcal == null
+                  ? "No goal available — set your profile above."
+                  : `${formatNum(goal.kcal, 0)} kcal · ${formatNum(goal.proteinG, 1)} g protein — ${goalSourceLabel}.`}
+              </div>
+            </div>
+            {goalDraft ? (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  className="input"
+                  style={{ width: 110 }}
+                  type="number"
+                  min={1}
+                  placeholder="kcal/day"
+                  aria-label="Daily energy goal in kcal"
+                  value={goalDraft.kcal}
+                  onChange={(e) => setGoalDraft({ ...goalDraft, kcal: e.target.value })}
+                />
+                <input
+                  className="input"
+                  style={{ width: 110 }}
+                  type="number"
+                  min={1}
+                  step="0.1"
+                  placeholder="g protein/day"
+                  aria-label="Daily protein goal in grams"
+                  value={goalDraft.proteinG}
+                  onChange={(e) => setGoalDraft({ ...goalDraft, proteinG: e.target.value })}
+                />
+                <button className="btn btn-primary btn-sm" onClick={saveGoal}>
+                  Save
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => setGoalDraft(null)}>
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() =>
+                    setGoalDraft({
+                      kcal: String(prefs.goalOverride?.kcal ?? goal.kcal ?? ""),
+                      proteinG: String(prefs.goalOverride?.proteinG ?? goal.proteinG ?? ""),
+                    })
+                  }
+                >
+                  Enter my own goal
+                </button>
+                {prefs.goalOverride && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setPrefs({ goalOverride: null })}
+                  >
+                    Reset to WHO default
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {(goalsError || !goals) && (
+            <div className="banner warn" style={{ marginTop: 10 }}>
+              <span aria-hidden="true">!</span>
+              <div>
+                <strong>Goal values could not be loaded</strong>
+                The WHO goal table comes from the backend (GET /goals). Retry
+                once the API is running.
+                <button className="btn btn-secondary btn-sm" style={{ marginTop: 8 }} onClick={reloadGoals}>
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
+
+          {goals && (
+            <div style={{ marginTop: 12 }}>
+              {goals.caveats.map((c, i) => (
+                <p className="field-hint" key={i} style={{ marginBottom: 4 }}>
+                  {c}
+                </p>
+              ))}
+              <p className="field-hint">
+                Sources: {goals.source.s1} · {goals.source.s2} (verified{" "}
+                {goals.source.verified}).
+              </p>
+            </div>
+          )}
+        </Card>
+
         <Card title="Profile">
           <div className="setting-row">
             <div className="setting-info">

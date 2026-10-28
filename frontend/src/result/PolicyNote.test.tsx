@@ -35,6 +35,7 @@ const MENU: MenuResponse = {
 const stubClient: ApiClient = {
   base: "http://test",
   getMenu: () => Promise.resolve(MENU),
+  getGoals: () => Promise.reject(new Error("down")),
   getHealth: () => Promise.reject(new Error("down")),
   analyze: () => Promise.reject(new Error("unused")),
 };
