@@ -65,6 +65,20 @@ def coverage(portion, anchor_label, params=None, depth_scale_source=None):
     return round(score, 4), factors
 
 
+def no_card_reason(portion) -> Reason:
+    """The no-card estimate disclaimer: leads the reasons on every prior-tier
+    plate (menu dishes via the ordered insert in assess(); off-menu dishes via
+    spec 002, where it follows the leading off_menu_dish reason). One text,
+    one owner, so the wording can never drift between the two call sites."""
+    source = portion.get("grams_source", "geometry_prior")
+    detail = ("learned model (WED-trained, unvalidated on MDM plates)"
+              if source == "learned_weight" else "size-prior geometry")
+    return Reason(
+        ReasonKind.NO_REFERENCE_CARD,
+        f"No reference card — this photo has no measured scale, so its weight "
+        f"is an estimate ({detail}); the verdict is computed from estimated grams")
+
+
 def _p_ge(samples, threshold):
     return float(np.mean(np.asarray(samples) >= threshold))
 
@@ -140,13 +154,7 @@ def assess(mc, portion, dish, band, anchor_label,
 
     # --- no-card disclaimer (leads the reasons; verdict stays scored) -----
     if anchor_label != "measured":
-        source = portion.get("grams_source", "geometry_prior")
-        detail = ("learned model (WED-trained, unvalidated on MDM plates)"
-                  if source == "learned_weight" else "size-prior geometry")
-        reasons.insert(0, Reason(
-            ReasonKind.NO_REFERENCE_CARD,
-            f"No reference card — this photo has no measured scale, so its weight "
-            f"is an estimate ({detail}); the verdict is computed from estimated grams"))
+        reasons.insert(0, no_card_reason(portion))
 
     # --- assumptions actually in play ------------------------------------
     assumptions = []

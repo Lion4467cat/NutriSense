@@ -31,7 +31,7 @@ import numpy as np
 
 from config import (load_anchor_config, load_menu, load_wed_dishes,
                     load_wed_index, load_wed_sigma)
-from engine.compliance import assess
+from engine.compliance import assess, no_card_reason
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
                              WeightHeadUnavailable, load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
@@ -117,12 +117,18 @@ def _get_weight_head():
 
 
 def _wed_slots_for_dish(dish_key: str) -> list[int] | None:
-    """Menu dish id -> WED regression slots (0-based). None when unmapped."""
-    mapping = load_wed_dishes().get("dishes", {}).get(dish_key) or {}
-    names = mapping.get("wed_slots") or []
-    index = load_wed_index()
-    slots = [index[n] for n in names if n in index]
-    return slots or None
+    """Serving key -> WED regression slots (0-based). None when unmapped.
+    Menu dishes read data/wed_dishes.yaml `dishes:`; off-menu serving keys
+    (spec 002 expansion) read `off_menu:`."""
+    for section in ("dishes", "off_menu"):
+        mapping = load_wed_dishes().get(section, {}).get(dish_key) or {}
+        names = mapping.get("wed_slots") or []
+        if names:
+            index = load_wed_index()
+            slots = [index[n] for n in names if n in index]
+            if slots:
+                return slots
+    return None
 
 
 def _learned_portion(image_bgr, mask, dish, dish_key, head):
@@ -266,7 +272,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     seg, mask = seg_out
     seg_info = _seg_summary(seg)
 
-    # --- classify stage (classification + menu lookup) --------------------
+    # --- classify stage (classification + serving lookup) ------------------
+    # Serving keys: menu dish keys via menu["dishes"], off-menu keys via
+    # the wed_dishes `serving:`/`off_menu:` expansion (spec 002 decision 3).
+    # An unrecognized key (no entry anywhere) still fails the stage.
     def _classify_step():
         cls = classify(image_bgr)
         classification = {
@@ -275,21 +284,34 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             "reason": cls.get("reason"),
         }
         if cls.get("dish") is None:
-            return classification, None, cls.get("reason")
+            return classification, None, None, cls.get("reason")
         dish_key = cls["dish"]
-        dish = menu["dishes"][dish_key]  # KeyError -> stage_failed/classify
-        dish_info = {"id": dish_key, "display_name": dish.get("display_name"),
+        wed = load_wed_dishes()
+        off_menu = wed.get("off_menu") or {}
+        if dish_key in menu["dishes"] or dish_key in off_menu:
+            target = dish_key
+        else:
+            # a raw WED label routes through the serving map (e.g. phulka
+            # -> wheat_product, the menu dish whose verdict path it keeps)
+            target = (wed.get("serving") or {}).get(dish_key, {}).get("dish")
+            if target is None:
+                raise KeyError(
+                    f"classified dish {dish_key!r} has no serving entry")
+        dish = menu["dishes"].get(target) or off_menu.get(target)
+        if dish is None:
+            raise KeyError(f"classified dish {dish_key!r} has no serving entry")
+        dish_info = {"id": target, "display_name": dish.get("display_name"),
                      "day": day, "band": band, "serving_style": serving_style,
                      "on_day": (not dish.get("days")) or day in dish.get("days", []),
                      "nutrition_source": dish.get("nutrition_source")}
-        return classification, dish_info, None
+        return classification, dish_info, dish, None
 
     cls_out, failure = stage(Stage.CLASSIFY, _oom_guard(_classify_step, degradations),
                              timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info)
-    classification, dish_info, cls_reason = cls_out
+    classification, dish_info, dish, cls_reason = cls_out
     if dish_info is None:
         # open-set abstain is an outcome, not a hard failure
         return finish(Analysis(
@@ -299,7 +321,6 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             lint=lint, anchor=anchor_info, segmentation=seg_info,
             classification=classification))
 
-    dish = menu["dishes"][dish_info["id"]]
     outcome = admit(SCOPE_GATE, dish=dish)
     if not outcome.admitted:
         return finish(Analysis(verdict=SCOPE_GATE.verdict,
@@ -392,6 +413,37 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         "assumed_nutrients": mc["assumed_nutrients"],
         "wider_ranges": mc["wider_ranges"],
     }
+
+    # --- off-menu serving path (spec 002 decision 3 + ADR 0003) -----------
+    # A recognized off-menu dish IS recognized (ledger 003 interpretation):
+    # grams + nutrients ride the wire like any plate; school compliance
+    # scoring does not apply, so the verdict is cannot_verify with the
+    # off_menu_dish reason LEADING the reasons (no-card disclaimer follows
+    # on the prior tier, spec story 22). out_of_scope stays only for
+    # explicitly-scoped menu dishes (SCOPE gate) and unrecognized captures.
+    if dish_info["id"] not in ((menu or {}).get("dishes") or {}):
+        anchor_info = anchor_info or {}
+        anchor_info["depth_scale_factor"] = round(float(scale_factor), 4)
+        anchor_info["depth_scale_source"] = scale_source
+        name = dish.get("display_name") or dish_info["id"]
+        reasons = [Reason(
+            ReasonKind.OFF_MENU,
+            f"recognized off-menu dish {name} — not on the school menu, so "
+            "no compliance verdict; grams and nutrients are provided")]
+        if (anchor or {}).get("label") != "measured":
+            reasons.append(no_card_reason(portion))
+        return finish(Analysis(
+            verdict="cannot_verify",
+            reasons=reasons,
+            lint=lint,
+            anchor=anchor_info,
+            segmentation=seg_info,
+            classification=classification,
+            dish=dish_info,
+            portion=portion_block,
+            nutrition=nutrition_block,
+            model_versions=_model_versions(depth_out, head),
+        ))
 
     # --- compliance stage (verdict) ---------------------------------------
     score, failure = stage(Stage.COMPLIANCE, assess, mc, portion, dish, band,

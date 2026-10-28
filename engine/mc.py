@@ -95,9 +95,12 @@ def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
 
     temperature = float(params.get("temperature_scale", {}).get("value", 1.0))
 
-    # raw-equivalent diagnostic (type -> yield key)
+    # raw-equivalent diagnostic (type -> yield key); ledger 003 adds the
+    # served-as-is types (range_widening never keys off these)
     type_yield = {"grain": "rice", "dal": "pulses", "vegetable": "vegetables",
-                  "grain_pulse_mix": "mixed"}
+                  "grain_pulse_mix": "mixed", "fruit": "as_is", "snack": "as_is",
+                  "dairy": "as_is", "sweet": "as_is", "soup": "as_is",
+                  "chutney": "as_is", "pickle": "as_is"}
     raw_point = {}
     for i, nm in enumerate(names):
         t = comps[nm].get("type", "grain")

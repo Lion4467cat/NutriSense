@@ -1,0 +1,44 @@
+{
+  "tier": "dev",
+  "seed": 42,
+  "baseline": {
+    "mae_g": 15.034,
+    "coverage_90": 0.8522
+  },
+  "candidate": {
+    "mae_g": 15.034,
+    "coverage_90": 0.8522
+  },
+  "mae_g": {
+    "baseline": 15.034,
+    "candidate": 15.034,
+    "diff": 0.0,
+    "diff_ci95": [
+      0.0,
+      0.0
+    ]
+  },
+  "coverage_90": {
+    "baseline": 0.8522,
+    "candidate": 0.8522,
+    "diff": 0.0,
+    "diff_ci95": [
+      0.0,
+      0.0
+    ]
+  },
+  "n_plates": 21,
+  "n_samples": 1218,
+  "reps": 2000,
+  "stress": {
+    "paired": {},
+    "missing_in_baseline": [],
+    "missing_in_candidate": [
+      "brightness_contrast_0.7",
+      "gaussian_blur_k9",
+      "half_resolution",
+      "jpeg_q30",
+      "perspective_30deg"
+    ]
+  }
+}

@@ -74,6 +74,7 @@ class ReasonKind(StrEnum):
     COVERAGE_GATE = "coverage_gate"
     NO_REFERENCE_CARD = "no_reference_card"
     WEIGHT_HEAD_UNAVAILABLE = "weight_head_unavailable"
+    OFF_MENU = "off_menu_dish"
 
 
 class Stage(StrEnum):

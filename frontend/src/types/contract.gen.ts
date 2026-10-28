@@ -6,7 +6,7 @@
 import { z } from "zod";
 
 /** Open vocabularies: the backend may add kinds; the UI shows a default glyph. */
-export const REASON_KINDS = ["zoom", "unknown_day", "unknown_band", "out_of_scope", "unrecognized", "unreadable", "stage_failed", "in_zone", "below_min", "coverage_gate", "no_reference_card", "weight_head_unavailable"] as const;
+export const REASON_KINDS = ["zoom", "unknown_day", "unknown_band", "out_of_scope", "unrecognized", "unreadable", "stage_failed", "in_zone", "below_min", "coverage_gate", "no_reference_card", "weight_head_unavailable", "off_menu_dish"] as const;
 export const FAILURE_KINDS = ["gate_rejected", "input_unreadable", "stage_failed", "weight_head_unavailable"] as const;
 export const STAGE_NAMES = ["input", "anchor", "segment", "classify", "depth", "portion", "nutrition", "compliance"] as const;
 /** Closed: every verdict/stage value is known today. */
