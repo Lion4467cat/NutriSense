@@ -64,3 +64,21 @@ policy is loaded and ready.
 **Coverage**
 Multiplicative confidence score (product of degradation factors) gating
 PASS/FAIL. Not a verdict nutrient — see `engine/compliance.py`.
+
+**School mode**
+The app mode for PM POSHAN compliance. Dishes come from the school menu
+(the single source of dish truth), the capture carries `day` + `band`, and
+the analysis ends in a Verdict judged under Policy. Non-menu dishes stay
+`out_of_scope` here.
+
+**General mode**
+The app mode for any meal. Dishes come from the full WED serving set
+(41 classes), the capture carries no `day`/`band`, and there is no PM
+POSHAN compliance scoring — the analysis reports grams and nutrients
+compared to a Daily goal. The user switches between the two modes.
+
+**Daily goal**
+The nutrient amounts one person should eat in a day. Defaults come from
+WHO tables by age, gender, and physical activity level; the user may
+enter their own goal instead. A meal is shown as a share of the Daily
+goal.
