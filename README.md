@@ -72,7 +72,7 @@ flowchart TD
     VER -->|else| BORD["⚠ BORDERLINE"]
     VER -.->|"no card: reasons[0]"| DISC["📋 weight is an estimate<br/>(no reference card)"]
 
-    PASS ==> WIRE["18-key wire · to_wire()<br/>verdict · reasons · failures"]
+    PASS ==> WIRE["19-key wire · to_wire()<br/>verdict · reasons · failures · items"]
     FAIL ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
@@ -93,7 +93,7 @@ flowchart TD
     class CANNOT err
 ```
 
-Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
+Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 19-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening), and `items` reports per-vessel results when available. A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
 
 ### Pipeline components
 
@@ -101,7 +101,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 |---|---|---|
 | Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
 | S1 Scale anchor | 2 tiers: card → prior (prior caps coverage at 0.60) | ArUco card detector |
-| S2 Segment | food mask from the plate photo | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
+| S2 Segment | food mask plus grid9 vessel candidates for eligible menu meals | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
 | S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
 | S3 Depth | metric depth; `fov_x` (from intrinsics) passed to the model; scale calibrated on the marker, status reported `card`/`none` — never fabricated | MoGe-2 (`Ruicheng/moge-2-vitl`) |
 | S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
@@ -112,7 +112,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 ## ✨ Features
 
-**Implemented and tested (243 pytest + 70 vitest green):**
+**Implemented capabilities:**
 
 - **Two app modes (spec 002, ADR 0003)** — **School** keeps the verdict-centric PM POSHAN flow unchanged; **General** reports grams, nutrients and each meal's share of a Daily goal, with no verdicts and no school capture fields. Switching to General asks for profile details (name, sex, age band, activity level) in a setup popup every time until it has been completed, and Settings keeps the same fields editable
 - **WHO Daily goals** — `GET /goals` serves the WHO energy/protein tables keyed by age band, sex and activity level; the frontend does the lookup and share math, so a profile change never re-analyzes a photo
@@ -121,6 +121,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
+- **Multi-item meals (specs 003/004)** — menu meals with at least two detected vessels are classified and portioned per vessel; combo dishes restrict matches to component serving targets; compliance scores the aggregate meal. Current canteen-photo runs are diagnostic only: vessel counts and component labels still vary between captures, and there is no weighed per-component ground truth.
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
@@ -357,7 +358,7 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 
 ### Example Response — `/analyze`
 
-Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `learned_head` | `prior_geometry`, null when no portion ran); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried` (empty when nothing degraded); `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
+Every response uses the 19-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations, items`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `ingredient_head` | `learned_head` | `prior_geometry` | `multi_item`, null when no portion ran); `items` contains per-vessel blocks (or a one-item mirror for the single-serving path); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried`; `policy` carries the whole rule set the UI renders under a 12-hex `policy_version` digest.
 
 ```json
 {
@@ -458,8 +459,8 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation**: synthetic scenes are fully validated; on unposed canteen photos the degenerate-mask failure is fixed (ledger 014 — six-photo diagnostic, 2/6 previously returned 0.08%/0.18% slivers, now plate-sized via the box fallback). The remaining gap is **multi-vessel segmentation**: the pipeline still measures one mask as one serving, so a thali reports one bowl, and a single-dish photo is judged against a *whole-meal* band minimum (see `docs/reports/real-photo-e2e-2026-10-29.md`).
-- **One serving = one meal**: compliance compares the captured dish with a full-meal minimum, so a lone rice plate reads FAIL even when its grams are plausible. The contract has no meal-composition model yet.
+- **Multi-item estimates need validation**: the pipeline now portions detected vessels separately, decomposes combo dishes against their component vocabulary, and judges the aggregate meal (specs 003/004). In the six-photo diagnostic, component-restricted recognition reduced the multi-vessel estimates from 772–880 g to 202–535 g, but several frames assigned the same component to every vessel. There is no per-component ground truth, and near-duplicate views detected one vs. three vessels. Treat these as diagnostic estimates, not accuracy claims; see ledger 016 and spec 007.
+- **Real-photo segmentation**: synthetic scenes are fully validated; on unposed canteen photos the degenerate-mask failure is fixed (ledger 014 — six-photo diagnostic, 2/6 previously returned 0.08%/0.18% slivers, now plate-sized via the box fallback). `grid9_box` finds multiple vessels but the result varies across views; quantify stability with card-bearing repeated captures before relying on item counts.
 - **Ingredient head (07b)**: N5k transfer gate failed (ledger 012) — the off-menu route is wired but dormant until a checkpoint passes a re-registered gate.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).

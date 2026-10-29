@@ -84,9 +84,12 @@ parity holds on real photos. Criterion 3 met on 3 of 4 rasam frames.
 
 ## Follow-ups
 
-1. **P1 per-item recognition** is now the binding constraint on multi-item
-   accuracy: vessel crops need plate-level context (egg detection, dish-vs-
-   component vocabulary) before aggregate grams are trustworthy.
+1. **P1 component-restricted recognition is implemented** (spec 004). The
+   six-photo follow-up in `data/reports/real_photo_p1_combo_2026-10-29.json`
+   reduces the three multi-vessel totals from 772.3/879.6/492.1 g to
+   418.1/534.7/202.0 g. Some frames still assign the same component to all
+   vessels; this is a diagnostic change only, without component-level ground
+   truth or an accuracy claim.
 2. Quantify grid9 stability across repeated views (IoU of item sets).
 3. The ≤5 g / relative-error accuracy claim still waits on the P4 weighed,
    dish-held-out, card-bearing data-collection pass.

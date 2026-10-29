@@ -1,6 +1,6 @@
 # Spec 004: Per-item recognition — combo decomposition (P1)
 
-- **Status:** ready-for-agent
+- **Status:** implemented; diagnostic only, no accuracy claim
 - **Date:** 2026-10-29
 - **Source:** ledger 016 follow-up 1 (multi-item over-count: every vessel crop
   classifies as the combo dish), ledger 009 (per-crop RGB evidence limit).
@@ -38,3 +38,13 @@ aggregate sums distinct components instead of repeated combos.
 3. Real-photo diagnostic re-run (same six frames, no GT): rice+rasam multi
    frames show per-item component dishes instead of N× the combo; grams
    recorded and compared against the ledger-016 over-count honestly.
+
+## Implementation result
+
+Implemented in the multi-item branch of `engine/pipeline.py`, with seam tests
+in `tests/test_multi_item.py`. `data/reports/real_photo_p1_combo_2026-10-29.json`
+records the same six-frame diagnostic: the three multi-vessel totals are
+418.1 g, 534.7 g, and 202.0 g (versus 772.3 g, 879.6 g, and 492.1 g before
+component restriction). Some frames still assign the same component to all
+vessels. There is no component-level ground truth, so this supports the
+mechanism only; weighted capture/evaluation remains pending under spec 007.

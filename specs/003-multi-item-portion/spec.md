@@ -1,6 +1,6 @@
 # Spec 003: Multi-item portion path (P0)
 
-- **Status:** ready-for-agent
+- **Status:** implemented; mechanism retained, field accuracy pending
 - **Date:** 2026-10-29
 - **Source:** real-photo e2e report 2026-10-29 (docs/reports/real-photo-e2e-2026-10-29.md),
   ledger 014 follow-up 1, ledger 015 follow-ups. P0 of the vision-system improvement
@@ -91,5 +91,15 @@ Generalize the contract from one serving to **a list of servings**:
 
 - Pixel-accurate instance segmentation (FoodSeg-style mask training) — P-later.
 - Per-item compliance verdicts; the verdict is per-meal by design.
-- Biryani/veg-rice classifier improvements beyond the per-item-crop context
-  change (that is P1).
+- General classifier improvements beyond the component-restricted combo
+  matching; biryani/veg-rice confusion remains a separate issue.
+
+## Implementation result
+
+Implemented in `engine/pipeline.py`, `engine/mc.py`, and
+`models/dish_segmenter.py`; seam coverage is in `tests/test_multi_item.py`.
+The six-photo diagnostic is recorded in ledger 016. It confirms the aggregate
+path runs, but does not establish portion accuracy: repeated-view item counts
+differ and per-item recognition initially over-counted combo meals. Spec 004
+adds component-restricted matching; per-component weighed captures remain a
+separate field-data gate (spec 007).

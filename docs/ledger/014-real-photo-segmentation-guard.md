@@ -95,11 +95,11 @@ pyright at baseline (209).
 
 ## Follow-ups
 
-1. **Multi-vessel segmentation is still missing.** `grid9_box` returns
-   1–3 distinct vessels; the portion path, `/analyze` contract and UI all
-   assume one serving. This is the remaining gap between "41 classes
-   served" and "a real thali measured correctly" (see the earlier demo
-   finding: one centre bowl classed as veg-dum-biryani).
+1. **As of 2026-10-30, multi-vessel portioning is implemented** (ledger
+   016, spec 003), with combo component restriction added in spec 004. It
+   still needs stability measurement across card-bearing repeated views and
+   per-component weighed ground truth; current real-photo results are
+   diagnostics, not accuracy claims.
 2. **No pixel GT for canteen photos.** A card-bearing capture pass would
    let this become an IoU gate instead of an area/sanity gate.
 3. **Box prompt as the primary strategy?** It returns plate-sized masks

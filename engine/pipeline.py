@@ -546,7 +546,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     cand = {k: v for k, v in cls_i["scores"].items()
                             if k in combo and v is not None}
                     if cand:
-                        best = max(cand, key=cand.get)
+                        best = max(cand, key=lambda key: cand[key])
                         if cand[best] >= gallery_match_threshold():
                             cls_i = dict(cls_i, dish=best,
                                          reason=(f"combo component match "

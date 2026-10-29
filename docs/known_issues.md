@@ -3,6 +3,18 @@
 Open defects and degraded measurements, with where they come from and what
 is planned. Newest first.
 
+## Multi-item meal estimates need field validation (2026-10-30)
+
+The multi-item path and combo component restriction are implemented (specs
+003/004), but the six-photo diagnostic has no per-vessel ground truth. The
+component-restricted rerun reduced the three multi-vessel totals from
+772.3/879.6/492.1 g to 418.1/534.7/202.0 g; some frames still assign the same
+component to every vessel. Near-duplicate captures also produced different
+vessel counts (one vs. three). Do not treat these diagnostic estimates as an
+accuracy result. Next evidence is card-bearing repeated captures to measure
+vessel-set stability, followed by the separately weighed, dish-held-out
+collection in spec 007 / `docs/data-collection-manual.md` §14.
+
 ## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C; measured honestly 2026-10-29)
 
 The per-class lognormal intervals implied by `data/weight_head_sigma.yaml`

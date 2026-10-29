@@ -21,6 +21,8 @@ Model: facebook/sam2.1-hiera-large (Apache-2.0, docs/licenses.md).
 Weights download on first use (HF_HUB_DISABLE_XET=1 is recommended —
 the xet backend stalls in this environment).
 """
+from typing import Any, cast
+
 import cv2
 import numpy as np
 
@@ -39,7 +41,9 @@ def _make_state():
     from transformers import Sam2Model, Sam2Processor
     dev = _device()
     proc = Sam2Processor.from_pretrained(MODEL_ID)
-    model = Sam2Model.from_pretrained(MODEL_ID).to(dev).eval()
+    # Transformers' current Sam2Model stub mis-types Module.to's first
+    # positional argument as `self`; keep the runtime device move unchanged.
+    model = cast(Any, Sam2Model.from_pretrained(MODEL_ID)).to(dev).eval()
     return {"proc": proc, "model": model, "device": dev}
 
 
