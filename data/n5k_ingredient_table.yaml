@@ -1,0 +1,3456 @@
+meta:
+  dataset: Nutrition5k (Google Research, CC BY 4.0)
+  route: HF mirror mmathys/food-nutrients (ungated derivative; all image ids verified
+    against local dish_metadata ids)
+  generated: 2026-10-29 14:21Z
+  extraction_tool: tools/prep_n5k_ingredient_table.py
+  split_rule: dish-id sha1 hash, seed 42, 0.8/0.1/0.1
+  water_note: water rows dropped from slots (no visual mass)
+  audit_summary:
+    dishes_in_metadata: 5006
+    dishes_with_imagery: 603
+    dishes_in_table: 555
+    slots: 48
+    split_counts:
+      train: 450
+      val: 58
+      test: 47
+    lio_ingredients:
+    - white rice
+    - broccoli
+    - olive oil
+    - mixed greens
+slots:
+- almonds
+- grapes
+- apple
+- carrot
+- cherry tomatoes
+- cauliflower
+- bacon
+- cantaloupe
+- corn on the cob
+- deprecated
+- sausage
+- berries
+- potatoes
+- honeydew melons
+- broccoli
+- strawberries
+- mixed greens
+- spinach (raw)
+- pears
+- white rice
+- olive oil
+- scrambled eggs
+- eggs
+- salt
+- brussels sprouts
+- yam
+- asparagus
+- vinegar
+- watermelon
+- pineapple
+- mandarin oranges
+- olives
+- garden salad
+- celery
+- tomatoes
+- pork
+- orange
+- cream cheese
+- bok choy
+- shallots
+- arugula
+- quinoa
+- yogurt
+- pepper
+- mushroom
+- sweet potato
+- avocado
+- mustard
+slot_index:
+  almonds: 0
+  grapes: 1
+  apple: 2
+  carrot: 3
+  cherry tomatoes: 4
+  cauliflower: 5
+  bacon: 6
+  cantaloupe: 7
+  corn on the cob: 8
+  deprecated: 9
+  sausage: 10
+  berries: 11
+  potatoes: 12
+  honeydew melons: 13
+  broccoli: 14
+  strawberries: 15
+  mixed greens: 16
+  spinach (raw): 17
+  pears: 18
+  white rice: 19
+  olive oil: 20
+  scrambled eggs: 21
+  eggs: 22
+  salt: 23
+  brussels sprouts: 24
+  yam: 25
+  asparagus: 26
+  vinegar: 27
+  watermelon: 28
+  pineapple: 29
+  mandarin oranges: 30
+  olives: 31
+  garden salad: 32
+  celery: 33
+  tomatoes: 34
+  pork: 35
+  orange: 36
+  cream cheese: 37
+  bok choy: 38
+  shallots: 39
+  arugula: 40
+  quinoa: 41
+  yogurt: 42
+  pepper: 43
+  mushroom: 44
+  sweet potato: 45
+  avocado: 46
+  mustard: 47
+lio_held_out:
+  white rice: 19
+  broccoli: 14
+  olive oil: 20
+  mixed greens: 16
+dishes:
+  dish_1556572657:
+    split: train
+    labeled:
+    - - olives
+      - 36.0
+    other_ingredient_grams: []
+  dish_1556573514:
+    split: train
+    labeled:
+    - - mixed greens
+      - 23.0
+    other_ingredient_grams: []
+  dish_1556575014:
+    split: train
+    labeled:
+    - - olives
+      - 62.0
+    other_ingredient_grams: []
+  dish_1556575124:
+    split: train
+    labeled:
+    - - celery
+      - 28.0
+    other_ingredient_grams: []
+  dish_1556575273:
+    split: train
+    labeled:
+    - - celery
+      - 28.0
+    other_ingredient_grams: []
+  dish_1556575327:
+    split: train
+    labeled:
+    - - celery
+      - 28.0
+    other_ingredient_grams: []
+  dish_1556575499:
+    split: train
+    labeled:
+    - - olives
+      - 62.0
+    other_ingredient_grams: []
+  dish_1556575558:
+    split: test
+    labeled:
+    - - celery
+      - 28.0
+    other_ingredient_grams: []
+  dish_1557853154:
+    split: train
+    labeled:
+    - - strawberries
+      - 57.0
+    other_ingredient_grams: []
+  dish_1557853229:
+    split: train
+    labeled:
+    - - eggs
+      - 126.0
+    other_ingredient_grams: []
+  dish_1557853314:
+    split: train
+    labeled:
+    - - yam
+      - 93.0
+    other_ingredient_grams: []
+  dish_1557862783:
+    split: train
+    labeled:
+    - - cauliflower
+      - 77.0
+    other_ingredient_grams: []
+  dish_1557863056:
+    split: train
+    labeled:
+    - - avocado
+      - 47.0
+    other_ingredient_grams: []
+  dish_1557936555:
+    split: train
+    labeled:
+    - - eggs
+      - 96.0
+    other_ingredient_grams: []
+  dish_1557936599:
+    split: train
+    labeled:
+    - - broccoli
+      - 63.0
+    other_ingredient_grams: []
+  dish_1557937079:
+    split: test
+    labeled:
+    - - bacon
+      - 27.0
+    other_ingredient_grams: []
+  dish_1557937335:
+    split: test
+    labeled:
+    - - yam
+      - 38.0
+    other_ingredient_grams: []
+  dish_1558026623:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 83.0
+    other_ingredient_grams: []
+  dish_1558026714:
+    split: train
+    labeled:
+    - - bacon
+      - 24.0
+    other_ingredient_grams: []
+  dish_1558026756:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 83.0
+    other_ingredient_grams: []
+  dish_1558027001:
+    split: train
+    labeled:
+    - - deprecated
+      - 68.0
+    other_ingredient_grams: []
+  dish_1558027057:
+    split: train
+    labeled:
+    - - yam
+      - 65.0
+    other_ingredient_grams: []
+  dish_1558027243:
+    split: train
+    labeled:
+    - - deprecated
+      - 68.0
+    other_ingredient_grams: []
+  dish_1558028142:
+    split: val
+    labeled:
+    - - deprecated
+      - 73.0
+    other_ingredient_grams: []
+  dish_1558028606:
+    split: test
+    labeled:
+    - - deprecated
+      - 65.0
+    other_ingredient_grams: []
+  dish_1558028690:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 66.0
+    other_ingredient_grams: []
+  dish_1558029148:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 108.0
+    other_ingredient_grams: []
+  dish_1558029923:
+    split: val
+    labeled:
+    - - bacon
+      - 22.0
+    other_ingredient_grams: []
+  dish_1558030182:
+    split: train
+    labeled:
+    - - potatoes
+      - 88.0
+    other_ingredient_grams: []
+  dish_1558030383:
+    split: train
+    labeled:
+    - - bacon
+      - 26.0
+    other_ingredient_grams: []
+  dish_1558030435:
+    split: val
+    labeled:
+    - - honeydew melons
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558030724:
+    split: train
+    labeled:
+    - - deprecated
+      - 61.0
+    other_ingredient_grams: []
+  dish_1558030832:
+    split: train
+    labeled:
+    - - yam
+      - 72.0
+    other_ingredient_grams: []
+  dish_1558031019:
+    split: train
+    labeled:
+    - - yam
+      - 72.0
+    other_ingredient_grams: []
+  dish_1558031133:
+    split: train
+    labeled:
+    - - yam
+      - 110.0
+    other_ingredient_grams: []
+  dish_1558031302:
+    split: train
+    labeled:
+    - - potatoes
+      - 74.0
+    other_ingredient_grams: []
+  dish_1558031566:
+    split: train
+    labeled:
+    - - bacon
+      - 26.0
+    other_ingredient_grams: []
+  dish_1558031628:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558032156:
+    split: train
+    labeled:
+    - - bacon
+      - 26.0
+    other_ingredient_grams: []
+  dish_1558109907:
+    split: train
+    labeled:
+    - - grapes
+      - 63.0
+    other_ingredient_grams: []
+  dish_1558109945:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558109986:
+    split: train
+    labeled:
+    - - sausage
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558110385:
+    split: test
+    labeled:
+    - - eggs
+      - 34.0
+    other_ingredient_grams: []
+  dish_1558113204:
+    split: train
+    labeled:
+    - - almonds
+      - 31.0
+    other_ingredient_grams: []
+  dish_1558113255:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 90.0
+    other_ingredient_grams: []
+  dish_1558113304:
+    split: test
+    labeled:
+    - - grapes
+      - 54.0
+    other_ingredient_grams: []
+  dish_1558113430:
+    split: train
+    labeled:
+    - - mixed greens
+      - 28.0
+    other_ingredient_grams: []
+  dish_1558113477:
+    split: train
+    labeled:
+    - - almonds
+      - 50.0
+    other_ingredient_grams: []
+  dish_1558113941:
+    split: train
+    labeled:
+    - - mixed greens
+      - 28.0
+    other_ingredient_grams: []
+  dish_1558114086:
+    split: test
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558114441:
+    split: train
+    labeled:
+    - - sausage
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558114569:
+    split: train
+    labeled:
+    - - grapes
+      - 39.0
+    other_ingredient_grams: []
+  dish_1558114875:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558114937:
+    split: val
+    labeled:
+    - - mixed greens
+      - 49.0
+    other_ingredient_grams: []
+  dish_1558115011:
+    split: train
+    labeled:
+    - - almonds
+      - 20.0
+    other_ingredient_grams: []
+  dish_1558115047:
+    split: train
+    labeled:
+    - - mixed greens
+      - 49.0
+    other_ingredient_grams: []
+  dish_1558115282:
+    split: train
+    labeled:
+    - - deprecated
+      - 144.0
+    other_ingredient_grams: []
+  dish_1558115320:
+    split: train
+    labeled:
+    - - almonds
+      - 30.0
+    other_ingredient_grams: []
+  dish_1558115364:
+    split: val
+    labeled:
+    - - potatoes
+      - 111.0
+    other_ingredient_grams: []
+  dish_1558115448:
+    split: train
+    labeled:
+    - - grapes
+      - 94.0
+    other_ingredient_grams: []
+  dish_1558115512:
+    split: val
+    labeled:
+    - - sausage
+      - 126.0
+    other_ingredient_grams: []
+  dish_1558115601:
+    split: test
+    labeled:
+    - - potatoes
+      - 111.0
+    other_ingredient_grams: []
+  dish_1558115641:
+    split: train
+    labeled:
+    - - grapes
+      - 94.0
+    other_ingredient_grams: []
+  dish_1558115764:
+    split: train
+    labeled:
+    - - bacon
+      - 28.0
+    other_ingredient_grams: []
+  dish_1558115867:
+    split: train
+    labeled:
+    - - almonds
+      - 23.0
+    other_ingredient_grams: []
+  dish_1558115915:
+    split: val
+    labeled:
+    - - sausage
+      - 59.0
+    other_ingredient_grams: []
+  dish_1558115960:
+    split: train
+    labeled:
+    - - potatoes
+      - 51.0
+    other_ingredient_grams: []
+  dish_1558116090:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 91.0
+    other_ingredient_grams: []
+  dish_1558116201:
+    split: val
+    labeled:
+    - - sausage
+      - 91.0
+    other_ingredient_grams: []
+  dish_1558116260:
+    split: train
+    labeled:
+    - - almonds
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558116399:
+    split: test
+    labeled:
+    - - mixed greens
+      - 25.0
+    other_ingredient_grams: []
+  dish_1558116547:
+    split: train
+    labeled:
+    - - deprecated
+      - 144.0
+    other_ingredient_grams: []
+  dish_1558122583:
+    split: train
+    labeled:
+    - - potatoes
+      - 61.0
+    other_ingredient_grams: []
+  dish_1558122740:
+    split: train
+    labeled:
+    - - grapes
+      - 57.0
+    other_ingredient_grams: []
+  dish_1558372433:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558372695:
+    split: train
+    labeled:
+    - - sausage
+      - 43.0
+    other_ingredient_grams: []
+  dish_1558373074:
+    split: train
+    labeled:
+    - - deprecated
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558373159:
+    split: train
+    labeled:
+    - - sausage
+      - 73.0
+    other_ingredient_grams: []
+  dish_1558373284:
+    split: train
+    labeled:
+    - - sausage
+      - 113.0
+    other_ingredient_grams: []
+  dish_1558373449:
+    split: train
+    labeled:
+    - - almonds
+      - 72.0
+    other_ingredient_grams: []
+  dish_1558373492:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 40.0
+    other_ingredient_grams: []
+  dish_1558373639:
+    split: train
+    labeled:
+    - - mixed greens
+      - 20.0
+    other_ingredient_grams: []
+  dish_1558373687:
+    split: train
+    labeled:
+    - - sausage
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558375506:
+    split: train
+    labeled:
+    - - deprecated
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558375667:
+    split: train
+    labeled:
+    - - almonds
+      - 119.0
+    other_ingredient_grams: []
+  dish_1558375732:
+    split: train
+    labeled:
+    - - grapes
+      - 66.0
+    other_ingredient_grams: []
+  dish_1558375833:
+    split: train
+    labeled:
+    - - sausage
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558376212:
+    split: train
+    labeled:
+    - - almonds
+      - 52.0
+    other_ingredient_grams: []
+  dish_1558376306:
+    split: train
+    labeled:
+    - - sausage
+      - 108.0
+    other_ingredient_grams: []
+  dish_1558376364:
+    split: train
+    labeled:
+    - - grapes
+      - 71.0
+    other_ingredient_grams: []
+  dish_1558376437:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 39.0
+    other_ingredient_grams: []
+  dish_1558376734:
+    split: train
+    labeled:
+    - - sausage
+      - 60.0
+    other_ingredient_grams: []
+  dish_1558376984:
+    split: train
+    labeled:
+    - - almonds
+      - 58.0
+    other_ingredient_grams: []
+  dish_1558378516:
+    split: train
+    labeled:
+    - - grapes
+      - 134.0
+    other_ingredient_grams: []
+  dish_1558378553:
+    split: train
+    labeled:
+    - - almonds
+      - 68.0
+    other_ingredient_grams: []
+  dish_1558378634:
+    split: train
+    labeled:
+    - - grapes
+      - 134.0
+    other_ingredient_grams: []
+  dish_1558379128:
+    split: test
+    labeled:
+    - - grapes
+      - 53.0
+    other_ingredient_grams: []
+  dish_1558379182:
+    split: train
+    labeled:
+    - - almonds
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558379273:
+    split: train
+    labeled:
+    - - sausage
+      - 66.0
+    other_ingredient_grams: []
+  dish_1558379324:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 48.0
+    other_ingredient_grams: []
+  dish_1558379391:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 48.0
+    other_ingredient_grams: []
+  dish_1558379588:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558379639:
+    split: train
+    labeled:
+    - - sausage
+      - 112.0
+    other_ingredient_grams: []
+  dish_1558379876:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558380058:
+    split: val
+    labeled:
+    - - almonds
+      - 36.0
+    other_ingredient_grams: []
+  dish_1558380152:
+    split: train
+    labeled:
+    - - deprecated
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558380527:
+    split: val
+    labeled:
+    - - sausage
+      - 112.0
+    other_ingredient_grams: []
+  dish_1558380557:
+    split: train
+    labeled:
+    - - grapes
+      - 52.0
+    other_ingredient_grams: []
+  dish_1558381032:
+    split: val
+    labeled:
+    - - almonds
+      - 20.0
+    other_ingredient_grams: []
+  dish_1558381084:
+    split: val
+    labeled:
+    - - grapes
+      - 53.0
+    other_ingredient_grams: []
+  dish_1558381665:
+    split: train
+    labeled:
+    - - broccoli
+      - 51.0
+    other_ingredient_grams: []
+  dish_1558381742:
+    split: train
+    labeled:
+    - - olives
+      - 68.0
+    other_ingredient_grams: []
+  dish_1558381860:
+    split: test
+    labeled:
+    - - avocado
+      - 59.0
+    other_ingredient_grams: []
+  dish_1558457530:
+    split: val
+    labeled:
+    - - cauliflower
+      - 64.0
+    other_ingredient_grams: []
+  dish_1558457577:
+    split: train
+    labeled:
+    - - eggs
+      - 111.0
+    other_ingredient_grams: []
+  dish_1558458438:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 14.0
+    other_ingredient_grams: []
+  dish_1558458541:
+    split: train
+    labeled:
+    - - almonds
+      - 51.0
+    other_ingredient_grams: []
+  dish_1558458584:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 14.0
+    other_ingredient_grams: []
+  dish_1558458737:
+    split: train
+    labeled:
+    - - white rice
+      - 32.0
+    other_ingredient_grams: []
+  dish_1558458847:
+    split: train
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558459115:
+    split: train
+    labeled:
+    - - almonds
+      - 20.0
+    other_ingredient_grams: []
+  dish_1558459276:
+    split: train
+    labeled:
+    - - white rice
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558459462:
+    split: train
+    labeled:
+    - - grapes
+      - 85.0
+    other_ingredient_grams: []
+  dish_1558459528:
+    split: test
+    labeled:
+    - - cherry tomatoes
+      - 64.0
+    other_ingredient_grams: []
+  dish_1558459664:
+    split: train
+    labeled:
+    - - white rice
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558459994:
+    split: train
+    labeled:
+    - - grapes
+      - 37.0
+    other_ingredient_grams: []
+  dish_1558460061:
+    split: train
+    labeled:
+    - - grapes
+      - 59.0
+    other_ingredient_grams: []
+  dish_1558460908:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558461431:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 5.0
+    other_ingredient_grams: []
+  dish_1558461607:
+    split: val
+    labeled:
+    - - grapes
+      - 127.0
+    other_ingredient_grams: []
+  dish_1558461692:
+    split: train
+    labeled:
+    - - almonds
+      - 40.0
+    other_ingredient_grams: []
+  dish_1558461760:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 61.0
+    other_ingredient_grams: []
+  dish_1558462036:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 13.0
+    other_ingredient_grams: []
+  dish_1558462106:
+    split: train
+    labeled:
+    - - grapes
+      - 37.0
+    other_ingredient_grams: []
+  dish_1558462228:
+    split: train
+    labeled:
+    - - white rice
+      - 17.0
+    other_ingredient_grams: []
+  dish_1558463113:
+    split: train
+    labeled:
+    - - white rice
+      - 17.0
+    other_ingredient_grams: []
+  dish_1558463362:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558463429:
+    split: train
+    labeled:
+    - - grapes
+      - 61.0
+    other_ingredient_grams: []
+  dish_1558463690:
+    split: val
+    labeled:
+    - - grapes
+      - 61.0
+    other_ingredient_grams: []
+  dish_1558468285:
+    split: val
+    labeled:
+    - - mixed greens
+      - 44.0
+    other_ingredient_grams: []
+  dish_1558468401:
+    split: val
+    labeled:
+    - - avocado
+      - 47.0
+    other_ingredient_grams: []
+  dish_1558468435:
+    split: train
+    labeled:
+    - - broccoli
+      - 80.0
+    other_ingredient_grams: []
+  dish_1558468589:
+    split: train
+    labeled:
+    - - mushroom
+      - 55.0
+    other_ingredient_grams: []
+  dish_1558544427:
+    split: train
+    labeled:
+    - - eggs
+      - 103.0
+    other_ingredient_grams: []
+  dish_1558544870:
+    split: train
+    labeled:
+    - - eggs
+      - 103.0
+    other_ingredient_grams: []
+  dish_1558546434:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 11.0
+    other_ingredient_grams: []
+  dish_1558546663:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 11.0
+    other_ingredient_grams: []
+  dish_1558546918:
+    split: val
+    labeled:
+    - - white rice
+      - 54.0
+    other_ingredient_grams: []
+  dish_1558547124:
+    split: train
+    labeled:
+    - - almonds
+      - 25.0
+    other_ingredient_grams: []
+  dish_1558547205:
+    split: val
+    labeled:
+    - - potatoes
+      - 96.0
+    other_ingredient_grams: []
+  dish_1558548666:
+    split: train
+    labeled:
+    - - white rice
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558548958:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 10.0
+    other_ingredient_grams: []
+  dish_1558549008:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 115.0
+    other_ingredient_grams: []
+  dish_1558549086:
+    split: train
+    labeled:
+    - - potatoes
+      - 95.0
+    other_ingredient_grams: []
+  dish_1558549150:
+    split: train
+    labeled:
+    - - grapes
+      - 66.0
+    other_ingredient_grams: []
+  dish_1558549214:
+    split: train
+    labeled:
+    - - white rice
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558549413:
+    split: train
+    labeled:
+    - - almonds
+      - 118.0
+    other_ingredient_grams: []
+  dish_1558549605:
+    split: train
+    labeled:
+    - - white rice
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558549773:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 10.0
+    other_ingredient_grams: []
+  dish_1558549806:
+    split: train
+    labeled:
+    - - almonds
+      - 118.0
+    other_ingredient_grams: []
+  dish_1558550079:
+    split: val
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558550127:
+    split: train
+    labeled:
+    - - almonds
+      - 22.0
+    other_ingredient_grams: []
+  dish_1558550181:
+    split: train
+    labeled:
+    - - grapes
+      - 42.0
+    other_ingredient_grams: []
+  dish_1558550218:
+    split: test
+    labeled:
+    - - almonds
+      - 22.0
+    other_ingredient_grams: []
+  dish_1558628339:
+    split: train
+    labeled:
+    - - bacon
+      - 13.0
+    other_ingredient_grams: []
+  dish_1558628515:
+    split: train
+    labeled:
+    - - berries
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558628888:
+    split: train
+    labeled:
+    - - eggs
+      - 72.0
+    other_ingredient_grams: []
+  dish_1558628921:
+    split: train
+    labeled:
+    - - carrot
+      - 60.0
+    other_ingredient_grams: []
+  dish_1558628956:
+    split: train
+    labeled:
+    - - garden salad
+      - 14.0
+    other_ingredient_grams: []
+  dish_1558629398:
+    split: train
+    labeled:
+    - - tomatoes
+      - 64.0
+    other_ingredient_grams: []
+  dish_1558629488:
+    split: train
+    labeled:
+    - - cauliflower
+      - 64.0
+    other_ingredient_grams: []
+  dish_1558629644:
+    split: train
+    labeled:
+    - - mixed greens
+      - 15.0
+    other_ingredient_grams: []
+  dish_1558629818:
+    split: val
+    labeled:
+    - - almonds
+      - 27.0
+    other_ingredient_grams: []
+  dish_1558630176:
+    split: val
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558630207:
+    split: train
+    labeled:
+    - - almonds
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558630288:
+    split: train
+    labeled:
+    - - garden salad
+      - 11.0
+    other_ingredient_grams: []
+  dish_1558630325:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558630450:
+    split: train
+    labeled:
+    - - grapes
+      - 125.0
+    other_ingredient_grams: []
+  dish_1558630488:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 88.0
+    other_ingredient_grams: []
+  dish_1558630600:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558630649:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 88.0
+    other_ingredient_grams: []
+  dish_1558630737:
+    split: train
+    labeled:
+    - - cauliflower
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558630932:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558631825:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 112.0
+    other_ingredient_grams: []
+  dish_1558631904:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558632130:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 99.0
+    other_ingredient_grams: []
+  dish_1558632233:
+    split: train
+    labeled:
+    - - garden salad
+      - 26.0
+    other_ingredient_grams: []
+  dish_1558632445:
+    split: train
+    labeled:
+    - - almonds
+      - 91.0
+    other_ingredient_grams: []
+  dish_1558632475:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 112.0
+    other_ingredient_grams: []
+  dish_1558632921:
+    split: train
+    labeled:
+    - - apple
+      - 155.0
+    other_ingredient_grams: []
+  dish_1558635400:
+    split: train
+    labeled:
+    - - cauliflower
+      - 100.0
+    other_ingredient_grams: []
+  dish_1558635546:
+    split: val
+    labeled:
+    - - apple
+      - 117.0
+    other_ingredient_grams: []
+  dish_1558635618:
+    split: val
+    labeled:
+    - - corn on the cob
+      - 74.0
+    other_ingredient_grams: []
+  dish_1558635865:
+    split: test
+    labeled:
+    - - corn on the cob
+      - 19.0
+    other_ingredient_grams: []
+  dish_1558635933:
+    split: val
+    labeled:
+    - - cantaloupe
+      - 98.0
+    other_ingredient_grams: []
+  dish_1558635962:
+    split: val
+    labeled:
+    - - almonds
+      - 9.0
+    other_ingredient_grams: []
+  dish_1558635994:
+    split: train
+    labeled:
+    - - grapes
+      - 136.0
+    other_ingredient_grams: []
+  dish_1558636028:
+    split: train
+    labeled:
+    - - grapes
+      - 136.0
+    other_ingredient_grams: []
+  dish_1558636483:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558636582:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558636813:
+    split: val
+    labeled:
+    - - grapes
+      - 88.0
+    other_ingredient_grams: []
+  dish_1558636902:
+    split: train
+    labeled:
+    - - carrot
+      - 95.0
+    other_ingredient_grams: []
+  dish_1558636928:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558637214:
+    split: train
+    labeled:
+    - - grapes
+      - 16.0
+    other_ingredient_grams: []
+  dish_1558637247:
+    split: test
+    labeled:
+    - - corn on the cob
+      - 111.0
+    other_ingredient_grams: []
+  dish_1558637351:
+    split: val
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558637393:
+    split: train
+    labeled:
+    - - almonds
+      - 128.0
+    other_ingredient_grams: []
+  dish_1558637698:
+    split: train
+    labeled:
+    - - cauliflower
+      - 49.0
+    other_ingredient_grams: []
+  dish_1558637769:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558637865:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 67.0
+    other_ingredient_grams: []
+  dish_1558637896:
+    split: train
+    labeled:
+    - - grapes
+      - 123.0
+    other_ingredient_grams: []
+  dish_1558638216:
+    split: train
+    labeled:
+    - - white rice
+      - 43.0
+    other_ingredient_grams: []
+  dish_1558638844:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558638896:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 126.0
+    other_ingredient_grams: []
+  dish_1558638954:
+    split: train
+    labeled:
+    - - grapes
+      - 129.0
+    other_ingredient_grams: []
+  dish_1558638983:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558639012:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 126.0
+    other_ingredient_grams: []
+  dish_1558639089:
+    split: val
+    labeled:
+    - - grapes
+      - 28.0
+    other_ingredient_grams: []
+  dish_1558639167:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558639221:
+    split: train
+    labeled:
+    - - cauliflower
+      - 98.0
+    other_ingredient_grams: []
+  dish_1558639266:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 29.0
+    other_ingredient_grams: []
+  dish_1558639335:
+    split: train
+    labeled:
+    - - apple
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558639440:
+    split: train
+    labeled:
+    - - apple
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558639630:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 110.0
+    other_ingredient_grams: []
+  dish_1558639662:
+    split: test
+    labeled:
+    - - cherry tomatoes
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558639673:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 89.0
+    other_ingredient_grams: []
+  dish_1558639752:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 110.0
+    other_ingredient_grams: []
+  dish_1558639787:
+    split: train
+    labeled:
+    - - cauliflower
+      - 99.0
+    other_ingredient_grams: []
+  dish_1558639876:
+    split: train
+    labeled:
+    - - carrot
+      - 57.0
+    other_ingredient_grams: []
+  dish_1558639979:
+    split: train
+    labeled:
+    - - almonds
+      - 90.0
+    other_ingredient_grams: []
+  dish_1558640008:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 58.0
+    other_ingredient_grams: []
+  dish_1558640074:
+    split: train
+    labeled:
+    - - apple
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558640145:
+    split: train
+    labeled:
+    - - carrot
+      - 98.0
+    other_ingredient_grams: []
+  dish_1558640190:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 58.0
+    other_ingredient_grams: []
+  dish_1558640267:
+    split: train
+    labeled:
+    - - grapes
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558640418:
+    split: train
+    labeled:
+    - - carrot
+      - 35.0
+    other_ingredient_grams: []
+  dish_1558640593:
+    split: val
+    labeled:
+    - - apple
+      - 116.0
+    other_ingredient_grams: []
+  dish_1558640705:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 23.0
+    other_ingredient_grams: []
+  dish_1558640808:
+    split: train
+    labeled:
+    - - carrot
+      - 26.0
+    other_ingredient_grams: []
+  dish_1558640917:
+    split: train
+    labeled:
+    - - cauliflower
+      - 21.0
+    other_ingredient_grams: []
+  dish_1558641037:
+    split: train
+    labeled:
+    - - apple
+      - 117.0
+    other_ingredient_grams: []
+  dish_1558641075:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 69.0
+    other_ingredient_grams: []
+  dish_1558641108:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 69.0
+    other_ingredient_grams: []
+  dish_1558641164:
+    split: test
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558641200:
+    split: train
+    labeled:
+    - - carrot
+      - 8.0
+    other_ingredient_grams: []
+  dish_1558641211:
+    split: train
+    labeled:
+    - - carrot
+      - 8.0
+    other_ingredient_grams: []
+  dish_1558641253:
+    split: test
+    labeled:
+    - - corn on the cob
+      - 110.0
+    other_ingredient_grams: []
+  dish_1558641320:
+    split: train
+    labeled:
+    - - apple
+      - 154.0
+    other_ingredient_grams: []
+  dish_1558641358:
+    split: train
+    labeled:
+    - - cauliflower
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558641416:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558641442:
+    split: train
+    labeled:
+    - - cauliflower
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558641897:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 110.0
+    other_ingredient_grams: []
+  dish_1558641954:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 102.0
+    other_ingredient_grams: []
+  dish_1558642089:
+    split: train
+    labeled:
+    - - carrot
+      - 96.0
+    other_ingredient_grams: []
+  dish_1558642420:
+    split: train
+    labeled:
+    - - carrot
+      - 95.0
+    other_ingredient_grams: []
+  dish_1558642490:
+    split: val
+    labeled:
+    - - carrot
+      - 95.0
+    other_ingredient_grams: []
+  dish_1558717604:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558717886:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558718009:
+    split: val
+    labeled:
+    - - cantaloupe
+      - 76.0
+    other_ingredient_grams: []
+  dish_1558718051:
+    split: train
+    labeled:
+    - - cauliflower
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558718610:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558718680:
+    split: test
+    labeled:
+    - - almonds
+      - 23.0
+    other_ingredient_grams: []
+  dish_1558718974:
+    split: train
+    labeled:
+    - - almonds
+      - 73.0
+    other_ingredient_grams: []
+  dish_1558719040:
+    split: val
+    labeled:
+    - - cantaloupe
+      - 94.0
+    other_ingredient_grams: []
+  dish_1558719066:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558719298:
+    split: train
+    labeled:
+    - - almonds
+      - 46.0
+    other_ingredient_grams: []
+  dish_1558719336:
+    split: test
+    labeled:
+    - - cauliflower
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558719514:
+    split: test
+    labeled:
+    - - almonds
+      - 46.0
+    other_ingredient_grams: []
+  dish_1558719570:
+    split: train
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558719994:
+    split: train
+    labeled:
+    - - almonds
+      - 133.0
+    other_ingredient_grams: []
+  dish_1558720097:
+    split: train
+    labeled:
+    - - carrot
+      - 74.0
+    other_ingredient_grams: []
+  dish_1558720236:
+    split: train
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558720289:
+    split: train
+    labeled:
+    - - cauliflower
+      - 80.0
+    other_ingredient_grams: []
+  dish_1558720364:
+    split: train
+    labeled:
+    - - apple
+      - 142.0
+    other_ingredient_grams: []
+  dish_1558720396:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 90.0
+    other_ingredient_grams: []
+  dish_1558721323:
+    split: val
+    labeled:
+    - - cantaloupe
+      - 93.0
+    other_ingredient_grams: []
+  dish_1558721345:
+    split: train
+    labeled:
+    - - cauliflower
+      - 78.0
+    other_ingredient_grams: []
+  dish_1558721380:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558721484:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 62.0
+    other_ingredient_grams: []
+  dish_1558721533:
+    split: test
+    labeled:
+    - - cantaloupe
+      - 55.0
+    other_ingredient_grams: []
+  dish_1558721559:
+    split: train
+    labeled:
+    - - carrot
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558721636:
+    split: train
+    labeled:
+    - - carrot
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558721700:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558721726:
+    split: train
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558721757:
+    split: train
+    labeled:
+    - - almonds
+      - 133.0
+    other_ingredient_grams: []
+  dish_1558721827:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 56.0
+    other_ingredient_grams: []
+  dish_1558721980:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558722068:
+    split: train
+    labeled:
+    - - almonds
+      - 31.0
+    other_ingredient_grams: []
+  dish_1558722125:
+    split: train
+    labeled:
+    - - almonds
+      - 86.0
+    other_ingredient_grams: []
+  dish_1558722247:
+    split: train
+    labeled:
+    - - almonds
+      - 86.0
+    other_ingredient_grams: []
+  dish_1558722322:
+    split: train
+    labeled:
+    - - carrot
+      - 92.0
+    other_ingredient_grams: []
+  dish_1558722636:
+    split: train
+    labeled:
+    - - carrot
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558722665:
+    split: train
+    labeled:
+    - - cauliflower
+      - 60.0
+    other_ingredient_grams: []
+  dish_1558722685:
+    split: test
+    labeled:
+    - - cantaloupe
+      - 76.0
+    other_ingredient_grams: []
+  dish_1558722780:
+    split: train
+    labeled:
+    - - cauliflower
+      - 60.0
+    other_ingredient_grams: []
+  dish_1558722871:
+    split: test
+    labeled:
+    - - cauliflower
+      - 60.0
+    other_ingredient_grams: []
+  dish_1558722906:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 90.0
+    other_ingredient_grams: []
+  dish_1558723073:
+    split: test
+    labeled:
+    - - cherry tomatoes
+      - 90.0
+    other_ingredient_grams: []
+  dish_1558723096:
+    split: train
+    labeled:
+    - - cauliflower
+      - 66.0
+    other_ingredient_grams: []
+  dish_1558723414:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 49.0
+    other_ingredient_grams: []
+  dish_1558723449:
+    split: train
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558723512:
+    split: train
+    labeled:
+    - - carrot
+      - 39.0
+    other_ingredient_grams: []
+  dish_1558723537:
+    split: test
+    labeled:
+    - - cauliflower
+      - 58.0
+    other_ingredient_grams: []
+  dish_1558723568:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 67.0
+    other_ingredient_grams: []
+  dish_1558723671:
+    split: train
+    labeled:
+    - - carrot
+      - 93.0
+    other_ingredient_grams: []
+  dish_1558723719:
+    split: train
+    labeled:
+    - - almonds
+      - 40.0
+    other_ingredient_grams: []
+  dish_1558723742:
+    split: train
+    labeled:
+    - - carrot
+      - 93.0
+    other_ingredient_grams: []
+  dish_1558723777:
+    split: val
+    labeled:
+    - - apple
+      - 143.0
+    other_ingredient_grams: []
+  dish_1558723818:
+    split: val
+    labeled:
+    - - corn on the cob
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558723847:
+    split: val
+    labeled:
+    - - almonds
+      - 96.0
+    other_ingredient_grams: []
+  dish_1558723866:
+    split: train
+    labeled:
+    - - cauliflower
+      - 59.0
+    other_ingredient_grams: []
+  dish_1558723894:
+    split: train
+    labeled:
+    - - almonds
+      - 96.0
+    other_ingredient_grams: []
+  dish_1558723926:
+    split: val
+    labeled:
+    - - cherry tomatoes
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558723960:
+    split: train
+    labeled:
+    - - cauliflower
+      - 52.0
+    other_ingredient_grams: []
+  dish_1558723982:
+    split: test
+    labeled:
+    - - almonds
+      - 51.0
+    other_ingredient_grams: []
+  dish_1558724005:
+    split: train
+    labeled:
+    - - cantaloupe
+      - 93.0
+    other_ingredient_grams: []
+  dish_1558724031:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558724574:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 118.0
+    other_ingredient_grams: []
+  dish_1558724607:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 152.0
+    other_ingredient_grams: []
+  dish_1558724633:
+    split: test
+    labeled:
+    - - broccoli
+      - 94.0
+    other_ingredient_grams: []
+  dish_1558724689:
+    split: train
+    labeled:
+    - - cauliflower
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558724766:
+    split: train
+    labeled:
+    - - apple
+      - 161.0
+    other_ingredient_grams: []
+  dish_1558724853:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 118.0
+    other_ingredient_grams: []
+  dish_1558724912:
+    split: train
+    labeled:
+    - - carrot
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558724959:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 118.0
+    other_ingredient_grams: []
+  dish_1558724992:
+    split: train
+    labeled:
+    - - almonds
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558725049:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 100.0
+    other_ingredient_grams: []
+  dish_1558725226:
+    split: train
+    labeled:
+    - - cauliflower
+      - 79.0
+    other_ingredient_grams: []
+  dish_1558725253:
+    split: train
+    labeled:
+    - - broccoli
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558725286:
+    split: train
+    labeled:
+    - - broccoli
+      - 97.0
+    other_ingredient_grams: []
+  dish_1558725403:
+    split: train
+    labeled:
+    - - almonds
+      - 50.0
+    other_ingredient_grams: []
+  dish_1558725621:
+    split: test
+    labeled:
+    - - brussels sprouts
+      - 94.0
+    other_ingredient_grams: []
+  dish_1558725702:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 117.0
+    other_ingredient_grams: []
+  dish_1558725734:
+    split: test
+    labeled:
+    - - carrot
+      - 75.0
+    other_ingredient_grams: []
+  dish_1558725760:
+    split: train
+    labeled:
+    - - apple
+      - 161.0
+    other_ingredient_grams: []
+  dish_1558725786:
+    split: train
+    labeled:
+    - - corn on the cob
+      - 107.0
+    other_ingredient_grams: []
+  dish_1558725829:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 117.0
+    other_ingredient_grams: []
+  dish_1559059954:
+    split: train
+    labeled:
+    - - bacon
+      - 20.0
+    other_ingredient_grams: []
+  dish_1559059992:
+    split: train
+    labeled:
+    - - sweet potato
+      - 94.0
+    other_ingredient_grams: []
+  dish_1559062051:
+    split: train
+    labeled:
+    - - sweet potato
+      - 74.0
+    other_ingredient_grams: []
+  dish_1559062082:
+    split: train
+    labeled:
+    - - watermelon
+      - 83.0
+    other_ingredient_grams: []
+  dish_1559149650:
+    split: train
+    labeled:
+    - - carrot
+      - 64.0
+    other_ingredient_grams: []
+  dish_1559149688:
+    split: train
+    labeled:
+    - - eggs
+      - 181.0
+    other_ingredient_grams: []
+  dish_1559149719:
+    split: train
+    labeled:
+    - - bacon
+      - 23.0
+    other_ingredient_grams: []
+  dish_1559157454:
+    split: train
+    labeled:
+    - - arugula
+      - 18.905804
+    other_ingredient_grams: []
+  dish_1559158354:
+    split: train
+    labeled:
+    - - broccoli
+      - 60.0
+    other_ingredient_grams: []
+  dish_1559158425:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 13.0
+    other_ingredient_grams: []
+  dish_1559172356:
+    split: train
+    labeled:
+    - - salt
+      - 0.330392
+    other_ingredient_grams: []
+  dish_1559232986:
+    split: train
+    labeled:
+    - - bacon
+      - 35.0
+    other_ingredient_grams: []
+  dish_1559233055:
+    split: train
+    labeled:
+    - - garden salad
+      - 39.0
+    other_ingredient_grams: []
+  dish_1559233102:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 124.0
+    other_ingredient_grams: []
+  dish_1559233570:
+    split: train
+    labeled:
+    - - strawberries
+      - 51.0
+    other_ingredient_grams: []
+  dish_1559233715:
+    split: train
+    labeled:
+    - - sweet potato
+      - 110.0
+    other_ingredient_grams: []
+  dish_1559235639:
+    split: val
+    labeled:
+    - - strawberries
+      - 103.0
+    other_ingredient_grams: []
+  dish_1559235690:
+    split: train
+    labeled:
+    - - eggs
+      - 111.0
+    other_ingredient_grams: []
+  dish_1559235771:
+    split: train
+    labeled:
+    - - cream cheese
+      - 10.8
+    other_ingredient_grams: []
+  dish_1559235815:
+    split: train
+    labeled:
+    - - cream cheese
+      - 10.8
+    other_ingredient_grams: []
+  dish_1559238435:
+    split: train
+    labeled:
+    - - pears
+      - 202.0
+    other_ingredient_grams: []
+  dish_1559238481:
+    split: train
+    labeled:
+    - - orange
+      - 127.0
+    other_ingredient_grams: []
+  dish_1559238608:
+    split: val
+    labeled:
+    - - berries
+      - 109.0
+    other_ingredient_grams: []
+  dish_1559239151:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 40.0
+    other_ingredient_grams: []
+  dish_1559239753:
+    split: train
+    labeled:
+    - - carrot
+      - 53.234749
+    other_ingredient_grams: []
+  dish_1559239985:
+    split: train
+    labeled:
+    - - pears
+      - 203.0
+    other_ingredient_grams: []
+  dish_1559240089:
+    split: val
+    labeled:
+    - - salt
+      - 0.19963
+    other_ingredient_grams: []
+  dish_1559240256:
+    split: train
+    labeled:
+    - - broccoli
+      - 54.0
+    other_ingredient_grams: []
+  dish_1559240382:
+    split: train
+    labeled:
+    - - salt
+      - 0.155268
+    other_ingredient_grams: []
+  dish_1559240441:
+    split: val
+    labeled:
+    - - strawberries
+      - 59.0
+    other_ingredient_grams: []
+  dish_1559240510:
+    split: val
+    labeled:
+    - - salt
+      - 0.155268
+    other_ingredient_grams: []
+  dish_1559240875:
+    split: val
+    labeled:
+    - - pears
+      - 203.0
+    other_ingredient_grams: []
+  dish_1559240908:
+    split: train
+    labeled:
+    - - orange
+      - 128.0
+    other_ingredient_grams: []
+  dish_1559242221:
+    split: train
+    labeled:
+    - - almonds
+      - 114.0
+    other_ingredient_grams: []
+  dish_1559242568:
+    split: train
+    labeled:
+    - - pears
+      - 203.0
+    other_ingredient_grams: []
+  dish_1559243139:
+    split: train
+    labeled:
+    - - carrot
+      - 52.24892
+    other_ingredient_grams: []
+  dish_1559243974:
+    split: train
+    labeled:
+    - - almonds
+      - 50.0
+    other_ingredient_grams: []
+  dish_1559244305:
+    split: train
+    labeled:
+    - - arugula
+      - 8.015028
+    other_ingredient_grams: []
+  dish_1559244417:
+    split: train
+    labeled:
+    - - pepper
+      - 0.044461
+    other_ingredient_grams: []
+  dish_1559244649:
+    split: train
+    labeled:
+    - - pepper
+      - 3.250473
+    other_ingredient_grams: []
+  dish_1559245589:
+    split: val
+    labeled:
+    - - carrot
+      - 51.263092
+    other_ingredient_grams: []
+  dish_1559245654:
+    split: train
+    labeled:
+    - - pears
+      - 202.0
+    other_ingredient_grams: []
+  dish_1559245697:
+    split: train
+    labeled:
+    - - salt
+      - 0.192237
+    other_ingredient_grams: []
+  dish_1559245801:
+    split: train
+    labeled:
+    - - berries
+      - 107.0
+    other_ingredient_grams: []
+  dish_1559246053:
+    split: train
+    labeled:
+    - - cauliflower
+      - 57.0
+    other_ingredient_grams: []
+  dish_1559319860:
+    split: train
+    labeled:
+    - - bacon
+      - 13.0
+    other_ingredient_grams: []
+  dish_1559319902:
+    split: train
+    labeled:
+    - - pineapple
+      - 17.0
+    other_ingredient_grams: []
+  dish_1559320019:
+    split: train
+    labeled:
+    - - pineapple
+      - 17.0
+    other_ingredient_grams: []
+  dish_1559578551:
+    split: train
+    labeled:
+    - - bacon
+      - 23.0
+    other_ingredient_grams: []
+  dish_1559581333:
+    split: train
+    labeled:
+    - - olive oil
+      - 5.597668
+    other_ingredient_grams: []
+  dish_1559589873:
+    split: train
+    labeled:
+    - - mushroom
+      - 54.0
+    other_ingredient_grams: []
+  dish_1559589902:
+    split: train
+    labeled:
+    - - mushroom
+      - 54.0
+    other_ingredient_grams: []
+  dish_1559590005:
+    split: train
+    labeled:
+    - - asparagus
+      - 22.0
+    other_ingredient_grams: []
+  dish_1559590031:
+    split: train
+    labeled:
+    - - asparagus
+      - 22.0
+    other_ingredient_grams: []
+  dish_1559590130:
+    split: train
+    labeled:
+    - - asparagus
+      - 39.0
+    other_ingredient_grams: []
+  dish_1559593646:
+    split: train
+    labeled:
+    - - vinegar
+      - 1.838509
+    other_ingredient_grams: []
+  dish_1559667948:
+    split: train
+    labeled:
+    - - cream cheese
+      - 11.400001
+    other_ingredient_grams: []
+  dish_1559668016:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 122.0
+    other_ingredient_grams: []
+  dish_1559668272:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 150.0
+    other_ingredient_grams: []
+  dish_1559668314:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 150.0
+    other_ingredient_grams: []
+  dish_1559675101:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 31.0
+    other_ingredient_grams: []
+  dish_1559675146:
+    split: train
+    labeled:
+    - - brussels sprouts
+      - 31.0
+    other_ingredient_grams: []
+  dish_1559675178:
+    split: val
+    labeled:
+    - - carrot
+      - 14.0
+    other_ingredient_grams: []
+  dish_1559675234:
+    split: train
+    labeled:
+    - - carrot
+      - 14.0
+    other_ingredient_grams: []
+  dish_1559675268:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 55.0
+    other_ingredient_grams: []
+  dish_1559678146:
+    split: train
+    labeled:
+    - - carrot
+      - 4.313726
+    other_ingredient_grams: []
+  dish_1559678330:
+    split: train
+    labeled:
+    - - olive oil
+      - 15.686275
+    other_ingredient_grams: []
+  dish_1559678367:
+    split: train
+    labeled:
+    - - salt
+      - 0.490196
+    other_ingredient_grams: []
+  dish_1559678629:
+    split: train
+    labeled:
+    - - shallots
+      - 0.491929
+    other_ingredient_grams: []
+  dish_1559700851:
+    split: train
+    labeled:
+    - - spinach (raw)
+      - 28.235296
+    other_ingredient_grams: []
+  dish_1559751458:
+    split: train
+    labeled:
+    - - yam
+      - 123.0
+    other_ingredient_grams: []
+  dish_1559751744:
+    split: train
+    labeled:
+    - - eggs
+      - 122.0
+    other_ingredient_grams: []
+  dish_1559751775:
+    split: test
+    labeled:
+    - - berries
+      - 66.0
+    other_ingredient_grams: []
+  dish_1559751801:
+    split: train
+    labeled:
+    - - berries
+      - 66.0
+    other_ingredient_grams: []
+  dish_1559838214:
+    split: train
+    labeled:
+    - - bacon
+      - 8.0
+    other_ingredient_grams: []
+  dish_1559838279:
+    split: train
+    labeled:
+    - - bacon
+      - 8.0
+    other_ingredient_grams: []
+  dish_1559838402:
+    split: train
+    labeled:
+    - - bacon
+      - 8.0
+    other_ingredient_grams: []
+  dish_1559841127:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 119.0
+    other_ingredient_grams: []
+  dish_1559841808:
+    split: train
+    labeled:
+    - - grapes
+      - 38.0
+    other_ingredient_grams: []
+  dish_1559841870:
+    split: train
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559841891:
+    split: test
+    labeled:
+    - - grapes
+      - 71.0
+    other_ingredient_grams: []
+  dish_1559841908:
+    split: train
+    labeled:
+    - - grapes
+      - 71.0
+    other_ingredient_grams: []
+  dish_1559842047:
+    split: train
+    labeled:
+    - - broccoli
+      - 32.0
+    other_ingredient_grams: []
+  dish_1559842326:
+    split: train
+    labeled:
+    - - almonds
+      - 53.0
+    other_ingredient_grams: []
+  dish_1559842409:
+    split: val
+    labeled:
+    - - strawberries
+      - 42.0
+    other_ingredient_grams: []
+  dish_1559843030:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559843185:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559843222:
+    split: val
+    labeled:
+    - - grapes
+      - 68.0
+    other_ingredient_grams: []
+  dish_1559843335:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559843690:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559844030:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559844063:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559844113:
+    split: train
+    labeled:
+    - - strawberries
+      - 77.0
+    other_ingredient_grams: []
+  dish_1559844366:
+    split: train
+    labeled:
+    - - almonds
+      - 80.0
+    other_ingredient_grams: []
+  dish_1559844479:
+    split: train
+    labeled:
+    - - mandarin oranges
+      - 52.0
+    other_ingredient_grams: []
+  dish_1559844490:
+    split: train
+    labeled:
+    - - grapes
+      - 81.0
+    other_ingredient_grams: []
+  dish_1559844506:
+    split: val
+    labeled:
+    - - mandarin oranges
+      - 52.0
+    other_ingredient_grams: []
+  dish_1559844683:
+    split: train
+    labeled:
+    - - broccoli
+      - 31.0
+    other_ingredient_grams: []
+  dish_1559844928:
+    split: train
+    labeled:
+    - - potatoes
+      - 86.0
+    other_ingredient_grams: []
+  dish_1559844951:
+    split: train
+    labeled:
+    - - almonds
+      - 36.0
+    other_ingredient_grams: []
+  dish_1559845018:
+    split: train
+    labeled:
+    - - almonds
+      - 36.0
+    other_ingredient_grams: []
+  dish_1559845290:
+    split: train
+    labeled:
+    - - potatoes
+      - 86.0
+    other_ingredient_grams: []
+  dish_1559845370:
+    split: train
+    labeled:
+    - - potatoes
+      - 86.0
+    other_ingredient_grams: []
+  dish_1559845513:
+    split: train
+    labeled:
+    - - potatoes
+      - 86.0
+    other_ingredient_grams: []
+  dish_1559845745:
+    split: train
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559845767:
+    split: train
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559846034:
+    split: train
+    labeled:
+    - - broccoli
+      - 32.0
+    other_ingredient_grams: []
+  dish_1559846099:
+    split: train
+    labeled:
+    - - mandarin oranges
+      - 53.0
+    other_ingredient_grams: []
+  dish_1559846311:
+    split: train
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559846450:
+    split: train
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559846688:
+    split: train
+    labeled:
+    - - vinegar
+      - 3.719745
+    other_ingredient_grams: []
+  dish_1559848857:
+    split: train
+    labeled:
+    - - mandarin oranges
+      - 53.0
+    other_ingredient_grams: []
+  dish_1559849053:
+    split: val
+    labeled:
+    - - grapes
+      - 67.0
+    other_ingredient_grams: []
+  dish_1559849412:
+    split: train
+    labeled:
+    - - almonds
+      - 61.0
+    other_ingredient_grams: []
+  dish_1559849466:
+    split: test
+    labeled:
+    - - pears
+      - 201.0
+    other_ingredient_grams: []
+  dish_1559849497:
+    split: train
+    labeled:
+    - - almonds
+      - 61.0
+    other_ingredient_grams: []
+  dish_1559850314:
+    split: train
+    labeled:
+    - - almonds
+      - 47.0
+    other_ingredient_grams: []
+  dish_1559925037:
+    split: train
+    labeled:
+    - - bacon
+      - 10.0
+    other_ingredient_grams: []
+  dish_1559925083:
+    split: val
+    labeled:
+    - - yam
+      - 35.5
+    other_ingredient_grams: []
+  dish_1559925174:
+    split: train
+    labeled:
+    - - berries
+      - 155.0
+    other_ingredient_grams: []
+  dish_1559932674:
+    split: train
+    labeled:
+    - - orange
+      - 124.0
+    other_ingredient_grams: []
+  dish_1559933793:
+    split: train
+    labeled:
+    - - salt
+      - 0.546125
+    other_ingredient_grams: []
+  dish_1559934679:
+    split: train
+    labeled:
+    - - quinoa
+      - 6.923077
+    other_ingredient_grams: []
+  dish_1560270585:
+    split: val
+    labeled:
+    - - pineapple
+      - 48.0
+    other_ingredient_grams: []
+  dish_1560270630:
+    split: train
+    labeled:
+    - - pineapple
+      - 48.0
+    other_ingredient_grams: []
+  dish_1560356355:
+    split: train
+    labeled:
+    - - bacon
+      - 29.0
+    other_ingredient_grams: []
+  dish_1560356523:
+    split: train
+    labeled:
+    - - bacon
+      - 92.0
+    other_ingredient_grams: []
+  dish_1560356627:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 121.0
+    other_ingredient_grams: []
+  dish_1560357267:
+    split: val
+    labeled:
+    - - scrambled eggs
+      - 383.0
+    other_ingredient_grams: []
+  dish_1560357832:
+    split: train
+    labeled:
+    - - mustard
+      - 0.20915
+    other_ingredient_grams: []
+  dish_1560360055:
+    split: val
+    labeled:
+    - - sausage
+      - 49.0
+    other_ingredient_grams: []
+  dish_1560360102:
+    split: train
+    labeled:
+    - - berries
+      - 68.0
+    other_ingredient_grams: []
+  dish_1560360112:
+    split: test
+    labeled:
+    - - berries
+      - 68.0
+    other_ingredient_grams: []
+  dish_1560366389:
+    split: train
+    labeled:
+    - - mustard
+      - 0.28636
+    other_ingredient_grams: []
+  dish_1560366438:
+    split: train
+    labeled:
+    - - asparagus
+      - 58.0
+    other_ingredient_grams: []
+  dish_1560366998:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 89.0
+    other_ingredient_grams: []
+  dish_1560367085:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 89.0
+    other_ingredient_grams: []
+  dish_1560367715:
+    split: train
+    labeled:
+    - - broccoli
+      - 5.096525
+    other_ingredient_grams: []
+  dish_1560367733:
+    split: train
+    labeled:
+    - - vinegar
+      - 1.019305
+    other_ingredient_grams: []
+  dish_1560367904:
+    split: train
+    labeled:
+    - - olive oil
+      - 1.080235
+    other_ingredient_grams: []
+  dish_1560367980:
+    split: train
+    labeled:
+    - - asparagus
+      - 33.0
+    other_ingredient_grams: []
+  dish_1560368138:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 89.0
+    other_ingredient_grams: []
+  dish_1560368162:
+    split: train
+    labeled:
+    - - olive oil
+      - 0.539216
+    other_ingredient_grams: []
+  dish_1560368395:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 137.0
+    other_ingredient_grams: []
+  dish_1560368464:
+    split: train
+    labeled:
+    - - olive oil
+      - 2.841699
+    other_ingredient_grams: []
+  dish_1560368570:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 137.0
+    other_ingredient_grams: []
+  dish_1560368738:
+    split: train
+    labeled:
+    - - olive oil
+      - 11.354902
+    other_ingredient_grams: []
+  dish_1560368764:
+    split: train
+    labeled:
+    - - olive oil
+      - 11.354902
+    other_ingredient_grams: []
+  dish_1560368815:
+    split: train
+    labeled:
+    - - mixed greens
+      - 26.352942
+    other_ingredient_grams: []
+  dish_1560368944:
+    split: train
+    labeled:
+    - - pork
+      - 50.965252
+    other_ingredient_grams: []
+  dish_1560368972:
+    split: val
+    labeled:
+    - - pork
+      - 50.965252
+    other_ingredient_grams: []
+  dish_1560368990:
+    split: train
+    labeled:
+    - - shallots
+      - 0.339768
+    other_ingredient_grams: []
+  dish_1560369146:
+    split: test
+    labeled:
+    - - cherry tomatoes
+      - 4.530244
+    other_ingredient_grams: []
+  dish_1560369313:
+    split: train
+    labeled:
+    - - olive oil
+      - 3.761006
+    other_ingredient_grams: []
+  dish_1560369403:
+    split: test
+    labeled:
+    - - shallots
+      - 0.314028
+    other_ingredient_grams: []
+  dish_1560369421:
+    split: train
+    labeled:
+    - - pork
+      - 47.104248
+    other_ingredient_grams: []
+  dish_1560370114:
+    split: test
+    labeled:
+    - - asparagus
+      - 39.0
+    other_ingredient_grams: []
+  dish_1560441247:
+    split: train
+    labeled:
+    - - bok choy
+      - 17.0
+    other_ingredient_grams: []
+  dish_1560441270:
+    split: train
+    labeled:
+    - - bok choy
+      - 17.0
+    other_ingredient_grams: []
+  dish_1560441288:
+    split: val
+    labeled:
+    - - bok choy
+      - 17.0
+    other_ingredient_grams: []
+  dish_1560441464:
+    split: train
+    labeled:
+    - - berries
+      - 50.0
+    other_ingredient_grams: []
+  dish_1560441487:
+    split: train
+    labeled:
+    - - berries
+      - 50.0
+    other_ingredient_grams: []
+  dish_1560442226:
+    split: train
+    labeled:
+    - - berries
+      - 147.0
+    other_ingredient_grams: []
+  dish_1560442258:
+    split: test
+    labeled:
+    - - bacon
+      - 38.0
+    other_ingredient_grams: []
+  dish_1560442279:
+    split: train
+    labeled:
+    - - quinoa
+      - 37.0
+    other_ingredient_grams: []
+  dish_1560442303:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 75.0
+    other_ingredient_grams: []
+  dish_1560442450:
+    split: train
+    labeled:
+    - - yogurt
+      - 149.0
+    other_ingredient_grams: []
+  dish_1560443437:
+    split: val
+    labeled:
+    - - berries
+      - 204.0
+    other_ingredient_grams: []
+  dish_1560443474:
+    split: train
+    labeled:
+    - - pineapple
+      - 113.0
+    other_ingredient_grams: []
+  dish_1560443537:
+    split: train
+    labeled:
+    - - berries
+      - 204.0
+    other_ingredient_grams: []
+  dish_1560443607:
+    split: train
+    labeled:
+    - - grapes
+      - 94.0
+    other_ingredient_grams: []
+  dish_1560444592:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 114.0
+    other_ingredient_grams: []
+  dish_1560444616:
+    split: train
+    labeled:
+    - - scrambled eggs
+      - 114.0
+    other_ingredient_grams: []
+  dish_1560444637:
+    split: train
+    labeled:
+    - - bacon
+      - 45.0
+    other_ingredient_grams: []
+  dish_1560444724:
+    split: test
+    labeled:
+    - - watermelon
+      - 170.0
+    other_ingredient_grams: []
+  dish_1560444785:
+    split: train
+    labeled:
+    - - bacon
+      - 30.0
+    other_ingredient_grams: []
+  dish_1560444869:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 39.0
+    other_ingredient_grams: []
+  dish_1560444892:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 39.0
+    other_ingredient_grams: []
+  dish_1560444914:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 39.0
+    other_ingredient_grams: []
+  dish_1560444931:
+    split: train
+    labeled:
+    - - watermelon
+      - 76.0
+    other_ingredient_grams: []
+  dish_1560444985:
+    split: train
+    labeled:
+    - - honeydew melons
+      - 39.0
+    other_ingredient_grams: []
+  dish_1560453132:
+    split: train
+    labeled:
+    - - mustard
+      - 0.699029
+    other_ingredient_grams: []
+  dish_1560453150:
+    split: test
+    labeled:
+    - - vinegar
+      - 2.796117
+    other_ingredient_grams: []
+  dish_1560454488:
+    split: train
+    labeled:
+    - - mixed greens
+      - 21.960785
+    other_ingredient_grams: []
+  dish_1560455000:
+    split: test
+    labeled:
+    - - cherry tomatoes
+      - 55.0
+    other_ingredient_grams: []
+  dish_1560455030:
+    split: train
+    labeled:
+    - - cherry tomatoes
+      - 55.0
+    other_ingredient_grams: []
+  dish_1560455158:
+    split: train
+    labeled:
+    - - olive oil
+      - 5.176471
+    other_ingredient_grams: []
+  dish_1560455179:
+    split: test
+    labeled:
+    - - carrot
+      - 5.176471
+    other_ingredient_grams: []
+  dish_1560455224:
+    split: train
+    labeled:
+    - - arugula
+      - 19.411766
+    other_ingredient_grams: []
+  dish_1560455343:
+    split: val
+    labeled:
+    - - carrot
+      - 2.122977
+    other_ingredient_grams: []
+  dish_1560455380:
+    split: train
+    labeled:
+    - - vinegar
+      - 1.061489
+    other_ingredient_grams: []
+  dish_1560455421:
+    split: train
+    labeled:
+    - - almonds
+      - 1.061489
+    other_ingredient_grams: []
+  dish_1560456305:
+    split: train
+    labeled:
+    - - mixed greens
+      - 4.941176
+    other_ingredient_grams: []
+  dish_1560456814:
+    split: train
+    labeled:
+    - - olive oil
+      - 5.538461
+    other_ingredient_grams: []
+  dish_1560526447:
+    split: train
+    labeled:
+    - - salt
+      - 0.22714
+    other_ingredient_grams: []
+  dish_1560526472:
+    split: train
+    labeled:
+    - - salt
+      - 0.22714
+    other_ingredient_grams: []
+  dish_1560526514:
+    split: train
+    labeled:
+    - - potatoes
+      - 54.0
+    other_ingredient_grams: []
+  dish_1560526530:
+    split: test
+    labeled:
+    - - berries
+      - 44.0
+    other_ingredient_grams: []
+  dish_1560526552:
+    split: train
+    labeled:
+    - - salt
+      - 0.22714
+    other_ingredient_grams: []
+  dish_1560527070:
+    split: train
+    labeled:
+    - - potatoes
+      - 69.0
+    other_ingredient_grams: []
+  dish_1560527168:
+    split: test
+    labeled:
+    - - tomatoes
+      - 2.287582
+    other_ingredient_grams: []
+  dish_1560527950:
+    split: train
+    labeled:
+    - - watermelon
+      - 77.0
+    other_ingredient_grams: []
+  dish_1560529804:
+    split: train
+    labeled:
+    - - watermelon
+      - 51.0
+    other_ingredient_grams: []
+  dish_1560529825:
+    split: train
+    labeled:
+    - - watermelon
+      - 51.0
+    other_ingredient_grams: []
+  dish_1560529844:
+    split: train
+    labeled:
+    - - berries
+      - 66.0
+    other_ingredient_grams: []
+  dish_1560539340:
+    split: train
+    labeled:
+    - - pepper
+      - 4.185431
+    other_ingredient_grams: []
+  dish_1560539368:
+    split: train
+    labeled:
+    - - quinoa
+      - 20.927153
+    other_ingredient_grams: []
+  dish_1560541760:
+    split: train
+    labeled:
+    - - vinegar
+      - 2.700934
+    other_ingredient_grams: []
+  dish_1560541793:
+    split: test
+    labeled:
+    - - carrot
+      - 88.724586
+    other_ingredient_grams: []
+  dish_1560543505:
+    split: train
+    labeled:
+    - - tomatoes
+      - 95.0
+    other_ingredient_grams: []
+  dish_1560543557:
+    split: train
+    labeled:
+    - - tomatoes
+      - 95.0
+    other_ingredient_grams: []
+  dish_1560543729:
+    split: train
+    labeled:
+    - - broccoli
+      - 1.076048
+    other_ingredient_grams: []
+  dish_1560787696:
+    split: train
+    labeled:
+    - - bacon
+      - 7.0
+    other_ingredient_grams: []
+  dish_1560787781:
+    split: train
+    labeled:
+    - - bacon
+      - 7.0
+    other_ingredient_grams: []
+  dish_1560787817:
+    split: train
+    labeled:
+    - - berries
+      - 61.0
+    other_ingredient_grams: []
+  dish_1560788338:
+    split: test
+    labeled:
+    - - yogurt
+      - 121.0
+    other_ingredient_grams: []
+  dish_1560788349:
+    split: train
+    labeled:
+    - - yogurt
+      - 134.0
+    other_ingredient_grams: []
+  dish_1560798744:
+    split: test
+    labeled:
+    - - broccoli
+      - 31.0
+    other_ingredient_grams: []

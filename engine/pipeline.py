@@ -26,6 +26,7 @@ keep the geometry path. No-card plates are scored like any other, leading
 their reasons with the no_reference_card estimate disclaimer.
 """
 import logging
+from pathlib import Path
 
 import numpy as np
 
@@ -170,6 +171,30 @@ def _learned_portion(image_bgr, mask, dish, dish_key, head):
     }
 
 
+def _make_ingredient_head():
+    from models.ingredient_head import CKPT_PATH, IngredientHead
+    import torch
+    if not Path(CKPT_PATH).is_file():
+        raise FileNotFoundError(CKPT_PATH)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return IngredientHead.load(device=device)
+
+
+def _get_ingredient_head():
+    """Lazy-load data/ingredient_head.pt once (07e). Missing checkpoint
+    -> None: the ingredient route is disabled and the existing off-menu
+    path (dish-slot head + generic table) runs byte-for-byte unchanged."""
+    from models import registry
+    try:
+        return registry.get_or_create("ingredient_head",
+                                      _make_ingredient_head)
+    except FileNotFoundError:
+        return None
+    except Exception:
+        log.exception("ingredient head failed to load — off-menu fallback")
+        return None
+
+
 def _make_prior_anchor():
     return prior_anchor("anchor stage failed — prior tier",
                         load_anchor_config())
@@ -201,6 +226,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         if analysis.path_used is None and analysis.portion is not None:
             if (analysis.anchor or {}).get("tier") == "measured":
                 analysis.path_used = "card_geometry"
+            elif analysis.portion.get("base_method") == "ingredient_compositional":
+                analysis.path_used = "ingredient_head"
             elif analysis.portion.get("base_method") == "learned_weight":
                 analysis.path_used = "learned_head"
             else:
@@ -329,6 +356,51 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                                anchor=anchor_info, segmentation=seg_info,
                                classification=classification, dish=dish_info))
 
+    # --- general-mode ingredient route (ledger 013, ticket 07e) -----------
+    # OFF-MENU dishes only. Head checkpoint absent/failed -> None and the
+    # flow below runs byte-for-byte unchanged (fallback criterion); a route
+    # that cannot match a recipe returns None through the stage Failure and
+    # also falls through, with a machine-readable degradation tag.
+    ing_head = (deps["ingredient_head"] if "ingredient_head" in deps
+                else _get_ingredient_head())
+    if (ing_head is not None
+            and (anchor or {}).get("label") != "measured"
+            and dish_info["id"] not in ((menu or {}).get("dishes") or {})):
+        def _ingredient_step():
+            from engine import general_mode as gm
+            return gm.ingredient_route(image_bgr, ing_head, dish, dish_info)
+
+        route, ing_failure = stage(Stage.PORTION,
+                                   _oom_guard(_ingredient_step, degradations),
+                                   timings=timings)
+        if route is not None and ing_failure is None:
+            portion = route["portion"]
+            reasons = [Reason(
+                ReasonKind.OFF_MENU,
+                f"recognized off-menu dish "
+                f"{dish.get('display_name') or dish_info['id']} — not on the "
+                "school menu, so no compliance verdict; grams and nutrients "
+                "are provided from the ingredient-compositional route")]
+            if (anchor or {}).get("label") != "measured":
+                reasons.append(no_card_reason(portion))
+            return finish(Analysis(
+                verdict="cannot_verify",
+                reasons=reasons,
+                lint=lint,
+                anchor=anchor_info,
+                segmentation=seg_info,
+                classification=classification,
+                dish=dish_info,
+                portion=_portion_wire_block(portion),
+                nutrition=route["nutrition"],
+                model_versions=_model_versions(None, ing_head),
+            ))
+        if ing_failure is not None:
+            if "ingredient_head_route_failed" not in degradations:
+                degradations.append("ingredient_head_route_failed")
+            log.warning("ingredient route unavailable (%s) — existing off-menu "
+                        "path continues", ing_failure.error)
+
     # --- depth stage (monocular depth + anchor calibration) ---------------
     def _depth_step():
         depth_out = depth_fn(image_bgr, fov_x=fov_x)
@@ -379,24 +451,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
                     dish=dish_info)
-    portion_block = {
-        "grams": round(portion["grams"], 1),
-        "volume_ml": round(portion["volume_ml"], 1),
-        "density_eff": round(portion["density_eff"], 3),
-        "components_g": {k: round(v, 1) for k, v in portion["components_g"].items()},
-        "base_method": portion["base_method"],
-        "scale_tier": portion["scale_tier"],
-        "grams_source": portion.get("grams_source", "geometry"),
-        "mean_h_mm": (None if portion.get("mean_h_mm") is None
-                      else round(portion["mean_h_mm"], 2)),
-        "area_cm2": (None if portion.get("area_cm2") is None
-                     else round(portion["area_cm2"], 1)),
-        "sigma_grams_rel": round(portion["sigma_grams_rel"], 4),
-        "sigma_rel": {k: round(v, 4) for k, v in portion["sigma_rel"].items()},
-        "flags": portion["flags"],
-    }
-    if "head_slots" in portion:
-        portion_block["head_slots"] = portion["head_slots"]
+    portion_block = _portion_wire_block(portion)
 
     # --- nutrition stage (Monte Carlo) ------------------------------------
     mc, failure = stage(Stage.NUTRITION, sample_nutrients, portion, dish, band,
@@ -495,17 +550,44 @@ def _anchor_summary(anchor):
     }
 
 
+def _portion_wire_block(portion: dict) -> dict:
+    """portion estimator dict -> the wire `portion` block (S3 contract key
+    order; optional head_slots / recipe_match appended)."""
+    block = {
+        "grams": round(portion["grams"], 1),
+        "volume_ml": round(portion["volume_ml"], 1),
+        "density_eff": round(portion["density_eff"], 3),
+        "components_g": {k: round(v, 1) for k, v in portion["components_g"].items()},
+        "base_method": portion["base_method"],
+        "scale_tier": portion["scale_tier"],
+        "grams_source": portion.get("grams_source", "geometry"),
+        "mean_h_mm": (None if portion.get("mean_h_mm") is None
+                      else round(portion["mean_h_mm"], 2)),
+        "area_cm2": (None if portion.get("area_cm2") is None
+                     else round(portion["area_cm2"], 1)),
+        "sigma_grams_rel": round(portion["sigma_grams_rel"], 4),
+        "sigma_rel": {k: round(v, 4) for k, v in portion["sigma_rel"].items()},
+        "flags": portion["flags"],
+    }
+    if "head_slots" in portion:
+        block["head_slots"] = portion["head_slots"]
+    if "recipe_match" in portion:
+        block["recipe_match"] = portion["recipe_match"]
+    return block
+
+
 def _seg_summary(seg):
     if not seg:
         return None
     return {k: seg.get(k) for k in ("strategy", "sam_score", "area_frac", "n_candidates")}
 
 
-def _model_versions(depth_out, head=None):
+def _model_versions(depth_out, head=None, ingredient_head=None):
     versions = {
         "segmenter": "facebook/sam2.1-hiera-large",
         "classifier": "google/siglip2-base-patch16-224",
-        "depth": depth_out.get("model", "gt"),
+        "depth": depth_out.get("model", "gt") if depth_out is not None
+                 else "not_run",
     }
     if head is not None:
         meta = getattr(head, "meta", {}) or {}
@@ -513,4 +595,11 @@ def _model_versions(depth_out, head=None):
         mae = meta.get("test_mae_g")
         versions["weight_head"] = (f"{recipe} (test MAE {mae}g)" if mae is not None
                                    else str(recipe))
+    if ingredient_head is not None:
+        meta = getattr(ingredient_head, "meta", {}) or {}
+        enc = getattr(ingredient_head, "encoder", meta.get("encoder", "?"))
+        mae = meta.get("test_grams_mae")
+        versions["ingredient_head"] = (
+            f"n5k-ingredient-{enc} (test MAE {mae}g)" if mae is not None
+            else f"n5k-ingredient-{enc}")
     return versions

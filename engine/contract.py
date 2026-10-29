@@ -14,7 +14,8 @@ Rules:
                  (including PASS). Each hard failure generates its own reason.
   * failures   — hard failures only (stage crashes, rejected gates).
   * path_used  — which portion path produced the grams (card_geometry |
-                 learned_head | prior_geometry); null when no portion ran.
+                 ingredient_head | learned_head | prior_geometry); null when
+                 no portion ran.
   * degradations — machine-readable tags for substitutions that still
                  produced a result (e.g. gpu_oom_retried); always present,
                  [] when nothing degraded.
@@ -49,7 +50,8 @@ WIRE_KEYS = frozenset({
 })
 
 # Closed vocabulary of portion paths (source for tools/gen_contract_ts.py).
-PATH_USED_VALUES = ("card_geometry", "learned_head", "prior_geometry")
+PATH_USED_VALUES = ("card_geometry", "ingredient_head", "learned_head",
+                    "prior_geometry")
 
 
 # --- vocabularies ---------------------------------------------------------

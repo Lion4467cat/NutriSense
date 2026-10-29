@@ -1,0 +1,25 @@
+{
+  "encoder": "dinov2",
+  "slots": 48,
+  "seed": 42,
+  "best_val_grams_mae": 28.4,
+  "val_hist_last10": [
+    30.3,
+    32.7,
+    30.8,
+    31.8,
+    32.6,
+    32.5,
+    30.7,
+    29.9,
+    32.1,
+    31.4
+  ],
+  "lio": {
+    "ingredient": "white rice",
+    "held_dishes": 1,
+    "held_ingredient_grams_mae": 7.2,
+    "train_dishes_removed": 9
+  },
+  "checkpoint": "data/ingredient_head_lio_white_rice.pt"
+}
