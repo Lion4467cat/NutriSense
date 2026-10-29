@@ -141,7 +141,7 @@ export default function OnboardingModal({ onClose }: { onClose: () => void }) {
   );
 
   const finish = () => {
-    persist();
+    persist({ setupComplete: true });
     onClose();
   };
 

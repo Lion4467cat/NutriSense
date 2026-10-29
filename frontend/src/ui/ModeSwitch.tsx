@@ -9,21 +9,17 @@ import { useOnboarding } from "../context/onboarding";
  *
  * Profile details (name, sex, age band, activity level) exist only to pick a
  * WHO Daily goal row, so General is the one mode that needs them. Every
- * switch into General without a saved profile asks — no persistent banner,
- * no nagging in School.
+ * switch into General asks again until the wizard has been completed — a
+ * skipped or empty setup is not "details entered". School is never nagged.
  */
 export default function ModeSwitch({ className = "" }: { className?: string }) {
   const { prefs, setPrefs } = usePrefs();
   const { openWizard } = useOnboarding();
   const mode: AppMode = prefs.mode ?? "school";
 
-  const hasProfile = Boolean(
-    prefs.profile?.ageBand && prefs.profile?.sex && prefs.profile?.activityLevel
-  );
-
   const choose = (m: AppMode) => {
     setPrefs({ mode: m });
-    if (m === "general" && !hasProfile) openWizard();
+    if (m === "general" && !prefs.setupComplete) openWizard();
   };
 
   const btn = (m: AppMode, label: string) => (

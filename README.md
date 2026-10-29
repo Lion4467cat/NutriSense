@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-160%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-243%20pytest%20%C2%B7%2070%20vitest-brightgreen.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -18,7 +18,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 **What it does:**
 
 - Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale. Without the marker, mapped dishes use the WED-trained learned-weight head (with an estimate disclaimer); unmapped dishes use uncertain size-prior geometry, which cannot issue PASS/FAIL. A missing or failing learned head for a mapped dish returns `cannot_verify`.
-- Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
+- Identifies the dish from a 41-class WED gallery plus 46 gold photos (SigLIP2), abstaining rather than guessing
 - Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
 - Scores energy & protein probabilities against the class-band minimums, gated by a **coverage** score
@@ -112,7 +112,11 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 ## ✨ Features
 
-**Implemented and tested (160 pytest + 43 vitest green):**
+**Implemented and tested (243 pytest + 70 vitest green):**
+
+- **Two app modes (spec 002, ADR 0003)** — **School** keeps the verdict-centric PM POSHAN flow unchanged; **General** reports grams, nutrients and each meal's share of a Daily goal, with no verdicts and no school capture fields. Switching to General asks for profile details (name, sex, age band, activity level) in a setup popup every time until it has been completed, and Settings keeps the same fields editable
+- **WHO Daily goals** — `GET /goals` serves the WHO energy/protein tables keyed by age band, sex and activity level; the frontend does the lookup and share math, so a profile change never re-analyzes a photo
+- **41-class recognition** — the WED 41-class gallery replaced the 2-class menu-only gallery (DEV held-out 0.8103 top-1, ledger 003/008/009); the abstain threshold still gates servings
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
@@ -123,12 +127,14 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `GET /goals`, `POST /analyze` with full diagnostics in every response
 - **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
-- **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn), each with its own coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
+- **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn); the default Light/Dark pair is porcelain + indigo so verdict green/amber/red stay semantic, and each theme keeps a coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
+- **Off-menu route (ticket 07)** — ingredient density table (FAO), INDB recipe table and a checkpoint-gated ingredient head; serving is wired end to end but the N5k transfer gate failed (ledger 012), so no candidate checkpoint ships and the route stays dormant
+- **Real-photo segmentation guard** — a point prompt that returns a sliver (< 0.5% of frame) now falls back to the box prompt instead of being measured as a serving (ledger 014)
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
 ![Analysis result — verdict, reasons, coverage](docs/screenshots/result-fail-light.jpg)
 
-**Open gates (M1–M8, see `docs/final-report.md`):** physical reference-card run against a kitchen scale, prior-tier depth-scale validation, real-photo abstain/segmentation tuning (real canteen photos currently segment poorly — see Known Limitations), nutrient-table validation, holdout evaluation.
+**Open gates (M1–M8, see `docs/final-report.md`):** physical reference-card run against a kitchen scale, prior-tier depth-scale validation, multi-vessel (thali) segmentation and meal-composition scope (see Known Limitations), nutrient-table validation, holdout evaluation.
 
 ---
 
@@ -249,17 +255,17 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # full backend: 178 passed (169 without a GPU)
-.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 169 passed, 9 deselected
-.venv/bin/pytest -m gpu -q             # the 9 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 43 vitest tests (wire parity, selectors, PolicyNote)
+.venv/bin/pytest -q                    # full backend: 243 passed (233 without a GPU)
+.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 233 passed, 10 deselected
+.venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
+cd frontend && npm test                # 70 vitest tests (wire parity, selectors, wizard, PolicyNote)
 ```
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
 
 ```bash
 TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
-  .venv/bin/pytest -m "not gpu" -q     # 169 passed, 9 deselected, both dirs stay empty
+  .venv/bin/pytest -m "not gpu" -q     # 233 passed, 10 deselected, both dirs stay empty
 ```
 
 `pytest.ini` declares the `gpu` marker; `tests/conftest.py` pins the weight head to `None`, so non-gpu runs never touch `data/weight_head.pt`.
@@ -305,7 +311,7 @@ Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and
 ### 🧮 Typecheck
 
 ```bash
-.venv/bin/python -m tools.pyright_gate   # 216 errors vs pyright.baseline 216 — fails only on NEW errors
+.venv/bin/python -m tools.pyright_gate   # 209 errors vs pyright.baseline 209 — fails only on NEW errors
 ```
 
 `pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). Existing findings do not block CI: the gate compares against `pyright.baseline` and only fails when the count rises. When errors are genuinely fixed, re-record the lower count with `--update`.
@@ -445,7 +451,9 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (160 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
+- **Real-photo segmentation**: synthetic scenes are fully validated; on unposed canteen photos the degenerate-mask failure is fixed (ledger 014 — six-photo diagnostic, 2/6 previously returned 0.08%/0.18% slivers, now plate-sized via the box fallback). The remaining gap is **multi-vessel segmentation**: the pipeline still measures one mask as one serving, so a thali reports one bowl, and a single-dish photo is judged against a *whole-meal* band minimum (see `docs/reports/real-photo-e2e-2026-10-29.md`).
+- **One serving = one meal**: compliance compares the captured dish with a full-meal minimum, so a lone rice plate reads FAIL even when its grams are plausible. The contract has no meal-composition model yet.
+- **Ingredient head (07b)**: N5k transfer gate failed (ledger 012) — the off-menu route is wired but dormant until a checkpoint passes a re-registered gate.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 

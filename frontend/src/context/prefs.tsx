@@ -29,6 +29,8 @@ export interface Prefs {
   mode: AppMode;
   profile: ProfilePref | null;
   goalOverride: GoalOverridePref | null;
+  /** true once the General-mode setup wizard was completed (not skipped). */
+  setupComplete: boolean;
 }
 
 export const PREFS_KEY = "nutrisense.prefs.v1";
@@ -43,6 +45,7 @@ function loadPrefs(storage: Storage): Prefs {
     mode: "school",
     profile: null,
     goalOverride: null,
+    setupComplete: false,
   };
   try {
     const raw = storage.get(PREFS_KEY);

@@ -59,6 +59,7 @@ describe("usePrefs", () => {
       mode: "school",
       profile: null,
       goalOverride: null,
+      setupComplete: false,
     });
   });
 
@@ -99,6 +100,7 @@ describe("usePrefs", () => {
       mode: "school",
       profile: null,
       goalOverride: null,
+      setupComplete: false,
     });
     // the real localStorage is never involved
     expect(window.localStorage.getItem(PREFS_KEY)).toBeNull();

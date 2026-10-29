@@ -31,6 +31,8 @@ export default function SettingsPage() {
         activityLevel: profile.activityLevel || "",
         ...patch,
       },
+      // editing the profile by hand counts as having entered the details
+      setupComplete: true,
     });
   };
 

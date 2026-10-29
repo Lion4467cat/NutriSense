@@ -129,6 +129,7 @@ describe("OnboardingWizard", () => {
     });
     // untouched: they accepted the WHO default rather than entering a goal
     expect(stored.goalOverride).toBeNull();
+    expect(stored.setupComplete).toBe(true);
   });
 
   it("does not ask again once a profile is saved", async () => {
@@ -138,6 +139,7 @@ describe("OnboardingWizard", () => {
       JSON.stringify({
         userName: "Ada",
         profile: { ageBand: "18-29", sex: "female", activityLevel: "moderate" },
+        setupComplete: true,
       })
     );
     renderApp(storage);
