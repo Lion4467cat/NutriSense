@@ -31,11 +31,10 @@ complete; no training run performed.
 
 ## License
 
-- The official dataset README states: **"We release all Nutrition5k data
-  under the Creative Commons V4.0 license"** and the summary phrases it as
-  usable for any purpose including commercial. The README **does not pin the
-  exact CC 4.0 flavor** (BY/CC0) or link a deed — treat it as the GitHub
-  wording and cite the paper.
+- The official dataset README currently links the Creative Commons
+  Attribution 4.0 (CC BY 4.0) deed and says the data may be shared/adapted,
+  including commercially. Confirm the license for any particular file or
+  third-party metadata used; no dataset images are committed here.
 - **FPB correction (recorded):** the non-commercial, eval-only item in the
   ticket is **FPB = Food Portion Benchmark** (ISSAI/NU, 14,083 images / 138
   classes, `cc-by-nc-4.0` on the Hugging Face card,
