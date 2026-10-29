@@ -13,8 +13,9 @@ Strategy (validated against the synthetic renderer, tests/test_s2.py):
      point estimate is not treated as reconciled evidence. SAM's raw score
      alone can pick a rim arc; do not use it without the selection logic.
   4. Fallbacks: no parent found -> best-scoring solid mask; no solid mask
-     at all -> best-scoring candidate; centre query produced nothing ->
-     one box-prompted query (centre 20-80% square).
+     at all -> best-scoring candidate; centre query produced nothing, or a
+     mask below AREA_MIN (a speck, not a serving — ledger 014) -> one
+     box-prompted query (centre 20-80% square).
 
 Model: facebook/sam2.1-hiera-large (Apache-2.0, docs/licenses.md).
 Weights download on first use (HF_HUB_DISABLE_XET=1 is recommended —
@@ -141,15 +142,22 @@ def segment_food(image_bgr):
     cands = _query(rgb, (cx, cy))
     strategy = "centre_point"
     k = _select(cands)
-    if k is None or cands[k][0].mean() > AREA_MAX:
+    # A point prompt inside a bowl can come back as a sliver (ledger 014:
+    # 0.08% / 0.18% of frame on real canteen photos, sometimes with a high
+    # SAM score). Treat sub-AREA_MIN as a failed query and retry with the
+    # box prompt rather than measuring a speck as the whole serving.
+    if k is None or cands[k][0].mean() > AREA_MAX or cands[k][0].mean() < AREA_MIN:
         box = [W * 0.2, H * 0.2, W * 0.8, H * 0.8]
         cands = _query(rgb, (cx, cy), box=box)
         strategy = "centre_box"
         k = _select(cands)
-        if k is not None and cands[k][0].mean() > AREA_MAX:
-            k = None  # same area invariant as the centre_point path
+        if k is not None and not (AREA_MIN <= cands[k][0].mean() <= AREA_MAX):
+            # A box prompt that still returns a speck (or the whole frame) is
+            # not a serving: fail loudly so the stage degrades instead of
+            # reporting a plausible-looking portion from a bad mask.
+            k = None
     if k is None:
-        raise RuntimeError("SAM2 produced no mask candidates")
+        raise RuntimeError("SAM2 produced no usable food mask")
 
     small, logits, score = cands[k]
     full = cv2.resize(logits, (W, H), interpolation=cv2.INTER_LINEAR) > 0.0
