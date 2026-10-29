@@ -4,6 +4,7 @@ import { useMenu } from "../context/menu";
 import { THEME_OPTS } from "../hooks/useTheme";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
+import { useOnboarding } from "../context/onboarding";
 import { Card, StatusMark } from "../ui/primitives";
 import ModeSwitch from "../ui/ModeSwitch";
 import { apiBase } from "../services/api";
@@ -15,6 +16,7 @@ export default function SettingsPage() {
   const { menu, apiUp, health, checkHealth } = useMenu();
   const { goals, goalsError, reloadGoals } = useGoals();
   const { records, clearRecords } = useRecords();
+  const { openWizard } = useOnboarding();
   const [confirmClear, setConfirmClear] = useState(false);
 
   const goal = resolveGoal(goals, prefs.profile, prefs.goalOverride);
@@ -98,12 +100,34 @@ export default function SettingsPage() {
         </Card>
 
         <Card
-          title="Daily goal (General mode)"
-          sub="One-time profile entry — WHO defaults until you pick your own; your own goal always wins."
+          title="Your profile"
+          sub="Name, sex, age band and activity level feed the WHO Daily goal lookup; your own goal always wins."
+          action={
+            <button className="btn btn-secondary btn-sm" onClick={openWizard}>
+              Open setup guide
+            </button>
+          }
         >
           <div className="setting-row">
             <div className="setting-info">
-              <div className="si-title">Your profile</div>
+              <div className="si-title">Display name</div>
+              <div className="si-desc">Shown in the dashboard greeting.</div>
+            </div>
+            <input
+              className="input"
+              style={{ width: 220 }}
+              type="text"
+              maxLength={40}
+              placeholder="e.g. Priya Sharma"
+              aria-label="Display name"
+              value={prefs.userName}
+              onChange={(e) => setPrefs({ userName: e.target.value })}
+            />
+          </div>
+
+          <div className="setting-row">
+            <div className="setting-info">
+              <div className="si-title">Profile</div>
               <div className="si-desc">
                 {profile == null
                   ? "Goal data has not loaded yet — start the backend and retry."
@@ -112,52 +136,55 @@ export default function SettingsPage() {
                     : "Used to look up the WHO Daily goal tables."}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <select
-                className="select"
-                style={{ width: 130 }}
-                value={profile?.ageBand ?? ""}
-                onChange={(e) => setProfileField({ ageBand: e.target.value })}
-                disabled={!goals}
-                aria-label="Age band"
-              >
-                {!goals && <option value="">—</option>}
-                {goals?.age_bands.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="select"
-                style={{ width: 110 }}
-                value={profile?.sex ?? ""}
-                onChange={(e) => setProfileField({ sex: e.target.value })}
-                disabled={!goals}
-                aria-label="Sex"
-              >
-                {!goals && <option value="">—</option>}
-                {goals?.sexes.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="select"
-                style={{ width: 120 }}
-                value={profile?.activityLevel ?? ""}
-                onChange={(e) => setProfileField({ activityLevel: e.target.value })}
-                disabled={!goals}
-                aria-label="Activity level"
-              >
-                {!goals && <option value="">—</option>}
-                {goals?.activity_levels.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
+            <div className="profile-pickers">
+              <label className="field">
+                <span className="field-label">Age band</span>
+                <select
+                  className="select"
+                  value={profile?.ageBand ?? ""}
+                  onChange={(e) => setProfileField({ ageBand: e.target.value })}
+                  disabled={!goals}
+                >
+                  {!goals && <option value="">—</option>}
+                  {goals?.age_bands.map((b) => (
+                    <option key={b} value={b}>
+                      {b} years
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span className="field-label">Sex</span>
+                <select
+                  className="select"
+                  value={profile?.sex ?? ""}
+                  onChange={(e) => setProfileField({ sex: e.target.value })}
+                  disabled={!goals}
+                >
+                  {!goals && <option value="">—</option>}
+                  {goals?.sexes.map((s) => (
+                    <option key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span className="field-label">Activity</span>
+                <select
+                  className="select"
+                  value={profile?.activityLevel ?? ""}
+                  onChange={(e) => setProfileField({ activityLevel: e.target.value })}
+                  disabled={!goals}
+                >
+                  {!goals && <option value="">—</option>}
+                  {goals?.activity_levels.map((l) => (
+                    <option key={l} value={l}>
+                      {l.charAt(0).toUpperCase() + l.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
 
@@ -252,26 +279,6 @@ export default function SettingsPage() {
               </p>
             </div>
           )}
-        </Card>
-
-        <Card title="Profile">
-          <div className="setting-row">
-            <div className="setting-info">
-              <div className="si-title">Display name</div>
-              <div className="si-desc">
-                Shown in your dashboard greeting and profile menu.
-              </div>
-            </div>
-            <input
-              className="input"
-              style={{ width: 220 }}
-              type="text"
-              maxLength={40}
-              placeholder="e.g. Priya Sharma"
-              value={prefs.userName}
-              onChange={(e) => setPrefs({ userName: e.target.value })}
-            />
-          </div>
         </Card>
 
         <Card title="Appearance">

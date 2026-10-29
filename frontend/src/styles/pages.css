@@ -19,13 +19,37 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: box-shadow var(--t-med), border-color var(--t-med);
+  transition: box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease;
   min-width: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.kpi:hover {
-  box-shadow: var(--shadow-pop);
-  border-color: var(--border-strong);
+@media (hover: hover) {
+  .kpi:hover {
+    box-shadow: var(--shadow-pop), 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.kpi::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--grad-accent);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+@media (hover: hover) {
+  .kpi:hover::after {
+    opacity: 1;
+  }
 }
 
 .kpi-top {
@@ -1312,6 +1336,26 @@
 .setting-info {
   flex: 1;
   min-width: 180px;
+}
+
+/* Profile pickers: three equal fields that stay readable when they wrap. */
+.profile-pickers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  flex: 1 1 100%;
+  max-width: 420px;
+}
+
+.profile-pickers .field {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .profile-pickers {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
 }
 
 .setting-info .si-title {

@@ -71,8 +71,8 @@
   font-family: var(--font);
 }
 
-.btn:active {
-  transform: translateY(1px);
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .btn:disabled {
@@ -88,15 +88,17 @@
     var(--shadow-1);
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent),
-    var(--shadow-1);
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent),
+      var(--shadow-1);
+  }
 }
 
 .btn-primary:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.96);
 }
 
 .btn-secondary {
@@ -105,9 +107,11 @@
   color: var(--text);
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: var(--surface-2);
-  border-color: var(--border-strong);
+@media (hover: hover) {
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+  }
 }
 
 .btn-ghost {
@@ -115,9 +119,11 @@
   color: var(--text-2);
 }
 
-.btn-ghost:hover:not(:disabled) {
-  background: var(--surface-2);
-  color: var(--text);
+@media (hover: hover) {
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--text);
+  }
 }
 
 .btn-danger {
@@ -126,10 +132,12 @@
   border-color: var(--fail-border);
 }
 
-.btn-danger:hover:not(:disabled) {
-  background: var(--fail);
-  color: #fff;
-  border-color: var(--fail);
+@media (hover: hover) {
+  .btn-danger:hover:not(:disabled) {
+    background: var(--fail);
+    color: #fff;
+    border-color: var(--fail);
+  }
 }
 
 .btn-lg {

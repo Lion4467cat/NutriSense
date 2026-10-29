@@ -1,7 +1,8 @@
 /* ------------------------------------------------------------------ */
 /* NutriSense design tokens                                            */
 /* Distinctive visual identity for a nutrition compliance dashboard.   */
-/* Palette: warm earth tones with verdant accent. Typography:          */
+/* Palette: cool porcelain neutrals with an indigo accent (verdict     */
+/* green/amber/red stay semantic). Typography:                         */
 /* Inter for data, Fraunces for display. Layout: editorial bento       */
 /* grid, glassmorphism panels, deliberate asymmetry.                  */
 /* ------------------------------------------------------------------ */
@@ -9,24 +10,24 @@
 :root {
   color-scheme: light;
 
-  /* palette — warm earth with verdant accent */
-  --bg: #faf8f5;
-  --bg-subtle: #f5f3ef;
+  /* palette — cool porcelain with an indigo accent */
+  --bg: #f7f6fb;
+  --bg-subtle: #f1eff8;
   --surface: #ffffff;
-  --surface-2: #f8f7f4;
-  --surface-3: #efece7;
-  --border: #e4e1da;
-  --border-strong: #d4d0c6;
-  --text: #1a1a1a;
-  --text-2: #4a4a48;
-  --text-3: #7a7872;
+  --surface-2: #f7f6fc;
+  --surface-3: #eceaf5;
+  --border: #e2e0ee;
+  --border-strong: #cdc9de;
+  --text: #16151f;
+  --text-2: #45425c;
+  --text-3: #75718c;
 
-  /* brand — verdant green accent */
-  --accent: #2d7a52;
-  --accent-hover: #246543;
-  --accent-soft: #e8f4ed;
-  --accent-soft-border: #b5d4c2;
-  --accent-text: #1a5a3a;
+  /* brand — indigo accent */
+  --accent: #4b45c6;
+  --accent-hover: #3d38ac;
+  --accent-soft: #ecebff;
+  --accent-soft-border: #c4c0f2;
+  --accent-text: #35309c;
 
   /* semantic verdicts */
   --pass: #1a6b3d;
@@ -45,8 +46,8 @@
   --info-soft: #e6f0f5;
 
   /* chart strokes */
-  --chart-grid: #eceae5;
-  --chart-axis: #b9b6ae;
+  --chart-grid: #e8e6f1;
+  --chart-axis: #b3aec4;
 
   /* typography — Inter for data, Fraunces for display */
   --font: "Inter Variable", Inter, ui-sans-serif, -apple-system, "Segoe UI",
@@ -128,25 +129,25 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #121212;
-  --bg-subtle: #1a1a1a;
-  --surface: #1f1f1f;
-  --surface-2: #262626;
-  --surface-3: #2e2e2e;
-  --border: #2a2a2a;
-  --border-strong: #353535;
-  --text: #e8e8e8;
-  --text-2: #a8a8a8;
-  --text-3: #707070;
+  --bg: #14131b;
+  --bg-subtle: #1a1922;
+  --surface: #1f1e28;
+  --surface-2: #262530;
+  --surface-3: #2e2c3a;
+  --border: #2b2a35;
+  --border-strong: #3a3847;
+  --text: #eae9f2;
+  --text-2: #a9a6bb;
+  --text-3: #75718a;
 
-  --accent: #3d8b62;
-  --accent-hover: #2d7450;
-  --accent-soft: #1a2a20;
-  --accent-soft-border: #2a4535;
-  --accent-text: #5aa87a;
+  --accent: #8b84f0;
+  --accent-hover: #7a72e6;
+  --accent-soft: #211f3a;
+  --accent-soft-border: #35306b;
+  --accent-text: #a9a3f7;
 
-  --pass: #3d8b62;
-  --pass-soft: #1a2a20;
+  --pass: #4a9d6e;
+  --pass-soft: #16241b;
   --pass-border: #2a4535;
   --warn: #c9a227;
   --warn-soft: #2a2410;
@@ -160,8 +161,8 @@
   --info: #4a8bbf;
   --info-soft: #0a1a2a;
 
-  --chart-grid: #2a2a2a;
-  --chart-axis: #454545;
+  --chart-grid: #2b2a35;
+  --chart-axis: #454356;
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px -8px rgba(0, 0, 0, 0.6);

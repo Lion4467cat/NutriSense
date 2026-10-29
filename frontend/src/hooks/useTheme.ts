@@ -23,9 +23,9 @@ export interface ThemeTileData {
 }
 
 export const THEME_OPTS: ThemeTileData[] = [
-  { id: "system", label: "System", bg: "linear-gradient(135deg,#faf9f7 50%,#16181c 50%)", fg: "#565b64", accent: "#4f46e5", c1: "#15803d", c2: "#b45309", dot: "conic-gradient(#f6f5f2 0 50%, #16181c 50% 100%)" },
-  { id: "light", label: "Light", bg: "#faf9f7", fg: "#191b1f", accent: "#4f46e5", c1: "#15803d", c2: "#b45309", dot: "#faf9f7" },
-  { id: "dark", label: "Dark", bg: "#16181c", fg: "#e8eaed", accent: "#7c74f2", c1: "#4ade80", c2: "#fbbf24", dot: "#16181c" },
+  { id: "system", label: "System", bg: "linear-gradient(135deg,#f7f6fb 50%,#14131b 50%)", fg: "#45425c", accent: "#4b45c6", c1: "#15803d", c2: "#b45309", dot: "conic-gradient(#f7f6fb 0 50%, #14131b 50% 100%)" },
+  { id: "light", label: "Light", bg: "#f7f6fb", fg: "#16151f", accent: "#4b45c6", c1: "#15803d", c2: "#b45309", dot: "#f7f6fb" },
+  { id: "dark", label: "Dark", bg: "#14131b", fg: "#eae9f2", accent: "#8b84f0", c1: "#4ade80", c2: "#fbbf24", dot: "#14131b" },
   { id: "nord", label: "Nord", bg: "#3b4252", fg: "#eceff4", accent: "#88c0d0", c1: "#a3be8c", c2: "#ebcb8b", dot: "#2e3440" },
   { id: "rosepine", label: "Rosé Pine", bg: "#1f1d2e", fg: "#e0def4", accent: "#c4a7e7", c1: "#9ccfd8", c2: "#f6c177", dot: "#191724" },
   { id: "dracula", label: "Dracula", bg: "#2b2d3a", fg: "#f8f8f2", accent: "#bd93f9", c1: "#50fa7b", c2: "#f1fa8c", dot: "#282a36" },
@@ -68,8 +68,8 @@ export function resolveTheme(
 }
 
 const THEME_COLORS: Record<string, string> = {
-  light: "#faf9f7",
-  dark: "#0e0f11",
+  light: "#f7f6fb",
+  dark: "#14131b",
   nord: "#2e3440",
   rosepine: "#191724",
   dracula: "#282a36",
