@@ -1,9 +1,14 @@
 """S6: API + pipeline integration tests (real S1 anchor + S2 segmenter;
 classifier stubbed for determinism, depth injected as GT)."""
+import asyncio
+import threading
+
 import cv2
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+import main as main_module
 import models.food_classifier as fc
 from engine.pipeline import analyze as pipe_analyze
 from main import app
@@ -84,6 +89,59 @@ def test_analyze_unreadable_file():
                     data={"day": "mon", "band": "1-5"})
     assert r.status_code == 200
     assert r.json()["verdict"] == "cannot_verify"
+
+
+def test_analyze_rejects_oversize_upload(monkeypatch):
+    monkeypatch.setattr(main_module, "MAX_UPLOAD_BYTES", 8)
+    r = client.post("/analyze", files={"file": ("big.jpg", b"123456789", "image/jpeg")},
+                    data={"day": "mon", "band": "1-5"})
+    assert r.status_code == 413
+    assert "upload limit" in r.json()["detail"]
+
+
+def test_inference_is_serialized_without_blocking_health(monkeypatch):
+    async def exercise():
+        entered = threading.Event()
+        release = threading.Event()
+        state_lock = threading.Lock()
+        active = 0
+        calls = 0
+
+        def fake_analyze(*_args):
+            nonlocal active, calls
+            with state_lock:
+                active += 1
+                calls += 1
+                if calls == 1:
+                    entered.set()
+            assert active == 1  # a second GPU call must wait for the limiter
+            try:
+                assert release.wait(2)
+                return {"verdict": "cannot_verify"}
+            finally:
+                with state_lock:
+                    active -= 1
+
+        monkeypatch.setattr(main_module, "_analyze_path", fake_analyze)
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as ac:
+            kwargs = {
+                "files": {"file": ("p.jpg", b"image", "image/jpeg")},
+                "data": {"day": "mon", "band": "1-5"},
+            }
+            first = asyncio.create_task(ac.post("/analyze", **kwargs))
+            second = asyncio.create_task(ac.post("/analyze", **kwargs))
+            assert await asyncio.to_thread(entered.wait, 1)
+            try:
+                health = await asyncio.wait_for(ac.get("/health"), timeout=0.5)
+                assert health.status_code == 200
+                assert calls == 1
+            finally:
+                release.set()
+            responses = await asyncio.gather(first, second)
+            assert all(r.status_code == 200 for r in responses)
+
+    asyncio.run(exercise())
 
 
 def test_pipeline_gates(scene, monkeypatch):

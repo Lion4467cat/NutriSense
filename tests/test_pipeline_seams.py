@@ -172,7 +172,7 @@ def test_result_contract_keys_and_types(scene):
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
         "assumptions", "advisory", "model_versions", "compliance", "policy",
-        "path_used", "degradations",
+        "path_used", "degradations", "items",
     }
     assert out["failures"] == []
     assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280
@@ -430,6 +430,23 @@ def test_learned_head_not_used_when_card_measured(scene):
     assert out["portion"]["base_method"] == "ring"
     assert out["portion"]["grams_source"] == "geometry"
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+
+
+def test_measured_moge_uses_table_plane_but_gt_depth_keeps_ring(scene):
+    deps = make_deps(scene)
+
+    def moge(img, **kw):
+        out = deps["depth"](img, **kw)
+        out["model"] = _pipeline.MOGE_MODEL_ID
+        return out
+
+    real = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                        deps=deps | {"depth": moge})
+    synthetic = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                             deps=deps)
+    assert real["portion"]["base_method"] == "table_prior"
+    assert "vessel_shape_uncertain" in real["portion"]["flags"]
+    assert synthetic["portion"]["base_method"] == "ring"
 
 
 # --- seam 13: recognized off-menu dish (spec 002 decision 3, ledger 003) ---

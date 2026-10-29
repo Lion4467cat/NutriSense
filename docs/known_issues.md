@@ -41,16 +41,17 @@ scaling stays off the table until the point estimates improve: the honest
 90% interval would need +47% width to reach 0.90 OOF coverage, which was
 rejected by the pre-registered cap (ledger 004).
 
-## Weight head training takes ~70 minutes per run (2026-10-11)
+## Weight head training takes ~70 minutes per run (2026-10-11) — RESOLVED
 
-A full 100-epoch run of `tools.train_weight_head` takes about **70 minutes**
-on the training box when the GPU is contended (~35 min when it is idle;
-never run alongside pytest-with-GPU). The encoder is frozen and pinned to
-`eval()`, so its output features are identical for every epoch and every
-run. Proposed early speed fix: **cache the frozen encoder's 7×7 features
-once per dataset** (one forward pass over the ~1.1k train + 108 val views)
-and train the MLP head on the cache — the per-epoch cost then drops to
-milliseconds and the whole run fits in a few minutes.
+~~Proposed early speed fix: cache the frozen encoder's features once per
+dataset.~~ **Landed (spec 002 decision 10):** `tools/train_weight_head.py`
+prepares the frozen encoder's per-view features once per run and caches them
+on disk (`data/cache/`, one blob per encoder + recipe + dataset fingerprint;
+`--features-cache none` opts out); every epoch trains the head on the
+prepared tensors. Verified 2026-10-29: the cache is implemented and covered
+by tests/test_weight_head_cache.py — the remaining weight-head robustness
+issue is the plate-level bias above, which is data-bound (P4, spec 007), not
+training-speed-bound.
 
 ## Stale artifact: `data/reports/weight_head_train.json` (2026-10-11)
 

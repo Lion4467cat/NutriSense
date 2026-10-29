@@ -101,6 +101,7 @@ export const segmentationSchema = z.object({{
   sam_score: z.number().nullable(),
   area_frac: z.number().nullable(),
   n_candidates: z.number().nullable(),
+  n_items: z.number().optional(),
 }});
 export type SegmentationBlock = z.infer<typeof segmentationSchema>;
 
@@ -140,6 +141,18 @@ export const portionSchema = z.object({{
   head_slots: z.record(z.string(), z.number()).optional(),
 }});
 export type PortionBlock = z.infer<typeof portionSchema>;
+
+/** Spec 003: one serving of a (possibly multi-item) plate. */
+export const itemSchema = z.object({{
+  dish: dishSchema.nullable(),
+  classification: classificationSchema.nullable(),
+  portion: portionSchema.nullable(),
+  bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable(),
+  area_frac: z.number().nullable(),
+  sam_score: z.number().nullable(),
+  reason: reasonSchema.optional(),
+}});
+export type ItemBlock = z.infer<typeof itemSchema>;
 
 export const nutrientSummarySchema = z.object({{
   mean: z.number(),
@@ -220,6 +233,7 @@ export const analysisSchema = z.object({{
   policy: policySchema,
   path_used: z.enum([{path_used}]).nullable(),
   degradations: z.array(z.string()),
+  items: z.array(itemSchema).nullable(),
 }});
 export type Analysis = z.infer<typeof analysisSchema>;
 

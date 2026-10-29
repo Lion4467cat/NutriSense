@@ -37,13 +37,20 @@ from engine.contract import (Analysis, Reason, ReasonKind, Stage,
                              WeightHeadUnavailable, load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
 from engine.gates import INPUT_GATES, SCOPE_GATE, admit
-from engine.mc import sample_nutrients
+from engine.mc import aggregate_meal, sample_nutrients
+from engine.depth import MODEL_ID as MOGE_MODEL_ID
 from engine.depth import MonocularDepth, calibrate_depth_scale
 from geo.pose import camera_matrix
 from models.portion_estimator import _components, estimate_portion
 from models.scale_anchor import estimate_anchor, prior_anchor
 
 log = logging.getLogger("nutrisense")
+
+# Recommended capture-tilt band (spec 005, pre-registered default): oblique
+# enough for base-plane/depth evidence, not so oblique that area
+# foreshortening dominates. Informational lint only — never blocks.
+CAPTURE_TILT_MIN_DEG = 25.0
+CAPTURE_TILT_MAX_DEG = 60.0
 
 # Assumed relative sigma when the head exists but no per-class val sigma is
 # on disk yet (pre-training / unmapped class).
@@ -115,6 +122,26 @@ def _get_weight_head():
     except Exception:
         log.exception("weight head checkpoint failed to load — geometry fallback")
         return None
+
+
+def _combo_candidates(dish_id: str) -> list[str] | None:
+    """Serving targets of a combo dish's component WED classes (spec 004).
+
+    A combo dish maps to >= 2 WED classes (rice_sambar -> steamed-rice +
+    sambar); each maps through the serving map to a component serving key.
+    None for single-component or unmapped dishes (no decomposition)."""
+    names: list[str] = []
+    for section in ("dishes", "off_menu"):
+        names = (load_wed_dishes().get(section, {}).get(dish_id) or {}
+                 ).get("wed_slots") or []
+        if names:
+            break
+    if len(names) < 2:
+        return None
+    from models.food_classifier import serving_targets
+    targets = serving_targets()
+    out = sorted({targets[n] for n in names if n in targets})
+    return out if len(out) >= 2 else None
 
 
 def _wed_slots_for_dish(dish_key: str) -> list[int] | None:
@@ -195,6 +222,19 @@ def _get_ingredient_head():
         return None
 
 
+def _get_segment_items():
+    """Multi-vessel detection (spec 003), lazy via the registry so tests can
+    pin it to None (conftest) exactly like the weight/ingredient heads."""
+    from models import registry
+    return registry.get_or_create(
+        "segment_items", _load_segment_items)
+
+
+def _load_segment_items():
+    from models.dish_segmenter import segment_items
+    return segment_items
+
+
 def _make_prior_anchor():
     return prior_anchor("anchor stage failed — prior tier",
                         load_anchor_config())
@@ -232,6 +272,18 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 analysis.path_used = "learned_head"
             else:
                 analysis.path_used = "prior_geometry"
+        # spec 003: single-serving frames carry items[] too — a one-element
+        # mirror of the top-level blocks, so consumers read one shape.
+        if analysis.items is None and analysis.portion is not None:
+            seg = analysis.segmentation or {}
+            analysis.items = [{
+                "dish": analysis.dish,
+                "classification": analysis.classification,
+                "portion": analysis.portion,
+                "bbox": None,
+                "area_frac": seg.get("area_frac"),
+                "sam_score": seg.get("sam_score"),
+            }]
         log_analysis(str(analysis.verdict), day, band, timings)
         return analysis.to_wire()
 
@@ -273,6 +325,16 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         return fail(failure, lint=lint)
     anchor_info = _anchor_summary(anchor)
 
+    # --- capture-angle lint (spec 005): informational, non-blocking --------
+    if (anchor or {}).get("label") == "measured":
+        tilt = anchor.get("tilt_deg")
+        if tilt is not None and not (CAPTURE_TILT_MIN_DEG
+                                     <= float(tilt) <= CAPTURE_TILT_MAX_DEG):
+            lint["notes"].append(
+                f"capture angle {float(tilt):.0f}° outside the recommended "
+                f"{CAPTURE_TILT_MIN_DEG:.0f}–{CAPTURE_TILT_MAX_DEG:.0f}° band "
+                "(depth/base-plane evidence degrades)")
+
     # --- input stage: camera intrinsics -----------------------------------
     def _intrinsics():
         cfg = load_anchor_config()
@@ -303,8 +365,11 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     # Serving keys: menu dish keys via menu["dishes"], off-menu keys via
     # the wed_dishes `serving:`/`off_menu:` expansion (spec 002 decision 3).
     # An unrecognized key (no entry anywhere) still fails the stage.
-    def _classify_step():
-        cls = classify(image_bgr)
+    def _resolve_serving(cls):
+        """Classifier output -> (classification, dish_info, dish, reason).
+
+        Shared by the primary full-frame classification and the per-item
+        crop classifications of the multi-item path (spec 003)."""
         classification = {
             "dish": cls.get("dish"), "confidence": cls.get("confidence"),
             "method": cls.get("method"), "match_score": cls.get("match_score"),
@@ -332,6 +397,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                      "on_day": (not dish.get("days")) or day in dish.get("days", []),
                      "nutrition_source": dish.get("nutrition_source")}
         return classification, dish_info, dish, None
+
+    def _classify_step():
+        return _resolve_serving(classify(image_bgr))
 
     cls_out, failure = stage(Stage.CLASSIFY, _oom_guard(_classify_step, degradations),
                              timings=timings)
@@ -418,6 +486,240 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     segmentation=seg_info, classification=classification,
                     dish=dish_info)
     depth_out, depth_m, scale_factor, scale_source = depth_result
+    assert depth_out is not None  # successful depth stage always returns metadata
+    depth_model = depth_out.get("model")
+
+    head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
+
+    # --- multi-item path (spec 003) ---------------------------------------
+    # grid9 multi-vessel detection runs once per frame after depth (one
+    # depth map serves every item). It engages only on menu-primary frames;
+    # off-menu and ingredient-route frames keep their existing flow.
+    # Detection failure, < 2 vessels, or every vessel unrecognized/unmeasurable
+    # -> the single-serving flow below runs unchanged (degradation-tagged,
+    # never a hard failure of the analysis).
+    segment_items_fn = (deps["segment_items"] if "segment_items" in deps
+                        else _get_segment_items())
+
+    def _item_portion(item_mask, dish_i, dish_id_i):
+        """Per-item portion under the same rules as the single path: learned
+        head on the prior tier for WED-mapped dishes, geometry otherwise
+        (real-MoGe measured tier keeps the ledger-015 table_prior base)."""
+        if ((anchor or {}).get("label") != "measured"
+                and _wed_slots_for_dish(dish_id_i) is not None):
+            if head is None:
+                raise WeightHeadUnavailable(
+                    f"weight head unavailable for {dish_id_i}: "
+                    "checkpoint missing or failed to load")
+            return _learned_portion(image_bgr, item_mask, dish_i,
+                                    dish_id_i, head)
+        geometry_cfg = (
+            {"base_method": "table_prior"}
+            if (anchor or {}).get("label") == "measured"
+            and depth_model == MOGE_MODEL_ID
+            else {}
+        )
+        return estimate_portion(image_bgr, item_mask, depth_m, anchor,
+                                {"K": K}, dish_i, cfg=geometry_cfg)
+
+    def _multi_item_analysis(items):
+        """Portion each vessel separately and judge the aggregate meal.
+
+        Returns an Analysis, or None when nothing measurable remains — the
+        caller then falls through to the single-serving flow."""
+        pad = 0.10
+        resolved, skipped = [], []
+        # Combo decomposition (spec 004): a combo plate restricts each
+        # vessel's match to the combo's component serving targets, so the
+        # aggregate sums distinct components instead of N x the combo.
+        combo = _combo_candidates(dish_info["id"])
+        for rank, item in enumerate(items):
+            x0, y0, x1, y1 = item["bbox"]
+            pw, ph = int((x1 - x0) * pad), int((y1 - y0) * pad)
+            crop = image_bgr[max(0, y0 - ph):min(H, y1 + ph),
+                             max(0, x0 - pw):min(W, x1 + pw)]
+            try:
+                cls_i = _oom_guard(lambda c=crop: classify(c),
+                                   degradations)()
+                if combo and cls_i.get("scores"):
+                    from models.food_classifier import gallery_match_threshold
+                    cand = {k: v for k, v in cls_i["scores"].items()
+                            if k in combo and v is not None}
+                    if cand:
+                        best = max(cand, key=cand.get)
+                        if cand[best] >= gallery_match_threshold():
+                            cls_i = dict(cls_i, dish=best,
+                                         reason=(f"combo component match "
+                                                 f"{best}={cand[best]:.3f}"))
+                cls_info, info_i, dish_i, reason_i = _resolve_serving(cls_i)
+            except Exception as e:
+                log.warning("item %d classification failed (%s) — skipped",
+                            rank, e)
+                skipped.append(_item_wire_block(
+                    item, None, None, None,
+                    Reason(ReasonKind.STAGE_FAILED,
+                           f"item skipped: classification failed ({e})")))
+                continue
+            if info_i is None:
+                skipped.append(_item_wire_block(
+                    item, cls_info, None, None,
+                    Reason(ReasonKind.UNRECOGNIZED,
+                           f"item skipped: dish unrecognized ({reason_i})")))
+                continue
+            try:
+                portion_i = _oom_guard(
+                    lambda m=item["mask"], d=dish_i, k=info_i["id"]:
+                    _item_portion(m, d, k),
+                    degradations)()
+            except Exception as e:
+                log.warning("item %d portion failed (%s) — skipped", rank, e)
+                skipped.append(_item_wire_block(
+                    item, cls_info, info_i, None,
+                    Reason(ReasonKind.STAGE_FAILED,
+                           f"item skipped: portion failed ({e})")))
+                continue
+            mc_i, mc_failure = stage(Stage.NUTRITION, sample_nutrients,
+                                     portion_i, dish_i, band, n=n_mc,
+                                     seed=seed + 1 + rank, timings=timings)
+            if mc_failure is not None:
+                skipped.append(_item_wire_block(
+                    item, cls_info, info_i, None,
+                    Reason(ReasonKind.STAGE_FAILED,
+                           f"item skipped: {mc_failure.error}")))
+                continue
+            resolved.append((item, cls_info, info_i, dish_i, portion_i, mc_i))
+        if not resolved:
+            if "multi_item_fallback" not in degradations:
+                degradations.append("multi_item_fallback")
+            return None
+
+        portions = [r[4] for r in resolved]
+        total_g = float(sum(p["grams"] for p in portions))
+        total_v = float(sum(p["volume_ml"] for p in portions))
+        comp_g: dict[str, float] = {}
+        agg_components: dict[str, dict] = {}
+        for _item, _c, info_i, dish_i, portion_i, _m in resolved:
+            for nm, g in portion_i["components_g"].items():
+                key = f"{info_i['id']}:{nm}"
+                comp_g[key] = comp_g.get(key, 0.0) + float(g)
+                if key not in agg_components:
+                    src = dish_i["components"][nm]
+                    agg_components[key] = {"share": 0.0,
+                                           "generic_id": src["generic_id"],
+                                           "type": src.get("type", "grain")}
+        for key, g in comp_g.items():
+            agg_components[key]["share"] = g / total_g if total_g > 0 else 0.0
+        var = sum((p["grams"] * p["sigma_grams_rel"]) ** 2 for p in portions)
+        sigma_agg = float(np.sqrt(var) / total_g) if total_g > 0 else 0.0
+        agg_portion = {
+            "grams": total_g,
+            "volume_ml": total_v,
+            "density_eff": total_g / total_v if total_v > 0 else 0.0,
+            "components_g": comp_g,
+            "base_method": ("table_prior" if any(
+                p["base_method"] == "table_prior" for p in portions)
+                else "multi_item"),
+            "scale_tier": portions[0]["scale_tier"],
+            "grams_source": ("learned_weight" if all(
+                p.get("grams_source") == "learned_weight" for p in portions)
+                else "geometry"),
+            "mean_h_mm": None,
+            "area_cm2": (float(sum(p["area_cm2"] for p in portions))
+                         if all(p.get("area_cm2") is not None
+                                for p in portions) else None),
+            "sigma_grams_rel": sigma_agg,
+            "sigma_rel": {"multi_item": sigma_agg},
+            "flags": sorted({f for p in portions for f in p["flags"]}
+                            | {"multi_item_meal"}),
+        }
+        agg_mc = aggregate_meal([r[5] for r in resolved])
+        agg_dish = {
+            "components": agg_components,
+            "display_name": " + ".join(
+                (info_i.get("display_name") or info_i["id"])
+                for _i, _c, info_i, _d, _p, _m in resolved),
+            "days": [],
+            "nutrition_source": "multi_item_aggregate",
+            "ranges_wider": any(bool(d.get("ranges_wider"))
+                                for _i, _c, _inf, d, _p, _m in resolved),
+        }
+        score, a_failure = stage(
+            Stage.COMPLIANCE, assess, agg_mc, agg_portion, agg_dish, band,
+            (anchor or {}).get("label", "prior"), day=day,
+            depth_scale_source=scale_source, timings=timings)
+        if a_failure is not None:
+            log.warning("multi-item aggregate assess failed (%s) — "
+                        "single-serving flow", a_failure.error)
+            if "multi_item_aggregate_failed" not in degradations:
+                degradations.append("multi_item_aggregate_failed")
+            return None
+        assert score is not None  # successful compliance stage
+
+        names = agg_dish["display_name"]
+        meal_info = {"id": "meal", "display_name": names, "day": day,
+                     "band": band, "serving_style": serving_style,
+                     "on_day": True,
+                     "nutrition_source": "multi_item_aggregate"}
+        assumptions = list(score.assumptions) + [
+            (f"multi_item_meal: {len(resolved)} servings measured separately "
+             "and summed; the verdict judges the whole captured meal")]
+        if skipped:
+            assumptions.append(
+                f"{len(skipped)} detected item(s) unrecognized or "
+                "unmeasurable — excluded from the aggregate")
+        if combo:
+            assumptions.append(
+                f"combo_decomposition: plate-level {dish_info['id']}; vessels "
+                f"matched among its component servings ({', '.join(combo)})")
+        anchor_blk = dict(anchor_info or {})
+        anchor_blk["depth_scale_factor"] = round(float(scale_factor), 4)
+        anchor_blk["depth_scale_source"] = scale_source
+        seg_multi = dict(seg_info or {})
+        seg_multi["n_items"] = len(resolved)
+        analysis = Analysis(
+            verdict=score.verdict,
+            reasons=list(score.reasons),
+            failures=list(score.failures),
+            lint=lint,
+            anchor=anchor_blk,
+            segmentation=seg_multi,
+            classification=classification,
+            dish=meal_info,
+            portion=_portion_wire_block(agg_portion),
+            nutrition={
+                "kcal": agg_mc["kcal"], "protein_g": agg_mc["protein_g"],
+                "grams": agg_mc["grams"], "n": agg_mc["n"],
+                "seed": agg_mc["seed"], "diagnostics": agg_mc["diagnostics"],
+                "assumed_nutrients": agg_mc["assumed_nutrients"],
+                "wider_ranges": agg_mc["wider_ranges"],
+            },
+            coverage=score.coverage,
+            assumptions=assumptions,
+            advisory=score.advisory,
+            compliance={"day": score.day, "band": score.band,
+                        "probs": score.probs, "nutrients": score.nutrients},
+            model_versions=_model_versions(depth_out, head),
+            items=[_item_wire_block(it, ci, ii, pi)
+                   for it, ci, ii, _d, pi, _m in resolved] + skipped,
+        )
+        analysis.path_used = "multi_item"
+        return analysis
+
+    if (segment_items_fn is not None
+            and dish_info["id"] in ((menu or {}).get("dishes") or {})):
+        try:
+            items_det = _oom_guard(lambda: segment_items_fn(image_bgr),
+                                   degradations)()
+        except Exception as e:
+            log.warning("multi-item detection failed (%s) — single-serving "
+                        "flow", e)
+            if "multi_item_detection_failed" not in degradations:
+                degradations.append("multi_item_detection_failed")
+            items_det = None
+        if items_det is not None and len(items_det.get("items") or []) >= 2:
+            multi = _multi_item_analysis(items_det["items"])
+            if multi is not None:
+                return finish(multi)
 
     # --- portion stage ----------------------------------------------------
     # Learned path (prior tier only): head.predict -> grams. An absent head
@@ -425,7 +727,6 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     # same on a WED-mapped dish: WeightHeadUnavailable -> cannot_verify with
     # the weight_head_unavailable reason, no grams, path_used null. Unmapped
     # dishes and the measured tier keep the geometry path.
-    head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
 
     def _portion_step():
         if (anchor.get("label") != "measured"
@@ -443,7 +744,17 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 raise WeightHeadUnavailable(
                     f"learned weight head failed: {type(e).__name__}: {e}"
                 ) from e
-        return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish)
+        # Real MoGe ring fits follow the food surface on phone captures and
+        # inflate thickness. The outside table plane is the validated real-
+        # capture path (ledger 015); synthetic/GT depth keeps the ring path.
+        geometry_cfg = (
+            {"base_method": "table_prior"}
+            if (anchor or {}).get("label") == "measured"
+            and depth_model == MOGE_MODEL_ID
+            else {}
+        )
+        return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish,
+                                cfg=geometry_cfg)
 
     portion, failure = stage(Stage.PORTION, _oom_guard(_portion_step, degradations),
                              timings=timings)
@@ -573,6 +884,25 @@ def _portion_wire_block(portion: dict) -> dict:
         block["head_slots"] = portion["head_slots"]
     if "recipe_match" in portion:
         block["recipe_match"] = portion["recipe_match"]
+    return block
+
+
+def _item_wire_block(item, classification, dish_info, portion, reason=None):
+    """One serving of a multi-item plate -> its wire items[] block (spec
+    003). reason is a Reason whose wire form carries the skip explanation
+    for unrecognized/unmeasurable items (paths redacted by Reason)."""
+    block = {
+        "dish": dish_info,
+        "classification": classification,
+        "portion": _portion_wire_block(portion) if portion is not None else None,
+        "bbox": item.get("bbox"),
+        "area_frac": (None if item.get("area_frac") is None
+                      else round(float(item["area_frac"]), 4)),
+        "sam_score": (None if item.get("sam_score") is None
+                      else round(float(item["sam_score"]), 4)),
+    }
+    if reason is not None:
+        block["reason"] = reason.to_wire()
     return block
 
 

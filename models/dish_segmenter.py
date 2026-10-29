@@ -171,3 +171,66 @@ def segment_food(image_bgr):
         "n_candidates": len(cands),
         "area_frac": float(full.mean()),
     }
+
+
+# --- multi-vessel detection (spec 003) --------------------------------------
+
+IOU_DEDUPE = 0.70       # masks closer than this are the same vessel
+MAX_ITEMS = 4           # per-frame item cap (spec 003 decision 4)
+
+
+def _iou(a, b):
+    union = float((a | b).sum())
+    return float((a & b).sum()) / union if union else 0.0
+
+
+def _bbox(mask):
+    ys, xs = np.nonzero(mask)
+    if not len(xs):
+        return None
+    return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+
+
+def segment_items(image_bgr):
+    """Detect distinct food vessels on a (possibly multi-item) capture.
+
+    3x3 point grid inside a coarse centre box (the grid9_box diagnostic
+    strategy of ledger 014, promoted to a serving primitive). Candidates are
+    selected with the same _select() logic as the single-mask path, deduped
+    by IoU >= IOU_DEDUPE (largest mask wins), area-gated to
+    [AREA_MIN, AREA_MAX], and capped at MAX_ITEMS, largest first.
+
+    Returns {"items": [{"mask": bool (H,W), "sam_score", "area_frac",
+    "bbox"}], "strategy": "grid9_box"}. Raises RuntimeError when no usable
+    mask exists, so the stage degrades honestly like the single-mask path.
+    """
+    H, W = image_bgr.shape[:2]
+    _load()
+    rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+    box = [W * 0.1, H * 0.1, W * 0.9, H * 0.9]
+
+    kept = []  # (small_mask, score), largest first
+    for gy in (0.3, 0.5, 0.7):
+        for gx in (0.3, 0.5, 0.7):
+            cands = _query(rgb, (W * gx, H * gy), box=box)
+            k = _select(cands)
+            if k is None:
+                continue
+            small, _logits, score = cands[k]
+            a = float(small.mean())
+            if not (AREA_MIN <= a <= AREA_MAX):
+                continue
+            if all(_iou(small, m) < IOU_DEDUPE for m, _ in kept):
+                kept.append((small, score))
+    kept.sort(key=lambda m: float(m[0].sum()), reverse=True)
+    kept = kept[:MAX_ITEMS]
+    if not kept:
+        raise RuntimeError("SAM2 produced no usable food mask")
+
+    items = []
+    for small, score in kept:
+        full = cv2.resize(small.astype(np.uint8), (W, H),
+                          interpolation=cv2.INTER_NEAREST).astype(bool)
+        items.append({"mask": full, "sam_score": score,
+                      "area_frac": float(full.mean()), "bbox": _bbox(full)})
+    return {"items": items, "strategy": "grid9_box"}

@@ -78,6 +78,51 @@
     "serving_style": null
   },
   "failures": [],
+  "items": [
+    {
+      "area_frac": 0.2,
+      "bbox": null,
+      "classification": {
+        "confidence": 1.0,
+        "dish": "rice_sambar",
+        "match_score": 0.9,
+        "method": "stub",
+        "reason": "stub"
+      },
+      "dish": {
+        "band": "1-5",
+        "day": "mon",
+        "display_name": "Rice & Sambar",
+        "id": "rice_sambar",
+        "nutrition_source": "official_menu",
+        "on_day": true,
+        "serving_style": null
+      },
+      "portion": {
+        "area_cm2": 268.9,
+        "base_method": "ring",
+        "components_g": {
+          "rice": 257.8,
+          "sambar": 171.9
+        },
+        "density_eff": 0.842,
+        "flags": [],
+        "grams": 429.7,
+        "grams_source": "geometry",
+        "mean_h_mm": 18.99,
+        "scale_tier": "measured",
+        "sigma_grams_rel": 0.2799,
+        "sigma_rel": {
+          "area": 0.0547,
+          "base": 0.2369,
+          "density": 0.08,
+          "depth": 0.1131
+        },
+        "volume_ml": 510.7
+      },
+      "sam_score": 1.0
+    }
+  ],
   "lint": {
     "digital_zoom": null,
     "focal_mm": null,

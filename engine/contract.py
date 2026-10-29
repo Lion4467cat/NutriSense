@@ -4,18 +4,24 @@ Python owns the result shape; the TypeScript side consumes a Zod schema
 generated from these vocabularies by tools/gen_contract_ts.py (regenerate:
 ``python -m tools.gen_contract_ts``).
 
-Wire keys (18):
+Wire keys (19):
   verdict, reasons, failures, lint, anchor, segmentation, classification,
   dish, portion, nutrition, coverage, assumptions, advisory, compliance,
-  model_versions, policy, path_used, degradations
+  model_versions, policy, path_used, degradations, items
 
 Rules:
   * reasons    — canonical, human-readable explanations for EVERY verdict
                  (including PASS). Each hard failure generates its own reason.
   * failures   — hard failures only (stage crashes, rejected gates).
   * path_used  — which portion path produced the grams (card_geometry |
-                 ingredient_head | learned_head | prior_geometry); null when
-                 no portion ran.
+                 ingredient_head | learned_head | prior_geometry |
+                 multi_item); null when no portion ran.
+  * items      — spec 003: per-serving blocks (dish, classification,
+                 portion, bbox, area_frac, sam_score). Always present when a
+                 portion ran: a one-element mirror on single-serving frames,
+                 one block per detected vessel on multi-item plates (the
+                 top-level dish/portion/nutrition are then the aggregate
+                 meal). null when no portion ran.
   * degradations — machine-readable tags for substitutions that still
                  produced a result (e.g. gpu_oom_retried); always present,
                  [] when nothing degraded.
@@ -46,12 +52,12 @@ WIRE_KEYS = frozenset({
     "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
     "classification", "dish", "portion", "nutrition", "coverage",
     "assumptions", "advisory", "compliance", "model_versions", "policy",
-    "path_used", "degradations",
+    "path_used", "degradations", "items",
 })
 
 # Closed vocabulary of portion paths (source for tools/gen_contract_ts.py).
 PATH_USED_VALUES = ("card_geometry", "ingredient_head", "learned_head",
-                    "prior_geometry")
+                    "prior_geometry", "multi_item")
 
 
 # --- vocabularies ---------------------------------------------------------
@@ -335,6 +341,7 @@ class Analysis:
     policy: Policy = field(default_factory=load_policy)
     path_used: str | None = None
     degradations: list = field(default_factory=list)
+    items: list | None = None
 
     def to_wire(self) -> dict:
         return {
@@ -356,6 +363,7 @@ class Analysis:
             "policy": self.policy.to_wire(),
             "path_used": self.path_used,
             "degradations": list(self.degradations),
+            "items": self.items,
         }
 
 

@@ -401,6 +401,22 @@
   }
 }
 
+@media (max-width: 600px) {
+  .analyze-grid {
+    gap: var(--sp-4);
+  }
+
+  .dropzone {
+    min-height: 240px;
+    padding: var(--sp-6);
+  }
+
+  .analyze-grid .btn-lg {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
 .dropzone {
   position: relative;
   border: 1.5px dashed var(--border-strong);
@@ -420,10 +436,15 @@
 }
 
 .dropzone:hover,
-
+.dropzone:focus-within,
 .dropzone.dragging {
   border-color: var(--accent);
   background: var(--accent-soft);
+}
+
+.dropzone:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .dropzone input[type="file"] {

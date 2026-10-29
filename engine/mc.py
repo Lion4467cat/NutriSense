@@ -136,3 +136,48 @@ def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
         "assumed_nutrients": assumed_nutrient_ids(dish, nutrients),
         "wider_ranges": generic_wider,
     }
+
+
+def aggregate_meal(item_mcs, params=None):
+    """Meal-level MC from per-item results (spec 003).
+
+    Per-item sample arrays are summed elementwise — items are sampled with
+    independent seeds, within-item correlations (shared anchor/pose terms)
+    are preserved by the per-item sampling. Summaries are recomputed from
+    the summed arrays, so this function, not the caller, owns the aggregate
+    intervals. Per-item components_g keys are dish-namespaced, so the
+    aggregate components block is a plain union.
+    """
+    params = params if params is not None else load_params()
+    temperature = float(params.get("temperature_scale", {}).get("value", 1.0))
+    kcal = np.sum([m["kcal_samples"] for m in item_mcs], axis=0)
+    prot = np.sum([m["protein_g_samples"] for m in item_mcs], axis=0)
+    grams = np.sum([m["grams_samples"] for m in item_mcs], axis=0)
+    components_g, raw, assumed = {}, {}, set()
+    wider = False
+    for m in item_mcs:
+        components_g.update(m["components_g"])
+        raw.update(m["diagnostics"]["raw_equivalent_g"])
+        assumed.update(m["assumed_nutrients"])
+        wider |= bool(m["wider_ranges"])
+    first = item_mcs[0]
+    return {
+        "seed": first["seed"],
+        "n": first["n"],
+        "kcal_samples": kcal,
+        "protein_g_samples": prot,
+        "grams_samples": grams,
+        "kcal": _summary(kcal, temperature),
+        "protein_g": _summary(prot, temperature),
+        "grams": _summary(grams, temperature),
+        "components_g": components_g,
+        "diagnostics": {
+            "raw_equivalent_g": raw,
+            "raw_allocation_per_day_g": first["diagnostics"][
+                "raw_allocation_per_day_g"],
+            "raw_basis_note": first["diagnostics"]["raw_basis_note"],
+            "multi_item_count": len(item_mcs),
+        },
+        "assumed_nutrients": sorted(assumed),
+        "wider_ranges": wider,
+    }

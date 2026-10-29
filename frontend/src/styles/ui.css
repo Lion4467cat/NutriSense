@@ -83,7 +83,7 @@
 
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink, #fff);
   box-shadow: 0 1px 3px color-mix(in srgb, var(--accent) 30%, transparent),
     var(--shadow-1);
 }
@@ -471,7 +471,7 @@ table.data tbody tr.clickable:hover {
   align-items: center;
   text-align: center;
   gap: var(--sp-3);
-  padding: var(--sp-12) var(--sp-5);
+  padding: var(--sp-10) var(--sp-5);
   color: var(--text-2);
 }
 
@@ -776,6 +776,14 @@ table.data tbody tr.clickable:hover {
   background: var(--warn-soft);
   border-color: var(--warn-border);
   color: var(--warn);
+}
+
+.banner > div {
+  min-width: 0;
+}
+
+.banner .mono {
+  overflow-wrap: anywhere;
 }
 
 .banner strong {

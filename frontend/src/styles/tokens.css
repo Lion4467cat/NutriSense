@@ -20,11 +20,12 @@
   --border-strong: #cdc9de;
   --text: #16151f;
   --text-2: #45425c;
-  --text-3: #75718c;
+  --text-3: #6d6882;
 
   /* brand — indigo accent */
   --accent: #4b45c6;
   --accent-hover: #3d38ac;
+  --accent-ink: #ffffff;
   --accent-soft: #ecebff;
   --accent-soft-border: #c4c0f2;
   --accent-text: #35309c;
@@ -56,8 +57,8 @@
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
     monospace;
 
-  --fs-xs: 11px;
-  --fs-sm: 12px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
   --fs-base: 14px;
   --fs-md: 15px;
   --fs-lg: 17px;
@@ -138,10 +139,11 @@
   --border-strong: #3a3847;
   --text: #eae9f2;
   --text-2: #a9a6bb;
-  --text-3: #75718a;
+  --text-3: #9792ab;
 
   --accent: #8b84f0;
   --accent-hover: #7a72e6;
+  --accent-ink: #16151f;
   --accent-soft: #211f3a;
   --accent-soft-border: #35306b;
   --accent-text: #a9a3f7;
@@ -152,7 +154,7 @@
   --warn: #c9a227;
   --warn-soft: #2a2410;
   --warn-border: #4a3a10;
-  --fail: #d94545;
+  --fail: #eb6666;
   --fail-soft: #2a1010;
   --fail-border: #4a2020;
   --neutral: #a8a8a8;
@@ -186,6 +188,7 @@
 
   --accent: #88c0d0;
   --accent-hover: #8fbcbb;
+  --accent-ink: #16151f;
   --accent-soft: #3d4a58;
   --accent-soft-border: #4c6472;
   --accent-text: #8fbcbb;
@@ -230,6 +233,7 @@
 
   --accent: #c4a7e7;
   --accent-hover: #d3b8f0;
+  --accent-ink: #16151f;
   --accent-soft: #2a2440;
   --accent-soft-border: #3f3560;
   --accent-text: #d3b8f0;
@@ -274,6 +278,7 @@
 
   --accent: #bd93f9;
   --accent-hover: #cfa6fb;
+  --accent-ink: #16151f;
   --accent-soft: #37304a;
   --accent-soft-border: #524672;
   --accent-text: #cfa6fb;
@@ -318,6 +323,7 @@
 
   --accent: #cba6f7;
   --accent-hover: #d7b8fa;
+  --accent-ink: #16151f;
   --accent-soft: #332c44;
   --accent-soft-border: #4b4166;
   --accent-text: #d7b8fa;
@@ -358,10 +364,11 @@
   --border-strong: #d9cbc4;
   --text: #575279;
   --text-2: #6c6788;
-  --text-3: #a19b9e;
+  --text-3: #746d79;
 
   --accent: #907aa9;
   --accent-hover: #7d6794;
+  --accent-ink: #16151f;
   --accent-soft: #f1e9f2;
   --accent-soft-border: #e0d0e6;
   --accent-text: #7d6794;

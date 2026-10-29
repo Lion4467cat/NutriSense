@@ -242,6 +242,13 @@ uv sync --frozen --all-groups
 .venv/bin/uvicorn main:app --port 8731
 ```
 
+For a real deployment, run **one worker per GPU**; inference is serialized per
+process so concurrent uploads cannot contend for VRAM, while `/health` remains
+responsive. Put authentication and TLS in front of the API when it is not
+strictly local. Uploads default to a 12 MiB limit
+(`NUTRISENSE_CORS_ORIGINS` is a comma-separated allowlist and
+`NUTRISENSE_MAX_UPLOAD_BYTES` overrides the byte cap).
+
 **4. Run the frontend (separate terminal)**
 
 ```bash
