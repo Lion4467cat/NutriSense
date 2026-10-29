@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "dataset": "WED (ICVGIP 2025)",
+    "recipe": "baseline rgb/no-attn/geom-none",
+    "bn_mode": "frozen_encoder_eval",
+    "epochs": 100,
+    "encoder": "dinov2",
+    "train_aug": "strong",
+    "seed": 42,
+    "trained": "2026-10-29",
+    "val_mae_in_process_g": 16.45,
+    "paper_baseline_mae_g": 14.51,
+    "feature_cache": {
+      "mode": "build",
+      "file": "wed-dinov2-strong-ea6900cebc7c.pt",
+      "build_s": 110.3
+    },
+    "val_mae_g": 16.45
+  },
+  "val_mae_in_process_g": 16.45,
+  "val_mae_deployable_g": 16.45
+}

@@ -31,18 +31,24 @@ Ledger 001 (branch loop-aug-run1): train-only photometric augmentation
 plus RandomErasing cutout was added after the hflip — single-variable
 change vs the entry-000 recipe; val/test paths stay unaugmented.
 
-Feature cache (spec 002 decision 10): the encoder never trains, so its
-per-view features are prepared once — one unaugmented window (val/test
-semantics) and one augmented window (ledger 001 transforms, drawn from the
-run's seeded RNG) per train-manifest row — and every epoch trains the head
-on those prepared tensors. Augmentation is therefore applied at feature
-prep time: one fixed draw per view per run, not a fresh draw every epoch.
+Feature cache (spec 002 decision 10): the frozen encoder's per-view
+features are prepared once — one unaugmented window (val/test semantics)
+and one augmented window (the LEDGER-001 recipe, drawn from the run's
+seeded RNG) per train-manifest row — and every epoch trains the head on
+those prepared tensors. Augmentation is therefore applied at feature prep
+time: one fixed draw per view per run, not a fresh draw every epoch.
 A cache directory (default data/cache, git-ignored) holds one blob per
-encoder + dataset fingerprint; the first run builds it, later runs reuse
-it, `--features-cache none` keeps everything in memory. The training
-stream (head init, batch shuffling, head dropout) is reseeded after
-feature prep, so build / reuse / live paths are bitwise identical for a
-given seed.
+encoder + recipe + dataset fingerprint; the first run builds it, later
+runs reuse it, `--features-cache none` keeps everything in memory. The
+training stream (head init, batch shuffling, head dropout) is reseeded
+after feature prep, so build / reuse / live paths are bitwise identical
+for a given seed.
+
+Ledger 006 (ticket 06 robustness): `--train-aug strong` opts into the
+stronger plate-bias recipe (joint image+mask rotation ±20° p=0.7, stronger
+ColorJitter/blur/JPEG/RandomErasing) — the single-variable change that
+ledger entry pre-registers; the default `ledger001` keeps the existing
+recipe bitwise.
 """
 from __future__ import annotations
 
@@ -124,6 +130,30 @@ RGB_TRAIN_TF = transforms.Compose([
                              value=0),
 ])
 
+# Ledger 006 "strong" recipe (opt-in; hyperparameters fixed at
+# pre-registration in docs/ledger/006-strong-augmentation.md): stronger
+# photometric/erasing pressure on top of the ledger-001 block. The NEW
+# geometric axis (joint image+mask rotation) lives in WedPlates, gated on
+# the recipe, where the hflip already rotates both together.
+RGB_TRAIN_TF_STRONG = transforms.Compose([
+    transforms.Resize(RESIZE),
+    transforms.RandomApply([
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4,
+                               hue=0.02)],
+        p=0.8),
+    transforms.RandomApply([transforms.GaussianBlur(kernel_size=5,
+                                                    sigma=(0.5, 2.0))],
+                           p=0.4),
+    RandomJpeg(p=0.4, q_range=(35, 95)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.RandomErasing(p=0.35, scale=(0.02, 0.15), ratio=(0.3, 3.3),
+                             value=0),
+])
+
+AUG_RECIPES = ("ledger001", "strong", "none")
+ROTATION_P, ROTATION_DEG = 0.7, 20.0  # ledger 006 strong recipe constants
+
 
 def load_manifest(split: str) -> list[dict]:
     rows = []
@@ -140,10 +170,19 @@ def plate_key(row: dict) -> str:
 
 
 class WedPlates(Dataset):
-    """One item = one multi-view image with all its dish ROIs (like the paper)."""
+    """One item = one multi-view image with all its dish ROIs (like the paper).
 
-    def __init__(self, rows: list[dict], wed_root: Path, train: bool):
+    aug_recipe (train windows only, ledger 006): "ledger001" reproduces the
+    hflip + photometric pipeline exactly as before; "strong" adds the joint
+    img+mask random-rotation axis before the strong photometric block;
+    "none" feeds clean windows even in train (no eff. hflip, no photometrics).
+    Val/test paths are unaffected (train=True gates every branch)."""
+
+    def __init__(self, rows: list[dict], wed_root: Path, train: bool,
+                 aug_recipe: str = "ledger001"):
+        assert aug_recipe in AUG_RECIPES, f"unknown recipe {aug_recipe!r}"
         self.rows, self.wed_root, self.train = rows, wed_root, train
+        self.aug_recipe = aug_recipe
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -152,10 +191,24 @@ class WedPlates(Dataset):
         r = self.rows[idx]
         img = Image.open(self.wed_root / r["image"]).convert("RGB")
         mask = Image.open(self.wed_root / r["mask"]).convert("L")
-        if self.train and random.random() < 0.5:
+        strong = self.train and self.aug_recipe == "strong"
+        if strong and random.random() < ROTATION_P:
+            # one joint draw, img == mask (ledger 006 strong recipe)
+            angle = random.uniform(-ROTATION_DEG, ROTATION_DEG)
+            img = img.rotate(angle, resample=Image.Resampling.BILINEAR,
+                             fillcolor=0)
+            mask = mask.rotate(angle, resample=Image.Resampling.NEAREST,
+                               fillcolor=0)
+        if (self.train and self.aug_recipe != "none"
+                and random.random() < 0.5):
             img = TF.hflip(img)
             mask = TF.hflip(mask)
-        img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
+        if strong:
+            img_t = RGB_TRAIN_TF_STRONG(img)
+        elif self.train and self.aug_recipe == "none":
+            img_t = RGB_TF(img)
+        else:
+            img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
         mask_arr = np.array(MASK_TF(mask).squeeze(0))
         H, W = img_t.shape[1:]
         bboxes, weights, cls_ids = [], [], []
@@ -302,23 +355,27 @@ def dataset_fingerprint(limit: int | None) -> str:
     return h.hexdigest()[:12]
 
 
-def cache_file_path(features_cache: str, encoder_id: str,
+def cache_file_path(features_cache: str, encoder_id: str, aug_recipe: str,
                     limit: int | None) -> Path:
+    """Recipe is part of the key (ledger 006): different train-window
+    recipes MUST never share an augmented-feature draw."""
     return (Path(features_cache)
-            / f"wed-{encoder_id}-{dataset_fingerprint(limit)}.pt")
+            / f"wed-{encoder_id}-{aug_recipe}-{dataset_fingerprint(limit)}.pt")
 
 
 @torch.no_grad()
 def extract_features(rows: list[dict], wed_root: Path, encoder: WeightHead,
-                     device: torch.device, train: bool) -> list[dict]:
+                     device: torch.device, train: bool,
+                     aug_recipe: str = "ledger001") -> list[dict]:
     """One item per manifest row: the frozen encoder's feature map from a
     batch=1 encode (bitwise-stable across runs) plus its ROI bundle.
-    train=True draws ONE augmented window (ledger 001 transforms, from the
-    run's seeded RNG); train=False is fully deterministic."""
+    train=True draws ONE augmented window (the aug_recipe's transforms,
+    from the run's seeded RNG); train=False is fully deterministic."""
     encoder.encoder.eval()  # STAGE 1A pin: train-mode BN would drift stats
     items: list[dict] = []
     for r in rows:
-        s = WedPlates([r], wed_root, train=train)[0]
+        s = WedPlates([r], wed_root, train=train,
+                      aug_recipe=aug_recipe if train else "ledger001")[0]
         feats = encoder.encode(s["img"].unsqueeze(0).to(device),
                                no_grad=True)[0].cpu()
         items.append({"feats": feats, "H": s["H"], "W": s["W"],
@@ -336,15 +393,18 @@ def prepare_features(args: argparse.Namespace, rows: list[dict],
     "train"/"val" cover the train-manifest rows in manifest order (the val
     carve indexes into them); "test" exists only when the test split is
     loaded (--skip-test never touches it). With a cache directory the blob
-    is reused when it matches encoder + dataset fingerprint, the encoder
-    weight fingerprint, and covers every split this run needs; otherwise it
-    is built in one piece and written once. Tensors travel through the CPU
-    (fp32 copies are bitwise-exact), so reuse cannot perturb training.
+    is reused when it matches encoder + recipe + dataset fingerprint, the
+    encoder weight fingerprint, and covers every split this run needs;
+    otherwise it is built in one piece and written once. Tensors travel
+    through the CPU (fp32 copies are bitwise-exact), so reuse cannot
+    perturb training.
     """
     t0 = time.time()
+    aug_recipe = getattr(args, "train_aug", "ledger001")
 
     def _build() -> dict:
-        blob = {"v": 1, "encoder_id": args.encoder,
+        blob = {"v": 2, "encoder_id": args.encoder,
+                "aug_recipe": aug_recipe,
                 "encoder_fp": encoder_fingerprint(model),
                 "dataset_fp": dataset_fingerprint(args.limit),
                 "limit": args.limit, "seed": args.seed}
@@ -354,21 +414,23 @@ def prepare_features(args: argparse.Namespace, rows: list[dict],
             blob["test"] = extract_features(test_rows, wed_root, model,
                                             device, train=False)
         blob["train"] = extract_features(rows, wed_root, model, device,
-                                         train=True)
+                                         train=True, aug_recipe=aug_recipe)
         return blob
 
     if args.features_cache == "none":
         return _build(), {"mode": "live",
                           "build_s": round(time.time() - t0, 1)}
-    p = cache_file_path(args.features_cache, args.encoder, args.limit)
+    p = cache_file_path(args.features_cache, args.encoder, aug_recipe,
+                        args.limit)
     if p.is_file():
         try:
             blob = torch.load(p, map_location="cpu", weights_only=True)
         except Exception:
             blob = None
         if (isinstance(blob, dict)
-                and blob.get("v") == 1
+                and blob.get("v") == 2
                 and blob.get("encoder_id") == args.encoder
+                and blob.get("aug_recipe") == aug_recipe
                 and blob.get("encoder_fp") == encoder_fingerprint(model)
                 and blob.get("dataset_fp") == dataset_fingerprint(args.limit)
                 and blob.get("limit") == args.limit
@@ -382,7 +444,7 @@ def prepare_features(args: argparse.Namespace, rows: list[dict],
     blob = _build()
     p.parent.mkdir(parents=True, exist_ok=True)
     torch.save(blob, p)
-    return blob, {"mode": "build", "file": str(p),
+    return blob, {"mode": "build", "file": str(p.name),
                   "build_s": round(time.time() - t0, 1)}
 
 
@@ -534,6 +596,7 @@ def run_training(args: argparse.Namespace) -> dict:
     meta = {"dataset": "WED (ICVGIP 2025)", "recipe": "baseline rgb/no-attn/geom-none",
             "bn_mode": "frozen_encoder_eval", "epochs": args.epochs,
             "encoder": args.encoder,
+            "train_aug": args.train_aug,
             "seed": args.seed, "trained": date.today().isoformat(),
             "val_mae_in_process_g": round(best_val, 2),
             "paper_baseline_mae_g": 14.51,
@@ -601,6 +664,13 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None,
                     help="smoke runs: cap train-manifest rows in manifest "
                          "order (part of the cache key)")
+    ap.add_argument("--train-aug", dest="train_aug", default="ledger001",
+                    choices=AUG_RECIPES,
+                    help="train-window recipe (ledger 006): 'ledger001' is "
+                         "the current pipeline bitwise; 'strong' is the "
+                         "pre-registered plate-bias recipe (docs/ledger/"
+                         "006-strong-augmentation.md); 'none' feeds clean "
+                         "train windows")
     ap.add_argument("--features-cache", dest="features_cache",
                     default=str(_ROOT / "data" / "cache"),
                     help="directory for the git-ignored encoder feature "

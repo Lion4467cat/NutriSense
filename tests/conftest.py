@@ -23,3 +23,7 @@ os.environ.setdefault(
 from models import registry as _registry  # noqa: E402
 
 _registry.register("weight_head", lambda: None)
+# Hermetic ingredient head (07e): off-menu seam tests inject their own head
+# through deps={"ingredient_head": ...}; a real data/ingredient_head.pt must
+# never change test behaviour when it lands (ledger 012).
+_registry.register("ingredient_head", lambda: None)

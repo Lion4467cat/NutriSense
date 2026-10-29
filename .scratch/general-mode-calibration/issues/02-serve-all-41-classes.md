@@ -4,10 +4,14 @@
 
 **Blocked by:** 00 (license gate).
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-28 — ledger 003, decision keep; DEV paired delta 0.0)
 
-- [ ] Serving mapping covers all 41 WED classes; a data-level test asserts every WED class resolves
-- [ ] Gallery rebuilt (46 photos/2 classes → 41 classes); LOO evaluation recorded; abstain threshold re-derived and set in params
+- [x] Serving mapping covers all 41 WED classes; a data-level test asserts every WED class resolves
+- [x] Gallery rebuilt (46 photos/2 classes → 41 classes); LOO evaluation recorded; abstain threshold re-derived and set in params
+      (covered by ledger 003 result; ticked 2026-10-29. Recognition-accuracy
+      follow-up with the honest held-out baseline: ledgers 008+009 —
+      gallery argmax 0.8103 per DEV ROI crop, trained heads at parity,
+      serving unchanged)
 - [ ] Ledger entry pre-registered before code, per `docs/ledger/README.md` rules; fresh DEV run after; gate covers how expansion moves DEV metrics (previously-unreachable plates now score)
 - [ ] Existing seam tests (classify abstain, deps injection, learned-head ×5) stay green; no new backend seam
 - [ ] No WED/RASOI image redistribution; data files only

@@ -15,7 +15,8 @@
   "camera": {
     "focal_length_fallback_mm": 4.0,
     "sensor_width_mm": 6.17,
-    "note": "focal from EXIF when present; sensor width is assumed (6.17mm, guessed from EXIF focal 3.98mm / 1/2.55in sensor)"
+    "max_pose_reproj_err_px": 3.0,
+    "note": "Pose camera matrix built from EXIF FocalLengthIn35mmFilm when present; falls back to EXIF focal/sensor width (6.17mm is a guess, up to 58% off real phones) then 4.0mm. max_pose_reproj_err_px rejects degenerate poses (scale is unaffected)."
   },
   "tiers": ["card", "prior"]
 }

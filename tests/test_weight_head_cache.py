@@ -43,6 +43,7 @@ def _args(out_dir: Path, features_cache: str | None) -> argparse.Namespace:
     return argparse.Namespace(
         epochs=2, batch=4, encoder="resnet50", lr=1e-3, seed=42,
         val_frac=0.10, workers=0, skip_test=True,
+        train_aug="ledger001",  # mirrors the CLI default (tools.train_weight_head)
         out=str(out_dir / "weight_head.pt"),
         sigma_out=str(out_dir / "weight_head_sigma.yaml"),
         report_out=str(out_dir / "weight_head_train.json"),

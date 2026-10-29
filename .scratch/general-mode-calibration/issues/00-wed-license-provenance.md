@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-28 — WED dataset carries NO stated license; citation-only posture is our rule; see docs/licenses.md)
 
 - [ ] WED license terms verified from the authors' repository/paper page (not from memory), recorded with URL + access date
 - [ ] RASOI, Nutrition5k, FPB license terms verified and recorded the same way

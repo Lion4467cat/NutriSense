@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 from geo import order_corners, quad_side_lengths, mean_side_px, quad_area, convex_quad
-from geo import camera_matrix, pose_from_marker, plane_to_image_homography
+from geo import camera_matrix, camera_matrix_from_35mm, pose_from_marker, plane_to_image_homography
 from geo import fit_plane
 
 
@@ -54,7 +54,21 @@ def test_pose_from_marker_roundtrip():
     assert abs(out["tilt_deg"] - tilt_true) < 0.05
     assert abs(out["distance_cm"] - np.linalg.norm(t) / 10.0) < 0.1
     assert out["H"].shape == (3, 3)
+    assert out["reproj_err_px"] < 1e-3
     # homography maps plane mm -> image px: check marker corner correspondence
     p = out["H"] @ np.array([-30.0, 30.0, 1.0])
     p = p[:2] / p[2]
     assert np.allclose(p, img[0], atol=0.5)
+
+
+def test_camera_matrix_from_35mm_matches_diamond_convention():
+    # f_px = f35 * diag_px / 43.267, principal point at image centre
+    W, H, f35 = 3000, 4000, 23.0
+    K = camera_matrix_from_35mm(f35, W, H)
+    diag = np.hypot(W, H)
+    f_expected = f35 * diag / 43.267
+    assert abs(K[0, 0] - f_expected) < 1e-6
+    assert K[0, 2] == W / 2 and K[1, 2] == H / 2
+    assert K[0, 0] == K[1, 1]
+    # matches the values cross-checked with real phones (CARD_REPORT v2 Item 2)
+    assert abs(camera_matrix_from_35mm(23.0, 3000, 4000)[0, 0] - 2657.9) < 0.1

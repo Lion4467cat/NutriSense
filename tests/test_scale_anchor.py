@@ -44,6 +44,7 @@ def test_card_tier_recovers_scale():
     assert res["tilt_deg"] is not None and 0 <= res["tilt_deg"] < 60
     assert res["plane_height_interval_mm"] == (0, 50)
     assert res["H"] is not None and res["H"].shape == (3, 3)
+    assert res["extras"]["pose_method"] == "fallback_focal"
 
 
 def test_gold_disc_is_not_an_anchor():
@@ -138,6 +139,29 @@ def test_real_photos_exif_focal_length():
         ex = read_exif(p)
         assert ex["focal_mm"] is not None
         assert abs(ex["focal_mm"] - exp_focal) < 1e-3
+
+
+def test_pose_rejected_when_reproj_error_exceeds_gate(monkeypatch):
+    """A quad that no planar square can project (e.g. a corrupted corner) yields
+    a degenerate pose; the reprojection gate must drop the pose but keep the
+    2D scale, which is independent of K."""
+    import models.scale_anchor as sa
+
+    scene, _ = _card_scene()
+    original_detect = sa._aruco_detect
+
+    def bogus(_gray, marker_id, dict_name):
+        corners = original_detect(_gray, marker_id, dict_name)
+        c = corners[0].copy()
+        c[0] = c[0] + np.array([25.0, 35.0])  # impossible for a planar square
+        return [c]
+
+    monkeypatch.setattr(sa, "_aruco_detect", bogus)
+    res = estimate_anchor(scene)
+    assert res["label"] == "measured"
+    assert res["cm_per_px"] is not None
+    assert res["tilt_deg"] is None and res["H"] is None
+    assert "pose rejected" in res["reason"]
 
 
 def test_config_loads_tiers():

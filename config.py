@@ -19,6 +19,7 @@ PARAMS_PATH = DATA_DIR / "params_status.yaml"
 NUTRIENTS_PATH = DATA_DIR / "nutrients.yaml"
 YIELDS_PATH = DATA_DIR / "conversions.yaml"
 GOALS_PATH = DATA_DIR / "goals_who.yaml"
+DENSITIES_PATH = DATA_DIR / "ingredient_densities.yaml"
 ANCHOR_CONFIG_PATH = DATA_DIR / "anchor_config.json"
 GALLERY_PATH = DATA_DIR / "gallery.npz"
 WED_DISHES_PATH = DATA_DIR / "wed_dishes.yaml"
@@ -84,6 +85,20 @@ def load_goals() -> dict:
         with open(GOALS_PATH) as f:
             _CACHE["goals"] = yaml.safe_load(f)
     return _CACHE["goals"]
+
+
+def load_densities(path=None) -> dict:
+    """Ingredient-state density priors (ticket 07c, FAO/INFOODS-derived).
+    Read-only provenance + audit layer: serving keeps reading density_g_ml
+    from the menu/yaml dish entries; an explicit path bypasses the cache."""
+    p = Path(path) if path is not None else DENSITIES_PATH
+    if path is None:
+        if "densities" not in _CACHE:
+            with open(DENSITIES_PATH) as f:
+                _CACHE["densities"] = yaml.safe_load(f)
+        return _CACHE["densities"]
+    with open(p) as f:
+        return yaml.safe_load(f)
 
 
 def load_anchor_config(path=None) -> dict:
