@@ -59,6 +59,7 @@ Each iteration **must** run the kill switch first:
 | [023 — surface-area integration](023-synthetic-surface-area-integration.md) | Does local pixel-area integration improve exact-mask synthetic estimates? | Candidate rejected; no serving change. |
 | [024 — card position](024-synthetic-card-position-scale.md) | Does card position change measured scale, and does homography reduce spread? | Two-position evidence is promising, but the three-position criterion was not assessable; no serving change. |
 | [025 — card-position replication](025-synthetic-card-position-replication.md) | Does the effect replicate across three fixed placements with all 18 markers detectable? | Preregistered; outcome pending. |
+| [026 — card/food plane-height audit](026-card-food-plane-height-audit.md) | Does projecting the food contour through card height bias its footprint area? | Preregistered oracle geometry audit; outcome pending. |
 
 These are synthetic mechanism diagnostics only. The weighed ArUco plates are
 permanently EVAL-ONLY and are not eligible for tuning or candidate selection.
