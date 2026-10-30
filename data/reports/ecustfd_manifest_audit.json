@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "n_observations": 2978,
+  "n_groups": 160,
+  "rows_by_split": {
+    "test": 490,
+    "train": 1878,
+    "validation": 610
+  },
+  "groups_by_split": {
+    "test": 26,
+    "train": 98,
+    "validation": 36
+  },
+  "cross_split_group_count": 0,
+  "cross_split_image_path_count": 0,
+  "cross_split_exact_image_hash_count": 0,
+  "errors": [],
+  "manifest": "datasets/processed/ecustfd_local_manifest.csv"
+}

@@ -1,0 +1,1048 @@
+{
+  "source": "Nutrition5k-local-subset",
+  "split": "dish-id hash test; 47 dishes planned",
+  "checkpoint_sha256": "3886c5d3ddd99c8159c83b412950af74a01c29bf6efdf3b403dc6673f4dd35ff",
+  "ingredient_table_sha256": "81f807443860db8aa86f69b984ac2ab984f59f6dbafac367cd9fdca805f90a56",
+  "ingredient_nutrition_metadata_sha256": "87a9bbd1fd2e28f09f16305a04946ddbe31eb7d9d03686d7e2fb3d8f19f3effb",
+  "dish_metadata_sha256": "8295a0f03cd8d1921e14d0213b0e08fdb277a9d0b8c1df753ce76c27aab385c7",
+  "device": "cuda",
+  "n_test_dishes_scored": 47,
+  "n_test_dishes_skipped_missing_macro_label_or_image": 0,
+  "n_test_dishes_skipped_missing_ingredient_nutrient_mapping": 0,
+  "nutrient_metrics": {
+    "kcal": {
+      "mae": 2916.463,
+      "bias": 2916.463,
+      "rmse": 2929.014
+    },
+    "fat_g": {
+      "mae": 127.24,
+      "bias": 127.24,
+      "rmse": 128.033
+    },
+    "carbohydrate_g": {
+      "mae": 349.343,
+      "bias": 349.343,
+      "rmse": 350.783
+    },
+    "protein_g": {
+      "mae": 126.724,
+      "bias": 126.724,
+      "rmse": 127.485
+    }
+  },
+  "mass_total_mae_g": 3208.595,
+  "oracle_present_ingredient_nutrient_metrics": {
+    "kcal": {
+      "mae": 116.261,
+      "bias": -74.798,
+      "rmse": 178.598
+    },
+    "fat_g": {
+      "mae": 7.068,
+      "bias": -4.562,
+      "rmse": 11.829
+    },
+    "carbohydrate_g": {
+      "mae": 9.451,
+      "bias": -4.359,
+      "rmse": 14.096
+    },
+    "protein_g": {
+      "mae": 7.273,
+      "bias": -5.399,
+      "rmse": 14.474
+    }
+  },
+  "oracle_present_mass_total_mae_g": 88.262,
+  "warning": "Exploratory Nutrition5k teacher metrics only; candidate failed leave-ingredient-out transfer gates and is not deployed. The full-head metric sums every ingredient slot, including slots whose absence was not supervised, so it exposes the current unusable end-to-end output. Oracle-present metrics use held-out ingredient labels to isolate portion/density error and are not deployable estimates. Do not compare these values with WED school-mode outputs.",
+  "per_dish": [
+    {
+      "dish_id": "dish_1556575558",
+      "predicted": {
+        "kcal": 3030.0262587378625,
+        "fat_g": 133.09269908630847,
+        "carbohydrate_g": 361.8590131124556,
+        "protein_g": 132.28690856266024
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 4.9550564575195315,
+        "fat_g": 0.061938205718994145,
+        "carbohydrate_g": 1.0529494972229005,
+        "protein_g": 0.2167837200164795
+      },
+      "ground_truth": {
+        "kcal": 103.300003,
+        "fat_g": 6.882,
+        "carbohydrate_g": 10.618,
+        "protein_g": 2.868
+      }
+    },
+    {
+      "dish_id": "dish_1557937079",
+      "predicted": {
+        "kcal": 2805.798600481152,
+        "fat_g": 125.30065902036432,
+        "carbohydrate_g": 328.879594685346,
+        "protein_g": 123.35216673597695
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 81.69403061866761,
+        "fat_g": 6.342235279083252,
+        "carbohydrate_g": 0.2114078426361084,
+        "protein_g": 5.587207269668579
+      },
+      "ground_truth": {
+        "kcal": 146.069992,
+        "fat_g": 11.339999,
+        "carbohydrate_g": 0.378,
+        "protein_g": 9.99
+      }
+    },
+    {
+      "dish_id": "dish_1557937335",
+      "predicted": {
+        "kcal": 3248.1044444410204,
+        "fat_g": 141.91765579363707,
+        "carbohydrate_g": 388.0751294282228,
+        "protein_g": 142.39273639945685
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 112.78721775817873,
+        "fat_g": 0.18176828002929687,
+        "carbohydrate_g": 26.71993716430664,
+        "protein_g": 1.454146240234375
+      },
+      "ground_truth": {
+        "kcal": 47.158001,
+        "fat_g": 0.076,
+        "carbohydrate_g": 11.172,
+        "protein_g": 0.608
+      }
+    },
+    {
+      "dish_id": "dish_1558028606",
+      "predicted": {
+        "kcal": 2831.9406870709063,
+        "fat_g": 124.51278150886299,
+        "carbohydrate_g": 337.14627977496383,
+        "protein_g": 124.10299592047929
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 130.02165161132814,
+        "fat_g": 0.1398082275390625,
+        "carbohydrate_g": 29.359727783203123,
+        "protein_g": 3.4952056884765628
+      },
+      "ground_truth": {
+        "kcal": 19.5,
+        "fat_g": 0.065,
+        "carbohydrate_g": 4.94,
+        "protein_g": 0.39
+      }
+    },
+    {
+      "dish_id": "dish_1558110385",
+      "predicted": {
+        "kcal": 3087.228975446254,
+        "fat_g": 137.43772915056348,
+        "carbohydrate_g": 359.0670415926575,
+        "protein_g": 138.2233444141448
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 236.50250686645506,
+        "fat_g": 15.969622650146484,
+        "carbohydrate_g": 1.8250997314453126,
+        "protein_g": 19.011455535888672
+      },
+      "ground_truth": {
+        "kcal": 52.869999,
+        "fat_g": 3.57,
+        "carbohydrate_g": 0.408,
+        "protein_g": 4.25
+      }
+    },
+    {
+      "dish_id": "dish_1558113304",
+      "predicted": {
+        "kcal": 3181.644353384197,
+        "fat_g": 139.7134165699482,
+        "carbohydrate_g": 379.29624305751923,
+        "protein_g": 139.32263382273914
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 82.24879280090332,
+        "fat_g": 0.23840229797363283,
+        "carbohydrate_g": 21.456206817626953,
+        "protein_g": 0.8344080429077149
+      },
+      "ground_truth": {
+        "kcal": 247.070999,
+        "fat_g": 15.633,
+        "carbohydrate_g": 23.957001,
+        "protein_g": 8.042
+      }
+    },
+    {
+      "dish_id": "dish_1558114086",
+      "predicted": {
+        "kcal": 2820.979579166874,
+        "fat_g": 125.59572030054032,
+        "carbohydrate_g": 328.8702638108433,
+        "protein_g": 125.89167621944846
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 133.1019076538086,
+        "fat_g": 0.14312033081054687,
+        "carbohydrate_g": 30.055269470214842,
+        "protein_g": 3.578008270263672
+      },
+      "ground_truth": {
+        "kcal": 74.360001,
+        "fat_g": 0.286,
+        "carbohydrate_g": 0.429,
+        "protein_g": 20.02
+      }
+    },
+    {
+      "dish_id": "dish_1558115601",
+      "predicted": {
+        "kcal": 3181.687163499505,
+        "fat_g": 141.18672223374244,
+        "carbohydrate_g": 371.6978341269195,
+        "protein_g": 141.9215320887864
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 85.96456192016602,
+        "fat_g": 0.11164228820800781,
+        "carbohydrate_g": 18.97918899536133,
+        "protein_g": 2.2328457641601562
+      },
+      "ground_truth": {
+        "kcal": 85.470001,
+        "fat_g": 0.111,
+        "carbohydrate_g": 18.870001,
+        "protein_g": 2.22
+      }
+    },
+    {
+      "dish_id": "dish_1558116399",
+      "predicted": {
+        "kcal": 3262.2662894143004,
+        "fat_g": 145.2094518436343,
+        "carbohydrate_g": 380.2735573546589,
+        "protein_g": 145.7880696454197
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 4.873198852539063,
+        "fat_g": 0.06961712646484375,
+        "carbohydrate_g": 0.9224269256591796,
+        "protein_g": 0.3828941955566406
+      },
+      "ground_truth": {
+        "kcal": 7.0,
+        "fat_g": 0.1,
+        "carbohydrate_g": 1.325,
+        "protein_g": 0.55
+      }
+    },
+    {
+      "dish_id": "dish_1558379128",
+      "predicted": {
+        "kcal": 2975.0946072574247,
+        "fat_g": 130.8570564534664,
+        "carbohydrate_g": 350.49700121340146,
+        "protein_g": 132.84372822487353
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 73.42828788757323,
+        "fat_g": 0.2128356170654297,
+        "carbohydrate_g": 19.155205535888673,
+        "protein_g": 0.7449246597290039
+      },
+      "ground_truth": {
+        "kcal": 36.57,
+        "fat_g": 0.106,
+        "carbohydrate_g": 9.54,
+        "protein_g": 0.371
+      }
+    },
+    {
+      "dish_id": "dish_1558381860",
+      "predicted": {
+        "kcal": 2786.1183767986295,
+        "fat_g": 123.40664018595221,
+        "carbohydrate_g": 326.98062685304876,
+        "protein_g": 124.05994914448264
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 85.06386718750001,
+        "fat_g": 7.9747375488281245,
+        "carbohydrate_g": 4.784842529296875,
+        "protein_g": 1.06329833984375
+      },
+      "ground_truth": {
+        "kcal": 94.400002,
+        "fat_g": 8.85,
+        "carbohydrate_g": 5.31,
+        "protein_g": 1.18
+      }
+    },
+    {
+      "dish_id": "dish_1558459528",
+      "predicted": {
+        "kcal": 2846.747665093125,
+        "fat_g": 125.73206084525587,
+        "carbohydrate_g": 334.56829982814185,
+        "protein_g": 126.73405610245467
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 16.257491455078124,
+        "fat_g": 0.18063879394531251,
+        "carbohydrate_g": 3.522456481933594,
+        "protein_g": 0.8128745727539062
+      },
+      "ground_truth": {
+        "kcal": 11.52,
+        "fat_g": 0.128,
+        "carbohydrate_g": 2.496,
+        "protein_g": 0.576
+      }
+    },
+    {
+      "dish_id": "dish_1558550218",
+      "predicted": {
+        "kcal": 2595.5703170388933,
+        "fat_g": 112.40838333356382,
+        "carbohydrate_g": 313.68979511904706,
+        "protein_g": 113.1942293407917
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 305.5372424583435,
+        "fat_g": 26.161725482940675,
+        "carbohydrate_g": 11.997397342681886,
+        "protein_g": 11.838841430664063
+      },
+      "ground_truth": {
+        "kcal": 230.001999,
+        "fat_g": 11.258,
+        "carbohydrate_g": 32.433998,
+        "protein_g": 5.648
+      }
+    },
+    {
+      "dish_id": "dish_1558635865",
+      "predicted": {
+        "kcal": 2926.84695110023,
+        "fat_g": 128.85649179816244,
+        "carbohydrate_g": 348.1796754431129,
+        "protein_g": 128.0426810378432
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 106.85368138885498,
+        "fat_g": 2.4170484008789064,
+        "carbohydrate_g": 22.15627700805664,
+        "protein_g": 3.122020851135254
+      },
+      "ground_truth": {
+        "kcal": 20.159,
+        "fat_g": 0.456,
+        "carbohydrate_g": 4.18,
+        "protein_g": 0.589
+      }
+    },
+    {
+      "dish_id": "dish_1558637247",
+      "predicted": {
+        "kcal": 2702.45783400789,
+        "fat_g": 118.7950262889564,
+        "carbohydrate_g": 321.78868562266223,
+        "protein_g": 118.26432345440985
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 102.8354612045288,
+        "fat_g": 2.3261555786132813,
+        "carbohydrate_g": 21.323092803955078,
+        "protein_g": 3.004617622375488
+      },
+      "ground_truth": {
+        "kcal": 117.770996,
+        "fat_g": 2.664,
+        "carbohydrate_g": 24.42,
+        "protein_g": 3.441
+      }
+    },
+    {
+      "dish_id": "dish_1558639662",
+      "predicted": {
+        "kcal": 3129.1481831394426,
+        "fat_g": 136.96302200627323,
+        "carbohydrate_g": 374.05521714383354,
+        "protein_g": 136.91599511098863
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 19.12241271972656,
+        "fat_g": 0.21247125244140624,
+        "carbohydrate_g": 4.1431894226074215,
+        "protein_g": 0.956120635986328
+      },
+      "ground_truth": {
+        "kcal": 16.02,
+        "fat_g": 0.178,
+        "carbohydrate_g": 3.471,
+        "protein_g": 0.801
+      }
+    },
+    {
+      "dish_id": "dish_1558641164",
+      "predicted": {
+        "kcal": 2858.324021998613,
+        "fat_g": 126.07839956161381,
+        "carbohydrate_g": 339.75747464925047,
+        "protein_g": 124.84425887963178
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 78.44670043945312,
+        "fat_g": 0.30171807861328126,
+        "carbohydrate_g": 21.12026550292969,
+        "protein_g": 0.4525771179199219
+      },
+      "ground_truth": {
+        "kcal": 80.079994,
+        "fat_g": 0.308,
+        "carbohydrate_g": 21.559999,
+        "protein_g": 0.462
+      }
+    },
+    {
+      "dish_id": "dish_1558641253",
+      "predicted": {
+        "kcal": 2959.508834028511,
+        "fat_g": 130.26033960959322,
+        "carbohydrate_g": 352.2155482229291,
+        "protein_g": 129.4330639602244
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 115.97246771240233,
+        "fat_g": 2.62331689453125,
+        "carbohydrate_g": 24.047071533203127,
+        "protein_g": 3.3884509887695313
+      },
+      "ground_truth": {
+        "kcal": 116.709999,
+        "fat_g": 2.64,
+        "carbohydrate_g": 24.200001,
+        "protein_g": 3.41
+      }
+    },
+    {
+      "dish_id": "dish_1558718680",
+      "predicted": {
+        "kcal": 2973.198659162878,
+        "fat_g": 130.34416559199985,
+        "carbohydrate_g": 355.03975084691507,
+        "protein_g": 130.49362211489677
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 359.0271278686523,
+        "fat_g": 30.741814270019532,
+        "carbohydrate_g": 14.097761291503907,
+        "protein_g": 13.911447265625
+      },
+      "ground_truth": {
+        "kcal": 132.962997,
+        "fat_g": 11.385,
+        "carbohydrate_g": 5.221,
+        "protein_g": 5.152
+      }
+    },
+    {
+      "dish_id": "dish_1558719336",
+      "predicted": {
+        "kcal": 3209.533966041387,
+        "fat_g": 141.78251238256692,
+        "carbohydrate_g": 379.83974641799927,
+        "protein_g": 141.27992377650745
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 17.385643005371094,
+        "fat_g": 0.20862771606445313,
+        "carbohydrate_g": 3.477128601074219,
+        "protein_g": 1.2517662963867187
+      },
+      "ground_truth": {
+        "kcal": 24.25,
+        "fat_g": 0.291,
+        "carbohydrate_g": 4.85,
+        "protein_g": 1.746
+      }
+    },
+    {
+      "dish_id": "dish_1558719514",
+      "predicted": {
+        "kcal": 2851.367181597143,
+        "fat_g": 123.39085341946785,
+        "carbohydrate_g": 344.13165927300616,
+        "protein_g": 124.90440837436913
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 323.69723123931885,
+        "fat_g": 27.71668041229248,
+        "carbohydrate_g": 12.710477684020997,
+        "protein_g": 12.542497802734376
+      },
+      "ground_truth": {
+        "kcal": 433.285004,
+        "fat_g": 24.713001,
+        "carbohydrate_g": 49.695995,
+        "protein_g": 14.859
+      }
+    },
+    {
+      "dish_id": "dish_1558721533",
+      "predicted": {
+        "kcal": 2952.4892288373126,
+        "fat_g": 129.8330451025367,
+        "carbohydrate_g": 352.0928301026224,
+        "protein_g": 128.76843415838476
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 31.23288269042969,
+        "fat_g": 0.18372283935546876,
+        "carbohydrate_g": 7.34891357421875,
+        "protein_g": 0.7348913574218751
+      },
+      "ground_truth": {
+        "kcal": 18.700001,
+        "fat_g": 0.11,
+        "carbohydrate_g": 4.4,
+        "protein_g": 0.44
+      }
+    },
+    {
+      "dish_id": "dish_1558722685",
+      "predicted": {
+        "kcal": 2866.562158996165,
+        "fat_g": 125.91498216837643,
+        "carbohydrate_g": 342.3204369167686,
+        "protein_g": 125.07612220424413
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 29.902970428466798,
+        "fat_g": 0.1758998260498047,
+        "carbohydrate_g": 7.035993041992188,
+        "protein_g": 0.7035993041992188
+      },
+      "ground_truth": {
+        "kcal": 25.84,
+        "fat_g": 0.152,
+        "carbohydrate_g": 6.08,
+        "protein_g": 0.608
+      }
+    },
+    {
+      "dish_id": "dish_1558722871",
+      "predicted": {
+        "kcal": 3031.6280828968884,
+        "fat_g": 133.48913611745832,
+        "carbohydrate_g": 359.7362203980983,
+        "protein_g": 133.24827654904126
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 16.44870948791504,
+        "fat_g": 0.1973845138549805,
+        "carbohydrate_g": 3.289741897583008,
+        "protein_g": 1.1843070831298828
+      },
+      "ground_truth": {
+        "kcal": 15.0,
+        "fat_g": 0.18,
+        "carbohydrate_g": 3.0,
+        "protein_g": 1.08
+      }
+    },
+    {
+      "dish_id": "dish_1558723073",
+      "predicted": {
+        "kcal": 2928.18913278252,
+        "fat_g": 127.67240480405093,
+        "carbohydrate_g": 351.6277905130386,
+        "protein_g": 128.03942637872697
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 18.100785827636717,
+        "fat_g": 0.20111984252929688,
+        "carbohydrate_g": 3.921836929321289,
+        "protein_g": 0.9050392913818359
+      },
+      "ground_truth": {
+        "kcal": 16.200001,
+        "fat_g": 0.18,
+        "carbohydrate_g": 3.51,
+        "protein_g": 0.81
+      }
+    },
+    {
+      "dish_id": "dish_1558723537",
+      "predicted": {
+        "kcal": 2882.8094184087518,
+        "fat_g": 127.23126976954933,
+        "carbohydrate_g": 342.0315065722466,
+        "protein_g": 126.33870455443859
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 15.049361228942871,
+        "fat_g": 0.18059233474731445,
+        "carbohydrate_g": 3.0098722457885745,
+        "protein_g": 1.0835540084838866
+      },
+      "ground_truth": {
+        "kcal": 14.5,
+        "fat_g": 0.174,
+        "carbohydrate_g": 2.9,
+        "protein_g": 1.044
+      }
+    },
+    {
+      "dish_id": "dish_1558723982",
+      "predicted": {
+        "kcal": 3123.7307519414435,
+        "fat_g": 137.09878841380774,
+        "carbohydrate_g": 372.36858580433574,
+        "protein_g": 137.2075517356098
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 371.0165104522705,
+        "fat_g": 31.7684090423584,
+        "carbohydrate_g": 14.56854313659668,
+        "protein_g": 14.376007324218751
+      },
+      "ground_truth": {
+        "kcal": 294.830994,
+        "fat_g": 25.245001,
+        "carbohydrate_g": 11.577,
+        "protein_g": 11.424001
+      }
+    },
+    {
+      "dish_id": "dish_1558724633",
+      "predicted": {
+        "kcal": 3509.190376428425,
+        "fat_g": 155.5289818867743,
+        "carbohydrate_g": 414.54584013520184,
+        "protein_g": 154.22085684299464
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 19.091274070739743,
+        "fat_g": 0.21818598937988282,
+        "carbohydrate_g": 3.8182548141479495,
+        "protein_g": 1.309115936279297
+      },
+      "ground_truth": {
+        "kcal": 32.899998,
+        "fat_g": 0.376,
+        "carbohydrate_g": 6.58,
+        "protein_g": 2.256
+      }
+    },
+    {
+      "dish_id": "dish_1558725621",
+      "predicted": {
+        "kcal": 3077.2138297740216,
+        "fat_g": 134.54326527814564,
+        "carbohydrate_g": 367.30989648097017,
+        "protein_g": 135.69933356806635
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 48.274054718017574,
+        "fat_g": 0.3367957305908203,
+        "carbohydrate_g": 10.103871917724609,
+        "protein_g": 3.817018280029297
+      },
+      "ground_truth": {
+        "kcal": 349.220032,
+        "fat_g": 25.268999,
+        "carbohydrate_g": 23.760002,
+        "protein_g": 15.818001
+      }
+    },
+    {
+      "dish_id": "dish_1558725734",
+      "predicted": {
+        "kcal": 2946.7567905542555,
+        "fat_g": 130.45999962592123,
+        "carbohydrate_g": 349.1727478035839,
+        "protein_g": 128.95498151531814
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 29.946222076416014,
+        "fat_g": 0.14607913208007814,
+        "carbohydrate_g": 7.303956604003907,
+        "protein_g": 0.6573560943603515
+      },
+      "ground_truth": {
+        "kcal": 30.75,
+        "fat_g": 0.15,
+        "carbohydrate_g": 7.5,
+        "protein_g": 0.675
+      }
+    },
+    {
+      "dish_id": "dish_1559751775",
+      "predicted": {
+        "kcal": 3053.124295461297,
+        "fat_g": 133.61445125740767,
+        "carbohydrate_g": 363.5140970982612,
+        "protein_g": 134.63872914251684
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 48.55589218139648,
+        "fat_g": 0.25555732727050784,
+        "carbohydrate_g": 11.926008605957032,
+        "protein_g": 0.5963004302978516
+      },
+      "ground_truth": {
+        "kcal": 309.235992,
+        "fat_g": 13.139999,
+        "carbohydrate_g": 30.107998,
+        "protein_g": 16.768
+      }
+    },
+    {
+      "dish_id": "dish_1559841891",
+      "predicted": {
+        "kcal": 2690.897279448137,
+        "fat_g": 113.95804632364214,
+        "carbohydrate_g": 331.13868554225564,
+        "protein_g": 116.97230769814553
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 77.69721542358398,
+        "fat_g": 0.2252093200683594,
+        "carbohydrate_g": 20.268838806152342,
+        "protein_g": 0.7882326202392578
+      },
+      "ground_truth": {
+        "kcal": 163.962006,
+        "fat_g": 0.343,
+        "carbohydrate_g": 43.332001,
+        "protein_g": 1.301
+      }
+    },
+    {
+      "dish_id": "dish_1559849466",
+      "predicted": {
+        "kcal": 2623.0398023387793,
+        "fat_g": 111.65872987273332,
+        "carbohydrate_g": 321.2612173321097,
+        "protein_g": 114.46953822399674
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 109.70425146484374,
+        "fat_g": 0.19179064941406251,
+        "carbohydrate_g": 29.1521787109375,
+        "protein_g": 0.7671625976562501
+      },
+      "ground_truth": {
+        "kcal": 467.613037,
+        "fat_g": 30.396,
+        "carbohydrate_g": 44.398998,
+        "protein_g": 14.468
+      }
+    },
+    {
+      "dish_id": "dish_1560360112",
+      "predicted": {
+        "kcal": 2985.4488103457984,
+        "fat_g": 128.67731896397473,
+        "carbohydrate_g": 360.5619784462154,
+        "protein_g": 131.25101936376095
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 48.2202074432373,
+        "fat_g": 0.25379056549072265,
+        "carbohydrate_g": 11.843559722900391,
+        "protein_g": 0.5921779861450196
+      },
+      "ground_truth": {
+        "kcal": 401.494019,
+        "fat_g": 27.991001,
+        "carbohydrate_g": 13.674002,
+        "protein_g": 23.033001
+      }
+    },
+    {
+      "dish_id": "dish_1560369146",
+      "predicted": {
+        "kcal": 3580.9239376007317,
+        "fat_g": 160.82899587011337,
+        "carbohydrate_g": 415.49748302596805,
+        "protein_g": 160.31477473264934
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 21.527263641357422,
+        "fat_g": 0.2391918182373047,
+        "carbohydrate_g": 4.664240455627441,
+        "protein_g": 1.076363182067871
+      },
+      "ground_truth": {
+        "kcal": 474.832947,
+        "fat_g": 28.112362,
+        "carbohydrate_g": 16.167395,
+        "protein_g": 39.061409
+      }
+    },
+    {
+      "dish_id": "dish_1560369403",
+      "predicted": {
+        "kcal": 3465.151006782949,
+        "fat_g": 155.8088328452707,
+        "carbohydrate_g": 400.1037817906739,
+        "protein_g": 155.9608468304872
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 0.1241026520729065,
+        "fat_g": 0.001241026520729065,
+        "carbohydrate_g": 0.020476937592029572,
+        "protein_g": 0.009307698905467987
+      },
+      "ground_truth": {
+        "kcal": 411.967804,
+        "fat_g": 30.986551,
+        "carbohydrate_g": 28.932995,
+        "protein_g": 43.259884
+      }
+    },
+    {
+      "dish_id": "dish_1560370114",
+      "predicted": {
+        "kcal": 3203.5317844614387,
+        "fat_g": 144.6266566162706,
+        "carbohydrate_g": 373.28835612267255,
+        "protein_g": 140.48583037602904
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 9.555219177246093,
+        "fat_g": 0.04683930969238281,
+        "carbohydrate_g": 1.8267330780029296,
+        "protein_g": 1.030464813232422
+      },
+      "ground_truth": {
+        "kcal": 7.956,
+        "fat_g": 0.039,
+        "carbohydrate_g": 1.521,
+        "protein_g": 0.858
+      }
+    },
+    {
+      "dish_id": "dish_1560442258",
+      "predicted": {
+        "kcal": 3301.505165259779,
+        "fat_g": 144.77184515687824,
+        "carbohydrate_g": 394.4864935351164,
+        "protein_g": 144.45769848684964
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 101.98996620178222,
+        "fat_g": 7.917890167236328,
+        "carbohydrate_g": 0.26392967224121094,
+        "protein_g": 6.975284194946289
+      },
+      "ground_truth": {
+        "kcal": 289.369995,
+        "fat_g": 16.400999,
+        "carbohydrate_g": 21.112,
+        "protein_g": 15.089001
+      }
+    },
+    {
+      "dish_id": "dish_1560444724",
+      "predicted": {
+        "kcal": 3123.4635837787396,
+        "fat_g": 138.52849165952205,
+        "carbohydrate_g": 370.59942180562024,
+        "protein_g": 136.04265896904474
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 23.769303131103516,
+        "fat_g": 0.15846202087402345,
+        "carbohydrate_g": 6.02155679321289,
+        "protein_g": 0.47538606262207034
+      },
+      "ground_truth": {
+        "kcal": 113.280006,
+        "fat_g": 0.513,
+        "carbohydrate_g": 28.49,
+        "protein_g": 1.885
+      }
+    },
+    {
+      "dish_id": "dish_1560453150",
+      "predicted": {
+        "kcal": 3666.6118303813923,
+        "fat_g": 162.98589096653464,
+        "carbohydrate_g": 432.77138727122554,
+        "protein_g": 161.4189242153764
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 0.0,
+        "fat_g": 0.0,
+        "carbohydrate_g": 0.0,
+        "protein_g": 0.0
+      },
+      "ground_truth": {
+        "kcal": 152.320267,
+        "fat_g": 12.962943,
+        "carbohydrate_g": 8.12033,
+        "protein_g": 3.441845
+      }
+    },
+    {
+      "dish_id": "dish_1560455000",
+      "predicted": {
+        "kcal": 3125.360438260018,
+        "fat_g": 137.97276794046164,
+        "carbohydrate_g": 373.48598373758796,
+        "protein_g": 135.11568195229768
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 18.174103088378907,
+        "fat_g": 0.20193447875976564,
+        "carbohydrate_g": 3.9377223358154296,
+        "protein_g": 0.9087051544189453
+      },
+      "ground_truth": {
+        "kcal": 12.800001,
+        "fat_g": 0.11,
+        "carbohydrate_g": 2.725,
+        "protein_g": 0.785
+      }
+    },
+    {
+      "dish_id": "dish_1560455179",
+      "predicted": {
+        "kcal": 3176.90593973738,
+        "fat_g": 141.43787203496692,
+        "carbohydrate_g": 375.2738211851717,
+        "protein_g": 139.08979737377166
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 33.10107498168945,
+        "fat_g": 0.16146865844726563,
+        "carbohydrate_g": 8.073432922363281,
+        "protein_g": 0.7266089630126953
+      },
+      "ground_truth": {
+        "kcal": 103.320847,
+        "fat_g": 5.987522,
+        "carbohydrate_g": 12.081323,
+        "protein_g": 1.908316
+      }
+    },
+    {
+      "dish_id": "dish_1560526530",
+      "predicted": {
+        "kcal": 3687.6655546824636,
+        "fat_g": 164.11422339567542,
+        "carbohydrate_g": 434.66513521063325,
+        "protein_g": 162.28281832221154
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 64.09012298583984,
+        "fat_g": 0.3373164367675781,
+        "carbohydrate_g": 15.741433715820314,
+        "protein_g": 0.7870716857910156
+      },
+      "ground_truth": {
+        "kcal": 245.280746,
+        "fat_g": 13.31213,
+        "carbohydrate_g": 26.787249,
+        "protein_g": 6.892025
+      }
+    },
+    {
+      "dish_id": "dish_1560527168",
+      "predicted": {
+        "kcal": 3587.2169629690356,
+        "fat_g": 158.68773273530599,
+        "carbohydrate_g": 423.52880867305396,
+        "protein_g": 158.62454956579208
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 42.238214111328126,
+        "fat_g": 0.8696102905273437,
+        "carbohydrate_g": 8.447642822265626,
+        "protein_g": 0.8696102905273437
+      },
+      "ground_truth": {
+        "kcal": 322.835297,
+        "fat_g": 18.368912,
+        "carbohydrate_g": 24.775576,
+        "protein_g": 15.273438
+      }
+    },
+    {
+      "dish_id": "dish_1560541793",
+      "predicted": {
+        "kcal": 3325.374734621197,
+        "fat_g": 146.20376230362058,
+        "carbohydrate_g": 393.35457940006256,
+        "protein_g": 148.33916882589452
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 33.31122062683105,
+        "fat_g": 0.16249375915527345,
+        "carbohydrate_g": 8.124687957763673,
+        "protein_g": 0.7312219161987304
+      },
+      "ground_truth": {
+        "kcal": 509.826233,
+        "fat_g": 17.805128,
+        "carbohydrate_g": 22.27054,
+        "protein_g": 64.406372
+      }
+    },
+    {
+      "dish_id": "dish_1560788338",
+      "predicted": {
+        "kcal": 3039.4078563411535,
+        "fat_g": 135.56684030416608,
+        "carbohydrate_g": 354.72709549802534,
+        "protein_g": 134.93145947900413
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 89.99161640930176,
+        "fat_g": 0.6111484985351563,
+        "carbohydrate_g": 5.500336486816406,
+        "protein_g": 15.278712463378907
+      },
+      "ground_truth": {
+        "kcal": 71.268997,
+        "fat_g": 0.484,
+        "carbohydrate_g": 4.356,
+        "protein_g": 12.1
+      }
+    },
+    {
+      "dish_id": "dish_1560798744",
+      "predicted": {
+        "kcal": 3164.9389253484906,
+        "fat_g": 140.20891607126595,
+        "carbohydrate_g": 371.2952336953878,
+        "protein_g": 140.9802065927685
+      },
+      "oracle_present_ingredient_predicted": {
+        "kcal": 16.584712028503418,
+        "fat_g": 0.18953956604003908,
+        "carbohydrate_g": 3.3169424057006838,
+        "protein_g": 1.1372373962402345
+      },
+      "ground_truth": {
+        "kcal": 357.152008,
+        "fat_g": 14.164,
+        "carbohydrate_g": 39.889,
+        "protein_g": 19.320002
+      }
+    }
+  ]
+}

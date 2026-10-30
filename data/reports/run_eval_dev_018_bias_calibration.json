@@ -1,0 +1,140 @@
+{
+  "tier": "dev",
+  "split": "WED 10% train-plate carve; same carve used for epoch selection",
+  "n_plates": 21,
+  "n_samples": 1218,
+  "baseline": {
+    "n": 1218,
+    "mae_g": 15.0338,
+    "mean_bias_g": -1.125,
+    "rmse_g": 26.4603,
+    "mape_pct": 18.301
+  },
+  "cross_fitted_candidate": {
+    "n": 1218,
+    "mae_g": 15.1868,
+    "mean_bias_g": -2.5298,
+    "rmse_g": 26.5054,
+    "mape_pct": 17.899
+  },
+  "paired_mae_change_g_candidate_minus_baseline": 0.153,
+  "paired_plate_bootstrap_95ci_g": [
+    -0.3958,
+    0.7354
+  ],
+  "baseline_coverage_90": 0.8522,
+  "candidate_coverage_90": 0.8465,
+  "portion_size_bands": {
+    "lt_50g": {
+      "baseline": {
+        "n": 313,
+        "mae_g": 6.2242,
+        "mean_bias_g": 4.2839,
+        "rmse_g": 9.0432,
+        "mape_pct": 27.414
+      },
+      "candidate": {
+        "n": 313,
+        "mae_g": 5.9573,
+        "mean_bias_g": 3.2211,
+        "rmse_g": 8.8069,
+        "mape_pct": 25.582
+      }
+    },
+    "50_to_lt_100g": {
+      "baseline": {
+        "n": 333,
+        "mae_g": 14.8692,
+        "mean_bias_g": 4.2397,
+        "rmse_g": 21.2427,
+        "mape_pct": 20.829
+      },
+      "candidate": {
+        "n": 333,
+        "mae_g": 14.4519,
+        "mean_bias_g": 1.837,
+        "rmse_g": 20.2548,
+        "mape_pct": 20.457
+      }
+    },
+    "100_to_lt_200g": {
+      "baseline": {
+        "n": 467,
+        "mae_g": 14.5733,
+        "mean_bias_g": -1.0118,
+        "rmse_g": 20.9514,
+        "mape_pct": 10.683
+      },
+      "candidate": {
+        "n": 467,
+        "mae_g": 15.1585,
+        "mean_bias_g": -1.589,
+        "rmse_g": 21.0143,
+        "mape_pct": 11.034
+      }
+    },
+    "ge_200g": {
+      "baseline": {
+        "n": 105,
+        "mae_g": 43.8653,
+        "mean_bias_g": -34.7657,
+        "rmse_g": 67.0409,
+        "mape_pct": 17.004
+      },
+      "candidate": {
+        "n": 105,
+        "mae_g": 45.1563,
+        "mean_bias_g": -37.7071,
+        "rmse_g": 68.213,
+        "mape_pct": 17.416
+      }
+    }
+  },
+  "procedure": {
+    "method": "leave-one-plate-out median of per-plate mean signed food residual",
+    "minimum_other_plate_support": 5,
+    "food_classes": 38,
+    "cross_fitted_plate_support": {
+      "Banana": 8,
+      "Muskmelon": 2,
+      "Papaya": 4,
+      "Watermelon": 7,
+      "aloo-capsicum": 3,
+      "aloo-curry": 3,
+      "aloo-fry": 2,
+      "beans-curry": 7,
+      "beetroot-kobari": 5,
+      "beetroot-poriyal": 2,
+      "bisi-bele-bath": 2,
+      "boondi": 2,
+      "cabbage-dry": 4,
+      "channa-brinjal": 5,
+      "chicken-dum-biryani": 3,
+      "chutney": 12,
+      "curd": 21,
+      "dondakaya-fry": 2,
+      "kakarakaya-fry": 2,
+      "kofta-curry": 7,
+      "leaf-dal": 2,
+      "mango-pickle": 7,
+      "mirchi-ka-salan": 3,
+      "muddha-pappu": 2,
+      "non-spicy-curry": 7,
+      "non-spicy-dal": 15,
+      "pachi-pulusu": 7,
+      "papad": 12,
+      "payasam": 2,
+      "phulka": 13,
+      "raita": 3,
+      "rajma": 4,
+      "salad": 21,
+      "sambar": 9,
+      "steamed-rice": 21,
+      "tomato-pappu": 5,
+      "veg-dum-briyani": 3,
+      "veg-pulao": 4
+    }
+  },
+  "checkpoint_sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1",
+  "warning": "DEV was used for epoch selection; this cross-fit prevents direct calibration leakage per plate but is tuning evidence, not an independent generalization estimate."
+}

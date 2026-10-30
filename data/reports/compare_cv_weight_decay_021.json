@@ -1,0 +1,283 @@
+{
+  "protocol": "paired outer-CV plate bootstrap",
+  "baseline_tag": "wd1e-4",
+  "candidate_tag": "wd1e-3",
+  "n_outer_plates": 198,
+  "n_outer_rois": 11759,
+  "baseline_weighted_mae_g": 16.421,
+  "candidate_weighted_mae_g": 16.274,
+  "paired_delta_mae_g": -0.148,
+  "paired_delta_plate_bootstrap_95ci_g": [
+    -0.281,
+    -0.016
+  ],
+  "baseline_mean_abs_plate_total_error_g": 364.698,
+  "candidate_mean_abs_plate_total_error_g": 354.561,
+  "baseline_signed_bias_g": -0.942,
+  "candidate_signed_bias_g": -1.11,
+  "high_support_class_regressions_over_10pct": [
+    "boondi"
+  ],
+  "class_metrics": {
+    "Banana": {
+      "n_rois": 289,
+      "baseline_mae_g": 7.744,
+      "candidate_mae_g": 7.912,
+      "relative_change_pct": 2.169
+    },
+    "Bottle-gourd-curry": {
+      "n_rois": 102,
+      "baseline_mae_g": 21.962,
+      "candidate_mae_g": 20.32,
+      "relative_change_pct": -7.476
+    },
+    "Muskmelon": {
+      "n_rois": 88,
+      "baseline_mae_g": 14.098,
+      "candidate_mae_g": 13.186,
+      "relative_change_pct": -6.465
+    },
+    "Papaya": {
+      "n_rois": 184,
+      "baseline_mae_g": 14.159,
+      "candidate_mae_g": 14.057,
+      "relative_change_pct": -0.723
+    },
+    "Watermelon": {
+      "n_rois": 450,
+      "baseline_mae_g": 21.582,
+      "candidate_mae_g": 21.045,
+      "relative_change_pct": -2.485
+    },
+    "aloo-capsicum": {
+      "n_rois": 84,
+      "baseline_mae_g": 10.569,
+      "candidate_mae_g": 9.434,
+      "relative_change_pct": -10.743
+    },
+    "aloo-curry": {
+      "n_rois": 85,
+      "baseline_mae_g": 21.289,
+      "candidate_mae_g": 21.548,
+      "relative_change_pct": 1.214
+    },
+    "aloo-fry": {
+      "n_rois": 202,
+      "baseline_mae_g": 7.986,
+      "candidate_mae_g": 8.272,
+      "relative_change_pct": 3.572
+    },
+    "beans-curry": {
+      "n_rois": 213,
+      "baseline_mae_g": 16.821,
+      "candidate_mae_g": 16.881,
+      "relative_change_pct": 0.356
+    },
+    "beetroot-kobari": {
+      "n_rois": 210,
+      "baseline_mae_g": 14.024,
+      "candidate_mae_g": 14.202,
+      "relative_change_pct": 1.269
+    },
+    "beetroot-poriyal": {
+      "n_rois": 133,
+      "baseline_mae_g": 15.19,
+      "candidate_mae_g": 13.451,
+      "relative_change_pct": -11.446
+    },
+    "bisi-bele-bath": {
+      "n_rois": 69,
+      "baseline_mae_g": 7.487,
+      "candidate_mae_g": 7.035,
+      "relative_change_pct": -6.035
+    },
+    "boondi": {
+      "n_rois": 62,
+      "baseline_mae_g": 3.752,
+      "candidate_mae_g": 5.22,
+      "relative_change_pct": 39.136
+    },
+    "cabbage-dry": {
+      "n_rois": 326,
+      "baseline_mae_g": 14.423,
+      "candidate_mae_g": 14.074,
+      "relative_change_pct": -2.421
+    },
+    "channa-brinjal": {
+      "n_rois": 203,
+      "baseline_mae_g": 23.175,
+      "candidate_mae_g": 23.795,
+      "relative_change_pct": 2.674
+    },
+    "chicken-dum-biryani": {
+      "n_rois": 84,
+      "baseline_mae_g": 37.554,
+      "candidate_mae_g": 35.857,
+      "relative_change_pct": -4.518
+    },
+    "chutney": {
+      "n_rois": 651,
+      "baseline_mae_g": 10.148,
+      "candidate_mae_g": 9.942,
+      "relative_change_pct": -2.033
+    },
+    "curd": {
+      "n_rois": 1034,
+      "baseline_mae_g": 12.31,
+      "candidate_mae_g": 12.036,
+      "relative_change_pct": -2.225
+    },
+    "dondakaya-fry": {
+      "n_rois": 66,
+      "baseline_mae_g": 5.714,
+      "candidate_mae_g": 5.478,
+      "relative_change_pct": -4.128
+    },
+    "kakarakaya-fry": {
+      "n_rois": 62,
+      "baseline_mae_g": 6.747,
+      "candidate_mae_g": 6.273,
+      "relative_change_pct": -7.024
+    },
+    "kofta-curry": {
+      "n_rois": 214,
+      "baseline_mae_g": 19.12,
+      "candidate_mae_g": 19.85,
+      "relative_change_pct": 3.813
+    },
+    "leaf-dal": {
+      "n_rois": 68,
+      "baseline_mae_g": 7.43,
+      "candidate_mae_g": 6.962,
+      "relative_change_pct": -6.297
+    },
+    "mango-pickle": {
+      "n_rois": 197,
+      "baseline_mae_g": 3.679,
+      "candidate_mae_g": 3.755,
+      "relative_change_pct": 2.068
+    },
+    "masoor-dal": {
+      "n_rois": 116,
+      "baseline_mae_g": 16.737,
+      "candidate_mae_g": 16.932,
+      "relative_change_pct": 1.164
+    },
+    "mirchi-ka-salan": {
+      "n_rois": 85,
+      "baseline_mae_g": 12.386,
+      "candidate_mae_g": 11.572,
+      "relative_change_pct": -6.573
+    },
+    "muddha-pappu": {
+      "n_rois": 118,
+      "baseline_mae_g": 19.652,
+      "candidate_mae_g": 18.872,
+      "relative_change_pct": -3.965
+    },
+    "non-spicy-curry": {
+      "n_rois": 207,
+      "baseline_mae_g": 22.215,
+      "candidate_mae_g": 23.038,
+      "relative_change_pct": 3.706
+    },
+    "non-spicy-dal": {
+      "n_rois": 463,
+      "baseline_mae_g": 21.649,
+      "candidate_mae_g": 21.268,
+      "relative_change_pct": -1.76
+    },
+    "pachi-pulusu": {
+      "n_rois": 215,
+      "baseline_mae_g": 18.236,
+      "candidate_mae_g": 18.014,
+      "relative_change_pct": -1.218
+    },
+    "papad": {
+      "n_rois": 731,
+      "baseline_mae_g": 2.726,
+      "candidate_mae_g": 2.367,
+      "relative_change_pct": -13.181
+    },
+    "payasam": {
+      "n_rois": 189,
+      "baseline_mae_g": 10.318,
+      "candidate_mae_g": 10.158,
+      "relative_change_pct": -1.547
+    },
+    "phulka": {
+      "n_rois": 824,
+      "baseline_mae_g": 15.258,
+      "candidate_mae_g": 15.55,
+      "relative_change_pct": 1.917
+    },
+    "raita": {
+      "n_rois": 85,
+      "baseline_mae_g": 5.284,
+      "candidate_mae_g": 4.803,
+      "relative_change_pct": -9.09
+    },
+    "rajma": {
+      "n_rois": 330,
+      "baseline_mae_g": 18.637,
+      "candidate_mae_g": 19.025,
+      "relative_change_pct": 2.081
+    },
+    "rasam": {
+      "n_rois": 117,
+      "baseline_mae_g": 10.5,
+      "candidate_mae_g": 9.865,
+      "relative_change_pct": -6.054
+    },
+    "salad": {
+      "n_rois": 1010,
+      "baseline_mae_g": 11.566,
+      "candidate_mae_g": 11.339,
+      "relative_change_pct": -1.959
+    },
+    "sambar": {
+      "n_rois": 536,
+      "baseline_mae_g": 20.834,
+      "candidate_mae_g": 20.886,
+      "relative_change_pct": 0.25
+    },
+    "steamed-rice": {
+      "n_rois": 1034,
+      "baseline_mae_g": 36.073,
+      "candidate_mae_g": 36.018,
+      "relative_change_pct": -0.154
+    },
+    "tomato-pappu": {
+      "n_rois": 213,
+      "baseline_mae_g": 20.326,
+      "candidate_mae_g": 20.456,
+      "relative_change_pct": 0.642
+    },
+    "veg-dum-briyani": {
+      "n_rois": 84,
+      "baseline_mae_g": 45.511,
+      "candidate_mae_g": 45.36,
+      "relative_change_pct": -0.331
+    },
+    "veg-pulao": {
+      "n_rois": 326,
+      "baseline_mae_g": 21.299,
+      "candidate_mae_g": 20.643,
+      "relative_change_pct": -3.08
+    }
+  },
+  "gates": {
+    "paired_mae_ci_below_zero": true,
+    "no_high_support_class_regression_over_10pct": false,
+    "plate_total_error_regression_at_most_5pct": true,
+    "absolute_bias_increase_at_most_2g": true
+  },
+  "decision": "reject",
+  "bootstrap_seed": 42,
+  "bootstrap_replicates": 10000,
+  "input_report_sha256": {
+    "baseline": "e3fec30f1c04493bf51037e6eb2d47fb0da584efb3a922477f0cd5d9ccb846d3",
+    "candidate": "89738d0d2700e4e10b952bef1f92192b83886f059868e48ee148b5eb6540b2e7",
+    "comparison_code": "4213db5f82a26851ced3df415fe32596b0d5c84506e2e19082665624afba5d1f"
+  }
+}

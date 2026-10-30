@@ -1,0 +1,11 @@
+baseline_default_images=23 capture_default_images=23 same_paths=True
+identical_result_objects=22 different_result_objects=1
+difference=/home/tinkerer/Desktop/Nutrisense/Aruco_7ID_60mm_with_food/Dish 1/20261025_191009.jpg
+  old_item_count=4 new_item_count=4 old_total=254.2 new_total=340.1
+  old_skipped_reasons=[{'kind': 'stage_failed', 'text': 'item skipped: classification failed ([Errno 104] Connection reset by peer)'}] new_skipped_reasons=[]
+chosen_flag_off_replay_image=20261025_184112.jpg
+earlier_result_sha256=041a9c186e17fa8fc5c9d9aa2b74c89a2c66ef31083dd77677d8b064c22b5df6
+flag_off_result_sha256=041a9c186e17fa8fc5c9d9aa2b74c89a2c66ef31083dd77677d8b064c22b5df6
+earlier_equals_flag_off=True
+mask_capture_equals_earlier=True
+replay_cuda_device=NVIDIA GeForce RTX 4060 Laptop GPU

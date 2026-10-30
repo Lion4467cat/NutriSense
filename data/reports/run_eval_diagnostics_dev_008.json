@@ -1,0 +1,690 @@
+{
+  "created_utc": "2026-10-30T05:07:02.833918+00:00",
+  "tier": "dev",
+  "split": "WED val carve from train plates (seed 42, 10% of plates)",
+  "n_views": 108,
+  "n_plates": 21,
+  "n_samples": 1218,
+  "metrics": {
+    "n": 1218,
+    "mae_g": 15.034,
+    "median_absolute_error_g": 8.603,
+    "rmse_g": 26.46,
+    "mean_bias_g": -1.125,
+    "p90_absolute_error_g": 34.139,
+    "mape_pct": 18.301
+  },
+  "portion_size_bands": {
+    "lt_50g": {
+      "n": 313,
+      "mae_g": 6.224,
+      "median_absolute_error_g": 3.945,
+      "rmse_g": 9.043,
+      "mean_bias_g": 4.284,
+      "p90_absolute_error_g": 15.022,
+      "mape_pct": 27.414
+    },
+    "50_to_lt_100g": {
+      "n": 333,
+      "mae_g": 14.869,
+      "median_absolute_error_g": 10.247,
+      "rmse_g": 21.243,
+      "mean_bias_g": 4.24,
+      "p90_absolute_error_g": 35.248,
+      "mape_pct": 20.829
+    },
+    "100_to_lt_200g": {
+      "n": 467,
+      "mae_g": 14.573,
+      "median_absolute_error_g": 9.612,
+      "rmse_g": 20.951,
+      "mean_bias_g": -1.012,
+      "p90_absolute_error_g": 33.332,
+      "mape_pct": 10.683
+    },
+    "ge_200g": {
+      "n": 105,
+      "mae_g": 43.865,
+      "median_absolute_error_g": 30.62,
+      "rmse_g": 67.041,
+      "mean_bias_g": -34.766,
+      "p90_absolute_error_g": 88.414,
+      "mape_pct": 17.004
+    }
+  },
+  "per_dish": {
+    "Banana": {
+      "n": 40,
+      "mae_g": 4.85,
+      "median_absolute_error_g": 3.569,
+      "rmse_g": 6.339,
+      "mean_bias_g": 0.171,
+      "p90_absolute_error_g": 10.374,
+      "mape_pct": 4.257
+    },
+    "Muskmelon": {
+      "n": 8,
+      "mae_g": 12.527,
+      "median_absolute_error_g": 9.793,
+      "rmse_g": 15.222,
+      "mean_bias_g": 7.484,
+      "p90_absolute_error_g": 23.551,
+      "mape_pct": 14.503
+    },
+    "Papaya": {
+      "n": 20,
+      "mae_g": 25.806,
+      "median_absolute_error_g": 12.923,
+      "rmse_g": 37.827,
+      "mean_bias_g": 14.5,
+      "p90_absolute_error_g": 70.797,
+      "mape_pct": 38.243
+    },
+    "Watermelon": {
+      "n": 36,
+      "mae_g": 18.201,
+      "median_absolute_error_g": 9.723,
+      "rmse_g": 27.023,
+      "mean_bias_g": 15.464,
+      "p90_absolute_error_g": 56.1,
+      "mape_pct": 24.285
+    },
+    "aloo-capsicum": {
+      "n": 15,
+      "mae_g": 11.34,
+      "median_absolute_error_g": 11.559,
+      "rmse_g": 12.589,
+      "mean_bias_g": -11.34,
+      "p90_absolute_error_g": 18.284,
+      "mape_pct": 13.546
+    },
+    "aloo-curry": {
+      "n": 15,
+      "mae_g": 26.485,
+      "median_absolute_error_g": 23.365,
+      "rmse_g": 29.805,
+      "mean_bias_g": 26.485,
+      "p90_absolute_error_g": 46.193,
+      "mape_pct": 26.153
+    },
+    "aloo-fry": {
+      "n": 9,
+      "mae_g": 8.947,
+      "median_absolute_error_g": 8.804,
+      "rmse_g": 10.273,
+      "mean_bias_g": 6.953,
+      "p90_absolute_error_g": 16.767,
+      "mape_pct": 16.157
+    },
+    "beans-curry": {
+      "n": 35,
+      "mae_g": 40.641,
+      "median_absolute_error_g": 7.982,
+      "rmse_g": 88.55,
+      "mean_bias_g": -30.863,
+      "p90_absolute_error_g": 224.678,
+      "mape_pct": 25.788
+    },
+    "beetroot-kobari": {
+      "n": 23,
+      "mae_g": 17.982,
+      "median_absolute_error_g": 13.86,
+      "rmse_g": 23.757,
+      "mean_bias_g": -2.716,
+      "p90_absolute_error_g": 48.072,
+      "mape_pct": 21.693
+    },
+    "beetroot-poriyal": {
+      "n": 13,
+      "mae_g": 4.896,
+      "median_absolute_error_g": 3.875,
+      "rmse_g": 5.835,
+      "mean_bias_g": -2.261,
+      "p90_absolute_error_g": 7.859,
+      "mape_pct": 9.627
+    },
+    "bisi-bele-bath": {
+      "n": 10,
+      "mae_g": 4.508,
+      "median_absolute_error_g": 3.372,
+      "rmse_g": 5.6,
+      "mean_bias_g": 4.508,
+      "p90_absolute_error_g": 7.387,
+      "mape_pct": 2.533
+    },
+    "boondi": {
+      "n": 7,
+      "mae_g": 2.454,
+      "median_absolute_error_g": 1.615,
+      "rmse_g": 3.285,
+      "mean_bias_g": 1.602,
+      "p90_absolute_error_g": 5.61,
+      "mape_pct": 27.59
+    },
+    "cabbage-dry": {
+      "n": 23,
+      "mae_g": 12.377,
+      "median_absolute_error_g": 14.152,
+      "rmse_g": 14.352,
+      "mean_bias_g": -3.456,
+      "p90_absolute_error_g": 20.068,
+      "mape_pct": 30.902
+    },
+    "channa-brinjal": {
+      "n": 25,
+      "mae_g": 24.615,
+      "median_absolute_error_g": 11.434,
+      "rmse_g": 34.292,
+      "mean_bias_g": -11.432,
+      "p90_absolute_error_g": 61.086,
+      "mape_pct": 14.446
+    },
+    "chicken-dum-biryani": {
+      "n": 15,
+      "mae_g": 14.38,
+      "median_absolute_error_g": 12.409,
+      "rmse_g": 16.554,
+      "mean_bias_g": -8.208,
+      "p90_absolute_error_g": 25.286,
+      "mape_pct": 11.309
+    },
+    "chutney": {
+      "n": 54,
+      "mae_g": 4.54,
+      "median_absolute_error_g": 3.822,
+      "rmse_g": 5.708,
+      "mean_bias_g": 3.634,
+      "p90_absolute_error_g": 9.654,
+      "mape_pct": 34.618
+    },
+    "curd": {
+      "n": 106,
+      "mae_g": 8.56,
+      "median_absolute_error_g": 5.895,
+      "rmse_g": 12.327,
+      "mean_bias_g": -0.567,
+      "p90_absolute_error_g": 19.326,
+      "mape_pct": 4.935
+    },
+    "dondakaya-fry": {
+      "n": 10,
+      "mae_g": 4.334,
+      "median_absolute_error_g": 2.871,
+      "rmse_g": 5.13,
+      "mean_bias_g": -3.766,
+      "p90_absolute_error_g": 7.286,
+      "mape_pct": 12.43
+    },
+    "kakarakaya-fry": {
+      "n": 10,
+      "mae_g": 3.776,
+      "median_absolute_error_g": 3.337,
+      "rmse_g": 4.733,
+      "mean_bias_g": 3.371,
+      "p90_absolute_error_g": 7.141,
+      "mape_pct": 24.447
+    },
+    "kofta-curry": {
+      "n": 34,
+      "mae_g": 13.489,
+      "median_absolute_error_g": 11.42,
+      "rmse_g": 16.503,
+      "mean_bias_g": 0.18,
+      "p90_absolute_error_g": 25.549,
+      "mape_pct": 12.08
+    },
+    "leaf-dal": {
+      "n": 9,
+      "mae_g": 8.41,
+      "median_absolute_error_g": 8.776,
+      "rmse_g": 9.474,
+      "mean_bias_g": 2.353,
+      "p90_absolute_error_g": 12.912,
+      "mape_pct": 12.755
+    },
+    "mango-pickle": {
+      "n": 33,
+      "mae_g": 2.993,
+      "median_absolute_error_g": 1.703,
+      "rmse_g": 4.461,
+      "mean_bias_g": -0.659,
+      "p90_absolute_error_g": 9.465,
+      "mape_pct": 12.743
+    },
+    "mirchi-ka-salan": {
+      "n": 15,
+      "mae_g": 15.461,
+      "median_absolute_error_g": 14.739,
+      "rmse_g": 16.676,
+      "mean_bias_g": -4.115,
+      "p90_absolute_error_g": 24.316,
+      "mape_pct": 11.85
+    },
+    "muddha-pappu": {
+      "n": 10,
+      "mae_g": 7.13,
+      "median_absolute_error_g": 3.494,
+      "rmse_g": 10.162,
+      "mean_bias_g": -6.619,
+      "p90_absolute_error_g": 14.971,
+      "mape_pct": 7.202
+    },
+    "non-spicy-curry": {
+      "n": 33,
+      "mae_g": 31.057,
+      "median_absolute_error_g": 27.516,
+      "rmse_g": 36.175,
+      "mean_bias_g": 25.094,
+      "p90_absolute_error_g": 42.251,
+      "mape_pct": 36.472
+    },
+    "non-spicy-dal": {
+      "n": 75,
+      "mae_g": 22.91,
+      "median_absolute_error_g": 20.688,
+      "rmse_g": 28.938,
+      "mean_bias_g": -9.7,
+      "p90_absolute_error_g": 50.261,
+      "mape_pct": 17.297
+    },
+    "pachi-pulusu": {
+      "n": 35,
+      "mae_g": 11.766,
+      "median_absolute_error_g": 8.736,
+      "rmse_g": 14.889,
+      "mean_bias_g": -2.933,
+      "p90_absolute_error_g": 25.205,
+      "mape_pct": 6.617
+    },
+    "papad": {
+      "n": 62,
+      "mae_g": 1.589,
+      "median_absolute_error_g": 1.06,
+      "rmse_g": 2.182,
+      "mean_bias_g": 0.562,
+      "p90_absolute_error_g": 3.916,
+      "mape_pct": 18.289
+    },
+    "payasam": {
+      "n": 10,
+      "mae_g": 8.674,
+      "median_absolute_error_g": 8.759,
+      "rmse_g": 9.979,
+      "mean_bias_g": -0.431,
+      "p90_absolute_error_g": 14.826,
+      "mape_pct": 7.745
+    },
+    "phulka": {
+      "n": 67,
+      "mae_g": 14.819,
+      "median_absolute_error_g": 9.579,
+      "rmse_g": 20.206,
+      "mean_bias_g": -5.566,
+      "p90_absolute_error_g": 38.876,
+      "mape_pct": 30.618
+    },
+    "raita": {
+      "n": 15,
+      "mae_g": 3.089,
+      "median_absolute_error_g": 2.543,
+      "rmse_g": 4.148,
+      "mean_bias_g": 2.304,
+      "p90_absolute_error_g": 4.797,
+      "mape_pct": 2.131
+    },
+    "rajma": {
+      "n": 23,
+      "mae_g": 12.284,
+      "median_absolute_error_g": 11.878,
+      "rmse_g": 14.367,
+      "mean_bias_g": 1.188,
+      "p90_absolute_error_g": 20.916,
+      "mape_pct": 15.788
+    },
+    "salad": {
+      "n": 104,
+      "mae_g": 8.585,
+      "median_absolute_error_g": 7.582,
+      "rmse_g": 10.416,
+      "mean_bias_g": 2.007,
+      "p90_absolute_error_g": 15.141,
+      "mape_pct": 25.916
+    },
+    "sambar": {
+      "n": 48,
+      "mae_g": 23.437,
+      "median_absolute_error_g": 15.259,
+      "rmse_g": 33.108,
+      "mean_bias_g": -17.728,
+      "p90_absolute_error_g": 63.324,
+      "mape_pct": 13.235
+    },
+    "steamed-rice": {
+      "n": 108,
+      "mae_g": 28.079,
+      "median_absolute_error_g": 19.59,
+      "rmse_g": 39.509,
+      "mean_bias_g": -0.597,
+      "p90_absolute_error_g": 65.386,
+      "mape_pct": 16.488
+    },
+    "tomato-pappu": {
+      "n": 25,
+      "mae_g": 24.884,
+      "median_absolute_error_g": 23.891,
+      "rmse_g": 28.577,
+      "mean_bias_g": -17.622,
+      "p90_absolute_error_g": 43.061,
+      "mape_pct": 15.743
+    },
+    "veg-dum-briyani": {
+      "n": 15,
+      "mae_g": 22.185,
+      "median_absolute_error_g": 17.204,
+      "rmse_g": 28.066,
+      "mean_bias_g": 18.314,
+      "p90_absolute_error_g": 43.318,
+      "mape_pct": 25.631
+    },
+    "veg-pulao": {
+      "n": 23,
+      "mae_g": 12.301,
+      "median_absolute_error_g": 9.255,
+      "rmse_g": 14.547,
+      "mean_bias_g": 7.651,
+      "p90_absolute_error_g": 23.437,
+      "mape_pct": 17.453
+    }
+  },
+  "plate_totals": {
+    "metrics": {
+      "n": 21,
+      "mae_g": 62.764,
+      "median_absolute_error_g": 39.246,
+      "rmse_g": 95.348,
+      "mean_bias_g": -13.12,
+      "p90_absolute_error_g": 142.435,
+      "mape_pct": 4.959
+    },
+    "by_plate": [
+      {
+        "plate": "20250512_set14",
+        "n_foods": 12,
+        "n_views": 72,
+        "predicted_total_g": 758.797,
+        "ground_truth_total_g": 736.0
+      },
+      {
+        "plate": "20250512_set22",
+        "n_foods": 12,
+        "n_views": 84,
+        "predicted_total_g": 763.778,
+        "ground_truth_total_g": 742.0
+      },
+      {
+        "plate": "20250515_set11",
+        "n_foods": 12,
+        "n_views": 55,
+        "predicted_total_g": 966.551,
+        "ground_truth_total_g": 889.0
+      },
+      {
+        "plate": "20250515_set20",
+        "n_foods": 12,
+        "n_views": 58,
+        "predicted_total_g": 984.039,
+        "ground_truth_total_g": 963.0
+      },
+      {
+        "plate": "20250516_set10",
+        "n_foods": 11,
+        "n_views": 50,
+        "predicted_total_g": 1084.754,
+        "ground_truth_total_g": 1124.0
+      },
+      {
+        "plate": "20250516_set19",
+        "n_foods": 11,
+        "n_views": 54,
+        "predicted_total_g": 1113.612,
+        "ground_truth_total_g": 1144.0
+      },
+      {
+        "plate": "20250516_set21",
+        "n_foods": 11,
+        "n_views": 54,
+        "predicted_total_g": 1112.954,
+        "ground_truth_total_g": 1082.0
+      },
+      {
+        "plate": "20250517_set14",
+        "n_foods": 10,
+        "n_views": 49,
+        "predicted_total_g": 1221.964,
+        "ground_truth_total_g": 1271.0
+      },
+      {
+        "plate": "20250517_set16",
+        "n_foods": 10,
+        "n_views": 50,
+        "predicted_total_g": 1162.453,
+        "ground_truth_total_g": 1148.0
+      },
+      {
+        "plate": "20250517_set3",
+        "n_foods": 10,
+        "n_views": 49,
+        "predicted_total_g": 1256.565,
+        "ground_truth_total_g": 1399.0
+      },
+      {
+        "plate": "20250517_set30",
+        "n_foods": 10,
+        "n_views": 49,
+        "predicted_total_g": 1256.251,
+        "ground_truth_total_g": 1500.0
+      },
+      {
+        "plate": "20250517_set7",
+        "n_foods": 10,
+        "n_views": 49,
+        "predicted_total_g": 1184.184,
+        "ground_truth_total_g": 1129.0
+      },
+      {
+        "plate": "20250519_set10",
+        "n_foods": 12,
+        "n_views": 54,
+        "predicted_total_g": 1032.52,
+        "ground_truth_total_g": 1008.0
+      },
+      {
+        "plate": "20250519_set6",
+        "n_foods": 12,
+        "n_views": 59,
+        "predicted_total_g": 966.078,
+        "ground_truth_total_g": 956.0
+      },
+      {
+        "plate": "20250521_set12",
+        "n_foods": 14,
+        "n_views": 67,
+        "predicted_total_g": 1400.234,
+        "ground_truth_total_g": 1353.0
+      },
+      {
+        "plate": "20250521_set15",
+        "n_foods": 14,
+        "n_views": 70,
+        "predicted_total_g": 1415.015,
+        "ground_truth_total_g": 1411.0
+      },
+      {
+        "plate": "20250521_set21",
+        "n_foods": 14,
+        "n_views": 69,
+        "predicted_total_g": 1373.592,
+        "ground_truth_total_g": 1308.0
+      },
+      {
+        "plate": "20250523_set1",
+        "n_foods": 11,
+        "n_views": 53,
+        "predicted_total_g": 1475.823,
+        "ground_truth_total_g": 1757.0
+      },
+      {
+        "plate": "20250523_set9",
+        "n_foods": 11,
+        "n_views": 55,
+        "predicted_total_g": 1521.245,
+        "ground_truth_total_g": 1532.0
+      },
+      {
+        "plate": "20250524_set12",
+        "n_foods": 12,
+        "n_views": 60,
+        "predicted_total_g": 1058.597,
+        "ground_truth_total_g": 1008.0
+      },
+      {
+        "plate": "20250524_set15",
+        "n_foods": 12,
+        "n_views": 58,
+        "predicted_total_g": 1049.471,
+        "ground_truth_total_g": 974.0
+      }
+    ]
+  },
+  "grouped_bootstrap_95ci": {
+    "item_mae_g": [
+      12.218,
+      18.961
+    ],
+    "item_bias_g": [
+      -4.803,
+      1.873
+    ],
+    "plate_total_mae_g": [
+      35.956,
+      101.167
+    ],
+    "plate_total_bias_g": [
+      -58.096,
+      23.568
+    ]
+  },
+  "cross_fitted_affine_calibration": {
+    "method": "leave-one-plate-out affine calibration; fit target on all other DEV plates",
+    "metrics": {
+      "n": 1218,
+      "mae_g": 15.297,
+      "median_absolute_error_g": 8.869,
+      "rmse_g": 26.664,
+      "mean_bias_g": 0.008,
+      "p90_absolute_error_g": 35.501,
+      "mape_pct": 19.446
+    },
+    "paired_mae_change_g_calibrated_minus_base": 0.263,
+    "paired_mae_change_g_bootstrap_95ci": [
+      0.189,
+      0.339
+    ],
+    "fold_coefficients": {
+      "20250512_set14": {
+        "intercept_g": 1.3838,
+        "slope": 0.999325
+      },
+      "20250512_set22": {
+        "intercept_g": 1.1876,
+        "slope": 1.001516
+      },
+      "20250515_set11": {
+        "intercept_g": 0.9285,
+        "slope": 1.005538
+      },
+      "20250515_set20": {
+        "intercept_g": 0.8091,
+        "slope": 1.004671
+      },
+      "20250516_set10": {
+        "intercept_g": 0.5659,
+        "slope": 1.004519
+      },
+      "20250516_set19": {
+        "intercept_g": 0.7596,
+        "slope": 1.002889
+      },
+      "20250516_set21": {
+        "intercept_g": 1.098,
+        "slope": 1.001897
+      },
+      "20250517_set14": {
+        "intercept_g": 1.3821,
+        "slope": 0.995499
+      },
+      "20250517_set16": {
+        "intercept_g": 0.5298,
+        "slope": 1.007129
+      },
+      "20250517_set3": {
+        "intercept_g": 2.0681,
+        "slope": 0.984835
+      },
+      "20250517_set30": {
+        "intercept_g": -1.2087,
+        "slope": 1.013285
+      },
+      "20250517_set7": {
+        "intercept_g": 0.9606,
+        "slope": 1.004537
+      },
+      "20250519_set10": {
+        "intercept_g": 0.7343,
+        "slope": 1.005438
+      },
+      "20250519_set6": {
+        "intercept_g": 0.8609,
+        "slope": 1.003615
+      },
+      "20250521_set12": {
+        "intercept_g": 0.8739,
+        "slope": 1.005222
+      },
+      "20250521_set15": {
+        "intercept_g": 0.8723,
+        "slope": 1.003403
+      },
+      "20250521_set21": {
+        "intercept_g": 0.9346,
+        "slope": 1.005457
+      },
+      "20250523_set1": {
+        "intercept_g": 0.811,
+        "slope": 0.991836
+      },
+      "20250523_set9": {
+        "intercept_g": 0.5227,
+        "slope": 1.006229
+      },
+      "20250524_set12": {
+        "intercept_g": 0.6339,
+        "slope": 1.007661
+      },
+      "20250524_set15": {
+        "intercept_g": 1.1499,
+        "slope": 1.00346
+      }
+    },
+    "note": "Exploratory DEV-only cross-fit; not applied to serving and not an independent test result."
+  },
+  "bootstrap_reps": 2000,
+  "checkpoint_sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1",
+  "weight_head_code_sha256": "c8371679b1e8d7b558fd7e672d8e051bb74de12bd3fbf7293ff130873a227c1f",
+  "run_eval_code_sha256": "bfab09a8212f8e45ed4eb351f2474af5a928f6a98ffef163ec2d361d515d721a",
+  "manifest_sha256": "f5bad6b32963c7ee2ed0ad3cddd7ca02d2d912c90b36c9b3cde7e82fb989214d",
+  "git_revision": "b1500754cb9c00e190c8880d9719c1eca001bfa2",
+  "device": "cpu",
+  "batch_size": 4,
+  "wall_s": 11.16
+}

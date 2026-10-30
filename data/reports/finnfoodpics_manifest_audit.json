@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "n_observations": 720,
+  "n_groups": 72,
+  "rows_by_split": {
+    "test": 100,
+    "train": 520,
+    "validation": 100
+  },
+  "groups_by_split": {
+    "test": 10,
+    "train": 52,
+    "validation": 10
+  },
+  "cross_split_group_count": 0,
+  "cross_split_image_path_count": 0,
+  "cross_split_exact_image_hash_count": 0,
+  "errors": [],
+  "manifest": "datasets/processed/finnfoodpics_v2026_manifest.csv"
+}
