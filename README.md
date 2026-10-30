@@ -349,7 +349,7 @@ uv sync --frozen   # install exactly what uv.lock pins (no upgrades) — CI does
 
 `uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync --frozen` installs exactly what uv.lock pins (no upgrades) and removes anything installed outside it — do not run it casually. Dev tools live in the `dev` dependency group, included by `--all-groups`.
 
-`.github/workflows/ci.yml` defines the repository gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + Vitest + build). The 2026-10-30 PR checks showed no completed CI jobs; local results and limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md).
+`.github/workflows/ci.yml` defines the repository gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + Vitest + build). On PR #3, CI run [41075108677](https://github.com/Lion4467cat/NutriSense/actions/runs/41075108677) passed the frontend job and failed the backend job at Ruff; local results and limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ### Access the App
 

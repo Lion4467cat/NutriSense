@@ -214,6 +214,9 @@ Commands were run from the project checkout with its `.venv` activated.
   `experiments/oracle_ablation/` diagnostic scripts.
 - `.venv/bin/python -m tools.pyright_gate`: failed at **214 errors vs baseline
   209** (five above the recorded baseline). The baseline was not changed.
+- GitHub Actions run [41075108677](https://github.com/Lion4467cat/NutriSense/actions/runs/41075108677)
+  for PR #3: frontend job passed; backend job failed at the Ruff lint gate
+  before the Pyright and pytest steps ran.
 
 These are verification outcomes, not changes to the evaluation protocol. The
 ArUco plates remain permanently EVAL-ONLY; none of these results authorize
