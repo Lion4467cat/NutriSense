@@ -1,6 +1,6 @@
 # Model and service readiness status
 
-Status as of 2026-10-30. This records evidence for the current local build;
+Status as of 2026-10-31. This records evidence for the current local build;
 it is not a production deployment approval.
 
 ## Model quality and generalization
@@ -184,7 +184,9 @@ generalization or production accuracy; the prior result may benefit from
 error cancellation. The ArUco plates are permanently EVAL-ONLY and cannot be
 used to tune models, thresholds or fixes. The overlays support mask spill
 and non-zero height on plate/rim/table context as hypotheses; they do not
-isolate food or plate ground-truth masks.
+isolate food or plate ground-truth masks. The pilot includes named food-only
+component weights; component scores are limited to clear label matches and
+do not establish a one-to-one correspondence for every predicted item mask.
 
 ## Remaining release gates
 
@@ -346,6 +348,31 @@ tuning or promotion of a serving-path candidate.
   transfer lead found so far, but it is still one non-Indian participant
   cluster and not a serving candidate. See `experiments/vlm_food_benchmark/`.
 
+## Current repository verification and UI consistency (2026-10-31)
+
+All commands below ran from the project checkout; Python used the project
+`.venv`. The full suite was run with the available CUDA device and no CPU
+fallback in the model tests.
+
+| Command | Result |
+|---|---|
+| `.venv/bin/pytest -q` | `281 passed in 109.77s`; includes 10 GPU-marked tests. |
+| `npx tsc --noEmit` (from `frontend/`) | Passed. |
+| `npm test` (from `frontend/`) | 11 files, 71 tests passed. |
+| `npm run build` (from `frontend/`) | Passed; dependency-comment warnings and a 562.90 kB chunk advisory remain. |
+| `.venv/bin/python -m ruff check .` | Passed: no findings. |
+| `.venv/bin/python -m tools.pyright_gate` | Passed: 205 existing diagnostics, matching the refreshed 205-error baseline after real fixes. |
+| Generated contract comparison | Passed: `tools.gen_contract_ts` output matches `frontend/src/types/contract.gen.ts`. |
+
+The audit corrected the result UI so `classification.confidence` (gallery
+top-1 softmax) and `classification.match_score` (gallery top-3 mean cosine)
+are described and displayed as distinct values. A regression test covers the
+labels. The backend wire contract and classifier calculations were not
+changed. The follow-up remediation fixed all configured Ruff findings and
+reduced the Pyright baseline from 209 to 205 only after real code fixes. The
+2026-10-30 verification notes remain historical records; this section gives
+the current check results.
+
 ## Final repository and application verification (2026-10-30)
 
 Commands ran from the project root. Python commands used the project `.venv`;
@@ -398,6 +425,6 @@ local request, not a latency distribution or deployment benchmark.
 This gallery-photo run is an application smoke test only; it has no weighed
 truth and supports no accuracy claim. The UI stored one analysis in local
 browser history. The app smoke output and complete cross-dataset limitations
-do not make the product production-ready: global Ruff and Pyright gates remain
-red, and independent representative Indian mixed-meal evidence is still
+do not make the product production-ready: configured lint and type gates now
+pass, but independent representative Indian mixed-meal evidence is still
 missing.

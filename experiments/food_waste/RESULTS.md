@@ -146,7 +146,9 @@ Exact case-insensitive string equality is the only component match used here; no
 
 ## Mask overlap audit
 
-![SAM masks on a representative Food Waste DEV image](overlays/receipt-480660-row-0192.png)
+Representative overlay: `overlay_masks.py` regenerates this ignored local
+asset from source row 192. The PNG is intentionally not tracked; its visual
+observation and recorded pixel measurements are summarized below.
 Visual observation for receipt 480660, source row 192: the colored item masks cover most of the plate and overlap, while the cyan top-level mask is small. Numbers: top mask 11936 px; summed item masks 1633080 px; area ratio 136.820; pair IoU 0.610. Across 16 multi-item views, item-area-sum/top-mask ratios span 1.952–136.820; 20 pairs fall in the existing dedupe-pass band 0.50–<0.70.
 
 Hypothesis evidence ratings:

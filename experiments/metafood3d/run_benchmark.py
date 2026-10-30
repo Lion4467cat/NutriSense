@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Run the frozen single-object MetaFood3D benchmark from PROTOCOL.md.
 
 This script is research-only, requires CUDA, and never changes serving code.

@@ -74,7 +74,7 @@ def main() -> int:
             })
 
         food_names = sorted({row["food_name"] for row in valid}, key=lambda name: (
-            hashlib.sha256(f"{SPLIT_SEED}{name}".encode("utf-8")).hexdigest(), name))
+            hashlib.sha256(f"{SPLIT_SEED}{name}".encode()).hexdigest(), name))
         n_train = int(len(food_names) * 0.70)
         n_dev = int(len(food_names) * 0.15)
         split_by_food = {
@@ -124,8 +124,8 @@ def main() -> int:
         f"Archive SHA-256: `{sha256(args.archive)}`.",
         f"Workbook SHA-256: `{sha256(args.workbook)}`.",
         f"Workbook data rows: {len(rows)}; complete before/after image pairs present in archive: {len(valid)}.",
-        f"Rows with missing before filenames: {missing_before}; missing after filenames: {missing_after}; "
-        f"complete rows with nonnumeric targets: {invalid_target}.",
+        (f"Rows with missing before filenames: {missing_before}; missing after filenames: {missing_after}; "
+        f"complete rows with nonnumeric targets: {invalid_target}."),
         f"Food categories in complete pairs: {len(food_names)}.",
         "",
         "## Fixed category-group split",
@@ -142,10 +142,10 @@ def main() -> int:
         "",
         "## Target semantics note",
         "",
-        "The Mendeley record describes the before/after values as food weights in grams. "
+        ("The Mendeley record describes the before/after values as food weights in grams. "
         "The paper says scale measurements were made by weighing the plate containing food, "
         "but does not describe tare handling. Treat the source's food-weight labels as stated "
-        "for exploratory scoring, and retain tare correction as an unresolved provenance caveat.",
+        "for exploratory scoring, and retain tare correction as an unresolved provenance caveat."),
         "",
     ])
     args.audit.write_text("\n".join(lines), encoding="utf-8")

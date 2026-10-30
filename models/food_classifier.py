@@ -190,7 +190,7 @@ def load_gallery(path=None):
 
 # --- classification ---------------------------------------------------------
 
-def _gallery_scores(emb, gallery):
+def _gallery_scores(emb, gallery) -> dict[str, float | None]:
     """top-3-mean cosine per gallery label (unchanged match metric), then
     aggregated to serving targets — a menu key keeps its own score, a WED
     crop label scores under its serving target (spec 002, ledger 003).
@@ -218,7 +218,7 @@ def _gallery_scores(emb, gallery):
     return out
 
 
-def _text_scores(image_bgr):
+def _text_scores(image_bgr) -> dict[str, float]:
     import torch
     proc, model, dev = _load()
     rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
@@ -249,7 +249,10 @@ def classify_dish(image_bgr, gallery=None, threshold=None):
                                    text: top sigmoid probability
       scores     {serving key: float|None} in the method's own units
       method     "gallery" | "text"
-      match_score, margin (gallery only)
+      match_score float|None — gallery: best top-3-mean cosine score;
+                               text: None
+      margin     float|None — gap between the two best gallery scores;
+                               text: None
       uncovered  serving keys with no gallery entries (gallery only)
       reason     human-readable explanation
     """
@@ -258,18 +261,20 @@ def classify_dish(image_bgr, gallery=None, threshold=None):
 
     if gallery is None or len(gallery["labels"]) == 0:
         scores = _text_scores(image_bgr)
-        best = max(scores, key=scores.get)
+        best = max(scores, key=lambda key: scores[key])
         return {"dish": best, "confidence": scores[best], "scores": scores,
                 "method": "text", "match_score": None, "margin": None,
                 "uncovered": [], "reason": "text zero-shot (no gallery)"}
 
     emb = embed_image(image_bgr)
     scores = _gallery_scores(emb, gallery)
-    covered = {k: v for k, v in scores.items() if v is not None}
+    covered: dict[str, float] = {
+        key: float(value) for key, value in scores.items() if value is not None
+    }
     uncovered = sorted(set(scores) - set(covered))
     if not covered:
         raise RuntimeError("gallery has no entries for any serving key")
-    best = max(covered, key=covered.get)
+    best = max(covered, key=lambda key: covered[key])
     ordered = sorted(covered.values(), reverse=True)
     match = covered[best]
     margin = float(ordered[0] - ordered[1]) if len(ordered) > 1 else None

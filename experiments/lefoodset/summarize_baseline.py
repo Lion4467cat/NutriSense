@@ -27,17 +27,17 @@ def main() -> None:
     lines = [
         "# LeFood-Set frozen current-pipeline baseline",
         "",
-        "This is the single pre-registered evaluation on six category-held-out test foods. "
+        ("This is the single pre-registered evaluation on six category-held-out test foods. "
         "No category or weight was sent to inference. This is single-food, cross-domain evidence, "
-        "not a mixed-meal or production claim.",
+        "not a mixed-meal or production claim."),
         "",
-        "Ground truth uses source `Weight Before Eaten (g)`, described by Mendeley as food mass. "
+        ("Ground truth uses source `Weight Before Eaten (g)`, described by Mendeley as food mass. "
         "The paper says a plate containing food was weighed but does not document tare handling; "
-        "this unresolved caveat applies to every gram target below.",
+        "this unresolved caveat applies to every gram target below."),
         "",
-        f"Dataset split: `{metadata['split_read']}`; images: {len(images)}; "
+        (f"Dataset split: `{metadata['split_read']}`; images: {len(images)}; "
         f"test food categories: {metadata['food_category_count']}; train split read: "
-        f"{metadata['train_split_read']}; pipeline SHA-256: `{metadata['pipeline_code_sha256']}`.",
+        f"{metadata['train_split_read']}; pipeline SHA-256: `{metadata['pipeline_code_sha256']}`."),
         "",
         "## Test-category results",
         "",
@@ -61,11 +61,11 @@ def main() -> None:
         )
     lines.extend([
         "",
-        f"Numeric coverage: {len(numeric)}/{len(images)}; abstentions: "
+        (f"Numeric coverage: {len(numeric)}/{len(images)}; abstentions: "
         f"{len(images)-len(numeric)}/{len(images)}. Dish label outcomes: {dict(labels)}. "
-        f"Verdicts: {dict(verdicts)}.",
-        "No numeric outputs means signed gram error and MAE are undefined on this split; "
-        "do not convert abstentions to 0 g or score them as zero error.",
+        f"Verdicts: {dict(verdicts)}."),
+        ("No numeric outputs means signed gram error and MAE are undefined on this split; "
+        "do not convert abstentions to 0 g or score them as zero error."),
         f"Median elapsed time: {statistics.median(elapsed):.3f} s; first image: {elapsed[0]:.3f} s.",
         "",
         "## Per-image record",
@@ -85,13 +85,13 @@ def main() -> None:
         "",
         "## Interpretation",
         "",
-        "The current pipeline abstained on every test image because its gallery classifier did not "
+        ("The current pipeline abstained on every test image because its gallery classifier did not "
         "reach the configured acceptance score for these unseen Indonesian foods. This is a complete "
         "coverage gap on the held-out categories. Since no numeric grams were returned, this run does "
-        "not establish whether its mass regressor would be accurate on these foods if supplied a dish label.",
+        "not establish whether its mass regressor would be accurate on these foods if supplied a dish label."),
         "",
-        "The held-out categories remain closed to development. Any later candidate may be compared once "
-        "on this split only after training and epoch selection are frozen using train/dev categories.",
+        ("The held-out categories remain closed to development. Any later candidate may be compared once "
+        "on this split only after training and epoch selection are frozen using train/dev categories."),
         "",
     ])
     OUT.write_text("\n".join(lines), encoding="utf-8")

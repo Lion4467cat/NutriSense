@@ -98,8 +98,10 @@ pyright at baseline (209).
 1. **As of 2026-10-30, multi-vessel portioning is implemented** (ledger
    016, spec 003), with combo component restriction added in spec 004. It
    still needs stability measurement across card-bearing repeated views and
-   per-component weighed ground truth; current real-photo results are
-   diagnostics, not accuracy claims.
+   per-component weighed ground truth for these canteen captures; current
+   real-photo results are diagnostics, not accuracy claims. The separate
+   weighed ArUco plates are EVAL-ONLY and cannot be used to develop or tune a
+   candidate.
 2. **No pixel GT for canteen photos.** A card-bearing capture pass would
    let this become an IoU gate instead of an area/sanity gate.
 3. **Box prompt as the primary strategy?** It returns plate-sized masks

@@ -23,10 +23,8 @@ def main() -> None:
     from models import registry
     from models.dish_segmenter import segment_food, segment_items
 
-    row = next(
-        json.loads(line) for line in RAW.read_text().splitlines()
-        if line.strip() and (lambda r: r.get("source_row_idx") == 192)(json.loads(line))
-    )
+    rows = (json.loads(line) for line in RAW.read_text().splitlines() if line.strip())
+    row = next(record for record in rows if record.get("source_row_idx") == 192)
     image = cv2.imread(row["path"])
     if image is None:
         raise RuntimeError(f"unreadable image: {row['path']}")

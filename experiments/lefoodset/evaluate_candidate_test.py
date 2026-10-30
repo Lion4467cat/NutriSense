@@ -126,16 +126,16 @@ def main() -> None:
     }
     lines = [
         "# LeFood-Set one-shot candidate test results", "",
-        "The candidate and best epoch were frozen using train/dev categories before this run. "
+        ("The candidate and best epoch were frozen using train/dev categories before this run. "
         "The six test categories were not used for training or selection. This evaluates only "
-        "single-food mass transfer, not mixed-meal production behavior.", "",
-        "The source calls the target food weight; the paper does not document tare handling. "
-        "Treat the target-semantics caveat as unresolved.", "",
+        "single-food mass transfer, not mixed-meal production behavior."), "",
+        ("The source calls the target food weight; the paper does not document tare handling. "
+        "Treat the target-semantics caveat as unresolved."), "",
         f"Candidate checkpoint SHA-256: `{report['checkpoint_sha256']}`.", "",
         "| Metric | Candidate | Train-only global median | Candidate minus baseline |",
         "|---|---:|---:|---:|",
-        f"| Test MAE g | {report['candidate_mae_g']:.3f} | "
-        f"{report['train_global_median_mae_g']:.3f} | {report['candidate_minus_median_mae_g']:+.3f} |",
+        (f"| Test MAE g | {report['candidate_mae_g']:.3f} | "
+        f"{report['train_global_median_mae_g']:.3f} | {report['candidate_minus_median_mae_g']:+.3f} |"),
         f"| Signed bias g | {report['candidate_signed_bias_g']:+.3f} | — | — |",
         "",
         "## Per-category results", "",
@@ -159,9 +159,9 @@ def main() -> None:
                      f"{row['ground_truth_food_g']:.1f} | {row['predicted_total_g']:.1f} | "
                      f"{error:+.1f} | {'—' if percent is None else f'{percent:+.1f}'} |")
     lines.extend(["", "## Scope", "",
-                  "This one-shot test result is final for this category split. Do not tune, retrain, "
+                  ("This one-shot test result is final for this category split. Do not tune, retrain, "
                   "change thresholds, or select another candidate from it. The test categories are "
-                  "Indonesian single-food plates and do not establish performance on mixed Indian meals.", ""])
+                  "Indonesian single-food plates and do not establish performance on mixed Indian meals."), ""])
     REPORT.write_text("\n".join(lines), encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True), flush=True)
     print(f"wrote {REPORT}")

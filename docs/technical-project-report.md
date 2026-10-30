@@ -1,6 +1,6 @@
 # NutriSense technical project report
 
-**Living report. Updated:** 2026-10-30
+**Living report. Updated:** 2026-10-31
 **Scope:** architecture, data and model provenance, measured quality, runtime,
 known failure modes, and the gates for a defensible release. This is a
 diagnostic synthesis; it does not promote a candidate or claim production
@@ -68,9 +68,12 @@ in `engine/pipeline.py`:
    portions. Real-capture diagnostics have shown unstable vessel counts and
    repeated component assignments.
 4. **Dish identity (`models/food_classifier.py`).** SigLIP2 gallery similarity
-   is the primary classifier, with text fallback. Open-set acceptance is
-   governed by the existing gallery threshold. Abstention is an intentional
-   outcome when confidence is insufficient.
+   is the primary classifier, with text fallback. The wire carries distinct
+   `classification.confidence` (top-1 softmax in gallery mode) and
+   `classification.match_score` (best top-3-mean cosine gallery score); the
+   UI labels them separately. Open-set acceptance is governed by the existing
+   gallery threshold. Abstention is an intentional outcome when the match
+   score is below that threshold.
 5. **Depth/portion (`engine/depth.py`, `models/portion_estimator.py`,
    `models/weight_head.py`).** The measured-card geometry path estimates mass
    from scaled footprint × height above a fitted/prior base plane × effective
@@ -349,6 +352,12 @@ research memo.
 
 ## Update log
 
+- **2026-10-31:** Audited active documentation against the API contract and
+  implementation. Clarified classifier confidence versus gallery match score,
+  corrected the no-card coverage description, updated current test counts,
+  corrected runtime model-download wording, repaired a missing generated
+  overlay reference, and cleared the configured Ruff and Pyright gates.
+  Historical evaluation reports remain dated snapshots.
 - **2026-10-30:** Added the primary-source methods review and prioritized
   same-setting calibration, fixed-perception model comparison, error
   decomposition, optional multi-view capture and grouped uncertainty work.

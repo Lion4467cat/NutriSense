@@ -40,7 +40,7 @@ def main() -> None:
               f"new_total={(after.get('portion') or {}).get('grams')}")
         print(f"  old_skipped_reasons={[x.get('reason') for x in bitems if x.get('reason')]} "
               f"new_skipped_reasons={[x.get('reason') for x in aitems if x.get('reason')]}")
-    p = sorted(old)[0]
+    p = min(old)
     print(f"chosen_flag_off_replay_image={Path(p).name}")
     print(f"earlier_result_sha256={sha(old[p]['result'])}")
     replay_lines = (ROOT / "aruco_flag_off_replay.jsonl").read_text().splitlines()

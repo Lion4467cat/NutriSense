@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-08
 **Method:** TDD skill (confirmed seams → vertical slices → red→green loop)
-**Suite (historical S6 TDD run):** `89 passed in ~88s` — the current suite is **110 pytest + 43 vitest** (see README/AGENTS); counts below are the S6-time snapshot (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run; +6 for the learned-weight feature and its same-day graduation, 2026-10-11, see §2b)
+**Suite (historical S6 TDD run):** `89 passed in ~88s`. The counts below are the S6-time snapshot (58 pre-existing + 12 seam tests + 19 contract/guard tests added 2026-10-10; the compliance-block test was added after this TDD run; +6 for the learned-weight feature and its same-day graduation, 2026-10-11, see §2b). Current counts are maintained in `README.md` and `AGENTS.md`.
 
 ## 1. Seam inventory (confirmed with user)
 
@@ -94,7 +94,11 @@ clean, `npm run build` clean. Digest mutation test covers the new factor
 | tests/test_contract_gen.py | 3 | generated-schema + fixture parity |
 | tests/test_stage_guards.py | 5 | per-stage failure guards (HTTP) |
 
-## 4. Pipeline flowchart
+## 4. Historical S6 pipeline flowchart
+
+This records the S6 chain at the time of the TDD report and predates the
+current multi-item branch. The current serving flow is summarized in
+`README.md`.
 
 ```mermaid
 flowchart TD

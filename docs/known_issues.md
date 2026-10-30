@@ -6,16 +6,19 @@ is planned. Newest first.
 ## Multi-item meal estimates fail the weighed-plate pilot (2026-10-30)
 
 The multi-item path and combo component restriction are implemented (specs
-003/004). A 23-image / six-plate weighed pilot now supplies plate totals but
-no per-component ground truth. Item-mask area sums reached 2.84–7.71 times
-the top-level food-mask area; outputs varied substantially by angle, and
-some frames still assign repeated labels to multiple vessels. A paired
-card-versus-forced-prior comparison had 14 valid same-image pairs and showed
-larger card-path error on this cohort. These are EVAL-ONLY findings: the
-plates must not be used for tuning or validating candidate fixes. The masks
-are not pixel-level food ground truth, and plate/table height cannot be
-isolated from the saved overlays. Multi-item mass accuracy remains
-unestablished beyond this pilot; per-component accuracy is unmeasured.
+003/004). A 23-image / six-plate weighed pilot supplies confirmed plate totals
+and named food-only component weights. Its item predictions do not establish
+reliable item-mask-to-component correspondence for every output, so the
+component comparisons are limited to clear label matches documented in the
+pilot report. Item-mask area sums reached 2.84–7.71 times the top-level
+food-mask area; outputs varied substantially by angle, and some frames still
+assign repeated labels to multiple vessels. A paired card-versus-forced-prior
+comparison had 14 valid same-image pairs and showed larger card-path error on
+this cohort. These are permanently EVAL-ONLY findings: the plates must not be
+used for tuning or validating candidate fixes. The masks are not pixel-level
+food ground truth, and plate/table height cannot be isolated from the saved
+overlays. Multi-item mass accuracy beyond this six-plate evaluation and
+generalization remain unestablished.
 
 The follow-up synthetic diagnostics are recorded in ledger entries 022–024.
 Mask spill alone failed its registered criterion, local surface-area

@@ -2,8 +2,8 @@
 ### Photo → portion → nutrients → PM POSHAN compliance verdict, for Karnataka MDM canteens
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2070%20vitest%20passed-orange.svg)](#-testing)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-green.svg)](https://fastapi.tiangolo.com)
+[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2071%20vitest%20passed-orange.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -100,13 +100,13 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 | Stage | What runs | Model / method |
 |---|---|---|
 | Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
-| S1 Scale anchor | 2 tiers: card → prior (prior caps coverage at 0.60) | ArUco card detector |
+| S1 Scale anchor | 2 tiers: card → prior (learned-weight coverage 0.90; geometry-prior coverage 0.60) | ArUco card detector |
 | S2 Segment | food mask plus grid9 vessel candidates for eligible menu meals | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
 | S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
 | S3 Depth | metric depth; `fov_x` (from intrinsics) passed to the model; scale calibrated on the marker, status reported `card`/`none` — never fabricated | MoGe-2 (`Ruicheng/moge-2-vitl`) |
 | S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
 | S4 Nutrition | lognormal sampling of every uncertainty source | Monte Carlo, n=4000, fixed seed (sole interval owner) |
-| S5 Compliance | P(at/above min) per mandatory nutrient × coverage factors (anchor-prior, table-prior, quality, depth-uncalibrated) | pure rules from `data/standards.yaml` |
+| S5 Compliance | P(at/above min) per mandatory nutrient × coverage factors (estimated weight, anchor prior, table prior, quality, depth calibration) | pure rules from `data/standards.yaml` |
 
 ---
 
@@ -116,12 +116,12 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 - **Two app modes (spec 002, ADR 0003)** — **School** keeps the verdict-centric PM POSHAN flow unchanged; **General** reports grams, nutrients and each meal's share of a Daily goal, with no verdicts and no school capture fields. Switching to General asks for profile details (name, sex, age band, activity level) in a setup popup every time until it has been completed, and Settings keeps the same fields editable
 - **WHO Daily goals** — `GET /goals` serves the WHO energy/protein tables keyed by age band, sex and activity level; the frontend does the lookup and share math, so a profile change never re-analyzes a photo
-- **41-class recognition** — the WED 41-class gallery replaced the 2-class menu-only gallery (DEV held-out 0.8103 top-1, ledger 003/008/009); the abstain threshold still gates servings
+- **41-class recognition** — the WED 41-class gallery replaced the 2-class menu-only gallery (DEV held-out 0.8103 top-1, ledger 003/008/009); the abstain threshold still gates servings. Gallery mode reports top-1 softmax classifier confidence and a separate top-3-mean cosine match score; they are different metrics.
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
-- **Multi-item meals (specs 003/004)** — menu meals with at least two detected vessels are classified and portioned per vessel; combo dishes restrict matches to component serving targets; compliance scores the aggregate meal. Current canteen-photo runs are diagnostic only: vessel counts and component labels still vary between captures, and there is no weighed per-component ground truth.
+- **Multi-item meals (specs 003/004)** — menu meals with at least two detected vessels are classified and portioned per vessel; combo dishes restrict matches to component serving targets; compliance scores the aggregate meal. Current canteen-photo runs are diagnostic only: vessel counts and component labels vary between captures, and those photos have no component weights. A separate 23-view/six-plate ArUco pilot has confirmed named food-only component weights, but is permanently EVAL-ONLY and does not establish reliable item-mask-to-component correspondence across all predictions.
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
@@ -192,7 +192,7 @@ Operationally, `/analyze` has a tested per-process admission cap (default two re
 | Synthetic renderer | ground truth for the test suite | `tests/synth/` |
 | Field scale marker (A4 PDF, ArUco id 7, 60 mm) | metric scale marker used during data collection | `docs/assets/reference_marker_A4_60mm.pdf` |
 
-No USDA API, no external database, no network calls at runtime — all policy lives in versioned YAML.
+No USDA API or external database is used. Model weights may download from Hugging Face on first use when they are not cached; normal analysis uses local model files and versioned YAML data/policy.
 
 ---
 
@@ -205,7 +205,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 70 Vitest tests |
+| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 71 Vitest tests |
 
 ---
 
@@ -292,7 +292,7 @@ npm run dev
 .venv/bin/pytest -q                    # full backend suite; latest run: 281 passed
 .venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
 .venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 70 Vitest tests (wire parity, selectors, wizard, PolicyNote)
+cd frontend && npm test                # 71 Vitest tests (wire parity, selectors, wizard, PolicyNote)
 ```
 
 On 2026-10-30, `.venv/bin/pytest -q` completed with **281 passed in 107.83 s**,
@@ -300,8 +300,26 @@ including the 10 GPU-marked tests. `npx tsc --noEmit`, all **70 Vitest tests**,
 `npm run build`, and `uv lock --check` also passed. The build emits existing
 dependency-comment and >500 kB bundle advisories. An earlier run on the same
 date stalled while CUDA was unavailable; the later successful run is current.
-Ruff and Pyright remain failing gates, so a passing test suite does not mean
-CI or production readiness is green. See the latest record in
+At that dated snapshot, Ruff and Pyright were failing gates. See the latest
+record in
+[`docs/production-readiness.md`](docs/production-readiness.md).
+
+The 2026-10-30 counts above are a dated snapshot. Current verification after
+the classifier-label consistency audit and lint/type remediation:
+
+| Command | Result |
+|---|---|
+| `.venv/bin/pytest -q` | `281 passed in 109.77s`; includes 10 GPU-marked tests. |
+| `npx tsc --noEmit` (from `frontend/`) | Passed. |
+| `npm test` (from `frontend/`) | 11 files and 71 tests passed. |
+| `npm run build` (from `frontend/`) | Passed; dependency-comment advisories and a 562.90 kB chunk warning remain. |
+| `.venv/bin/python -m ruff check .` | Passed: no findings. |
+| `.venv/bin/python -m tools.pyright_gate` | Passed: 205 existing type diagnostics, matching the refreshed 205-error baseline after real fixes. |
+| Generated contract diff | Passed; Python-generated Zod contract matches `frontend/src/types/contract.gen.ts`. |
+
+The frontend now labels top-1 classifier confidence and gallery match score
+as separate metrics, matching the backend contract. Both configured lint and
+type gates now pass. Details and exact verification context are recorded in
 [`docs/production-readiness.md`](docs/production-readiness.md).
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
@@ -315,20 +333,21 @@ TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
 
 ### 🔍 Lint
 
-Report-only first pass (STAGE 5). **No autofix, no repo-wide format was ever applied** — the `ignore` list in `ruff.toml` is exactly the set of rules the current code violates.
+The configured Ruff gate is clean. The `ignore` list in `ruff.toml` documents
+rules intentionally deferred from the earlier report-only cleanup; the
+2026-10-31 remediation fixed all findings under the configured rule set.
 
 ```bash
-.venv/bin/ruff check .                  # current run: 48 findings; see verification record
+.venv/bin/ruff check .                  # current run: clean
 .venv/bin/ruff check . --isolated       # report-only baseline: 117 findings / 22 rules
 ```
 
 Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and why each one was left alone rather than fixed:
 
-The 2026-10-30 final run of the configured gate reports 48 findings, mostly in
-diagnostic and research scripts. The API-admission files were checked
-separately and passed their focused Ruff check. The global gate is still red;
-details and the earlier 18-finding snapshot are recorded in
-`docs/production-readiness.md`.
+The 2026-10-30 final run of the configured gate reported 48 findings, mostly
+in diagnostic and research scripts. Those findings were fixed on 2026-10-31;
+the global gate is now clean. Earlier snapshots remain in
+`docs/production-readiness.md` as dated history.
 
 | Rule | n | Why relaxed |
 |---|---|---|
@@ -363,7 +382,7 @@ details and the earlier 18-finding snapshot are recorded in
 .venv/bin/python -m tools.pyright_gate   # compares current findings against pyright.baseline
 ```
 
-`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). The latest gate reports 214 errors against a baseline of 209 (five over baseline); the baseline was not changed. Existing findings do not block CI, but this increase does. Re-record a lower count with `--update` only after fixing actual errors.
+`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). The current gate reports 205 existing diagnostics and passes against the 205-error baseline. The baseline was reduced from 209 only after actual code fixes; it remains an error-count gate, so the remaining diagnostics are tracked legacy debt rather than a claim of full type-cleanliness.
 
 ### 🔒 Lockfile
 
@@ -397,9 +416,9 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 | GET | `/goals` | WHO Daily-goal values (General mode): energy kcal/day + protein g/day by age band × sex × activity level, status + provenance included |
 | POST | `/analyze` | Multipart upload (`file`, `day`, `band`, `serving_style`) → full analysis |
 
-### Example Response — `/analyze`
+### Abbreviated response excerpt — `/analyze`
 
-Every response uses the 19-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations, items`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `ingredient_head` | `learned_head` | `prior_geometry` | `multi_item`, null when no portion ran); `items` contains per-vessel blocks (or a one-item mirror for the single-serving path); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried`; `policy` carries the whole rule set the UI renders under a 12-hex `policy_version` digest.
+Every response uses the 19-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations, items`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `ingredient_head` | `learned_head` | `prior_geometry` | `multi_item`, null when no portion ran); `items` contains per-vessel blocks (or a one-item mirror for the single-serving path); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried`; `policy` carries the whole rule set the UI renders under a 12-hex `policy_version` digest. The JSON below is intentionally abbreviated; it omits nullable/optional fields and is not a complete request fixture. In `classification`, `confidence` is the classifier's top-1 confidence; `match_score` is the separate top-3-mean cosine score for gallery mode and is not a probability.
 
 ```json
 {
@@ -409,7 +428,7 @@ Every response uses the 19-key contract (`engine/contract.py`, Zod schema genera
   "policy": {"pass_p": 0.9, "fail_p": 0.1, "pass_min": 0.85, "fail_min": 0.9, "anchor_prior_cap": 0.6, "estimated_weight": 0.9, "base_table_prior": 0.85, "quality_degraded": 0.9, "depth_uncalibrated": 0.8, "lint_min_side_px": 1280, "policy_version": "7d3431caec4b"},
   "lint": {"digital_zoom": null, "focal_mm": 4.0, "min_side_px": 1100, "resolution_ok": false, "notes": ["min side 1100 < 1280px (marker tier may fall back to prior)"]},
   "anchor": {"method": "card_aruco", "tier": "measured", "cm_per_px": 0.0547, "tilt_deg": 39.0, "depth_scale_factor": 0.1417, "depth_scale_source": "card"},
-  "classification": {"dish": "rice_sambar", "confidence": 0.9, "method": "gallery"},
+  "classification": {"dish": "rice_sambar", "confidence": 0.35, "method": "gallery", "match_score": 0.945, "reason": "gallery match rice_sambar=0.945 >= 0.82"},
   "dish": {"id": "rice_sambar", "display_name": "Rice & Sambar", "day": "mon", "band": "1-5"},
   "portion": {"grams": 298.5, "volume_ml": 354.8, "base_method": "ring", "scale_tier": "measured", "sigma_grams_rel": 0.37, "flags": []},
   "nutrition": {"kcal": {"mean": 271.0, "interval_90": [141.0, 466.0]}, "protein_g": {"mean": 7.3, "interval_90": [3.8, 12.5]}},
@@ -458,7 +477,7 @@ Policy lives verbatim in `data/standards.yaml` (transcribed from the user's PM P
 | 9–10 | 700 kcal | 20 g *(identical rows in the source doc)* |
 
 - **Verdicts**: PASS needs P ≥ 0.90 *and* coverage ≥ 0.85; FAIL needs P ≤ 0.10 *and* coverage ≥ 0.90; everything else is BORDERLINE — a plate with no reference card is scored by the same rules but always carries a `no_reference_card` reason first: "this weight is an estimate"
-- **Coverage** multiplies ledger factors (anchor tier, base-plane method, capture quality) — a prior-tier anchor caps it at 0.60, so a guessed scale can never FAIL a plate
+- **Coverage** multiplies ledger factors — no-card learned-weight estimates use 0.90 and may reach PASS/FAIL under the same probability gates; no-card geometry-prior estimates use 0.60 and cannot reach PASS or FAIL
 - **Salt** (2 g primary / 4 g upper) is reported as an advisory only — never a verdict nutrient
 - Raw per-child/day gram allocations are surfaced as informational diagnostics, never compared against cooked plate weight
 
@@ -500,7 +519,7 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Multi-item estimates need validation**: the pipeline now portions detected vessels separately, decomposes combo dishes against their component vocabulary, and judges the aggregate meal (specs 003/004). In the six-photo diagnostic, component-restricted recognition reduced the multi-vessel estimates from 772–880 g to 202–535 g, but several frames assigned the same component to every vessel. There is no per-component ground truth, and near-duplicate views detected one vs. three vessels. Treat these as diagnostic estimates, not accuracy claims; see ledger 016 and spec 007.
+- **Multi-item estimates need validation**: the pipeline now portions detected vessels separately, decomposes combo dishes against their component vocabulary, and judges the aggregate meal (specs 003/004). In the six-photo canteen diagnostic, component-restricted recognition reduced the multi-vessel estimates from 772–880 g to 202–535 g, but several frames assigned the same component to every vessel; those photos have no component weights, and near-duplicate views detected one vs. three vessels. The separate ArUco pilot has named component weights, but is permanently EVAL-ONLY and does not establish correspondence for every predicted item. Treat both as diagnostics, not broad accuracy claims; see ledger 016, spec 007, and [`experiments/oracle_ablation/REPORT.md`](experiments/oracle_ablation/REPORT.md).
 - **Real-photo segmentation**: synthetic scenes are fully validated; on unposed canteen photos the degenerate-mask failure is fixed (ledger 014 — six-photo diagnostic, 2/6 previously returned 0.08%/0.18% slivers, now plate-sized via the box fallback). `grid9_box` finds multiple vessels but the result varies across views; quantify stability with card-bearing repeated captures before relying on item counts.
 - **Ingredient head (07b)**: N5k transfer gate failed (ledger 012) — the off-menu route is wired but dormant until a checkpoint passes a re-registered gate.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).

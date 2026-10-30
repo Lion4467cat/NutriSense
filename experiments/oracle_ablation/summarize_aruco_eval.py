@@ -126,12 +126,13 @@ def main() -> int:
                   if (r["result"].get("portion") or {}).get("grams") is not None]
         dirs = [_score(g, float(gt["total_g"]))[2] for g in scored]
         direction = "no grams" if not dirs else "over" if all(d == "over" for d in dirs) else "under" if all(d == "under" for d in dirs) else "mixed"
-        def spread(values: list[float]) -> str:
+        def spread(values: list[float], total_g: float) -> str:
             if not values:
                 return "n/a"
             low, high = min(values), max(values)
-            return f"{low:.1f}–{high:.1f} g; range {high-low:.1f} g ({100*(high-low)/float(gt['total_g']):.1f}% true)"
-        rows.append([plate, _fmt(gt["total_g"]), direction, spread(measured), spread(prior)])
+            return f"{low:.1f}–{high:.1f} g; range {high-low:.1f} g ({100 * (high - low) / total_g:.1f}% true)"
+        total_g = float(gt["total_g"])
+        rows.append([plate, _fmt(total_g), direction, spread(measured, total_g), spread(prior, total_g)])
     _print_table(["Plate", "True g", "Direction across available predictions", "Measured-anchor spread", "Prior-anchor spread"], rows)
 
     print("\n## Paired card versus forced-prior errors (same measured-anchor images)")
@@ -201,8 +202,7 @@ def main() -> int:
         missing = len(vals) - len(scored)
         rows.append([plate, f"over {over}; under {under}; exact {exact}; null {missing}"])
     _print_table(["Plate", "Image direction counts"], rows)
-    print("\nRecords: default={} forced_prior_paired={} flag_off_replay={}".format(
-        len(base), len(forced), int(replay is not None)))
+    print(f"\nRecords: default={len(base)} forced_prior_paired={len(forced)} flag_off_replay={int(replay is not None)}")
     return 0
 
 

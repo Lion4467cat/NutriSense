@@ -99,6 +99,8 @@ def serve_with_head(image_bgr, head, dish: dict, dish_info: dict,
     if code is None or cos < MATCH_THRESHOLD:
         return None
     entry = recipe_table.recipe_entry(code)
+    if entry is None:
+        return None
     ref = recipe_profile(entry)
 
     # Visible carriers = predicted grams on slots the recipe resolves; mass

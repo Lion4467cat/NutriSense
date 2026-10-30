@@ -1,6 +1,6 @@
 # Agentic improvement loop status
 
-**Status date:** 2026-10-30  
+**Status date:** 2026-10-31
 This loop is currently diagnostic. It has not changed serving code, production
 weights, thresholds, or configuration. A separate research-only checkpoint
 was trained for ledger 027 and is not loaded by the app. The ArUco weighed plates
@@ -49,9 +49,14 @@ performance across foods, plates, phones, users, or capture conditions.
 
 ## Current verification boundary
 
-The 2026-10-30 verification run collected 281 backend tests (271 non-GPU and
-10 GPU-marked) but did not complete the backend suite in the restricted
-execution environment. The frontend suite passed 70 tests and its production
-build succeeded. Ruff and the Pyright baseline gate reported findings; the
-details are recorded in `docs/production-readiness.md`. These status checks do
-not alter the diagnostic decisions above.
+The 2026-10-30 restricted verification attempt did not complete the backend
+suite; that attempt is historical and was superseded by the successful
+2026-10-31 run in the project `.venv`: 281 backend tests passed (271 non-GPU,
+10 GPU-marked), and all 71 frontend tests passed. TypeScript checking and the
+production build also passed. The follow-up remediation fixed the 48 Ruff
+findings, and the Pyright gate now passes at 205 existing diagnostics after
+real fixes reduced its baseline from 209. The classifier UI labels were
+corrected to distinguish confidence from gallery match score; serving model,
+threshold, and inference behavior were not changed. These status checks do
+not alter the diagnostic decisions above. Full results are recorded in
+`docs/production-readiness.md`.

@@ -37,9 +37,9 @@ def main() -> None:
     lines = [
         "# AI-ServicesBB Food Waste diagnostic results",
         "",
-        "Dataset: `AI-ServicesBB/food-waste-dataset`, revision `f008d0c7b41ea4408b66bd1b7bb9ecd58b70349d`; "
+        ("Dataset: `AI-ServicesBB/food-waste-dataset`, revision `f008d0c7b41ea4408b66bd1b7bb9ecd58b70349d`; "
         "author-stated CC BY 4.0 (cite [author repo](https://github.com/aihpi/pilotproject-food-waste) "
-        "and [dataset card](https://huggingface.co/datasets/AI-ServicesBB/food-waste-dataset)).",
+        "and [dataset card](https://huggingface.co/datasets/AI-ServicesBB/food-waste-dataset))."),
         f"This is a current-pipeline cross-domain `{split_name}` run; it is not a model-selection claim.",
         ("The author official `test` split was evaluated once and is permanently closed to development."
          if run_metadata.get("official_test_evaluation_only") else
@@ -89,9 +89,9 @@ def main() -> None:
             "",
             "## Multi-item mask overlap audit",
             "",
-            "A pair is overlap-flagged when IoU > 0.50. The existing dedupe threshold is 0.70, "
+            ("A pair is overlap-flagged when IoU > 0.50. The existing dedupe threshold is 0.70, "
             "so 0.50–<0.70 pairs are retained by that threshold. The duplicate-drop calculation "
-            "below is hypothetical and does not alter any recorded prediction.",
+            "below is hypothetical and does not alter any recorded prediction."),
             "",
             "| Receipt | Row | Predicted g | Top food area px | Sum item area px | Area ratio | IoUs | Pairs 0.50–<0.70 | Flagged item grams | Flagged % total | Hypothetical total after drop g | Delta g |",
             "|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|",
@@ -161,11 +161,11 @@ def main() -> None:
 
     lines.extend([
         "",
-        f"Numeric coverage: {total_views-len([r for r in image_rows if r.get('predicted_total_g') is None])}/{total_views} views; "
-        f"abstentions: {sum(r.get('predicted_total_g') is None for r in image_rows)}/{total_views}.",
-        "Across numeric views only (not plate-independent): "
+        (f"Numeric coverage: {total_views-len([r for r in image_rows if r.get('predicted_total_g') is None])}/{total_views} views; "
+        f"abstentions: {sum(r.get('predicted_total_g') is None for r in image_rows)}/{total_views}."),
+        ("Across numeric views only (not plate-independent): "
         f"mean signed error {_fmt(statistics.mean(all_signed) if all_signed else None)} g, "
-        f"MAE {_fmt(statistics.mean(all_abs) if all_abs else None)} g.",
+        f"MAE {_fmt(statistics.mean(all_abs) if all_abs else None)} g."),
         "",
         "## Receipt labels and unmatched components",
         "",
@@ -184,8 +184,8 @@ def main() -> None:
             for row in group for item in row.get("items", [])
         )
         gt_labels = [str(item["label"]).strip() for item in components]
-        matched = sorted(set(gt.lower() for gt in gt_labels) &
-                         set(label.lower() for label in item_labels if label != "UNLABELED"))
+        matched = sorted({gt.lower() for gt in gt_labels} &
+                         {label.lower() for label in item_labels if label != "UNLABELED"})
         unmatched_components = [label for label in gt_labels if label.lower() not in matched]
         lines.append(f"- Receipt {receipt}: ground-truth components: " + "; ".join(
             f"{row['label']} {float(row['grams']):.1f} g" for row in components
@@ -247,31 +247,31 @@ def main() -> None:
                            for item in representative_row.get("items", [])]
             lines.extend([
                 "![SAM masks on a representative Food Waste DEV image](overlays/receipt-480660-row-0192.png)",
-                f"Visual observation for receipt {representative['receipt_id']}, source row {representative['source_row_idx']}: "
+                (f"Visual observation for receipt {representative['receipt_id']}, source row {representative['source_row_idx']}: "
                 f"the colored item masks cover most of the plate and overlap, while the cyan top-level mask is small. "
                 f"Numbers: top mask {representative['top_food_area_px']} px; summed item masks "
                 f"{representative['sum_item_mask_area_px']} px; area ratio "
                 f"{float(representative['item_area_sum_to_top_area_ratio']):.3f}; pair IoU "
                 f"{float(representative['pairwise_iou'][0]['iou']):.3f}. Across {len(mask_rows)} multi-item views, "
                 f"item-area-sum/top-mask ratios span {_fmt(min(ratio_values), 3)}–{_fmt(max(ratio_values), 3)}; "
-                f"{band_pairs} pairs fall in the existing dedupe-pass band 0.50–<0.70.",
+                f"{band_pairs} pairs fall in the existing dedupe-pass band 0.50–<0.70."),
                 "",
                 "Hypothesis evidence ratings:",
-                f"- **(a) Oversized item masks — supports strongly.** In this overlay, the item masks visibly cover plate regions; "
-                f"{len(mask_rows)} multi-item views have item-area-sum/top-mask ratios above 1.",
-                "- **(b) Plate/table counted as height above the base plane — cannot decide.** Accepted outputs use "
-                "the prior learned-weight path (`area_cm2` and `mean_h_mm` are null); no height map was produced.",
-                f"- **(c) Classifier labels non-food crops as dishes — supports for this image.** The item labels are "
-                f"{item_labels}, while recorded components are {component_names}; the overlay shows each item mask includes extensive plate area.",
+                (f"- **(a) Oversized item masks — supports strongly.** In this overlay, the item masks visibly cover plate regions; "
+                f"{len(mask_rows)} multi-item views have item-area-sum/top-mask ratios above 1."),
+                ("- **(b) Plate/table counted as height above the base plane — cannot decide.** Accepted outputs use "
+                "the prior learned-weight path (`area_cm2` and `mean_h_mm` are null); no height map was produced."),
+                (f"- **(c) Classifier labels non-food crops as dishes — supports for this image.** The item labels are "
+                f"{item_labels}, while recorded components are {component_names}; the overlay shows each item mask includes extensive plate area."),
             ])
         else:
             flagged_count = sum(bool(audit.get("all_flagged_indices"))
                                 for audit in mask_rows if not audit.get("mapping_error"))
             lines.extend([
                 f"No separate overlay was rendered for phase `{phase}`; visual observations are limited to the initial report.",
-                f"Across {len(mask_rows)} multi-item views, item-area-sum/top-mask ratios span "
+                (f"Across {len(mask_rows)} multi-item views, item-area-sum/top-mask ratios span "
                 f"{_fmt(min(ratio_values), 3)}–{_fmt(max(ratio_values), 3)}; {band_pairs} pairs are in the existing "
-                f"dedupe-pass band 0.50–<0.70; {flagged_count} images have at least one overlap/area flag.",
+                f"dedupe-pass band 0.50–<0.70; {flagged_count} images have at least one overlap/area flag."),
                 "Height above a base plane cannot be assessed from this mask-only phase; its numeric outputs use the prior learned-weight route.",
             ])
     lines.extend([
@@ -279,12 +279,12 @@ def main() -> None:
         "## Run observations",
         "",
         "`PASS`, `BORDERLINE`, and `FAIL` are nutrient-compliance verdicts; they are not mass-accuracy gates.",
-        f"Verdicts: {dict(verdicts)}. Median end-to-end time per image: {_fmt(statistics.median(elapsed), 2)} s; "
+        (f"Verdicts: {dict(verdicts)}. Median end-to-end time per image: {_fmt(statistics.median(elapsed), 2)} s; "
         f"numeric-output median {_fmt(statistics.median(numeric_elapsed), 2)} s; "
         f"abstention median {_fmt(statistics.median(abstention_elapsed), 2)} s; "
-        f"first image {_fmt(elapsed[0], 2)} s.",
-        "The persisted raw JSONL has per-stage timings, full pipeline reasons, portions, item-mask metadata, and item labels. "
-        "The separate mask-audit JSONL contains replayed mask areas, flags and pairwise IoUs.",
+        f"first image {_fmt(elapsed[0], 2)} s."),
+        ("The persisted raw JSONL has per-stage timings, full pipeline reasons, portions, item-mask metadata, and item labels. "
+        "The separate mask-audit JSONL contains replayed mask areas, flags and pairwise IoUs."),
         "",
     ])
     scored_rows = [row for row in image_rows if row.get("predicted_total_g") is not None]
@@ -317,10 +317,10 @@ def main() -> None:
     else:
         lines.append("No exact rounded total matches occurred.")
     lines.extend([
-        "Leakage check: the runner passes only image pixels, EXIF, day, band, and serving style to "
+        ("Leakage check: the runner passes only image pixels, EXIF, day, band, and serving style to "
         "`pipeline.analyze`; it attaches ground-truth weights/components to the JSONL after inference. "
         f"The run records pipeline code SHA-256 `{run_metadata.get('pipeline_code_sha256', 'not recorded')}`. "
-        "No target leakage is evident at this call boundary.",
+        "No target leakage is evident at this call boundary."),
         "",
     ])
     lines.extend([

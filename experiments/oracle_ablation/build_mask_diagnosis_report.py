@@ -28,17 +28,17 @@ def main() -> None:
     out: list[str] = [
         "# ArUco mask diagnosis tables",
         "",
-        "All measurements below are computed from `aruco_mask_capture.jsonl`, "
+        ("All measurements below are computed from `aruco_mask_capture.jsonl`, "
         "the saved NPZ masks/depth maps, and the source image/config. `inside` "
         "means fraction of item-mask pixels inside the top-level SAM2 mask; "
         "it is a computational comparison, not a ground-truth food label. "
         "Classifier crop fraction is the fraction of the 10%-padded item bbox "
-        "crop inside the top-level mask.",
+        "crop inside the top-level mask."),
         "",
         "## Per image",
         "",
-        "| Plate | Image | Anchor | Distinct visible food portions | Pipeline item rows | "
-        "Pairs IoU 0.50–<0.70 | Item-mask sum / top-mask area | Predicted total (g) |",
+        ("| Plate | Image | Anchor | Distinct visible food portions | Pipeline item rows | "
+        "Pairs IoU 0.50–<0.70 | Item-mask sum / top-mask area | Predicted total (g) |"),
         "|---|---|---:|---:|---:|---:|---:|---:|",
     ]
     all_pairs: list[tuple[str, str, int, int, float]] = []
@@ -99,20 +99,20 @@ def main() -> None:
         )
     out += [
         "",
-        "The visible portion count follows the unchanged plate contents seen "
+        ("The visible portion count follows the unchanged plate contents seen "
         "across each folder: Dish 3 counts the two chapatis as one weighed "
-        "serving plus chutney; Dish 6 counts biryani and two eggs separately.",
+        "serving plus chutney; Dish 6 counts biryani and two eggs separately."),
         "",
         "## Per item: mask, crop classifier, and measured geometry",
         "",
-        "`Area/plate area` and `larger than plate` are n/a: the attempted full "
+        ("`Area/plate area` and `larger than plate` are n/a: the attempted full "
         "frame rim detector did not reliably identify the plate among bowl/food "
         "circles. The visual notes refer to the per-image full-frame overlay "
-        "and item index/color in its footer.",
+        "and item index/color in its footer."),
         "",
-        "| Plate / image / item | Label, grams | Mask px | Fraction in top mask | "
+        ("| Plate / image / item | Label, grams | Mask px | Fraction in top mask | "
         "Area / plate area | Classifier crop fraction in top mask | Top two labels (scores); confidence | "
-        "Mean / max height mm | Footprint cm² | Base method; plane c (m) | Density g/ml | Visual read |",
+        "Mean / max height mm | Footprint cm² | Base method; plane c (m) | Density g/ml | Visual read |"),
         "|---|---|---:|---:|---:|---:|---|---:|---:|---|---:|---|",
     ]
     marker_rows = []
@@ -198,18 +198,18 @@ def main() -> None:
                     ))
     out += [
         "",
-        f"Computed mask/top fraction bands (0.60 and 0.40 cut points): "
+        (f"Computed mask/top fraction bands (0.60 and 0.40 cut points): "
         f"mostly inside {mask_bands['mostly inside']}, mixed {mask_bands['mixed']}, "
-        f"mostly outside {mask_bands['mostly outside']} (n={item_total}).",
-        f"Classifier crop/top-mask fraction bands: food-dominant {crop_bands['food dominant']}, "
-        f"mixed {crop_bands['mixed']}, context-dominant {crop_bands['context dominant']} (n={item_total}).",
-        "The crop categories are a mask-area proxy checked against the actual "
-        "photos; they are not a pixel-level annotation of every food object.",
+        f"mostly outside {mask_bands['mostly outside']} (n={item_total})."),
+        (f"Classifier crop/top-mask fraction bands: food-dominant {crop_bands['food dominant']}, "
+        f"mixed {crop_bands['mixed']}, context-dominant {crop_bands['context dominant']} (n={item_total})."),
+        ("The crop categories are a mask-area proxy checked against the actual "
+        "photos; they are not a pixel-level annotation of every food object."),
         "",
         "## Pairwise IoU in the dedup threshold band",
         "",
-        "The detector removes pre-upsample mask pairs at IoU >= 0.70. The rows "
-        "below are returned item masks whose measured IoU is 0.50 to <0.70.",
+        ("The detector removes pre-upsample mask pairs at IoU >= 0.70. The rows "
+        "below are returned item masks whose measured IoU is 0.50 to <0.70."),
         "",
         "| Plate | Image | Pair | IoU |",
         "|---|---|---:|---:|",
@@ -217,10 +217,10 @@ def main() -> None:
     out.extend(f"| {plate} | `{esc(name)}` | {i}-{j} | {iou:.8f} |"
                for plate, name, i, j, iou in all_pairs)
     out += ["", "## Marker scale and tilt proxy", "",
-            "Marker physical side from `data/anchor_config.json`: 60.0 mm. "
+            ("Marker physical side from `data/anchor_config.json`: 60.0 mm. "
             "Marker side px is the mean of the four quad edges. Aspect proxy "
             "is shortest/longest edge. Plate diameter itself is n/a because "
-            "the rim fit was not reliable.", "",
+            "the rim fit was not reliable."), "",
             "| Plate | Image | Marker side px | Edge aspect proxy | cm/px | Plate diameter cm |",
             "|---|---|---:|---:|---:|---:|"]
     for plate, name, px, aspect, scale in marker_rows:
@@ -230,19 +230,19 @@ def main() -> None:
         if row["anchor_tier"] == "prior":
             out.append(f"| {row['plate']} | `{esc(Path(row['image']).name)}` | n/a | n/a | n/a | n/a |")
     out += ["", "## Height map evidence for rim/table overlap", "",
-            "Height maps are per measured item mask over its fitted base plane. "
+            ("Height maps are per measured item mask over its fitted base plane. "
             "`outside top pixels` includes the visibly overlaid plate/rim and "
-            "table/context, so it is not an isolated plate-rim segmentation.",
-            "", "| Plate | Image | Item | Mean h mm | Max h mm | Outside-top pixels | "
-            "Positive outside-top pixels | Mean positive mm | P95 mm | Max positive mm |",
+            "table/context, so it is not an isolated plate-rim segmentation."),
+            "", ("| Plate | Image | Item | Mean h mm | Max h mm | Outside-top pixels | "
+            "Positive outside-top pixels | Mean positive mm | P95 mm | Max positive mm |"),
             "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for record in selected_height_rows:
         plate, name, i, mean, maxh, nout, npos, pmean, p95, pmax = record
         out.append(f"| {plate} | `{esc(name)}` | {i} | {mean} | {maxh} | {nout} | "
                    f"{npos} | {pmean} | {p95} | {pmax} |")
     out += ["", "## Visual observations by plate folder", "",
-            "These are observations from the saved full-frame overlays/contact "
-            "sheets. The mask index is the matching footer color/index.", "",
+            ("These are observations from the saved full-frame overlays/contact "
+            "sheets. The mask index is the matching footer color/index."), "",
             "| Plate | Visual observation |",
             "|---|---|"]
     notes = {

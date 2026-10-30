@@ -56,12 +56,12 @@ export default function MeasurementDetails({ result }: { result: AnalyzeResult }
           <div className="kv-grid">
             <KV k="Dish" v={c?.dish || "—"} />
             <KV
-              k="Confidence"
+              k="Classifier confidence"
               v={c?.confidence != null ? formatPct(c.confidence, 0) : "—"}
             />
             <KV k="Method" v={c?.method || "—"} />
             <KV
-              k="Gallery match"
+              k="Gallery match score"
               v={c?.match_score != null ? c.match_score.toFixed(3) : "—"}
             />
             <KV k="Segment" v={seg?.strategy || "—"} />
