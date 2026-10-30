@@ -58,6 +58,8 @@ Each iteration **must** run the kill switch first:
 | [022 — mask spill](022-synthetic-mask-spill.md) | Does 25% vessel-pixel spill reproduce the synthetic total errors? | Criterion failed; no serving change. |
 | [023 — surface-area integration](023-synthetic-surface-area-integration.md) | Does local pixel-area integration improve exact-mask synthetic estimates? | Candidate rejected; no serving change. |
 | [024 — card position](024-synthetic-card-position-scale.md) | Does card position change measured scale, and does homography reduce spread? | Two-position evidence is promising, but the three-position criterion was not assessable; no serving change. |
+| [025 — card-position replication](025-synthetic-card-position-replication.md) | Does the effect replicate across three fixed placements with all 18 markers detectable? | Criterion met: global-scale sensitivity in 6/6 scenes; homography spread ≤2% in 4/6; no serving change. |
+| [026 — card/food plane-height audit](026-card-food-plane-height-audit.md) | Does projecting the food contour through card height bias its footprint area? | Criterion not met; source audit found the renderer defines mask support from table-plane ray intersections. No code change. |
 
 These are synthetic mechanism diagnostics only. The weighed ArUco plates are
 permanently EVAL-ONLY and are not eligible for tuning or candidate selection.

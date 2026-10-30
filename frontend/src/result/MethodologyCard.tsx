@@ -68,9 +68,9 @@ function stageRows(r: AnalyzeResult): Row[] {
     ok: !!cls?.dish,
     plain:
       cls?.dish
-        ? `Identified as ${r.dish?.display_name || cls.dish} with ${formatPct(cls.match_score ?? cls.confidence ?? 0, 0)} recognition confidence — that identity selects the nutrition table and the per-dish error table.`
+        ? `Identified as ${r.dish?.display_name || cls.dish}${cls.confidence != null ? ` with classifier confidence ${formatPct(cls.confidence, 0)}` : ""} — that identity selects the nutrition table and the per-dish error table.`
         : "The dish could not be identified for this capture.",
-    detail: `dish=${cls?.dish ?? "n/a"} · match=${cls?.match_score ?? "n/a"} · method=${cls?.method ?? "n/a"} · on_day=${String(r.dish?.on_day ?? "n/a")} · reason=${cls?.reason ?? "n/a"}`,
+    detail: `dish=${cls?.dish ?? "n/a"} · confidence=${cls?.confidence ?? "n/a"} · match_score=${cls?.match_score ?? "n/a"} · method=${cls?.method ?? "n/a"} · on_day=${String(r.dish?.on_day ?? "n/a")} · reason=${cls?.reason ?? "n/a"}`,
   });
 
   // 5 — weight

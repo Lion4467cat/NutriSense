@@ -286,9 +286,7 @@ def _mask_diagnostics(result: dict[str, Any], capture: dict[str, Any]) -> dict[s
             if value > 0.5:
                 overlap_indices.update((i, j))
                 gi, gj = grams[i], grams[j]
-                if gi is None or gj is None:
-                    drop = j
-                elif float(gi) > float(gj):
+                if gi is None or gj is None or float(gi) > float(gj):
                     drop = j
                 elif float(gj) > float(gi):
                     drop = i

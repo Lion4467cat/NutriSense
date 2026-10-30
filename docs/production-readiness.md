@@ -1,6 +1,6 @@
 # Model and service readiness status
 
-Status as of 2026-10-30. This records evidence for the current local build;
+Status as of 2026-10-31. This records evidence for the current local build;
 it is not a production deployment approval.
 
 ## Model quality and generalization
@@ -34,7 +34,61 @@ it is not a production deployment approval.
   group, target meaning/unit, license and explicit training eligibility;
   exact-image/group audits pass for the locally generated manifests.
 - Source decisions are in `docs/ledger/020-model-readiness-source-decisions.md`.
-  Only WED has verified labels compatible with the deployed plate-mass head.
+  WED remains the only source with verified labels compatible with the
+  deployed class-conditional plate-mass head. GTMensa adds tare-corrected
+  mixed-meal totals for a separate scalar research task; its candidate is not
+  compatible with the serving head or promoted.
+- A separate research-only MetaFood3D benchmark used 630 exact-join weighted
+  single objects with a grouped 416/106/108 split. The image-plus-supplied-mask
+  candidate was worse than the category-median baseline on both dev (121.994
+  vs 83.742 g MAE) and test (71.777 vs 55.832 g MAE); the paired test interval
+  crossed zero. No serving change was made. This is not mixed-plate evidence,
+  and MetaFood3D's CC BY-NC terms do not clear commercial product use. Details:
+  `experiments/metafood3d/RESULTS.md`.
+- The AI-ServicesBB Food Waste author `test` split was evaluated once, grouped
+  by its four receipts (160 repeated post-meal views; food-only returned grams).
+  The frozen WED-trained pipeline returned numeric totals on 67/160 views and
+  abstained on 93/160. Three receipt means with numeric output overpredicted
+  by 25.6–80.1 g; the fourth receipt had no numeric outputs. Every numeric
+  top-level classification was `vegetable_rice`, with no exact component-name
+  matches against the German labels. In 30 multi-item views, item-area sums
+  were 1.046–99.575 times the top-level food-mask area; 28 views had an
+  overlap/area flag. This is a small, cross-domain post-meal diagnostic, not a
+  serving accuracy claim; the official test split is closed to development.
+  Per-receipt and per-view scores, raw JSONL, and replayed mask audit:
+  `experiments/food_waste/RESULTS_OFFICIAL_TEST.md` and adjacent artifacts.
+- LeFood-Set V1 supplied 524 complete before/after pairs in 34 Indonesian food
+  categories. The frozen pipeline abstained on all 143 images in six held-out
+  categories, so it produced no numeric serving estimates on that split. One
+  preregistered, research-only scalar image regressor was tested once: 69.050 g
+  MAE versus 75.168 g for a train-only global-median baseline, but predictions
+  had −60.061 g signed bias and collapsed mostly near 50 g, with 307 g absolute
+  error on the single 343 g Bubur example. This is not a production breakthrough
+  or evidence for mixed Indian meals. The test categories are closed to further
+  development. The source calls its targets food weights, while its paper
+  describes weighing a plate containing food without documenting tare handling.
+  Protocol, data audit, raw rows, and reports: `experiments/lefoodset/`.
+- The VLM Food Benchmark provides 200 mixed canteen meals and 870 manually
+  checked item weights; its source states empty-plate tare was subtracted.
+  We froze participant groups before inference (106 train / 34 dev / 60 test;
+  participant 6 held out). On that one photographer/device test group, the
+  unchanged serving path returned `cannot_verify` on 60/60 images. One
+  research-only DINOv2-S total-mass head scored 148.018 g MAE versus 172.017 g
+  for the train+dev median, a 23.999 g reduction, with −106.880 g signed bias.
+  All 60 serving-path images used the prior anchor and abstained at
+  classification; best gallery scores ranged 0.599–0.765, below the current
+  0.80 acceptance score.
+  The dev split averaged 1.06 items and 320.2 g per image, versus 5.06 / 712.4 g
+  in train and 4.97 / 761.9 g in test; the paper describes the dev participant's
+  images as home-prepared, unlike the canteen setting. This may have affected
+  epoch selection and bias, but is only a hypothesis.
+  In the same sequential in-process pipeline run, per-image latency was 0.439 s
+  median / 0.467 s p95 after a first call of 18.571 s (model load included).
+  This is not an HTTP or sustained-load benchmark.
+  The candidate is not integrated; this modest gain on one non-Indian canteen
+  cluster does not validate Indian meals. Full per-image outputs, timing,
+  scripts, source revision, and split manifest are in
+  `experiments/vlm_food_benchmark/`.
 
 ## Uncertainty and user-facing recovery
 
@@ -49,6 +103,14 @@ it is not a production deployment approval.
   unsupported captures abstain/return `cannot_verify`; prior-scale estimates
   carry an explicit disclaimer. Inference is serialized per process and
   temporary uploads are removed in `finally`.
+- `/analyze` now has a per-process admission cap, default two requests, before
+  multipart parsing and the explicit temporary-file copy. An excess request
+  gets 503 plus `Retry-After: 1`; CORS remains on this response. The focused
+  concurrency check holds one fake inference, admits one waiter, rejects a
+  third request without creating a temp copy, keeps `/health` responsive, and
+  verifies cleanup. This bounds one worker's admitted requests; deployment
+  concurrency and resource budgets remain open, and worker count multiplies
+  the cap.
 - `/analyze` preserves its existing top-level keys. Nutrition provenance is
   an additive optional field with the composition-table SHA-256, component
   grams, kcal/protein densities and point contributions. The current local
@@ -80,11 +142,25 @@ it is not a production deployment approval.
   meal analysis. Reports: `api_benchmark_rtx4060_final.json` and
   `api_benchmark_rtx4060_thali.json`.
 - `tools/benchmark_api.py` records the image hash rather than the local path.
-- The only measured target is the local RTX 4060 development laptop. No
-  deployment hardware, concurrency target, service SLO, request timeout, or
-  memory budget has been agreed. Therefore production latency/resource
-  acceptance is **not established**. Before deployment, agree those budgets
-  and run the benchmark on the target container/device.
+- On 2026-10-30, a six-call sequential `/analyze` run on an AI-ServicesBB
+  development image measured p50 4,569.8 ms and p95 4,600.7 ms; all seven
+  requests returned HTTP 200 and verdict `FAIL` (a compliance verdict, not an
+  inference exception). Peak Uvicorn RSS was 4,550.9 MiB; peak system GPU use
+  was 5,276.9 MiB. The report and image hash are in
+  `experiments/food_waste/api_benchmark.json`.
+- A separate warmed one-worker test with two synchronized requests returned
+  HTTP 200 for both, with request times 4,514.4 and 9,082.8 ms and joint wall
+  time 9,087.7 ms. Peak Uvicorn RSS was 4,543.6 MiB and sampled system GPU use
+  was 5,276.9 MiB. This is a two-request smoke check, not sustained-load
+  evidence; see `experiments/food_waste/api_concurrency.json`.
+- **Provisional local operational target chosen for the RTX 4060 Laptop GPU
+  (8 GB):** one Uvicorn worker per GPU; at most two admitted `/analyze`
+  requests per worker; warm sequential p95 ≤6 s; two simultaneous requests
+  complete within 10 s each; system GPU use ≤7 GiB; cold first request ≤35 s.
+  These are local acceptance budgets, not measured deployment guarantees.
+  Current one-run observations fit those bounds (cold first request 31,860 ms),
+  but repeated cold-start, sustained-load, remote-network, and target-container
+  behavior are still unmeasured.
 - Existing API tests cover malformed and oversized input and the single-
   process inference limiter. The benchmark is sequential; multi-worker
   concurrency, sustained load, cold-start distribution and remote network
@@ -108,7 +184,9 @@ generalization or production accuracy; the prior result may benefit from
 error cancellation. The ArUco plates are permanently EVAL-ONLY and cannot be
 used to tune models, thresholds or fixes. The overlays support mask spill
 and non-zero height on plate/rim/table context as hypotheses; they do not
-isolate food or plate ground-truth masks.
+isolate food or plate ground-truth masks. The pilot includes named food-only
+component weights; component scores are limited to clear label matches and
+do not establish a one-to-one correspondence for every predicted item mask.
 
 ## Remaining release gates
 
@@ -141,7 +219,7 @@ isolate food or plate ground-truth masks.
 | SC-004 provenance and group leakage audits | Met for audited local manifests | Exact-hash and group audits report zero cross-split collisions. |
 | SC-005 ArUco correspondence audit | Met as an audit and exploratory pilot | 23 images / 6 plates; user-confirmed food-only totals support plate-level scoring only. EVAL-ONLY; not a tuning set and not a generalization benchmark. |
 | SC-006 uncertainty calibration and action | **Not met for confidence claims** | Calibration measured but misses coverage/width gate; abstention/recovery paths are tested. |
-| SC-007 agreed operational budgets | **Open** | Local benchmark exists; intended hardware/SLO and sustained/concurrent evidence are missing. |
+| SC-007 agreed operational budgets | **Open (local target chosen)** | Provisional RTX 4060 budgets are documented; repeated cold-start, sustained, remote and deployment-container validation remain. |
 | SC-008 measured nutrition quality | **Not met for serving** | Exploratory held-out report exists, but no validated macro-capable candidate passes transfer. |
 
 ## Commands
@@ -221,3 +299,132 @@ Commands were run from the project checkout with its `.venv` activated.
 These are verification outcomes, not changes to the evaluation protocol. The
 ArUco plates remain permanently EVAL-ONLY; none of these results authorize
 tuning or promotion of a serving-path candidate.
+
+## Continued work (2026-10-30)
+
+- Rechecked CUDA in `.venv`: PyTorch 2.13.0+cu130 and RTX 4060 were available.
+- MetaFood3D candidate benchmark used 630 group-disjoint weighted objects and
+  failed against its category-median baseline; no serving change was made.
+  See `experiments/metafood3d/RESULTS.md`.
+- Bounded `/analyze` admission as described above. Verification:
+  `.venv/bin/python -m pytest -q tests/test_api.py` — 9 passed;
+  `.venv/bin/python -m ruff check main.py tests/test_api.py` — passed;
+  `.venv/bin/python -m py_compile main.py tests/test_api.py` — passed;
+  `git diff --check` — passed.
+- The API overload policy is now explicit and bounded, but its cap has not
+  been validated against deployment concurrency, latency, or resource budgets.
+- Added an attributed, CC BY 4.0 cross-domain development source from
+  AI-ServicesBB. The unchanged pipeline was run on all 215 images across the
+  12 receipts in its author `train` split and then on its 160-image,
+  four-receipt official `test` split once; both are now closed for their
+  respective development/evaluation roles. It abstained on 144/215 train
+  views. Seven train receipts had
+  numeric output: six were over the food-only return weight and one was under;
+  five receipts had no numeric output at any angle. The mask audit found
+  plate-sized overlapping item masks across both phases. Hypothetical duplicate
+  drops did not recover measured totals. No pipeline change or candidate
+  promotion was made. The initial and extended protocols, scripts, raw JSONL,
+  and per-view reports are in `experiments/food_waste/`.
+  The largest error in this split was 679.6 g vs 218.0 g while verdict was
+  `PASS`; its reason says all mandatory nutrients were in the pass zone. The
+  runner attaches food-weight truth after inference, and no target leakage is
+  evident at the `pipeline.analyze` call boundary. `PASS` is not a mass-accuracy
+  claim.
+- LeFood-Set V1 was downloaded under its CC BY 4.0 terms and audited as a
+  category-grouped source: 524 complete pairs, 34 categories, with 154
+  workbook rows absent from the archive. The current pipeline's one-shot
+  held-out evaluation abstained on 143/143 images. A single preregistered
+  research candidate lowered MAE by 6.118 g versus the train-only median
+  baseline, but had −60.061 g signed bias and severely underestimated high-mass
+  portions. It is not integrated into serving. The held-out categories are
+  closed; no production model or accuracy claim follows. See
+  `experiments/lefoodset/`.
+- The CC BY 4.0 VLM Food Benchmark was selectively downloaded at pinned source
+  commit `d715df0c0debe65da805618431e67f6d0fa01c71`; code under the source repo
+  is MIT. Its 200 photos have 870 item weights with tare subtracted. A
+  participant-held-out scalar DINOv2-S candidate reduced test MAE by 23.999 g
+  against the train+dev median, but retained −106.880 g bias; the serving path
+  abstained on all 60 test images. This is the clearest measured mixed-meal
+  transfer lead found so far, but it is still one non-Indian participant
+  cluster and not a serving candidate. See `experiments/vlm_food_benchmark/`.
+
+## Current repository verification and UI consistency (2026-10-31)
+
+All commands below ran from the project checkout; Python used the project
+`.venv`. The full suite was run with the available CUDA device and no CPU
+fallback in the model tests.
+
+| Command | Result |
+|---|---|
+| `.venv/bin/pytest -q` | `281 passed in 109.77s`; includes 10 GPU-marked tests. |
+| `npx tsc --noEmit` (from `frontend/`) | Passed. |
+| `npm test` (from `frontend/`) | 11 files, 71 tests passed. |
+| `npm run build` (from `frontend/`) | Passed; dependency-comment warnings and a 562.90 kB chunk advisory remain. |
+| `.venv/bin/python -m ruff check .` | Passed: no findings. |
+| `.venv/bin/python -m tools.pyright_gate` | Passed: 205 existing diagnostics, matching the refreshed 205-error baseline after real fixes. |
+| Generated contract comparison | Passed: `tools.gen_contract_ts` output matches `frontend/src/types/contract.gen.ts`. |
+
+The audit corrected the result UI so `classification.confidence` (gallery
+top-1 softmax) and `classification.match_score` (gallery top-3 mean cosine)
+are described and displayed as distinct values. A regression test covers the
+labels. The backend wire contract and classifier calculations were not
+changed. The follow-up remediation fixed all configured Ruff findings and
+reduced the Pyright baseline from 209 to 205 only after real code fixes. The
+2026-10-30 verification notes remain historical records; this section gives
+the current check results.
+
+## Final repository and application verification (2026-10-30)
+
+Commands ran from the project root. Python commands used the project `.venv`;
+the full pytest run included the GPU-marked model tests.
+
+| Command | Result |
+|---|---|
+| `.venv/bin/pytest -q` | `281 passed in 107.83s (0:01:47)` |
+| `npx tsc --noEmit` (from `frontend/`) | Passed, no diagnostics. |
+| `npm test` (from `frontend/`) | `11` files passed; `70` tests passed. |
+| `npm run build` (from `frontend/`) | Passed in `2.16s`; Vite emitted dependency-comment advisories and a `562.80 kB` JS chunk warning. |
+| `uv lock --check` | Passed; `Resolved 93 packages in 24ms`. |
+| `.venv/bin/ruff check main.py tests/test_api.py` | Passed. |
+| `.venv/bin/ruff check .` | Failed: `Found 48 errors`; most are in diagnostic/research scripts. No autofix was run. |
+| `.venv/bin/python -m tools.pyright_gate` | Failed: `214 errors (baseline 209)`, five over baseline. `pyright.baseline` was not changed. |
+| `.venv/bin/python -m tools.check_locked` | `502 ok, 0 skipped, 0 failed (502 pinned)`. |
+| `git diff --check` | Passed. |
+
+The protected-path diff against `4f313fd` is limited to the known existing
+changes in `docs/locked_manifest.txt` and `tools/compare_runs.py` (4 and 121
+changed lines respectively). Neither file was edited in this cleanup.
+
+### Two-mode UI smoke test
+
+The live UI and backend were opened locally with the RTX 4060 Laptop GPU
+available (`torch 2.13.0+cu130`, CUDA available). One ordinary gallery image,
+`../DATASET/vegetable_rice/IMG20260825130507.jpg` (SHA-256
+`443de7da6c7b16aa941d6d811a601104be0d44ab9e316e5cb0ee74728affb838`), was
+analyzed once with `Monday`, `Classes 1-5`, and `mixed`, then the same stored
+result was viewed in both modes:
+
+- **School:** prior anchor, `vegetable_rice`, `90.6 g`, `FAIL`.
+- **General:** same `90.6 g` estimate; `136 kcal`, `3.2 g` protein; displayed
+  shares were `9%` of the `1450 kcal` default daily goal and `15%` of the
+  `21.4 g` default protein goal. No personal profile was entered, so these
+  are first-served defaults, not personalized targets.
+- **Observed UI discrepancy:** the dish card shows `Confidence 35%`, while its
+  measurement details report gallery match `0.9451655745506287` (about `95%`).
+  This was recorded without changing code.
+
+Uvicorn logged CUDA as available and selected `cuda` for segmentation,
+classification, and depth. The `/analyze` request returned HTTP 200. Its
+reported stage times were input `0 ms`, anchor `62 ms`, segmentation
+`11,526 ms`, classification `10,563 ms`, depth `7,619 ms`, portion `311 ms`,
+nutrition `9 ms`, and compliance `0 ms`. First-request logs also showed
+Transformers compatibility/configuration warnings for model loading; inference
+still completed and returned the result above. These are timings for one cold
+local request, not a latency distribution or deployment benchmark.
+
+This gallery-photo run is an application smoke test only; it has no weighed
+truth and supports no accuracy claim. The UI stored one analysis in local
+browser history. The app smoke output and complete cross-dataset limitations
+do not make the product production-ready: configured lint and type gates now
+pass, but independent representative Indian mixed-meal evidence is still
+missing.

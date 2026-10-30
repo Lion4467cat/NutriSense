@@ -2,6 +2,7 @@
 classifier stubbed for determinism, depth injected as GT)."""
 import asyncio
 import threading
+from pathlib import Path
 
 import cv2
 import httpx
@@ -99,13 +100,27 @@ def test_analyze_rejects_oversize_upload(monkeypatch):
     assert "upload limit" in r.json()["detail"]
 
 
-def test_inference_is_serialized_without_blocking_health(monkeypatch):
+def test_inference_is_serialized_without_blocking_health(monkeypatch, tmp_path):
     async def exercise():
         entered = threading.Event()
         release = threading.Event()
+        second_file_created = threading.Event()
         state_lock = threading.Lock()
         active = 0
         calls = 0
+        created_paths = []
+        real_named_temporary_file = main_module.tempfile.NamedTemporaryFile
+
+        def track_temporary_file(*args, **kwargs):
+            kwargs["dir"] = temp_dir
+            tmp = real_named_temporary_file(*args, **kwargs)
+            with state_lock:
+                created_paths.append(tmp.name)
+                if len(created_paths) == 2:
+                    second_file_created.set()
+            return tmp
+
+        temp_dir = tmp_path
 
         def fake_analyze(*_args):
             nonlocal active, calls
@@ -123,6 +138,7 @@ def test_inference_is_serialized_without_blocking_health(monkeypatch):
                     active -= 1
 
         monkeypatch.setattr(main_module, "_analyze_path", fake_analyze)
+        monkeypatch.setattr(main_module.tempfile, "NamedTemporaryFile", track_temporary_file)
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as ac:
             kwargs = {
@@ -132,7 +148,15 @@ def test_inference_is_serialized_without_blocking_health(monkeypatch):
             first = asyncio.create_task(ac.post("/analyze", **kwargs))
             second = asyncio.create_task(ac.post("/analyze", **kwargs))
             assert await asyncio.to_thread(entered.wait, 1)
+            assert await asyncio.to_thread(second_file_created.wait, 1)
             try:
+                overloaded = await ac.post(
+                    "/analyze", **kwargs, headers={"Origin": "http://localhost:5173"}
+                )
+                assert overloaded.status_code == 503
+                assert overloaded.headers["retry-after"] == "1"
+                assert overloaded.headers["access-control-allow-origin"] == "http://localhost:5173"
+                assert len(created_paths) == 2
                 health = await asyncio.wait_for(ac.get("/health"), timeout=0.5)
                 assert health.status_code == 200
                 assert calls == 1
@@ -140,6 +164,7 @@ def test_inference_is_serialized_without_blocking_health(monkeypatch):
                 release.set()
             responses = await asyncio.gather(first, second)
             assert all(r.status_code == 200 for r in responses)
+            assert all(not Path(path).exists() for path in created_paths)
 
     asyncio.run(exercise())
 

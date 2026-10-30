@@ -49,6 +49,19 @@ validation split (`data/weight_head_sigma.yaml`). Graduated 2026-10-11
 `estimated_weight` coverage factor (0.90), always with the no-card
 estimate disclaimer; local spot-check remains as follow-up evidence.
 
+**Classifier confidence**
+`classification.confidence`, returned by the dish classifier. In gallery
+mode this is the top-1 softmax over serving-label scores; in text-fallback
+mode it is the top sigmoid probability. It is not the gallery similarity
+score and is not the pipeline's coverage score.
+
+**Gallery match score**
+`classification.match_score`, returned by gallery classification. It is the
+best serving-label score, calculated from the top-3 mean cosine similarity.
+The classifier compares it with `gallery_match_threshold`; it is not a
+probability and does not have to equal classifier confidence. Text-fallback
+classification has no gallery match score (`null`).
+
 **Policy**
 The whole rule set an analysis was judged by — verdict P-zones (`pass_p`,
 `fail_p`), coverage gates (`pass_min`, `fail_min`), the mandatory nutrient
@@ -62,8 +75,9 @@ Records from before the contract carry no policy block and read as
 policy is loaded and ready.
 
 **Coverage**
-Multiplicative confidence score (product of degradation factors) gating
-PASS/FAIL. Not a verdict nutrient — see `engine/compliance.py`.
+Overall coverage score (product of applicable evidence/degradation factors)
+gating PASS/FAIL. This is separate from dish classifier confidence; see
+`engine/compliance.py`.
 
 **School mode**
 The app mode for PM POSHAN compliance. Dishes come from the school menu

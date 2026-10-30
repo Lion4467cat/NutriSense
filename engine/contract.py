@@ -39,7 +39,8 @@ import re
 import time
 from dataclasses import dataclass, field, asdict
 from enum import StrEnum
-from typing import Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import config
 
@@ -272,10 +273,10 @@ STAGE_POLICY: dict[Stage, Fatal | Degrade] = {
     Stage.COMPLIANCE: Fatal(),
 }
 
-_FALLBACKS: dict[str, object] = {}
+_FALLBACKS: dict[str, Callable[[], Any]] = {}
 
 
-def register_fallback(name: str, fn) -> None:
+def register_fallback(name: str, fn: Callable[[], Any]) -> None:
     _FALLBACKS[name] = fn
 
 

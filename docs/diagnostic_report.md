@@ -13,7 +13,7 @@ Date: 2026-10-14 · Scope: full backend + frontend (S0–S6 + v5 UI) · Method: 
 - Depth: MoGe-2 (`microsoft/MoGe`) + a git-pinned `utils3d_moge`; DA3 rejected (numpy<2 / py≤3.13 / xformers+open3d conflicts).
 - Portion: geometry path (scale anchor → cm/px → ellipse area × mean height above base plane, ring band 1.5% inside mask, largest-plane-residual selection) + learned-weight fallback (frozen DINOv2-S/14 → roi_align → class-conditional grams; current WED DEV MAE 15.034 g; see ledger 001/002 for split and CI details).
 - Monte Carlo: `engine/mc.py` — lognormal grams from `sigma_grams_rel`, recipe-share noise, table sigma from `nutrient_table_sigma_pct`, temperature_scale widens central interval; raw-equivalent diagnostics informational only. Sole interval owner.
-- Compliance: per-mandatory-nutrient P, coverage = product of `coverage_*` params (prior anchor caps 0.60 → PASS/FAIL unreachable, ADR 0002 + amendment), salt advisory only.
+- Compliance: per-mandatory-nutrient P, coverage = product of `coverage_*` params; no-card learned-weight grams use 0.90 and may reach PASS/FAIL, while geometry-prior grams use 0.60 and cannot reach either verdict (ADR 0002 + amendment); salt is advisory only.
 - Gates: `engine/gates.py` (zoom/day/band → input; out-of-scope dish → classify) consulted once by `analyze()` before scoring.
 - Hard/soft config split: `data/params.yaml` (defaults) vs `data/params_status.yaml` (measured/assumed/literature tags; the source of truth for coverage caps and the gallery_match_threshold abstain gate).
 - Contract: `engine/contract.py` + `tools/gen_contract_ts.py` → `frontend/src/types/contract.gen.ts` (Zod schemas on both sides; typed StageName vocabulary shared by both UIs).

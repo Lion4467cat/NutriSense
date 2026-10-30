@@ -2,7 +2,7 @@ import type { AnalyzeResult } from "../types/api";
 import type { DailyGoal } from "../services/goals";
 import { dishLabel } from "../services/records";
 import { Card } from "../ui/primitives";
-import { formatNum } from "../utils/format";
+import { formatNum, formatPct } from "../utils/format";
 import { toReasons } from "../utils/reasons";
 import { reasonTone } from "./verdicts";
 import SummaryCards from "./SummaryCards";
@@ -189,7 +189,7 @@ export default function GeneralResult({
             Recognized as{" "}
             <strong>{dishLabel(result) || result.dish.id}</strong>
             {result.classification?.confidence != null &&
-              ` · match ${Math.round(result.classification.confidence * 100)}%`}
+              ` · classifier confidence ${formatPct(result.classification.confidence, 0)}`}
             .
           </p>
         )}

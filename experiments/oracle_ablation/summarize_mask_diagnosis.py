@@ -99,13 +99,15 @@ def main() -> None:
                 crop_context += 1
             else:
                 crop_mixed += 1
-            print("  ITEM %d label=%s grams=%s area_px=%d inside_top_fraction=%s "
-                  "classifier_crop_top_mask_fraction=%s top2=%s geometry=%s" % (
-                      i, cls.get("dish"), portion.get("grams"), area,
-                      "n/a" if inside is None else f"{inside:.6f}",
-                      "n/a" if crop_frac is None else f"{crop_frac:.6f}",
-                      top2,
-                      "n/a" if geom is None else json.dumps(geom, sort_keys=True)))
+            inside_text = "n/a" if inside is None else f"{inside:.6f}"
+            crop_text = "n/a" if crop_frac is None else f"{crop_frac:.6f}"
+            geometry_text = "n/a" if geom is None else json.dumps(geom, sort_keys=True)
+            print(
+                f"  ITEM {i} label={cls.get('dish')} grams={portion.get('grams')} "
+                f"area_px={area} inside_top_fraction={inside_text} "
+                f"classifier_crop_top_mask_fraction={crop_text} top2={top2} "
+                f"geometry={geometry_text}"
+            )
         for i, j, value in pairs:
             print(f"  PAIR {i}-{j} IoU={value:.8f}" +
                   (" PASS_DEDUP_THRESHOLD_BAND" if 0.50 <= value < 0.70 else ""))

@@ -1,0 +1,43 @@
+{
+  "measurement": "one local uvicorn worker; one warmup, then two synchronized concurrent /analyze requests",
+  "image_sha256": "35761517dd4b95c07dbae0c849ab41b75d866804ea1980a294a71d949a55369d",
+  "image_bytes": 232180,
+  "cuda_device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch": "2.13.0+cu130",
+  "cuda_version": "13.0",
+  "warmup": {
+    "status": 200,
+    "elapsed_ms": 31860.0,
+    "verdict": "FAIL"
+  },
+  "concurrent_requests": [
+    {
+      "status": 200,
+      "elapsed_ms": 9082.8,
+      "verdict": "FAIL",
+      "degradations": [],
+      "failure_stages": []
+    },
+    {
+      "status": 200,
+      "elapsed_ms": 4514.4,
+      "verdict": "FAIL",
+      "degradations": [],
+      "failure_stages": []
+    }
+  ],
+  "concurrent_wall_ms": 9087.7,
+  "http_status_counts": {
+    "200": 2
+  },
+  "resource": {
+    "server_peak_rss_mib": 4543.6,
+    "gpu_used_mib_baseline_system": 5276.9,
+    "gpu_used_mib_peak_system": 5276.9,
+    "gpu_used_mib_peak_delta_system": 0.0
+  },
+  "limitations": [
+    "Two simultaneous requests only; not sustained load or throughput evidence.",
+    "Loopback on one RTX 4060 Laptop GPU; remote network and deployment host are unmeasured."
+  ]
+}

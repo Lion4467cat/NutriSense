@@ -45,7 +45,7 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
         sub={
           dish ? (
             <>
-              {conf != null ? `Confidence ${formatPct(conf, 0)}` : "Unrecognized"}
+              {conf != null ? `Classifier confidence ${formatPct(conf, 0)}` : "Unrecognized"}
               {result.classification?.method ? (
                 <span className="interval"> · {result.classification.method}</span>
               ) : null}

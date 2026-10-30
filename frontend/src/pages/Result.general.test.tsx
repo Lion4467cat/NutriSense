@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Route, Routes, MemoryRouter } from "react-router-dom";
 import { AppProvider } from "../context/AppContext";
 import { PREFS_KEY } from "../context/prefs";
@@ -125,6 +125,29 @@ describe("ResultPage in General mode (spec 002)", () => {
     expect(
       screen.queryByText("judged under an earlier policy")
     ).not.toBeInTheDocument();
+  });
+
+  it("labels classifier confidence and gallery match score as separate values", async () => {
+    const result: AnalyzeResult = {
+      ...fixtureResult,
+      classification: {
+        ...fixtureResult.classification!,
+        confidence: 0.35,
+        match_score: 0.945,
+        method: "gallery",
+      },
+    };
+    renderGeneral(result);
+
+    expect(
+      await screen.findAllByText(/classifier confidence 35%/i)
+    ).not.toHaveLength(0);
+    expect(screen.getByText(/confidence=0\.35 · match_score=0\.945/)).toBeInTheDocument();
+    expect(screen.queryByText(/recognition confidence/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Measurement details"));
+    expect(screen.getByText("Classifier confidence")).toBeInTheDocument();
+    expect(screen.getByText("Gallery match score")).toBeInTheDocument();
+    expect(screen.getByText("0.945")).toBeInTheDocument();
   });
 
   it("keeps the no-card estimate disclaimer leading when the backend sent it", async () => {
