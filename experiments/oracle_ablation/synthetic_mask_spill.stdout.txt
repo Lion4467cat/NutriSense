@@ -1,0 +1,11 @@
+scenes=6
+clean_within_5pct=3/6
+spill_error_increase_ge_10pp=0/6
+preregistered_criterion_met=False
+plate_150_low: truth=150.00g clean=154.99g (+3.33%) spill=160.08g (+6.72%) added_px=15528 base=ring->ring
+plate_250_mid: truth=250.00g clean=239.67g (-4.13%) spill=248.52g (-0.59%) added_px=14564 base=ring->ring
+plate_450_high: truth=450.00g clean=503.49g (+11.89%) spill=520.28g (+15.62%) added_px=21803 base=ring->ring
+bowl_150_low: truth=150.00g clean=153.08g (+2.06%) spill=159.30g (+6.20%) added_px=8824 base=ring->ring
+bowl_250_mid: truth=250.00g clean=237.17g (-5.13%) spill=247.43g (-1.03%) added_px=8566 base=ring->ring
+bowl_450_high: truth=450.00g clean=499.25g (+10.95%) spill=516.80g (+14.84%) added_px=13168 base=ring->ring
+raw_jsonl=experiments/oracle_ablation/synthetic_mask_spill.jsonl
