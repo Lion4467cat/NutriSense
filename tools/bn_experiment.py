@@ -272,7 +272,7 @@ class PerturbedWedPlates(WedPlates):
         mask = Image.open(self.wed_root / r["mask"]).convert("L")
         img, mask = self.perturb(img, mask)
         img_t = RGB_TF(img)
-        mask_arr = np.array(MASK_TF(mask).squeeze(0))
+        mask_arr = MASK_TF(mask).squeeze(0).numpy()
         H, W = img_t.shape[1:]
         bboxes, weights, cls_ids = [], [], []
         for d in r["dishes"]:

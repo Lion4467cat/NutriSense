@@ -33,8 +33,8 @@ Purpose: train/fine-tune the learned per-portion mass head (RGB photos of plated
 ### LeFood-Set (Brawijaya + Okayama)
 - 524 before/after pairs, Indonesian dishes, grams from digital scales; CC BY 4.0; DOI 10.17632/cchsk79jkt.1 https://data.mendeley.com/datasets/cchsk79jkt/1 (accessed 2026-10-28). **Use as: leftover-logic smoke test.**
 
-### FLIC (Milano-Bicocca + Parma) — measured but release unconfirmed
-- 401 full + 401 leftover canteen trays, pixel masks + physically measured mass (avg 121.56 g/item full trays); Applied Sciences 16(11):5465, DOI 10.3390/app16115465, open access (https://www.mdpi.com/2076-3417/16/11/5465, accessed 2026-10-28). **No public dataset download located.**
+### FLIC (Milano-Bicocca + Parma) — measured, public release
+- 401 full + 401 leftover canteen trays, pixel masks + physically measured mass (avg 121.56 g/item full trays); Applied Sciences 16(11):5465, DOI 10.3390/app16115465, open access (https://www.mdpi.com/2076-3417/16/11/5465). The paper links the [dataset folder](https://drive.google.com/drive/folders/1IGCjr7y-_zsZfHTsL4CyxdkspTp8Uhnt) (reviewed 2026-10-30). Confirm dataset terms before reuse.
 
 ### ECUSTFD
 - 2,978 images, 19 whole-food types, per-object weight_g + volume with 25 mm coin calibration; https://github.com/Liang-yc/ECUSTFD-resized- (accessed 2026-10-28). Single items, not plated; license unstated.
@@ -109,7 +109,7 @@ Nearest misses, quantified:
 | Sharma & Chadha (Delhi) | Weighed North-Indian portions (1 g scale), photo series exists | Photos+weights not public | Email authors; low effort, unclear outcome |
 | Nepal food atlas | South Asian, weighed, life-size photos | Not public, 2016, single-portion series | Author contact; likely stale |
 | Sri Lanka 2,380-img set | Boxes + grams, Asian | Not Indian cuisine, whole foods, no release | Author contact |
-| FLIC | Measured trays + masks | No Indian dishes, no public download | Author contact |
+| FLIC | Measured trays + masks | No Indian dishes | Public dataset folder; confirm terms |
 | MedGRFood-weighed | 23k weighed images w/ reference object | Greek cuisine, release unverified | Author contact |
 | RASOI (NCVPRIPG 2025) | Real composite Indian thalis + boxes, CC BY-NC-SA 4.0, on Kaggle | Boxes only, no mass | None needed for gallery/segmentation work — usable under NC for research |
 | MM-Food-100K | 100k images + portion strings | Grams are estimated (fails B), OpenRAIL, no Indian focus | None — unusable for (a) by definition |
@@ -118,7 +118,7 @@ Nearest misses, quantified:
 1. **Cross-validation and augmentation on WED** (multi-view splits already defined in `tools/train_weight_head.py` seams; stress suite in `tools/stress_suite.py`).
 2. **Transfer via protocol-identical but non-Indian teachers** — Nutrition5k (per-ingredient ±1 g scale truth) and FPB (lab grams, portion buckets) as auxiliary fine-tuning sources, keeping Indian eval (WED test 248 views) uncontaminated; treat FPB as eval-only if licensing conservatism is preferred (HF card CC BY-NC 4.0).
 3. **School-capture fine-tuning remains the primary domain adaptation path** (as already planned).
-4. Optionally: author-contact campaign (Sharma & Chadha Delhi; FLIC; Sri Lanka set) — cheap, but each is a long-shot.
+4. Optionally: author-contact campaign (Sharma & Chadha Delhi; Sri Lanka set) — cheap, but each is a long-shot. FLIC is now publicly linked by its paper; see the row above.
 
 **Classifier gallery:** nothing in this pass changes the gallery plan — Khana / Kaggle prototypes (label-only, licenses tracked) remain the (b) sources; they simply no longer count toward the mass-head bar.
 
@@ -128,4 +128,4 @@ Nearest misses, quantified:
 - **Author-contact shortlist** (Delhi photo series; FLIC; Sri Lanka 2,380): pursue or drop?
 - **Gallery add-on decision**: RASOI (CC BY-NC-SA 4.0, real composite thalis + boxes) is the strongest new (b)-side candidate found in the sweep — adopt for segmentation/layout prototyping or keep current Kaggle-prototype posture?
 - **FPB train-vs-eval posture** under CC BY-NC 4.0.
-- Watch items: CVIT biryani-video release, FLIC public release, FoodWeight1.4M release, FoodLens (Google) release — re-check quarterly.
+- Watch items: CVIT biryani-video release, FoodWeight1.4M release, FoodLens (Google) release — re-check quarterly.

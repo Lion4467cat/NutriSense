@@ -3,6 +3,51 @@
 How the no-card learned weight head (`data/weight_head.pt`) is scored, what
 each number means, and what protects the evaluation from drifting.
 
+## Current model-readiness baseline (2026-10-30)
+
+The older snapshot below describes the earlier ResNet50 model and is kept
+as historical context. The current deployable DINOv2-S model is measured in
+`data/reports/run_eval_dev_008_baseline.json`: **15.034 g DEV MAE** over 108
+views, 21 plates, and 1,218 ROIs; plate-bootstrap 95% CI [12.227, 18.889] g.
+This DEV carve is made from WED TRAIN plates and is also used for epoch
+selection. It is a repeated model-selection signal, not an independent
+generalization result. Three later point-estimate candidates failed to show
+an MAE improvement and were rejected (ledgers 017–019); see
+`docs/ledger/020-model-readiness-source-decisions.md`.
+
+After model/configuration and threshold freeze, the one-time final LOCKED
+report measured 14.667 g MAE over 2,793 ROIs / 48 plates, with plate-bootstrap
+95% CI [13.331, 16.029] g and nominal 90% coverage 0.8277. The result is in
+`data/reports/run_eval_locked_final_008.json` and the access log. It is not a
+tuning signal and must not be used to modify the frozen model or thresholds.
+
+As a separate grouped generalization estimate, five outer folds over WED TRAIN
+plates produced a pooled **16.421 g MAE** on 11,759 ROIs across 198 plates
+(fold MAEs 16.184, 18.096, 15.684, 15.720 and 16.521 g). Each fold's held
+plates were excluded from fitting and epoch selection; the fixed DEV plates
+were excluded from every fold. This is variability evidence for the baseline
+recipe, not a DEV improvement claim. The exact per-plate aggregate is
+`data/reports/cv_weight_head_s42_k5_wd1e-4.json`.
+
+## Real-capture weighed-plate pilot (EVAL-ONLY)
+
+On 2026-10-30 the full pipeline was run on 23 angle views of six unchanged
+plates with user-confirmed food-only totals. The 60 mm ArUco anchor was
+measured on 20 views; three used the prior tier. Per-image plate totals,
+classification, angle spread, paired forced-prior results, mask overlap,
+geometry telemetry and the fixed dish-label rubric are recorded in
+`experiments/oracle_ablation/REPORT.md`; raw JSONL and reproduction scripts
+are beside that report.
+
+The diagnostic found item-mask area sums of 2.84–7.71 times the top-level
+food-mask area on multi-item records, with broad angle-to-angle mass changes.
+The card path's valid paired subset had 805.4 g MAE versus 203.2 g for forced
+prior on the same 14 images. These are pilot measurements from six plates,
+one phone and one scale; they are not generalization estimates. The plates
+are permanently EVAL-ONLY: do not use them for tuning, candidate selection,
+threshold setting or fix validation. The 14-image card/prior subset is not
+the full 20 measured-anchor views.
+
 Owner tool: `tools/run_eval.py` · protection: `tools/check_locked.py` +
 `docs/locked_manifest.txt` · stress copy: `tools/stress_suite.py` · paired
 comparison: `tools/compare_runs.py`.

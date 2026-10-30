@@ -173,6 +173,21 @@ export const nutritionSchema = z.object({{
   diagnostics: z.record(z.string(), z.unknown()),
   assumed_nutrients: z.array(z.string()),
   wider_ranges: z.boolean(),
+  nutrition_provenance: z.object({{
+    table: z.string(),
+    table_sha256: z.string(),
+    basis: z.string(),
+    components: z.record(z.string(), z.object({{
+      generic_id: z.string(),
+      grams: z.number(),
+      kcal_per_100g: z.number(),
+      protein_g_per_100g: z.number(),
+      kcal_contribution: z.number(),
+      protein_g_contribution: z.number(),
+      status: z.string(),
+      source: z.string(),
+    }})),
+  }}).optional(),
 }});
 export type NutritionBlock = z.infer<typeof nutritionSchema>;
 

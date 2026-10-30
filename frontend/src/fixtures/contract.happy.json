@@ -178,6 +178,33 @@
       "sd": 111.34919624167405
     },
     "n": 4000,
+    "nutrition_provenance": {
+      "basis": "per 100 g edible portion; point contributions use estimated component grams",
+      "components": {
+        "rice": {
+          "generic_id": "rice_boiled",
+          "grams": 257.829,
+          "kcal_contribution": 288.7687,
+          "kcal_per_100g": 112.0,
+          "protein_g_contribution": 6.1879,
+          "protein_g_per_100g": 2.4,
+          "source": "IFCT cooked rice (raw 356 / boiled 112 cited in data/conversions.yaml)",
+          "status": "literature"
+        },
+        "sambar": {
+          "generic_id": "sambar",
+          "grams": 171.886,
+          "kcal_contribution": 103.1317,
+          "kcal_per_100g": 60.0,
+          "protein_g_contribution": 4.2972,
+          "protein_g_per_100g": 2.5,
+          "source": "dal-tamarind-vegetable stew estimate; calibrate against recipe (M-gate)",
+          "status": "assumed"
+        }
+      },
+      "table": "data/nutrients.yaml",
+      "table_sha256": "5e5d7b7dd57347623d40a43f7ed5a23c55ebf9ad39443c26aa78dfede2d2e826"
+    },
     "protein_g": {
       "interval_90": [
         6.3661379663323565,

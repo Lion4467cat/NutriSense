@@ -3,17 +3,19 @@
 Open defects and degraded measurements, with where they come from and what
 is planned. Newest first.
 
-## Multi-item meal estimates need field validation (2026-10-30)
+## Multi-item meal estimates fail the weighed-plate pilot (2026-10-30)
 
 The multi-item path and combo component restriction are implemented (specs
-003/004), but the six-photo diagnostic has no per-vessel ground truth. The
-component-restricted rerun reduced the three multi-vessel totals from
-772.3/879.6/492.1 g to 418.1/534.7/202.0 g; some frames still assign the same
-component to every vessel. Near-duplicate captures also produced different
-vessel counts (one vs. three). Do not treat these diagnostic estimates as an
-accuracy result. Next evidence is card-bearing repeated captures to measure
-vessel-set stability, followed by the separately weighed, dish-held-out
-collection in spec 007 / `docs/data-collection-manual.md` §14.
+003/004). A 23-image / six-plate weighed pilot now supplies plate totals but
+no per-component ground truth. Item-mask area sums reached 2.84–7.71 times
+the top-level food-mask area; outputs varied substantially by angle, and
+some frames still assign repeated labels to multiple vessels. A paired
+card-versus-forced-prior comparison had 14 valid same-image pairs and showed
+larger card-path error on this cohort. These are EVAL-ONLY findings: the
+plates must not be used for tuning or validating candidate fixes. The masks
+are not pixel-level food ground truth, and plate/table height cannot be
+isolated from the saved overlays. Multi-item mass accuracy remains
+unestablished beyond this pilot; per-component accuracy is unmeasured.
 
 ## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C; measured honestly 2026-10-29)
 

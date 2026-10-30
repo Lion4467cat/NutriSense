@@ -580,7 +580,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 continue
             mc_i, mc_failure = stage(Stage.NUTRITION, sample_nutrients,
                                      portion_i, dish_i, band, n=n_mc,
-                                     seed=seed + 1 + rank, timings=timings)
+                                     seed=seed + 1 + rank,
+                                     component_prefix=info_i["id"],
+                                     timings=timings)
             if mc_failure is not None:
                 skipped.append(_item_wire_block(
                     item, cls_info, info_i, None,
@@ -778,6 +780,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         "diagnostics": mc["diagnostics"],
         "assumed_nutrients": mc["assumed_nutrients"],
         "wider_ranges": mc["wider_ranges"],
+        "nutrition_provenance": mc["nutrition_provenance"],
     }
 
     # --- off-menu serving path (spec 002 decision 3 + ADR 0003) -----------

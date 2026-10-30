@@ -13,9 +13,17 @@ only — never verdict input (standards.yaml: raw_gram_rows: informational).
 Interval width is tuned by params temperature_scale (M6 calibration hook).
 """
 import numpy as np
+import hashlib
+from pathlib import Path
 
 from config import load_params, load_standards, load_yields
 from engine.nutrients import assumed_nutrient_ids, nutrient_value, load_nutrients
+
+
+def _nutrient_table_version() -> str:
+    """Content identity for the composition table used in this calculation."""
+    path = Path(__file__).resolve().parents[1] / "data" / "nutrients.yaml"
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _lognormal_mean1(rng, sigma_rel, n):
@@ -49,7 +57,8 @@ def _summary(samples, temperature=1.0):
 
 
 def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
-                     nutrients=None, params=None, standards=None, yields=None):
+                     nutrients=None, params=None, standards=None, yields=None,
+                     component_prefix: str | None = None):
     """Run the MC. Returns samples (for verdict math) + summaries + diagnostics."""
     params = params if params is not None else load_params()
     nutrients = nutrients if nutrients is not None else load_nutrients()
@@ -82,8 +91,23 @@ def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
         (params["component_value_sigma_pct"]["value"] / 100.0) if generic_wider else 0.0,
     )
     kcal_pp100, prot_pp100 = [], []
+    nutrient_rows = []
     for nm in names:
-        k, p, _ = nutrient_value(comps[nm]["generic_id"], nutrients)
+        generic_id = comps[nm]["generic_id"]
+        k, p, status = nutrient_value(generic_id, nutrients)
+        row = nutrients[generic_id]
+        nutrient_rows.append({
+            "generic_id": generic_id,
+            "grams": round(float(portion["components_g"][nm]), 3),
+            "kcal_per_100g": k,
+            "protein_g_per_100g": p,
+            "kcal_contribution": round(
+                float(portion["components_g"][nm]) * k / 100.0, 4),
+            "protein_g_contribution": round(
+                float(portion["components_g"][nm]) * p / 100.0, 4),
+            "status": status,
+            "source": str(row.get("source", "unspecified")),
+        })
         kcal_pp100.append(_normal_pos(rng, k, value_rel, n))
         prot_pp100.append(_normal_pos(rng, p, value_rel, n))
     kcal_pp100 = np.stack(kcal_pp100, axis=1)   # (n, c)
@@ -135,6 +159,15 @@ def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
         },
         "assumed_nutrients": assumed_nutrient_ids(dish, nutrients),
         "wider_ranges": generic_wider,
+        "nutrition_provenance": {
+            "table": "data/nutrients.yaml",
+            "table_sha256": _nutrient_table_version(),
+            "basis": "per 100 g edible portion; point contributions use estimated component grams",
+            "components": {
+                (f"{component_prefix}:{name}" if component_prefix else name):
+                    nutrient_rows[i] for i, name in enumerate(names)
+            },
+        },
     }
 
 
@@ -153,12 +186,13 @@ def aggregate_meal(item_mcs, params=None):
     kcal = np.sum([m["kcal_samples"] for m in item_mcs], axis=0)
     prot = np.sum([m["protein_g_samples"] for m in item_mcs], axis=0)
     grams = np.sum([m["grams_samples"] for m in item_mcs], axis=0)
-    components_g, raw, assumed = {}, {}, set()
+    components_g, raw, assumed, provenance = {}, {}, set(), {}
     wider = False
     for m in item_mcs:
         components_g.update(m["components_g"])
         raw.update(m["diagnostics"]["raw_equivalent_g"])
         assumed.update(m["assumed_nutrients"])
+        provenance.update(m.get("nutrition_provenance", {}).get("components", {}))
         wider |= bool(m["wider_ranges"])
     first = item_mcs[0]
     return {
@@ -180,4 +214,11 @@ def aggregate_meal(item_mcs, params=None):
         },
         "assumed_nutrients": sorted(assumed),
         "wider_ranges": wider,
+        "nutrition_provenance": {
+            "table": "data/nutrients.yaml",
+            "table_sha256": first.get("nutrition_provenance", {}).get(
+                "table_sha256", _nutrient_table_version()),
+            "basis": "per 100 g edible portion; point contributions use estimated component grams",
+            "components": provenance,
+        },
     }

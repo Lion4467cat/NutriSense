@@ -169,6 +169,26 @@ def plate_key(row: dict) -> str:
     return f"{row['date_key']}_{row['set']}"
 
 
+def split_grouped_cv_fold(rows: list[dict], fold_count: int, fold_index: int,
+                         *, dev_frac: float = 0.10,
+                         fold_seed: int = 42) -> tuple[list[dict], list[dict], set[str]]:
+    """Remove the fixed DEV carve, then make one outer plate-grouped fold."""
+    if fold_count < 2 or not 0 <= fold_index < fold_count:
+        raise ValueError("invalid grouped CV fold count/index")
+    all_plates = sorted({plate_key(r) for r in rows})
+    dev_order = list(all_plates)
+    random.Random(42).shuffle(dev_order)
+    dev_plates = set(dev_order[:max(1, int(len(all_plates) * dev_frac))])
+    cv_rows = [r for r in rows if plate_key(r) not in dev_plates]
+    plates = sorted({plate_key(r) for r in cv_rows})
+    random.Random(fold_seed).shuffle(plates)
+    held_plates = {p for i, p in enumerate(plates)
+                   if i % fold_count == fold_index}
+    fit_rows = [r for r in cv_rows if plate_key(r) not in held_plates]
+    outer_rows = [r for r in cv_rows if plate_key(r) in held_plates]
+    return fit_rows, outer_rows, dev_plates
+
+
 class WedPlates(Dataset):
     """One item = one multi-view image with all its dish ROIs (like the paper).
 
@@ -209,7 +229,7 @@ class WedPlates(Dataset):
             img_t = RGB_TF(img)
         else:
             img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
-        mask_arr = np.array(MASK_TF(mask).squeeze(0))
+        mask_arr = MASK_TF(mask).squeeze(0).numpy()
         H, W = img_t.shape[1:]
         bboxes, weights, cls_ids = [], [], []
         for d in r["dishes"]:
@@ -440,7 +460,7 @@ def prepare_features(args: argparse.Namespace, rows: list[dict],
                 and len(blob["val"]) == len(rows)
                 and (not test_rows or isinstance(blob.get("test"), list)
                      and len(blob["test"]) == len(test_rows))):
-            return blob, {"mode": "reuse", "file": str(p)}
+            return blob, {"mode": "reuse", "file": p.name}
     blob = _build()
     p.parent.mkdir(parents=True, exist_ok=True)
     torch.save(blob, p)
@@ -507,6 +527,43 @@ def eval_items_mae(model, items: list[dict], batch: int, device):
     return mae, per_class, per_class_gt
 
 
+@torch.no_grad()
+def eval_items_grouped_errors(model, items: list[dict], batch: int, device,
+                              id2name: dict[int, str]) -> tuple[dict, dict]:
+    """Accumulate absolute/signed errors by physical plate and food class."""
+    model.eval()
+    per_plate: dict[str, dict[str, float | int]] = {}
+    per_class: dict[str, dict[str, float | int]] = {}
+    for group in _batches(items, batch, shuffle=False):
+        feats = torch.stack([item["feats"] for item in group]).to(device)
+        rois, weights, cls_ids = build_rois(group, feats)
+        pred_all = model(feats, rois)
+        preds = pred_all[torch.arange(pred_all.size(0), device=device), cls_ids]
+        errors = (preds - weights).cpu().numpy()
+        classes = cls_ids.cpu().numpy()
+        offset = 0
+        for item in group:
+            count = len(item["weights"])
+            plate = str(item["key"])
+            plate_acc = per_plate.setdefault(
+                plate, {"n_rois": 0, "sum_abs_err_g": 0.0,
+                        "sum_signed_err_g": 0.0})
+            for j in range(offset, offset + count):
+                err = float(errors[j])
+                plate_acc["n_rois"] += 1
+                plate_acc["sum_abs_err_g"] += abs(err)
+                plate_acc["sum_signed_err_g"] += err
+                name = id2name.get(int(classes[j]), f"slot{int(classes[j])}")
+                class_acc = per_class.setdefault(
+                    name, {"n_rois": 0, "sum_abs_err_g": 0.0})
+                class_acc["n_rois"] += 1
+                class_acc["sum_abs_err_g"] += abs(err)
+            offset += count
+        if offset != len(errors):
+            raise RuntimeError("ROI predictions do not align with held-out items")
+    return per_plate, per_class
+
+
 def run_training(args: argparse.Namespace) -> dict:
     """The full training pipeline; returns the report dict.
 
@@ -529,7 +586,24 @@ def run_training(args: argparse.Namespace) -> dict:
     rows = load_manifest("train")
     if args.limit:
         rows = rows[:args.limit]
-    test_rows = [] if args.skip_test else load_manifest("test")
+    cv_fold = None
+    cv_folds = getattr(args, "cv_folds", None)
+    cv_fold_index = getattr(args, "cv_fold_index", 0)
+    if cv_folds is not None:
+        # Exclude the fixed DEV carve before creating outer folds. This is
+        # the same seed/group arithmetic as run_eval.dev_rows(); DEV is never
+        # used for gradients or inner-fold epoch selection in CV mode.
+        rows, test_rows, excluded_dev = split_grouped_cv_fold(
+            rows, cv_folds, cv_fold_index,
+            dev_frac=args.val_frac, fold_seed=args.seed)
+        held_plates = {plate_key(r) for r in test_rows}
+        cv_fold = {"fold_index": cv_fold_index,
+                   "fold_count": cv_folds,
+                   "held_out_plates": sorted(held_plates),
+                   "excluded_dev_plates": sorted(excluded_dev),
+                   "source_split": "WED train only"}
+    else:
+        test_rows = [] if args.skip_test else load_manifest("test")
     plates = sorted({plate_key(r) for r in rows})
     random.Random(args.seed).shuffle(plates)
     n_val = max(1, int(len(plates) * args.val_frac))
@@ -567,7 +641,8 @@ def run_training(args: argparse.Namespace) -> dict:
     torch.manual_seed(args.seed)
 
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = AdamW(params, lr=args.lr, weight_decay=1e-4)
+    weight_decay = float(getattr(args, "weight_decay", 1e-4))
+    optimizer = AdamW(params, lr=args.lr, weight_decay=weight_decay)
     n_batches = (len(train_items) + args.batch - 1) // args.batch
     scheduler = OneCycleLR(optimizer, max_lr=args.lr,
                            total_steps=args.epochs * n_batches, pct_start=0.3)
@@ -597,6 +672,7 @@ def run_training(args: argparse.Namespace) -> dict:
             "bn_mode": "frozen_encoder_eval", "epochs": args.epochs,
             "encoder": args.encoder,
             "train_aug": args.train_aug,
+            "weight_decay": weight_decay,
             "seed": args.seed, "trained": date.today().isoformat(),
             "val_mae_in_process_g": round(best_val, 2),
             "paper_baseline_mae_g": 14.51,
@@ -617,7 +693,26 @@ def run_training(args: argparse.Namespace) -> dict:
 
     report = {"meta": meta, "val_mae_in_process_g": round(best_val, 2),
               "val_mae_deployable_g": round(deploy_mae, 2)}
-    if not args.skip_test:
+    if cv_fold is not None:
+        outer_mae, outer_residuals, _outer_gt = eval_items_mae(
+            deployable, test_items, args.batch, device)
+        outer_per_plate, outer_per_class = eval_items_grouped_errors(
+            deployable, test_items, args.batch, device, id2name)
+        report["outer_cv"] = {
+            **cv_fold,
+            "n_views": len(test_items),
+            "n_rois": int(sum(len(it["weights"]) for it in test_items)),
+            "mae_g": round(outer_mae, 3),
+            "per_class_mae_g": {
+                id2name[c]: round(float(np.mean(np.abs(v))), 3)
+                for c, v in sorted(outer_residuals.items())
+            },
+            "per_plate_errors": outer_per_plate,
+            "per_class_errors": outer_per_class,
+            "train_plates": sorted({plate_key(r) for r in train_rows}),
+            "epoch_selection_plates": sorted({plate_key(r) for r in val_rows}),
+        }
+    elif not args.skip_test:
         test_mae, per_class_test, _ = eval_items_mae(deployable, test_items,
                                                      args.batch, device)
         meta["test_mae_g"] = round(test_mae, 2)
@@ -656,6 +751,8 @@ def main() -> None:
                     help="frozen backbone (ledger 002 lever b); encoder_id "
                          "is recorded in the checkpoint for load()")
     ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--weight-decay", type=float, default=1e-4,
+                    help="AdamW weight decay for the trainable ROI head")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--val-frac", type=float, default=0.10)
     ap.add_argument("--workers", type=int, default=2,
@@ -680,6 +777,11 @@ def main() -> None:
                     help="never load or evaluate the WED test split "
                          "(no test MAE, no merge_check) — rebuild the "
                          "deployable artifact from train+val only")
+    ap.add_argument("--cv-folds", type=int, default=None,
+                    help="outer plate-grouped CV folds over WED TRAIN only; "
+                         "does not load WED test/LOCKED")
+    ap.add_argument("--cv-fold-index", type=int, default=0,
+                    help="zero-based outer fold index for --cv-folds")
     ap.add_argument("--out", default=str(_ROOT / "data" / "weight_head.pt"))
     ap.add_argument("--sigma-out", default=str(_ROOT / "data" / "weight_head_sigma.yaml"))
     ap.add_argument("--report-out", default=str(_ROOT / "data" / "reports" / "weight_head_train.json"))
