@@ -451,12 +451,12 @@ Policy lives verbatim in `data/standards.yaml` (transcribed from the user's PM P
 
 ## 👥 Team
 
-| Name | USN | Role |
-|---|---|---|
-| Aryan Kumar | 1BM23AI037 | Literature Survey, Research & Data Collection |
-| Roshanth V | 1BM23AI155 | Literature Survey, Research & Data Collection |
-| S S Gokula Swamy | 1BM23AI158 | Backend & Frontend Development |
-| Somanath S D | 1BM23AI187 | Backend & Frontend Development |
+| **Name**         | **USN**    | **Role**                                     |
+| ---------------- | ---------- | -------------------------------------------- |
+| Aryan Kumar      | 1BM23AI037 | Literature Survey, Research & Data Collection |
+| Roshanth V       | 1BM23AI155 | Literature Survey, Research & Data Collection |
+| S S Gokula Swamy | 1BM23AI158 | Backend & Frontend Development                |
+| Somanath S D     | 1BM23AI187 | Backend & Frontend Development                |
 
 **Guide:** Prof. Varsha R, Dept. of Machine Learning, BMSCE
 
