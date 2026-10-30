@@ -1,4 +1,6 @@
 import type { AnalyzeResult, Verdict } from "../types/api";
+import { shareOfGoal } from "./goals";
+import { localDateKey } from "../utils/format";
 import { toReasons } from "../utils/reasons";
 import type { Storage } from "./storage";
 
@@ -98,6 +100,67 @@ export function attention(records: AnalysisRecord[]): AnalysisRecord[] {
   return byNewest(
     records.filter((r) => ATTENTION_VERDICTS.includes(r.summary.verdict))
   );
+}
+
+/**
+ * General-mode attention (spec 002): records that produced no nutrition
+ * numbers at all — the honest "look again" list when there is no verdict.
+ * Newest first, like every selector here.
+ */
+export function unmeasured(records: AnalysisRecord[]): AnalysisRecord[] {
+  return byNewest(
+    records.filter((r) => r.summary.grams == null && r.summary.kcal == null)
+  );
+}
+
+/**
+ * Per-record share of the Daily goal (General mode). Shares are computed
+ * client-side from the stored summary means — a goal edit re-renders
+ * history without any re-analysis (spec 002 user story 23). Null whenever
+ * the meal or the goal lacks the nutrient; never an invented number.
+ */
+export function sharesOfGoal(
+  record: AnalysisRecord,
+  goal: { kcal: number | null; proteinG: number | null }
+): { kcal: number | null; protein: number | null } {
+  return {
+    kcal: shareOfGoal(record.summary.kcal, goal.kcal),
+    protein: shareOfGoal(record.summary.protein, goal.proteinG),
+  };
+}
+
+export interface DayTotal {
+  /** localDateKey(createdAt) bucket, e.g. "2026-10-28" */
+  date: string;
+  kcal: number;
+  protein: number;
+  meals: number;
+}
+
+/**
+ * Per-day sums of the stored meal means, for the General-mode dashboard.
+ * Input is newest-first by the RecordsState invariant; output days keep
+ * that order (newest day first) and never re-sort records.
+ */
+export function dayTotals(records: AnalysisRecord[]): DayTotal[] {
+  const byDay = new Map<string, DayTotal>();
+  for (const r of records) {
+    const key = localDateKey(r.createdAt);
+    if (!key) continue;
+    let bucket = byDay.get(key);
+    if (!bucket) {
+      bucket = { date: key, kcal: 0, protein: 0, meals: 0 };
+      byDay.set(key, bucket);
+    }
+    bucket.meals += 1;
+    if (r.summary.kcal != null && Number.isFinite(r.summary.kcal)) {
+      bucket.kcal += r.summary.kcal;
+    }
+    if (r.summary.protein != null && Number.isFinite(r.summary.protein)) {
+      bucket.protein += r.summary.protein;
+    }
+  }
+  return [...byDay.values()];
 }
 
 /** Wire dish → label: display name, else classification id, else fallback. */

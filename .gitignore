@@ -35,7 +35,19 @@ STOP
 data/locked_test/
 # Experiment run log — append-only local bookkeeping (tools/log_run.py)
 runs/
+# Frozen-encoder feature cache for head training (tools/train_weight_head.py,
+# spec 002 decision 10) — derived, box-local, ~1 GB per encoder
+data/cache/
 # agent-tooling scaffolding (local-only, like STOP) — decided in grill Q19
 .agents/
 .claude/
 skills-lock.json
+data/nutrition5k/
+# External datasets are large and remain local; commit only dataset documentation/manifests.
+datasets/raw/
+datasets/processed/
+# Reverted experiment checkpoints (ledger 012 revert): never ship these.
+# The serving path only loads data/ingredient_head.pt, which is committed
+# only if a future ledger gate passes.
+data/ingredient_head_candidate.pt
+data/ingredient_head_lio_*.pt

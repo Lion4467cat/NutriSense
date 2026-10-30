@@ -40,3 +40,298 @@ dataset:
   root: data/wed             # relative to repo root; resolved by the tools
   weights_json: data/wed/all_food_data.json
   index_map: data/wed/index_map.json
+
+# ---------------------------------------------------------------------------
+# Serving expansion (spec 002 decision 3, ticket 02, ledger 003) so EVERY WED
+# class resolves — unmapped-class behaviour (out_of_scope) disappears; a
+# recognized off-menu dish gets grams + nutrients with verdict cannot_verify
+# and ReasonKind off_menu_dish leading its reasons (coordinate decision on
+# ADR 0003 + spec decision 2). `background` is not a dish and never serves.
+#
+# serving: WED class name -> {dish: <serving key>}. Serving keys are either a
+#   data/menu.yaml dish (3 classes that ARE that menu dish's embodiment and
+#   keep its exact current verdict path, wheat_product's out_of_scope gate
+#   included) or an off_menu entry keyed by the WED class name itself.
+#
+# off_menu: per-class serving entries for the 38 remaining classes. Each has
+#   its own wed_slots slot, nutrition_source: generic (the generic per-100 g
+#   table in data/nutrients.yaml — never the official school menu), and one
+#   component carrying type/generic_id/share/density_g_ml. Every new nutrient
+#   row and every density below is status: assumed (data/nutrients.yaml,
+#   params_status-style note inline) — flagged via the nutrition block's
+#   assumed_nutrients, never silently trusted.
+#
+# A data-level test asserts all 41 classes resolve (tests/test_wed_serving.py).
+
+serving:
+  Bottle-gourd-curry: {dish: Bottle-gourd-curry}
+  aloo-capsicum: {dish: aloo-capsicum}
+  aloo-curry: {dish: aloo-curry}
+  aloo-fry: {dish: aloo-fry}
+  beans-curry: {dish: beans-curry}
+  beetroot-kobari: {dish: beetroot-kobari}
+  beetroot-poriyal: {dish: beetroot-poriyal}
+  bisi-bele-bath: {dish: bisibelebath}
+  boondi: {dish: boondi}
+  cabbage-dry: {dish: cabbage-dry}
+  channa-brinjal: {dish: channa-brinjal}
+  chicken-dum-biryani: {dish: chicken-dum-biryani}
+  chutney: {dish: chutney}
+  curd: {dish: curd}
+  dondakaya-fry: {dish: dondakaya-fry}
+  kakarakaya-fry: {dish: kakarakaya-fry}
+  kofta-curry: {dish: kofta-curry}
+  leaf-dal: {dish: leaf-dal}
+  mango-pickle: {dish: mango-pickle}
+  masoor-dal: {dish: masoor-dal}
+  mirchi-ka-salan: {dish: mirchi-ka-salan}
+  muddha-pappu: {dish: muddha-pappu}
+  non-spicy-curry: {dish: non-spicy-curry}
+  non-spicy-dal: {dish: non-spicy-dal}
+  pachi-pulusu: {dish: pachi-pulusu}
+  papad: {dish: papad}
+  payasam: {dish: payasam}
+  phulka: {dish: wheat_product}
+  raita: {dish: raita}
+  rajma: {dish: rajma}
+  rasam: {dish: rasam}
+  salad: {dish: salad}
+  sambar: {dish: sambar}
+  steamed-rice: {dish: steamed-rice}
+  tomato-pappu: {dish: tomato-pappu}
+  veg-dum-briyani: {dish: veg-dum-briyani}
+  veg-pulao: {dish: vegetable_rice}
+  Watermelon: {dish: Watermelon}
+  Papaya: {dish: Papaya}
+  Banana: {dish: Banana}
+  Muskmelon: {dish: Muskmelon}
+
+off_menu:
+  Bottle-gourd-curry:
+    display_name: "Bottle Gourd Curry"
+    nutrition_source: generic
+    wed_slots: [Bottle-gourd-curry]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  aloo-capsicum:
+    display_name: "Potato & Capsicum Fry"
+    nutrition_source: generic
+    wed_slots: [aloo-capsicum]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  aloo-curry:
+    display_name: "Potato Curry"
+    nutrition_source: generic
+    wed_slots: [aloo-curry]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  aloo-fry:
+    display_name: "Potato Fry"
+    nutrition_source: generic
+    wed_slots: [aloo-fry]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  beans-curry:
+    display_name: "Beans Curry"
+    nutrition_source: generic
+    wed_slots: [beans-curry]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  beetroot-kobari:
+    display_name: "Beetroot Kobari Kura (coconut)"
+    nutrition_source: generic
+    wed_slots: [beetroot-kobari]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  beetroot-poriyal:
+    display_name: "Beetroot Poriyal"
+    nutrition_source: generic
+    wed_slots: [beetroot-poriyal]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  boondi:
+    display_name: "Boondi"
+    nutrition_source: generic
+    wed_slots: [boondi]
+    components:
+      snack: {type: snack, generic_id: boondi_type, share: 1.0, density_g_ml: 0.40}
+  cabbage-dry:
+    display_name: "Cabbage Dry"
+    nutrition_source: generic
+    wed_slots: [cabbage-dry]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  channa-brinjal:
+    display_name: "Channa & Brinjal Curry"
+    nutrition_source: generic
+    wed_slots: [channa-brinjal]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  chicken-dum-biryani:
+    display_name: "Chicken Dum Biryani"
+    nutrition_source: generic
+    wed_slots: [chicken-dum-biryani]
+    components:
+      biryani: {type: grain_pulse_mix, generic_id: chicken_biryani_type, share: 1.0, density_g_ml: 0.85}
+  chutney:
+    display_name: "Chutney"
+    nutrition_source: generic
+    wed_slots: [chutney]
+    components:
+      side: {type: chutney, generic_id: chutney_type, share: 1.0, density_g_ml: 1.00}
+  curd:
+    display_name: "Curd"
+    nutrition_source: generic
+    wed_slots: [curd]
+    components:
+      curd: {type: dairy, generic_id: curd, share: 1.0, density_g_ml: 1.03}
+  dondakaya-fry:
+    display_name: "Ivy Gourd (Dondakaya) Fry"
+    nutrition_source: generic
+    wed_slots: [dondakaya-fry]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  kakarakaya-fry:
+    display_name: "Bitter Gourd (Kakarakaya) Fry"
+    nutrition_source: generic
+    wed_slots: [kakarakaya-fry]
+    components:
+      fry: {type: vegetable, generic_id: vegetable_fry, share: 1.0, density_g_ml: 0.90}
+  kofta-curry:
+    display_name: "Kofta Curry"
+    nutrition_source: generic
+    wed_slots: [kofta-curry]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  leaf-dal:
+    display_name: "Leafy Dal"
+    nutrition_source: generic
+    wed_slots: [leaf-dal]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  mango-pickle:
+    display_name: "Mango Pickle"
+    nutrition_source: generic
+    wed_slots: [mango-pickle]
+    components:
+      side: {type: pickle, generic_id: pickle_type, share: 1.0, density_g_ml: 1.00}
+  masoor-dal:
+    display_name: "Masoor Dal"
+    nutrition_source: generic
+    wed_slots: [masoor-dal]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  mirchi-ka-salan:
+    display_name: "Mirchi ka Salan"
+    nutrition_source: generic
+    wed_slots: [mirchi-ka-salan]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  muddha-pappu:
+    display_name: "Muddha Pappu (Mashed Dal)"
+    nutrition_source: generic
+    wed_slots: [muddha-pappu]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  non-spicy-curry:
+    display_name: "Mild Vegetable Curry"
+    nutrition_source: generic
+    wed_slots: [non-spicy-curry]
+    components:
+      curry: {type: vegetable, generic_id: vegetable_curry, share: 1.0, density_g_ml: 0.95}
+  non-spicy-dal:
+    display_name: "Mild Dal"
+    nutrition_source: generic
+    wed_slots: [non-spicy-dal]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  pachi-pulusu:
+    display_name: "Pachi Pulusu (Raw Tamarind Soup)"
+    nutrition_source: generic
+    wed_slots: [pachi-pulusu]
+    components:
+      soup: {type: soup, generic_id: rasam_type, share: 1.0, density_g_ml: 1.00}
+  papad:
+    display_name: "Papad"
+    nutrition_source: generic
+    wed_slots: [papad]
+    components:
+      snack: {type: snack, generic_id: papad_type, share: 1.0, density_g_ml: 0.40}
+  payasam:
+    display_name: "Payasam"
+    nutrition_source: generic
+    wed_slots: [payasam]
+    components:
+      sweet: {type: sweet, generic_id: payasam_type, share: 1.0, density_g_ml: 1.05}
+  raita:
+    display_name: "Raita"
+    nutrition_source: generic
+    wed_slots: [raita]
+    components:
+      side: {type: dairy, generic_id: raita_type, share: 1.0, density_g_ml: 0.98}
+  rajma:
+    display_name: "Rajma (Kidney Bean Curry)"
+    nutrition_source: generic
+    wed_slots: [rajma]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  rasam:
+    display_name: "Rasam"
+    nutrition_source: generic
+    wed_slots: [rasam]
+    components:
+      soup: {type: soup, generic_id: rasam_type, share: 1.0, density_g_ml: 1.00}
+  salad:
+    display_name: "Salad"
+    nutrition_source: generic
+    wed_slots: [salad]
+    components:
+      salad: {type: vegetable, generic_id: salad_type, share: 1.0, density_g_ml: 0.50}
+  sambar:
+    display_name: "Sambar (standalone bowl)"
+    nutrition_source: generic
+    wed_slots: [sambar]
+    components:
+      dal: {type: dal, generic_id: sambar, share: 1.0, density_g_ml: 1.03}
+  steamed-rice:
+    display_name: "Steamed Rice (standalone)"
+    nutrition_source: generic
+    wed_slots: [steamed-rice]
+    components:
+      rice: {type: grain, generic_id: rice_boiled, share: 1.0, density_g_ml: 0.75}
+  tomato-pappu:
+    display_name: "Tomato Pappu"
+    nutrition_source: generic
+    wed_slots: [tomato-pappu]
+    components:
+      dal: {type: dal, generic_id: dal_curry, share: 1.0, density_g_ml: 1.00}
+  veg-dum-briyani:
+    display_name: "Vegetable Dum Biryani"
+    nutrition_source: generic
+    wed_slots: [veg-dum-briyani]
+    components:
+      biryani: {type: grain_pulse_mix, generic_id: vegetable_rice, share: 1.0, density_g_ml: 0.85}
+  Watermelon:
+    display_name: "Watermelon"
+    nutrition_source: generic
+    wed_slots: [Watermelon]
+    components:
+      fruit: {type: fruit, generic_id: watermelon_fruit, share: 1.0, density_g_ml: 0.92}
+  Papaya:
+    display_name: "Papaya"
+    nutrition_source: generic
+    wed_slots: [Papaya]
+    components:
+      fruit: {type: fruit, generic_id: papaya_fruit, share: 1.0, density_g_ml: 0.95}
+  Banana:
+    display_name: "Banana"
+    nutrition_source: generic
+    wed_slots: [Banana]
+    components:
+      fruit: {type: fruit, generic_id: banana_fruit, share: 1.0, density_g_ml: 0.94}
+  Muskmelon:
+    display_name: "Muskmelon"
+    nutrition_source: generic
+    wed_slots: [Muskmelon]
+    components:
+      fruit: {type: fruit, generic_id: muskmelon_fruit, share: 1.0, density_g_ml: 0.93}

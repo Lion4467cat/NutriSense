@@ -3,7 +3,28 @@
 Open defects and degraded measurements, with where they come from and what
 is planned. Newest first.
 
-## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C)
+## Multi-item meal estimates fail the weighed-plate pilot (2026-10-30)
+
+The multi-item path and combo component restriction are implemented (specs
+003/004). A 23-image / six-plate weighed pilot now supplies plate totals but
+no per-component ground truth. Item-mask area sums reached 2.84–7.71 times
+the top-level food-mask area; outputs varied substantially by angle, and
+some frames still assign repeated labels to multiple vessels. A paired
+card-versus-forced-prior comparison had 14 valid same-image pairs and showed
+larger card-path error on this cohort. These are EVAL-ONLY findings: the
+plates must not be used for tuning or validating candidate fixes. The masks
+are not pixel-level food ground truth, and plate/table height cannot be
+isolated from the saved overlays. Multi-item mass accuracy remains
+unestablished beyond this pilot; per-component accuracy is unmeasured.
+
+The follow-up synthetic diagnostics are recorded in ledger entries 022–024.
+Mask spill alone failed its registered criterion, local surface-area
+integration regressed the fixed synthetic scenes, and the card-position test
+had only two detectable positions per scene. The latter is a mechanism lead,
+not a serving correction or independent validation. See
+[`docs/agentic-improvement-loop.md`](agentic-improvement-loop.md).
+
+## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C; measured honestly 2026-10-29)
 
 The per-class lognormal intervals implied by `data/weight_head_sigma.yaml`
 are nominal 90% intervals, but they contain only **85.1% of the 1,218 VAL
@@ -11,21 +32,47 @@ samples** — and those samples are the same split the sigmas were fitted on,
 so coverage on unseen data is likely lower (the one-time test read saw
 **82.0%**, see below). Two causes: the residuals are not exactly
 lognormal, and `sigma_g` is a plain per-class standard deviation, so class
-bias and heteroscedasticity are absorbed rather than modelled. Plan:
-**conformal calibration** of the interval width, hooked into the
-learned-weight fallback loop (the `temperature_scale` M6 hook already widens
-central intervals, so the calibration can ride the same seam).
+bias and heteroscedasticity are absorbed rather than modelled.
 
-## Weight head training takes ~70 minutes per run (2026-10-11)
+**2026-10-29 — conformal calibration (ticket 03, ledger 004) measured the
+defect honestly and FAILED its pre-registered gate; the σ artifact is
+unchanged.** Leave-one-plate-out over the 21 DEV plates (fold-refit σ
+layer, head never retrained): nominal out-of-fold coverage at multiplier
+1.0 is **0.8103** (worse than the in-sample 0.8522, as expected). Stage C
+(one global multiplier) reaches 0.9007 only at **T = 1.47 → +47% mean
+width**, past the pre-registered +25% cap. Stage B (per-class multipliers)
+fails both criteria: 20/38 classes cannot reach 0.90 on their own OOF
+scores even at the 1.50 grid ceiling (tiny per-class calibration sets,
+n = 7–15), pooled 0.8736 at +27.1% width. Root cause — it is a
+**point-estimate robustness problem, not a width problem**: standardized
+residuals have overall std 2.09 (want 1.0) and kurtosis 48.8, and the
+excess variance is **between-plate**: per-plate mean standardized residual
+has std **0.700 vs 0.131 expected under iid** (5.3×), 51.8% of samples sit
+on plates with |mean| > 0.3σ, and 81% of the >1.5σ tail samples live on
+those plates. Worst cases are whole plates mis-predicted in one direction
+(20250517_set30 beans-curry: predicted 60–77 g vs GT 300 g on 5 views).
+No width scaling of a per-class σ layer can honestly cover a plate-level
+−240 g offset.
 
-A full 100-epoch run of `tools.train_weight_head` takes about **70 minutes**
-on the training box when the GPU is contended (~35 min when it is idle;
-never run alongside pytest-with-GPU). The encoder is frozen and pinned to
-`eval()`, so its output features are identical for every epoch and every
-run. Proposed early speed fix: **cache the frozen encoder's 7×7 features
-once per dataset** (one forward pass over the ~1.1k train + 108 val views)
-and train the MLP head on the cache — the per-epoch cost then drops to
-milliseconds and the whole run fits in a few minutes.
+Plan: this is now a **point-model robustness** issue (plate/session-level
+systematic mis-estimation in WED capture sessions), not an interval-width
+issue — per-plate calibration is impossible at serving (no plate identity),
+so the fix belongs to model features/training, tracked separately. Width
+scaling stays off the table until the point estimates improve: the honest
+90% interval would need +47% width to reach 0.90 OOF coverage, which was
+rejected by the pre-registered cap (ledger 004).
+
+## Weight head training takes ~70 minutes per run (2026-10-11) — RESOLVED
+
+~~Proposed early speed fix: cache the frozen encoder's features once per
+dataset.~~ **Landed (spec 002 decision 10):** `tools/train_weight_head.py`
+prepares the frozen encoder's per-view features once per run and caches them
+on disk (`data/cache/`, one blob per encoder + recipe + dataset fingerprint;
+`--features-cache none` opts out); every epoch trains the head on the
+prepared tensors. Verified 2026-10-29: the cache is implemented and covered
+by tests/test_weight_head_cache.py — the remaining weight-head robustness
+issue is the plate-level bias above, which is data-bound (P4, spec 007), not
+training-speed-bound.
 
 ## Stale artifact: `data/reports/weight_head_train.json` (2026-10-11)
 

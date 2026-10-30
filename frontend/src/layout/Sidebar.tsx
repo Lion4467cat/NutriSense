@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useMenu } from "../context/menu";
+import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
 import { apiBase } from  "../services/api";
 import {
@@ -27,7 +28,9 @@ const NAV = [
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { apiUp, menu } = useMenu();
   const { records } = useRecords();
+  const { prefs } = usePrefs();
   const { pathname } = useLocation();
+  const general = (prefs.mode ?? "school") === "general";
   const isActive = (to: string, end?: boolean) =>
     end ? pathname === to : pathname.startsWith(to);
   const statusLabel =
@@ -39,7 +42,9 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <LogoMark />
         <div>
           <div className="brand-name">NutriSense</div>
-          <div className="brand-sub">Compliance Intelligence</div>
+          <div className="brand-sub">
+            {general ? "Daily goal tracking" : "Compliance Intelligence"}
+          </div>
         </div>
       </div>
 

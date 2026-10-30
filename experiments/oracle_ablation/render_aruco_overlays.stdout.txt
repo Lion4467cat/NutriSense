@@ -1,0 +1,2 @@
+rendered_overlays=23
+contact_sheets=6

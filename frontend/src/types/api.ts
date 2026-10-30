@@ -1,9 +1,9 @@
 /**
  * View vocabulary for the NutriSense wire (GET /health, GET /menu,
- * POST /analyze). Every shape is DERIVED from the generated Zod schemas in
- * contract.gen.ts — Python owns the wire (tools/gen_contract_ts.py renders
- * it; ADR-0001). This module only aliases the generated names so views keep
- * their vocabulary; the hand-typed mirror is gone.
+ * GET /goals, POST /analyze). Every shape is DERIVED from the generated Zod
+ * schemas in contract.gen.ts — Python owns the wire (tools/gen_contract_ts.py
+ * renders it; ADR-0001). This module only aliases the generated names so
+ * views keep their vocabulary; the hand-typed mirror is gone.
  *
  * Exception: AnalyzeResult stays Partial for LEGACY STORED records only —
  * the wire itself is decoded by analysisSchema in services/api.ts.
@@ -21,6 +21,9 @@ export type {
   DayMenu,
   DishBlock as DishInfo,
   Failure,
+  GoalBand,
+  GoalProfile,
+  GoalsResponse,
   HealthResponse,
   Lint,
   MenuItem,

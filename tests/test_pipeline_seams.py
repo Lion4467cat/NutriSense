@@ -172,7 +172,7 @@ def test_result_contract_keys_and_types(scene):
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
         "classification", "dish", "portion", "nutrition", "coverage",
         "assumptions", "advisory", "model_versions", "compliance", "policy",
-        "path_used", "degradations",
+        "path_used", "degradations", "items",
     }
     assert out["failures"] == []
     assert out["policy"]["pass_p"] == 0.9 and out["policy"]["lint_min_side_px"] == 1280
@@ -430,3 +430,107 @@ def test_learned_head_not_used_when_card_measured(scene):
     assert out["portion"]["base_method"] == "ring"
     assert out["portion"]["grams_source"] == "geometry"
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+
+
+def test_measured_moge_uses_table_plane_but_gt_depth_keeps_ring(scene):
+    deps = make_deps(scene)
+
+    def moge(img, **kw):
+        out = deps["depth"](img, **kw)
+        out["model"] = _pipeline.MOGE_MODEL_ID
+        return out
+
+    real = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                        deps=deps | {"depth": moge})
+    synthetic = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                             deps=deps)
+    assert real["portion"]["base_method"] == "table_prior"
+    assert "vessel_shape_uncertain" in real["portion"]["flags"]
+    assert synthetic["portion"]["base_method"] == "ring"
+
+
+# --- seam 13: recognized off-menu dish (spec 002 decision 3, ledger 003) ---
+#
+# A recognized-but-not-on-menu dish IS recognized: grams + nutrients on the
+# wire, verdict cannot_verify, `off_menu_dish` LEADING the reasons;
+# out_of_scope stays only for unrecognized captures and explicitly-scoped
+# menu dishes (SCOPE gate). Menu-dish paths are untouched above.
+
+def _classify_stub(key):
+    def cls(img):
+        return {"dish": key, "confidence": 0.8, "method": "stub",
+                "match_score": 0.91, "reason": "stub"}
+    return cls
+
+
+def test_recognized_off_menu_learns_grams_and_cannot_verify(no_card_scene):
+    from config import load_wed_index
+
+    head = _FakeHead(220.0)
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene)
+                       | {"weight_head": head, "classify": _classify_stub("rajma")})
+    assert out["verdict"] == "cannot_verify"
+    assert out["reasons"][0]["kind"] == "off_menu_dish"       # leads the reasons
+    assert any(r["kind"] == "no_reference_card" for r in out["reasons"][1:])
+    assert out["failures"] == []                              # an outcome, not a fault
+    assert out["dish"]["id"] == "rajma"
+    assert out["dish"]["nutrition_source"] == "generic"       # generic table, not menu
+    assert out["portion"]["grams"] == 220.0
+    assert out["portion"]["base_method"] == "learned_weight"
+    assert out["portion"]["grams_source"] == "learned_weight"
+    assert head.calls and head.calls[0] == [load_wed_index()["rajma"]]
+    assert "interval_90" in out["nutrition"]["kcal"]
+    assert "interval_90" in out["nutrition"]["protein_g"]
+    assert "dal_curry" in out["nutrition"]["assumed_nutrients"]  # assumed, flagged
+    assert out["compliance"] is None                          # no school compliance
+    assert out["path_used"] == "learned_head"
+    assert not any(r["kind"] == "out_of_scope" for r in out["reasons"])
+
+
+def test_recognized_off_menu_geometry_with_measured_card(scene):
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene) | {"classify": _classify_stub("steamed-rice")})
+    assert out["verdict"] == "cannot_verify"
+    assert out["reasons"][0]["kind"] == "off_menu_dish"
+    assert not any(r["kind"] == "no_reference_card" for r in out["reasons"])
+    assert out["portion"]["grams"] > 0
+    assert out["portion"]["base_method"] == "ring"           # measured geometry ran
+    assert out["path_used"] == "card_geometry"
+    assert "interval_90" in out["nutrition"]["kcal"]
+    assert out["compliance"] is None
+    assert out["failures"] == []
+
+
+def test_off_menu_head_unavailable_still_precedes_nothing(no_card_scene):
+    # off-menu mapped dish + missing head keeps the mapped-dish contract:
+    # WeightHeadUnavailable -> cannot_verify, no grams, no silent geometry.
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(no_card_scene)
+                       | {"classify": _classify_stub("rajma")})
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["path_used"] is None
+    assert out["failures"][0]["kind"] == "weight_head_unavailable"
+
+
+def test_menu_equivalent_class_keeps_out_of_scope_verdict(scene):
+    # 'phulka' is a WED class whose serving target is the menu dish
+    # wheat_product (out_of_scope) — that verdict path stays byte-for-byte.
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene) | {"classify": _classify_stub("phulka")})
+    assert out["verdict"] == "out_of_scope"
+    assert out["reasons"][0]["kind"] == "out_of_scope"
+    assert out["dish"]["id"] == "wheat_product"
+    assert out["portion"] is None
+    assert out["failures"][0]["kind"] == "gate_rejected"
+
+
+def test_unknown_classified_key_fails_the_classify_stage(scene):
+    # A classifier key with no serving entry anywhere is a stage failure —
+    # never an off-menu serve, never a crash.
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene) | {"classify": _classify_stub("not_a_key")})
+    assert out["verdict"] == "cannot_verify"
+    assert out["failures"][0]["stage"] == "classify"
+    assert out["portion"] is None

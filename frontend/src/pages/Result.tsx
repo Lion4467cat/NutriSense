@@ -1,5 +1,8 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useGoals } from "../context/goals";
+import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
+import { resolveGoal } from "../services/goals";
 import VerdictCard from "../result/VerdictCard";
 import PolicyNote from "../result/PolicyNote";
 import SummaryCards from "../result/SummaryCards";
@@ -9,6 +12,7 @@ import NutrientIntervals from "../result/NutrientIntervals";
 import MeasurementDetails from "../result/MeasurementDetails";
 import MethodologyCard from "../result/MethodologyCard";
 import CaptureQuality from "../result/CaptureQuality";
+import GeneralResult from "../result/GeneralResult";
 import { EmptyState } from "../ui/primitives";
 import { IconArrowLeft, IconHistory, IconSparkle } from "../ui/Icon";
 import { formatDateTime } from "../utils/format";
@@ -17,6 +21,8 @@ export default function ResultPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { records } = useRecords();
+  const { prefs } = usePrefs();
+  const { goals } = useGoals();
   const record = records.find((r) => r.id === id);
 
   if (!record) {
@@ -43,7 +49,57 @@ export default function ResultPage() {
     );
   }
 
+  const general = (prefs.mode ?? "school") === "general";
   const r = record.result;
+
+  if (general) {
+    return (
+      <div className="page">
+        <div className="page-head">
+          <div>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginLeft: -11, marginBottom: 6 }}>
+              <IconArrowLeft size={14} /> Back
+            </button>
+            <h1 className="page-title">Meal estimate</h1>
+            <p className="page-sub">
+              {formatDateTime(record.createdAt)} · grams, nutrients and share
+              of your Daily goal — no compliance verdict in this mode.
+            </p>
+          </div>
+          <div className="result-toolbar">
+            <Link className="btn btn-secondary btn-sm" to="/analyze">
+              <IconSparkle size={14} /> New analysis
+            </Link>
+          </div>
+        </div>
+
+        <div className="result-stack">
+          <GeneralResult result={r} goal={resolveGoal(goals, prefs.profile, prefs.goalOverride)} />
+          <div className="dash-grid" style={{ marginBottom: 0 }}>
+            {record.photo && (
+              <section className="card card-pad">
+                <div className="card-head">
+                  <div>
+                    <h2 className="card-title">Captured photo</h2>
+                    <p className="card-sub">Local thumbnail of the original upload</p>
+                  </div>
+                </div>
+                <img
+                  src={record.photo}
+                  alt="Analyzed meal"
+                  style={{ borderRadius: "var(--r-md)", border: "1px solid var(--border)" }}
+                />
+              </section>
+            )}
+          </div>
+
+          <MeasurementDetails result={r} />
+
+          <MethodologyCard result={r} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page">

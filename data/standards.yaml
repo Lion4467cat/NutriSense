@@ -1,5 +1,7 @@
 # NutriSense MDM compliance standards — central PM POSHAN bands plus the
-# documented Karnataka state extension to classes IX-X.
+# documented Karnataka state extension to classes IX-X. The IX-X kcal/protein
+# values below are an application mapping, not a separately published
+# statewide Karnataka nutrition minimum.
 # This file is POLICY: compliance.py reads it, never re-derives it.
 
 source:
@@ -24,9 +26,12 @@ bands:
     kcal: {direction: min, value: 700}
     protein_g: {direction: min, value: 20}
     inherited_from: "6-8"
-    basis: "Karnataka state Mid-Day Meal extension; same upper-primary nutrition content"
+    basis: "application mapping to central upper-primary reference; statewide IX-X kcal/protein norm not established by cited sources"
 
-# Per-child/day RAW ingredient allocations — informational only.
+# Per-child/day RAW ingredient allocations — informational only. The 9-10 row
+# follows NutriSense's upper-primary mapping and is not a statewide official
+# IX-X ingredient schedule; Ballari's 2021-22 district report lists a different
+# vegetable amount and does not specify kcal/protein minima.
 # Never compare these grams directly against cooked plate weight (yield differs).
 allocation_raw_per_day:
   "1-5":  {rice: 100, pulses: 20, vegetables: 50, oil: 5, salt: 2}

@@ -368,3 +368,49 @@ DATASET/golden/
 
 End-of-day routine: verify all plates (§14.1) → back up originals → fill this
 log → update the quota table (§2) with what's left to collect.
+
+
+---
+
+## 14. Multi-item / component-weighed captures (P4, spec 007)
+
+The single-plate protocol (§1–§13) stays as-is. This section adds the rules
+that make **multi-item plates** (rice + rasam, biryani + egg) usable as ground
+truth for the multi-item path (spec 003/004) and for fixing the weight head's
+between-plate bias (known_issues 2026-10-29).
+
+**When a tray carries more than one vessel:**
+
+1. **Weigh each vessel separately.** Tare the scale, weigh vessel + contents,
+   subtract the empty-vessel weight (weigh it once per vessel type). Record
+   per-component grams, not just the tray total.
+2. **Cross-check.** The component weights must sum to the tray total within
+   ±2 g. If they don't, re-weigh now — a plate that fails this at the desk is
+   rejected at QA.
+3. **`weights.json` gains a components map:**
+   ```json
+   {
+     "total_g": 412.0,
+     "components": { "steamed-rice": 300.0, "rasam": 112.0 },
+     "vessels": 2
+   }
+   ```
+   Component keys use the WED class names from `data/wed_dishes.yaml` (the
+   gallery vocabulary), not free text.
+4. **Photograph the whole tray with the card** exactly as §1 — one photo
+   covers all vessels; the pipeline detects and portions each vessel itself.
+5. **Splits are by capture session × dish, never by view.** Two plates of the
+   same dish cooked in the same batch belong to the same split. A dish's DEV
+   and HOLDOUT plates must come from different cooking sessions.
+6. **Angle:** hold the phone so the marker tilt reads 25–60° (spec 005) —
+   roughly halfway between top-down and table-level.
+
+**Volume targets (why):** the weight head's error is dominated by
+between-plate bias (5.3× iid expectation), so the binding currency is
+**distinct plates**, not views. Aim for ~50 plates per common dish,
+~300–500 plates total. Views per plate stay at 2–3 as before.
+
+**Evaluation target (re-expressed, 2026-10-29):** relative error per
+component, provisional ≤10%. An absolute ≤5 g claim applies only to small
+sides (<100 g); on a 300 g rice plate it would require ~1.7% error, which no
+published single-image system achieves.

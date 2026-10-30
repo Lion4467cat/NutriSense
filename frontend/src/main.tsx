@@ -9,6 +9,7 @@ import "./styles/base.css";
 import "./styles/shell.css";
 import "./styles/ui.css";
 import "./styles/pages.css";
+import "./styles/onboarding.css";
 
 // composition root: real adapters for persistence and IO
 const storage = createWebStorage(window.localStorage);

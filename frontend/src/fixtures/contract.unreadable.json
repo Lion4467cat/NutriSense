@@ -14,6 +14,7 @@
       "stage": "input"
     }
   ],
+  "items": null,
   "lint": null,
   "model_versions": {},
   "nutrition": null,

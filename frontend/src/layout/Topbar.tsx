@@ -3,8 +3,12 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
-import { attention as selectAttention } from "../services/records";
+import {
+  attention as selectAttention,
+  unmeasured as selectUnmeasured,
+} from "../services/records";
 import { VerdictPill } from  "../result/VerdictPill";
+import ModeSwitch from "../ui/ModeSwitch";
 import { formatDate } from  "../utils/format";
 import {
   IconBell,
@@ -46,15 +50,20 @@ export default function Topbar({
   const { apiUp } = useMenu();
   const { prefs, setPrefs } = usePrefs();
   const { records } = useRecords();
+  const general = (prefs.mode ?? "school") === "general";
   const [search, setSearch] = useState(params.get("q") || "");
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const alertsRef = useRef<HTMLDivElement>(null);
 
+  // School: verdicts needing attention. General: analyses without numbers.
   const attention = useMemo(
-    () => selectAttention(records).slice(0, 6),
-    [records]
+    () =>
+      general
+        ? selectUnmeasured(records).slice(0, 6)
+        : selectAttention(records).slice(0, 6),
+    [records, general]
   );
 
   useEffect(() => {
@@ -116,6 +125,8 @@ export default function Topbar({
 
       <div className="topbar-spacer" />
 
+      <ModeSwitch className="topbar-mode" />
+
       <form className="search-box" onSubmit={submitSearch} role="search">
         <IconSearch size={14} />
         <input
@@ -133,7 +144,9 @@ export default function Topbar({
           onClick={() => setAlertsOpen((o) => !o)}
           aria-label={
             attention.length
-              ? `Notifications: ${attention.length} need attention`
+              ? general
+                ? `Notifications: ${attention.length} analyses have no nutrition numbers`
+                : `Notifications: ${attention.length} need attention`
               : "Notifications"
           }
           aria-expanded={alertsOpen}
@@ -156,7 +169,9 @@ export default function Topbar({
             <div className="pop-head">
               <div className="workspace-name">Notifications</div>
               <div className="workspace-role">
-                Local analyses needing attention
+                {general
+                  ? "Local analyses without nutrition numbers"
+                  : "Local analyses needing attention"}
               </div>
             </div>
             {apiUp === false && (
@@ -190,11 +205,17 @@ export default function Topbar({
                     {r.student?.name ? ` · ${r.student.name}` : ""}
                   </span>
                 </span>
-                <VerdictPill verdict={r.summary.verdict} />
+                {general ? (
+                  <span className="tag">no numbers</span>
+                ) : (
+                  <VerdictPill verdict={r.summary.verdict} />
+                )}
               </button>
             ))}
             {attention.length === 0 && apiUp !== false && (
-              <div className="pop-empty">Nothing needs attention.</div>
+              <div className="pop-empty">
+                {general ? "Every analysis has numbers." : "Nothing needs attention."}
+              </div>
             )}
             <button
               className="pop-item pop-foot"

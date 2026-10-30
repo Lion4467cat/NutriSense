@@ -78,6 +78,51 @@
     "serving_style": null
   },
   "failures": [],
+  "items": [
+    {
+      "area_frac": 0.2,
+      "bbox": null,
+      "classification": {
+        "confidence": 1.0,
+        "dish": "rice_sambar",
+        "match_score": 0.9,
+        "method": "stub",
+        "reason": "stub"
+      },
+      "dish": {
+        "band": "1-5",
+        "day": "mon",
+        "display_name": "Rice & Sambar",
+        "id": "rice_sambar",
+        "nutrition_source": "official_menu",
+        "on_day": true,
+        "serving_style": null
+      },
+      "portion": {
+        "area_cm2": 268.9,
+        "base_method": "ring",
+        "components_g": {
+          "rice": 257.8,
+          "sambar": 171.9
+        },
+        "density_eff": 0.842,
+        "flags": [],
+        "grams": 429.7,
+        "grams_source": "geometry",
+        "mean_h_mm": 18.99,
+        "scale_tier": "measured",
+        "sigma_grams_rel": 0.2799,
+        "sigma_rel": {
+          "area": 0.0547,
+          "base": 0.2369,
+          "density": 0.08,
+          "depth": 0.1131
+        },
+        "volume_ml": 510.7
+      },
+      "sam_score": 1.0
+    }
+  ],
   "lint": {
     "digital_zoom": null,
     "focal_mm": null,
@@ -133,6 +178,33 @@
       "sd": 111.34919624167405
     },
     "n": 4000,
+    "nutrition_provenance": {
+      "basis": "per 100 g edible portion; point contributions use estimated component grams",
+      "components": {
+        "rice": {
+          "generic_id": "rice_boiled",
+          "grams": 257.829,
+          "kcal_contribution": 288.7687,
+          "kcal_per_100g": 112.0,
+          "protein_g_contribution": 6.1879,
+          "protein_g_per_100g": 2.4,
+          "source": "IFCT cooked rice (raw 356 / boiled 112 cited in data/conversions.yaml)",
+          "status": "literature"
+        },
+        "sambar": {
+          "generic_id": "sambar",
+          "grams": 171.886,
+          "kcal_contribution": 103.1317,
+          "kcal_per_100g": 60.0,
+          "protein_g_contribution": 4.2972,
+          "protein_g_per_100g": 2.5,
+          "source": "dal-tamarind-vegetable stew estimate; calibrate against recipe (M-gate)",
+          "status": "assumed"
+        }
+      },
+      "table": "data/nutrients.yaml",
+      "table_sha256": "5e5d7b7dd57347623d40a43f7ed5a23c55ebf9ad39443c26aa78dfede2d2e826"
+    },
     "protein_g": {
       "interval_90": [
         6.3661379663323565,

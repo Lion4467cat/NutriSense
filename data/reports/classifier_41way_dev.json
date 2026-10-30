@@ -1,0 +1,409 @@
+{
+  "ledger": "009",
+  "date": "2026-10-29T11:48:16.465883+00:00",
+  "n_crops": 1218,
+  "n_dev_plates": 21,
+  "variants": {
+    "linear8": {
+      "acc": 0.7216748595237732
+    },
+    "mlp": {
+      "acc": 0.8119868636131287
+    },
+    "gallery": {
+      "acc": 0.8103448152542114
+    },
+    "hybrid": {
+      "acc": 0.8226600885391235
+    }
+  },
+  "baseline_gallery": {
+    "acc": 0.8103448152542114,
+    "method": "siglip_gallery_argmax_41",
+    "model": "google/siglip2-base-patch16-224"
+  },
+  "paired_delta_vs_gallery": {
+    "linear8": {
+      "delta_mean": -0.0885073600144201,
+      "delta_ci95": [
+        -0.1220908069577345,
+        -0.054511836175917025
+      ],
+      "reps": 2000,
+      "seed": 42
+    },
+    "mlp": {
+      "delta_mean": 0.0016225646408950924,
+      "delta_ci95": [
+        -0.027670162136000705,
+        0.03295370634505742
+      ],
+      "reps": 2000,
+      "seed": 42
+    },
+    "hybrid": {
+      "delta_mean": 0.012278194004025075,
+      "delta_ci95": [
+        -0.017258760414002462,
+        0.04388595205154145
+      ],
+      "reps": 2000,
+      "seed": 42
+    }
+  },
+  "best_variant": "hybrid",
+  "gallery_contamination": {
+    "dev_plate_images_in_gallery_sources": 41,
+    "dev_plate_images": 108
+  },
+  "per_class_best": {
+    "aloo-capsicum": {
+      "n": 15,
+      "acc": 0.733
+    },
+    "aloo-curry": {
+      "n": 15,
+      "acc": 0.733
+    },
+    "aloo-fry": {
+      "n": 9,
+      "acc": 0.889
+    },
+    "beans-curry": {
+      "n": 35,
+      "acc": 0.886
+    },
+    "beetroot-kobari": {
+      "n": 23,
+      "acc": 0.739
+    },
+    "beetroot-poriyal": {
+      "n": 13,
+      "acc": 0.846
+    },
+    "bisi-bele-bath": {
+      "n": 10,
+      "acc": 1.0
+    },
+    "boondi": {
+      "n": 7,
+      "acc": 0.571
+    },
+    "cabbage-dry": {
+      "n": 23,
+      "acc": 0.696
+    },
+    "channa-brinjal": {
+      "n": 25,
+      "acc": 0.76
+    },
+    "chicken-dum-biryani": {
+      "n": 15,
+      "acc": 0.6
+    },
+    "chutney": {
+      "n": 54,
+      "acc": 0.889
+    },
+    "curd": {
+      "n": 106,
+      "acc": 0.991
+    },
+    "dondakaya-fry": {
+      "n": 10,
+      "acc": 0.5
+    },
+    "kakarakaya-fry": {
+      "n": 10,
+      "acc": 0.4
+    },
+    "kofta-curry": {
+      "n": 34,
+      "acc": 0.882
+    },
+    "leaf-dal": {
+      "n": 9,
+      "acc": 0.333
+    },
+    "mango-pickle": {
+      "n": 33,
+      "acc": 0.879
+    },
+    "mirchi-ka-salan": {
+      "n": 15,
+      "acc": 0.733
+    },
+    "muddha-pappu": {
+      "n": 10,
+      "acc": 0.7
+    },
+    "non-spicy-curry": {
+      "n": 33,
+      "acc": 0.667
+    },
+    "non-spicy-dal": {
+      "n": 75,
+      "acc": 0.613
+    },
+    "pachi-pulusu": {
+      "n": 35,
+      "acc": 0.8
+    },
+    "papad": {
+      "n": 62,
+      "acc": 0.629
+    },
+    "payasam": {
+      "n": 10,
+      "acc": 1.0
+    },
+    "phulka": {
+      "n": 67,
+      "acc": 0.925
+    },
+    "raita": {
+      "n": 15,
+      "acc": 0.933
+    },
+    "rajma": {
+      "n": 23,
+      "acc": 0.87
+    },
+    "salad": {
+      "n": 104,
+      "acc": 0.865
+    },
+    "sambar": {
+      "n": 48,
+      "acc": 0.854
+    },
+    "steamed-rice": {
+      "n": 108,
+      "acc": 0.944
+    },
+    "tomato-pappu": {
+      "n": 25,
+      "acc": 0.52
+    },
+    "veg-dum-briyani": {
+      "n": 15,
+      "acc": 0.933
+    },
+    "veg-pulao": {
+      "n": 23,
+      "acc": 0.783
+    },
+    "Watermelon": {
+      "n": 36,
+      "acc": 0.944
+    },
+    "Papaya": {
+      "n": 20,
+      "acc": 0.85
+    },
+    "Banana": {
+      "n": 40,
+      "acc": 0.95
+    },
+    "Muskmelon": {
+      "n": 8,
+      "acc": 0.625
+    }
+  },
+  "per_class_gallery": {
+    "aloo-capsicum": {
+      "n": 15,
+      "acc": 0.867
+    },
+    "aloo-curry": {
+      "n": 15,
+      "acc": 0.867
+    },
+    "aloo-fry": {
+      "n": 9,
+      "acc": 0.667
+    },
+    "beans-curry": {
+      "n": 35,
+      "acc": 0.943
+    },
+    "beetroot-kobari": {
+      "n": 23,
+      "acc": 0.826
+    },
+    "beetroot-poriyal": {
+      "n": 13,
+      "acc": 1.0
+    },
+    "bisi-bele-bath": {
+      "n": 10,
+      "acc": 1.0
+    },
+    "boondi": {
+      "n": 7,
+      "acc": 0.857
+    },
+    "cabbage-dry": {
+      "n": 23,
+      "acc": 0.826
+    },
+    "channa-brinjal": {
+      "n": 25,
+      "acc": 0.8
+    },
+    "chicken-dum-biryani": {
+      "n": 15,
+      "acc": 0.867
+    },
+    "chutney": {
+      "n": 54,
+      "acc": 0.778
+    },
+    "curd": {
+      "n": 106,
+      "acc": 1.0
+    },
+    "dondakaya-fry": {
+      "n": 10,
+      "acc": 0.8
+    },
+    "kakarakaya-fry": {
+      "n": 10,
+      "acc": 0.7
+    },
+    "kofta-curry": {
+      "n": 34,
+      "acc": 0.912
+    },
+    "leaf-dal": {
+      "n": 9,
+      "acc": 0.556
+    },
+    "mango-pickle": {
+      "n": 33,
+      "acc": 0.879
+    },
+    "mirchi-ka-salan": {
+      "n": 15,
+      "acc": 1.0
+    },
+    "muddha-pappu": {
+      "n": 10,
+      "acc": 0.8
+    },
+    "non-spicy-curry": {
+      "n": 33,
+      "acc": 0.697
+    },
+    "non-spicy-dal": {
+      "n": 75,
+      "acc": 0.493
+    },
+    "pachi-pulusu": {
+      "n": 35,
+      "acc": 0.657
+    },
+    "papad": {
+      "n": 62,
+      "acc": 0.79
+    },
+    "payasam": {
+      "n": 10,
+      "acc": 1.0
+    },
+    "phulka": {
+      "n": 67,
+      "acc": 0.94
+    },
+    "raita": {
+      "n": 15,
+      "acc": 1.0
+    },
+    "rajma": {
+      "n": 23,
+      "acc": 0.696
+    },
+    "salad": {
+      "n": 104,
+      "acc": 0.702
+    },
+    "sambar": {
+      "n": 48,
+      "acc": 0.646
+    },
+    "steamed-rice": {
+      "n": 108,
+      "acc": 0.815
+    },
+    "tomato-pappu": {
+      "n": 25,
+      "acc": 0.52
+    },
+    "veg-dum-briyani": {
+      "n": 15,
+      "acc": 0.6
+    },
+    "veg-pulao": {
+      "n": 23,
+      "acc": 0.957
+    },
+    "Watermelon": {
+      "n": 36,
+      "acc": 0.972
+    },
+    "Papaya": {
+      "n": 20,
+      "acc": 0.95
+    },
+    "Banana": {
+      "n": 40,
+      "acc": 0.95
+    },
+    "Muskmelon": {
+      "n": 8,
+      "acc": 0.875
+    }
+  },
+  "top_confusions_best": [
+    {
+      "pair": "papad->phulka",
+      "n": 9
+    },
+    {
+      "pair": "non-spicy-dal->non-spicy-curry",
+      "n": 6
+    },
+    {
+      "pair": "leaf-dal->non-spicy-dal",
+      "n": 5
+    },
+    {
+      "pair": "non-spicy-dal->tomato-pappu",
+      "n": 5
+    },
+    {
+      "pair": "non-spicy-curry->non-spicy-dal",
+      "n": 5
+    },
+    {
+      "pair": "non-spicy-dal->leaf-dal",
+      "n": 4
+    },
+    {
+      "pair": "papad->beetroot-kobari",
+      "n": 4
+    },
+    {
+      "pair": "tomato-pappu->kofta-curry",
+      "n": 4
+    },
+    {
+      "pair": "sambar->rasam",
+      "n": 3
+    },
+    {
+      "pair": "veg-pulao->steamed-rice",
+      "n": 3
+    }
+  ]
+}

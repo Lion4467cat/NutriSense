@@ -1,0 +1,1 @@
+2026-10-30T05:12:59Z | git=b150075 | tier=locked | seed=42 | flag=--i-know-this-is-locked | views=248 samples=2793 | mae_g=14.667 mape_pct=19.99 | coverage_90=0.8277 | n_skipped_no_sigma=82 | out=data/reports/run_eval_locked_final_008.json

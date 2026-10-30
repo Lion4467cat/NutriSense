@@ -30,10 +30,30 @@ Ledger 001 (branch loop-aug-run1): train-only photometric augmentation
 (brightness/contrast/saturation jitter, Gaussian blur, JPEG re-compression)
 plus RandomErasing cutout was added after the hflip — single-variable
 change vs the entry-000 recipe; val/test paths stay unaugmented.
+
+Feature cache (spec 002 decision 10): the frozen encoder's per-view
+features are prepared once — one unaugmented window (val/test semantics)
+and one augmented window (the LEDGER-001 recipe, drawn from the run's
+seeded RNG) per train-manifest row — and every epoch trains the head on
+those prepared tensors. Augmentation is therefore applied at feature prep
+time: one fixed draw per view per run, not a fresh draw every epoch.
+A cache directory (default data/cache, git-ignored) holds one blob per
+encoder + recipe + dataset fingerprint; the first run builds it, later
+runs reuse it, `--features-cache none` keeps everything in memory. The
+training stream (head init, batch shuffling, head dropout) is reseeded
+after feature prep, so build / reuse / live paths are bitwise identical
+for a given seed.
+
+Ledger 006 (ticket 06 robustness): `--train-aug strong` opts into the
+stronger plate-bias recipe (joint image+mask rotation ±20° p=0.7, stronger
+ColorJitter/blur/JPEG/RandomErasing) — the single-variable change that
+ledger entry pre-registers; the default `ledger001` keeps the existing
+recipe bitwise.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import random
@@ -110,6 +130,30 @@ RGB_TRAIN_TF = transforms.Compose([
                              value=0),
 ])
 
+# Ledger 006 "strong" recipe (opt-in; hyperparameters fixed at
+# pre-registration in docs/ledger/006-strong-augmentation.md): stronger
+# photometric/erasing pressure on top of the ledger-001 block. The NEW
+# geometric axis (joint image+mask rotation) lives in WedPlates, gated on
+# the recipe, where the hflip already rotates both together.
+RGB_TRAIN_TF_STRONG = transforms.Compose([
+    transforms.Resize(RESIZE),
+    transforms.RandomApply([
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4,
+                               hue=0.02)],
+        p=0.8),
+    transforms.RandomApply([transforms.GaussianBlur(kernel_size=5,
+                                                    sigma=(0.5, 2.0))],
+                           p=0.4),
+    RandomJpeg(p=0.4, q_range=(35, 95)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.RandomErasing(p=0.35, scale=(0.02, 0.15), ratio=(0.3, 3.3),
+                             value=0),
+])
+
+AUG_RECIPES = ("ledger001", "strong", "none")
+ROTATION_P, ROTATION_DEG = 0.7, 20.0  # ledger 006 strong recipe constants
+
 
 def load_manifest(split: str) -> list[dict]:
     rows = []
@@ -125,11 +169,40 @@ def plate_key(row: dict) -> str:
     return f"{row['date_key']}_{row['set']}"
 
 
-class WedPlates(Dataset):
-    """One item = one multi-view image with all its dish ROIs (like the paper)."""
+def split_grouped_cv_fold(rows: list[dict], fold_count: int, fold_index: int,
+                         *, dev_frac: float = 0.10,
+                         fold_seed: int = 42) -> tuple[list[dict], list[dict], set[str]]:
+    """Remove the fixed DEV carve, then make one outer plate-grouped fold."""
+    if fold_count < 2 or not 0 <= fold_index < fold_count:
+        raise ValueError("invalid grouped CV fold count/index")
+    all_plates = sorted({plate_key(r) for r in rows})
+    dev_order = list(all_plates)
+    random.Random(42).shuffle(dev_order)
+    dev_plates = set(dev_order[:max(1, int(len(all_plates) * dev_frac))])
+    cv_rows = [r for r in rows if plate_key(r) not in dev_plates]
+    plates = sorted({plate_key(r) for r in cv_rows})
+    random.Random(fold_seed).shuffle(plates)
+    held_plates = {p for i, p in enumerate(plates)
+                   if i % fold_count == fold_index}
+    fit_rows = [r for r in cv_rows if plate_key(r) not in held_plates]
+    outer_rows = [r for r in cv_rows if plate_key(r) in held_plates]
+    return fit_rows, outer_rows, dev_plates
 
-    def __init__(self, rows: list[dict], wed_root: Path, train: bool):
+
+class WedPlates(Dataset):
+    """One item = one multi-view image with all its dish ROIs (like the paper).
+
+    aug_recipe (train windows only, ledger 006): "ledger001" reproduces the
+    hflip + photometric pipeline exactly as before; "strong" adds the joint
+    img+mask random-rotation axis before the strong photometric block;
+    "none" feeds clean windows even in train (no eff. hflip, no photometrics).
+    Val/test paths are unaffected (train=True gates every branch)."""
+
+    def __init__(self, rows: list[dict], wed_root: Path, train: bool,
+                 aug_recipe: str = "ledger001"):
+        assert aug_recipe in AUG_RECIPES, f"unknown recipe {aug_recipe!r}"
         self.rows, self.wed_root, self.train = rows, wed_root, train
+        self.aug_recipe = aug_recipe
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -138,11 +211,25 @@ class WedPlates(Dataset):
         r = self.rows[idx]
         img = Image.open(self.wed_root / r["image"]).convert("RGB")
         mask = Image.open(self.wed_root / r["mask"]).convert("L")
-        if self.train and random.random() < 0.5:
+        strong = self.train and self.aug_recipe == "strong"
+        if strong and random.random() < ROTATION_P:
+            # one joint draw, img == mask (ledger 006 strong recipe)
+            angle = random.uniform(-ROTATION_DEG, ROTATION_DEG)
+            img = img.rotate(angle, resample=Image.Resampling.BILINEAR,
+                             fillcolor=0)
+            mask = mask.rotate(angle, resample=Image.Resampling.NEAREST,
+                               fillcolor=0)
+        if (self.train and self.aug_recipe != "none"
+                and random.random() < 0.5):
             img = TF.hflip(img)
             mask = TF.hflip(mask)
-        img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
-        mask_arr = np.array(MASK_TF(mask).squeeze(0))
+        if strong:
+            img_t = RGB_TRAIN_TF_STRONG(img)
+        elif self.train and self.aug_recipe == "none":
+            img_t = RGB_TF(img)
+        else:
+            img_t = RGB_TRAIN_TF(img) if self.train else RGB_TF(img)
+        mask_arr = MASK_TF(mask).squeeze(0).numpy()
         H, W = img_t.shape[1:]
         bboxes, weights, cls_ids = [], [], []
         for d in r["dishes"]:
@@ -270,28 +357,222 @@ def merge_check(model, test_rows: list[dict], wed_root: Path, device,
             "per_roi_sum_mae": _m(roi_sum_errs)}
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--epochs", type=int, default=100)
-    ap.add_argument("--batch", type=int, default=4)
-    ap.add_argument("--encoder", default="resnet50",
-                    choices=("resnet50", "dinov2"),
-                    help="frozen backbone (ledger 002 lever b); encoder_id "
-                         "is recorded in the checkpoint for load()")
-    ap.add_argument("--lr", type=float, default=1e-3)
-    ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--val-frac", type=float, default=0.10)
-    ap.add_argument("--workers", type=int, default=2,
-                    help="dataloader workers (keep low on small-RAM boxes)")
-    ap.add_argument("--skip-test", action="store_true",
-                    help="never load or evaluate the WED test split "
-                         "(no test MAE, no merge_check) — rebuild the "
-                         "deployable artifact from train+val only")
-    ap.add_argument("--out", default=str(_ROOT / "data" / "weight_head.pt"))
-    ap.add_argument("--sigma-out", default=str(_ROOT / "data" / "weight_head_sigma.yaml"))
-    ap.add_argument("--report-out", default=str(_ROOT / "data" / "reports" / "weight_head_train.json"))
-    args = ap.parse_args()
+def encoder_fingerprint(encoder: WeightHead) -> str:
+    """SHA-256 over the frozen backbone's parameters — the cache must never
+    outlive the exact pretrained weights it was built against."""
+    h = hashlib.sha256()
+    for p in encoder.encoder.parameters():
+        h.update(p.detach().cpu().numpy().tobytes())
+    return h.hexdigest()[:12]
 
+
+def dataset_fingerprint(limit: int | None) -> str:
+    """Identity of the dataset a cache blob was built for: the manifest
+    bytes (protected split definition) plus the smoke --limit cap."""
+    h = hashlib.sha256()
+    h.update((_ROOT / "data" / "wed_manifest.jsonl").read_bytes())
+    h.update(str(limit).encode())
+    return h.hexdigest()[:12]
+
+
+def cache_file_path(features_cache: str, encoder_id: str, aug_recipe: str,
+                    limit: int | None) -> Path:
+    """Recipe is part of the key (ledger 006): different train-window
+    recipes MUST never share an augmented-feature draw."""
+    return (Path(features_cache)
+            / f"wed-{encoder_id}-{aug_recipe}-{dataset_fingerprint(limit)}.pt")
+
+
+@torch.no_grad()
+def extract_features(rows: list[dict], wed_root: Path, encoder: WeightHead,
+                     device: torch.device, train: bool,
+                     aug_recipe: str = "ledger001") -> list[dict]:
+    """One item per manifest row: the frozen encoder's feature map from a
+    batch=1 encode (bitwise-stable across runs) plus its ROI bundle.
+    train=True draws ONE augmented window (the aug_recipe's transforms,
+    from the run's seeded RNG); train=False is fully deterministic."""
+    encoder.encoder.eval()  # STAGE 1A pin: train-mode BN would drift stats
+    items: list[dict] = []
+    for r in rows:
+        s = WedPlates([r], wed_root, train=train,
+                      aug_recipe=aug_recipe if train else "ledger001")[0]
+        feats = encoder.encode(s["img"].unsqueeze(0).to(device),
+                               no_grad=True)[0].cpu()
+        items.append({"feats": feats, "H": s["H"], "W": s["W"],
+                      "bboxes": s["bboxes"], "weights": s["weights"],
+                      "cls_ids": s["cls_ids"], "key": s["key"]})
+    return items
+
+
+def prepare_features(args: argparse.Namespace, rows: list[dict],
+                     test_rows: list[dict], wed_root: Path, model: WeightHead,
+                     device: torch.device) -> tuple[dict, dict]:
+    """-> ({"train": aug items, "val": clean items, "test": clean items},
+    cache info dict).
+
+    "train"/"val" cover the train-manifest rows in manifest order (the val
+    carve indexes into them); "test" exists only when the test split is
+    loaded (--skip-test never touches it). With a cache directory the blob
+    is reused when it matches encoder + recipe + dataset fingerprint, the
+    encoder weight fingerprint, and covers every split this run needs;
+    otherwise it is built in one piece and written once. Tensors travel
+    through the CPU (fp32 copies are bitwise-exact), so reuse cannot
+    perturb training.
+    """
+    t0 = time.time()
+    aug_recipe = getattr(args, "train_aug", "ledger001")
+
+    def _build() -> dict:
+        blob = {"v": 2, "encoder_id": args.encoder,
+                "aug_recipe": aug_recipe,
+                "encoder_fp": encoder_fingerprint(model),
+                "dataset_fp": dataset_fingerprint(args.limit),
+                "limit": args.limit, "seed": args.seed}
+        blob["val"] = extract_features(rows, wed_root, model, device,
+                                       train=False)
+        if test_rows:
+            blob["test"] = extract_features(test_rows, wed_root, model,
+                                            device, train=False)
+        blob["train"] = extract_features(rows, wed_root, model, device,
+                                         train=True, aug_recipe=aug_recipe)
+        return blob
+
+    if args.features_cache == "none":
+        return _build(), {"mode": "live",
+                          "build_s": round(time.time() - t0, 1)}
+    p = cache_file_path(args.features_cache, args.encoder, aug_recipe,
+                        args.limit)
+    if p.is_file():
+        try:
+            blob = torch.load(p, map_location="cpu", weights_only=True)
+        except Exception:
+            blob = None
+        if (isinstance(blob, dict)
+                and blob.get("v") == 2
+                and blob.get("encoder_id") == args.encoder
+                and blob.get("aug_recipe") == aug_recipe
+                and blob.get("encoder_fp") == encoder_fingerprint(model)
+                and blob.get("dataset_fp") == dataset_fingerprint(args.limit)
+                and blob.get("limit") == args.limit
+                and isinstance(blob.get("train"), list)
+                and isinstance(blob.get("val"), list)
+                and len(blob["train"]) == len(rows)
+                and len(blob["val"]) == len(rows)
+                and (not test_rows or isinstance(blob.get("test"), list)
+                     and len(blob["test"]) == len(test_rows))):
+            return blob, {"mode": "reuse", "file": p.name}
+    blob = _build()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(blob, p)
+    return blob, {"mode": "build", "file": str(p.name),
+                  "build_s": round(time.time() - t0, 1)}
+
+
+def _batches(items: list[dict], batch: int, shuffle: bool):
+    order = (torch.randperm(len(items)).tolist() if shuffle
+             else list(range(len(items))))
+    for i in range(0, len(items), batch):
+        yield [items[j] for j in order[i:i + batch]]
+
+
+def epoch_items(model, items: list[dict], batch: int, device,
+                optimizer=None, scheduler=None) -> float:
+    """One head-only epoch over prepared feature items (the frozen encoder
+    is never re-run). Same loss accounting as run_epoch."""
+    train = optimizer is not None
+    model.train(train)
+    if train:
+        model.encoder.eval()
+    crit = nn.SmoothL1Loss()
+    total, n = 0.0, 0
+    for b in _batches(items, batch, shuffle=train):
+        feats = torch.stack([s["feats"] for s in b]).to(device)
+        rois, weights, cls_ids = build_rois(b, feats)
+        with torch.set_grad_enabled(train):
+            preds_all = model(feats, rois)
+            preds = preds_all[torch.arange(preds_all.size(0), device=device),
+                              cls_ids]
+            loss = crit(preds, weights)
+            if train:
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                if scheduler:
+                    scheduler.step()
+        total += float(loss.item()) * weights.size(0)
+        n += weights.size(0)
+    return total / max(n, 1)
+
+
+@torch.no_grad()
+def eval_items_mae(model, items: list[dict], batch: int, device):
+    """Same contract as evaluate_mae (MAE, per-class residuals, per-class
+    ground truth), over prepared feature items."""
+    model.eval()
+    errs: list[float] = []
+    per_class: dict[int, list[float]] = defaultdict(list)
+    per_class_gt: dict[int, list[float]] = defaultdict(list)
+    for b in _batches(items, batch, shuffle=False):
+        feats = torch.stack([s["feats"] for s in b]).to(device)
+        rois, weights, cls_ids = build_rois(b, feats)
+        preds_all = model(feats, rois)
+        preds = preds_all[torch.arange(preds_all.size(0), device=device),
+                          cls_ids]
+        for p, g, c in zip(preds.cpu().numpy(), weights.cpu().numpy(),
+                           cls_ids.cpu().numpy()):
+            errs.append(float(p - g))
+            per_class[int(c)].append(float(p - g))
+            per_class_gt[int(c)].append(float(g))
+    mae = float(np.abs(np.array(errs)).mean()) if errs else float("nan")
+    return mae, per_class, per_class_gt
+
+
+@torch.no_grad()
+def eval_items_grouped_errors(model, items: list[dict], batch: int, device,
+                              id2name: dict[int, str]) -> tuple[dict, dict]:
+    """Accumulate absolute/signed errors by physical plate and food class."""
+    model.eval()
+    per_plate: dict[str, dict[str, float | int]] = {}
+    per_class: dict[str, dict[str, float | int]] = {}
+    for group in _batches(items, batch, shuffle=False):
+        feats = torch.stack([item["feats"] for item in group]).to(device)
+        rois, weights, cls_ids = build_rois(group, feats)
+        pred_all = model(feats, rois)
+        preds = pred_all[torch.arange(pred_all.size(0), device=device), cls_ids]
+        errors = (preds - weights).cpu().numpy()
+        classes = cls_ids.cpu().numpy()
+        offset = 0
+        for item in group:
+            count = len(item["weights"])
+            plate = str(item["key"])
+            plate_acc = per_plate.setdefault(
+                plate, {"n_rois": 0, "sum_abs_err_g": 0.0,
+                        "sum_signed_err_g": 0.0})
+            for j in range(offset, offset + count):
+                err = float(errors[j])
+                plate_acc["n_rois"] += 1
+                plate_acc["sum_abs_err_g"] += abs(err)
+                plate_acc["sum_signed_err_g"] += err
+                name = id2name.get(int(classes[j]), f"slot{int(classes[j])}")
+                class_acc = per_class.setdefault(
+                    name, {"n_rois": 0, "sum_abs_err_g": 0.0})
+                class_acc["n_rois"] += 1
+                class_acc["sum_abs_err_g"] += abs(err)
+            offset += count
+        if offset != len(errors):
+            raise RuntimeError("ROI predictions do not align with held-out items")
+    return per_plate, per_class
+
+
+def run_training(args: argparse.Namespace) -> dict:
+    """The full training pipeline; returns the report dict.
+
+    Feature prep runs before training and consumes the augmentation RNG
+    when a cache is built (or prepared live); all global seeds are then
+    re-established so the training stream — head init already done, batch
+    shuffling, head dropout — starts identically for build / reuse / live
+    paths and every run with the same seed is bitwise reproducible.
+    """
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -303,7 +584,26 @@ def main() -> None:
         wed_root = _ROOT / wed_root
 
     rows = load_manifest("train")
-    test_rows = [] if args.skip_test else load_manifest("test")
+    if args.limit:
+        rows = rows[:args.limit]
+    cv_fold = None
+    cv_folds = getattr(args, "cv_folds", None)
+    cv_fold_index = getattr(args, "cv_fold_index", 0)
+    if cv_folds is not None:
+        # Exclude the fixed DEV carve before creating outer folds. This is
+        # the same seed/group arithmetic as run_eval.dev_rows(); DEV is never
+        # used for gradients or inner-fold epoch selection in CV mode.
+        rows, test_rows, excluded_dev = split_grouped_cv_fold(
+            rows, cv_folds, cv_fold_index,
+            dev_frac=args.val_frac, fold_seed=args.seed)
+        held_plates = {plate_key(r) for r in test_rows}
+        cv_fold = {"fold_index": cv_fold_index,
+                   "fold_count": cv_folds,
+                   "held_out_plates": sorted(held_plates),
+                   "excluded_dev_plates": sorted(excluded_dev),
+                   "source_split": "WED train only"}
+    else:
+        test_rows = [] if args.skip_test else load_manifest("test")
     plates = sorted({plate_key(r) for r in rows})
     random.Random(args.seed).shuffle(plates)
     n_val = max(1, int(len(plates) * args.val_frac))
@@ -312,17 +612,6 @@ def main() -> None:
     val_rows = [r for r in rows if plate_key(r) in val_plates]
     print(f"train views {len(train_rows)} | val views {len(val_rows)} "
           f"({len(val_plates)} plates) | test views {len(test_rows)}", flush=True)
-
-    train_loader = DataLoader(WedPlates(train_rows, wed_root, train=True),
-                              batch_size=args.batch, shuffle=True,
-                              collate_fn=collate, num_workers=args.workers)
-    val_loader = DataLoader(WedPlates(val_rows, wed_root, train=False),
-                            batch_size=args.batch, shuffle=False,
-                            collate_fn=collate, num_workers=args.workers)
-    test_loader = (None if args.skip_test else
-                   DataLoader(WedPlates(test_rows, wed_root, train=False),
-                              batch_size=args.batch, shuffle=False,
-                              collate_fn=collate, num_workers=args.workers))
 
     model = WeightHead(encoder_id=args.encoder).to(device)
     enc_sd = model.encoder.state_dict()
@@ -338,17 +627,32 @@ def main() -> None:
     else:
         assert bn_names, "no BN buffers found in encoder"
     bn_stock = {k: enc_sd[k].clone() for k in bn_names}
+
+    cache, cache_info = prepare_features(args, rows, test_rows, wed_root,
+                                         model, device)
+    train_items = [it for i, it in enumerate(cache["train"])
+                   if plate_key(rows[i]) not in val_plates]
+    val_items = [it for i, it in enumerate(cache["val"])
+                 if plate_key(rows[i]) in val_plates]
+    test_items = cache.get("test", [])
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = AdamW(params, lr=args.lr, weight_decay=1e-4)
-    steps = args.epochs * len(train_loader)
-    scheduler = OneCycleLR(optimizer, max_lr=args.lr, total_steps=steps,
-                           pct_start=0.3)
+    weight_decay = float(getattr(args, "weight_decay", 1e-4))
+    optimizer = AdamW(params, lr=args.lr, weight_decay=weight_decay)
+    n_batches = (len(train_items) + args.batch - 1) // args.batch
+    scheduler = OneCycleLR(optimizer, max_lr=args.lr,
+                           total_steps=args.epochs * n_batches, pct_start=0.3)
 
     best_val, best_state = float("inf"), None
     t0 = time.time()
     for epoch in range(1, args.epochs + 1):
-        tr = run_epoch(model, train_loader, device, optimizer, scheduler)
-        va, _, _ = evaluate_mae(model, val_loader, device)
+        tr = epoch_items(model, train_items, args.batch, device, optimizer,
+                         scheduler)
+        va, _, _ = eval_items_mae(model, val_items, args.batch, device)
         if va < best_val:
             best_val = va
             best_state = {k: v.detach().clone() for k, v in model.head_mlp.state_dict().items()}
@@ -367,13 +671,17 @@ def main() -> None:
     meta = {"dataset": "WED (ICVGIP 2025)", "recipe": "baseline rgb/no-attn/geom-none",
             "bn_mode": "frozen_encoder_eval", "epochs": args.epochs,
             "encoder": args.encoder,
+            "train_aug": args.train_aug,
+            "weight_decay": weight_decay,
             "seed": args.seed, "trained": date.today().isoformat(),
             "val_mae_in_process_g": round(best_val, 2),
-            "paper_baseline_mae_g": 14.51}
+            "paper_baseline_mae_g": 14.51,
+            "feature_cache": cache_info}
     model.save(args.out, meta=meta)
 
     deployable = WeightHead.load(args.out, device=device)
-    deploy_mae, per_class_val, gt_val = evaluate_mae(deployable, val_loader, device)
+    deploy_mae, per_class_val, gt_val = eval_items_mae(deployable, val_items,
+                                                       args.batch, device)
     meta["val_mae_g"] = round(deploy_mae, 2)
 
     id_map = json.loads((_ROOT / "data" / "wed" / "index_map.json").read_text())
@@ -385,8 +693,28 @@ def main() -> None:
 
     report = {"meta": meta, "val_mae_in_process_g": round(best_val, 2),
               "val_mae_deployable_g": round(deploy_mae, 2)}
-    if not args.skip_test:
-        test_mae, per_class_test, _ = evaluate_mae(deployable, test_loader, device)
+    if cv_fold is not None:
+        outer_mae, outer_residuals, _outer_gt = eval_items_mae(
+            deployable, test_items, args.batch, device)
+        outer_per_plate, outer_per_class = eval_items_grouped_errors(
+            deployable, test_items, args.batch, device, id2name)
+        report["outer_cv"] = {
+            **cv_fold,
+            "n_views": len(test_items),
+            "n_rois": int(sum(len(it["weights"]) for it in test_items)),
+            "mae_g": round(outer_mae, 3),
+            "per_class_mae_g": {
+                id2name[c]: round(float(np.mean(np.abs(v))), 3)
+                for c, v in sorted(outer_residuals.items())
+            },
+            "per_plate_errors": outer_per_plate,
+            "per_class_errors": outer_per_class,
+            "train_plates": sorted({plate_key(r) for r in train_rows}),
+            "epoch_selection_plates": sorted({plate_key(r) for r in val_rows}),
+        }
+    elif not args.skip_test:
+        test_mae, per_class_test, _ = eval_items_mae(deployable, test_items,
+                                                     args.batch, device)
         meta["test_mae_g"] = round(test_mae, 2)
         report["test_mae_g"] = test_mae
         report["test_per_class_mae"] = {
@@ -411,6 +739,54 @@ def main() -> None:
     out.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
     print(f"wrote {args.out}, {args.sigma_out}, {out}")
+    return report
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--epochs", type=int, default=100)
+    ap.add_argument("--batch", type=int, default=4)
+    ap.add_argument("--encoder", default="resnet50",
+                    choices=("resnet50", "dinov2"),
+                    help="frozen backbone (ledger 002 lever b); encoder_id "
+                         "is recorded in the checkpoint for load()")
+    ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--weight-decay", type=float, default=1e-4,
+                    help="AdamW weight decay for the trainable ROI head")
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--val-frac", type=float, default=0.10)
+    ap.add_argument("--workers", type=int, default=2,
+                    help="legacy dataloader knob (feature prep is "
+                         "single-threaded; kept for command-line compat)")
+    ap.add_argument("--limit", type=int, default=None,
+                    help="smoke runs: cap train-manifest rows in manifest "
+                         "order (part of the cache key)")
+    ap.add_argument("--train-aug", dest="train_aug", default="ledger001",
+                    choices=AUG_RECIPES,
+                    help="train-window recipe (ledger 006): 'ledger001' is "
+                         "the current pipeline bitwise; 'strong' is the "
+                         "pre-registered plate-bias recipe (docs/ledger/"
+                         "006-strong-augmentation.md); 'none' feeds clean "
+                         "train windows")
+    ap.add_argument("--features-cache", dest="features_cache",
+                    default=str(_ROOT / "data" / "cache"),
+                    help="directory for the git-ignored encoder feature "
+                         "cache (default data/cache; 'none' prepares "
+                         "features in memory every run)")
+    ap.add_argument("--skip-test", action="store_true",
+                    help="never load or evaluate the WED test split "
+                         "(no test MAE, no merge_check) — rebuild the "
+                         "deployable artifact from train+val only")
+    ap.add_argument("--cv-folds", type=int, default=None,
+                    help="outer plate-grouped CV folds over WED TRAIN only; "
+                         "does not load WED test/LOCKED")
+    ap.add_argument("--cv-fold-index", type=int, default=0,
+                    help="zero-based outer fold index for --cv-folds")
+    ap.add_argument("--out", default=str(_ROOT / "data" / "weight_head.pt"))
+    ap.add_argument("--sigma-out", default=str(_ROOT / "data" / "weight_head_sigma.yaml"))
+    ap.add_argument("--report-out", default=str(_ROOT / "data" / "reports" / "weight_head_train.json"))
+    args = ap.parse_args()
+    run_training(args)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,29 @@
+{
+  "a": {
+    "path": "data/reports/prior_tier_wed_dev_fallback.json",
+    "intrinsics": "fallback",
+    "depth_scale": 1.0
+  },
+  "b": {
+    "path": "data/reports/prior_tier_wed_dev_moge.json",
+    "intrinsics": "moge",
+    "depth_scale": 1.0
+  },
+  "n_boot": 2000,
+  "seed": 42,
+  "plates": 21,
+  "delta_mae_absmean": [
+    -195.60640552226045,
+    -165.53864449257355,
+    -137.50979501079544
+  ],
+  "delta_bias": [
+    -197.466089577153,
+    -167.68108760559585,
+    -139.6177486452776
+  ],
+  "mae_a": 1411.7381084679757,
+  "mae_b": 1245.9112652899091,
+  "bias_a": 1403.8551502908138,
+  "bias_b": 1235.9871991937046
+}

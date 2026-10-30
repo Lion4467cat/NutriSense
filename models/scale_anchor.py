@@ -17,7 +17,7 @@ import numpy as np
 from PIL import Image
 
 from config import load_anchor_config as load_config
-from geo import camera_matrix, mean_side_px, pose_from_marker
+from geo import camera_matrix, camera_matrix_from_35mm, mean_side_px, pose_from_marker
 
 _REL_Z = 1.645          # one-sided 90% normal quantile
 _EXIF_FOCAL = 37386     # FocalLength (Exif sub-IFD)
@@ -155,12 +155,29 @@ def _try_card(img_bgr, cfg, exif, notes):
     H = None
     tilt_deg = None
     distance_cm = None
+    pose_method = None
     try:
-        focal = exif.get("focal_mm") or cfg["camera"]["focal_length_fallback_mm"]
-        K = camera_matrix(focal, cfg["camera"].get("sensor_width_mm", 6.17),
-                          img_bgr.shape[1], img_bgr.shape[0])
+        # Camera matrix priority: EXIF 35mm-equivalent focal (sensor-size
+        # independent, verified within ~2% on real phones) > EXIF focal plus
+        # assumed sensor width > fallback focal. See CARD_REPORT v2, Item 2.
+        f35 = exif.get("focal_length_35mm")
+        if f35:
+            K = camera_matrix_from_35mm(f35, img_bgr.shape[1], img_bgr.shape[0])
+            pose_method = "exif_focal_35mm"
+        else:
+            focal = exif.get("focal_mm") or cfg["camera"]["focal_length_fallback_mm"]
+            K = camera_matrix(focal, cfg["camera"].get("sensor_width_mm", 6.17),
+                              img_bgr.shape[1], img_bgr.shape[0])
+            pose_method = "exif_focal_sensor_width" if exif.get("focal_mm") else "fallback_focal"
         pose = pose_from_marker(corners, cfg["card"]["marker_mm"], K)
-        H, tilt_deg, distance_cm = pose["H"], pose["tilt_deg"], pose["distance_cm"]
+        max_reproj = float(cfg["camera"].get("max_pose_reproj_err_px", 3.0))
+        reproj = pose["reproj_err_px"]
+        if reproj > max_reproj:
+            # Degenerate pose (heavy tilt, occlusion artefacts): drop the pose,
+            # keep the 2D scale, which does not depend on K.
+            notes.append(f"card pose rejected: reproj err {reproj:.2f} px > {max_reproj:.1f} px")
+        else:
+            H, tilt_deg, distance_cm = pose["H"], pose["tilt_deg"], pose["distance_cm"]
     except Exception as e:  # pose is optional; scale still valid
         notes.append(f"card pose failed: {e}")
 
@@ -177,6 +194,7 @@ def _try_card(img_bgr, cfg, exif, notes):
         "reason": "ArUco card detected (measured)",
         "extras": {"marker_side_px": float(side), "distance_cm": distance_cm,
                    "focal_mm": exif.get("focal_mm"),
+                   "pose_method": pose_method,
                    "marker_corners_px": np.asarray(corners, dtype=np.float64)
                                           .reshape(4, 2).tolist()},
     }

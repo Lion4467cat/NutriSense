@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-160%20pytest%20%C2%B7%2043%20vitest-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-281%20pytest%20collected%20%C2%B7%2070%20vitest%20passed-orange.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -18,7 +18,7 @@ Everything the pipeline decides is traceable: which scale anchor was used, how l
 **What it does:**
 
 - Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale. Without the marker, mapped dishes use the WED-trained learned-weight head (with an estimate disclaimer); unmapped dishes use uncertain size-prior geometry, which cannot issue PASS/FAIL. A missing or failing learned head for a mapped dish returns `cannot_verify`.
-- Identifies the dish from a 46-photo gallery (SigLIP2), abstaining rather than guessing
+- Identifies the dish from a 41-class WED gallery plus 46 gold photos (SigLIP2), abstaining rather than guessing
 - Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
 - Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
 - Scores energy & protein probabilities against the class-band minimums, gated by a **coverage** score
@@ -72,7 +72,7 @@ flowchart TD
     VER -->|else| BORD["⚠ BORDERLINE"]
     VER -.->|"no card: reasons[0]"| DISC["📋 weight is an estimate<br/>(no reference card)"]
 
-    PASS ==> WIRE["18-key wire · to_wire()<br/>verdict · reasons · failures"]
+    PASS ==> WIRE["19-key wire · to_wire()<br/>verdict · reasons · failures · items"]
     FAIL ==> WIRE
     BORD ==> WIRE
     OOS ==> WIRE
@@ -93,7 +93,7 @@ flowchart TD
     class CANNOT err
 ```
 
-Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 18-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening). A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
+Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 19-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening), and `items` reports per-vessel results when available. A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
 
 ### Pipeline components
 
@@ -101,7 +101,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 |---|---|---|
 | Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
 | S1 Scale anchor | 2 tiers: card → prior (prior caps coverage at 0.60) | ArUco card detector |
-| S2 Segment | food mask from the plate photo | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
+| S2 Segment | food mask plus grid9 vessel candidates for eligible menu meals | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
 | S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
 | S3 Depth | metric depth; `fov_x` (from intrinsics) passed to the model; scale calibrated on the marker, status reported `card`/`none` — never fabricated | MoGe-2 (`Ruicheng/moge-2-vitl`) |
 | S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
@@ -112,23 +112,34 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 ## ✨ Features
 
-**Implemented and tested (160 pytest + 43 vitest green):**
+**Implemented capabilities:**
+
+- **Two app modes (spec 002, ADR 0003)** — **School** keeps the verdict-centric PM POSHAN flow unchanged; **General** reports grams, nutrients and each meal's share of a Daily goal, with no verdicts and no school capture fields. Switching to General asks for profile details (name, sex, age band, activity level) in a setup popup every time until it has been completed, and Settings keeps the same fields editable
+- **WHO Daily goals** — `GET /goals` serves the WHO energy/protein tables keyed by age band, sex and activity level; the frontend does the lookup and share math, so a profile change never re-analyzes a photo
+- **41-class recognition** — the WED 41-class gallery replaced the 2-class menu-only gallery (DEV held-out 0.8103 top-1, ledger 003/008/009); the abstain threshold still gates servings
 
 - **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
 - **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
 - **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
+- **Multi-item meals (specs 003/004)** — menu meals with at least two detected vessels are classified and portioned per vessel; combo dishes restrict matches to component serving targets; compliance scores the aggregate meal. Current canteen-photo runs are diagnostic only: vessel counts and component labels still vary between captures, and there is no weighed per-component ground truth.
 - **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
-- **FastAPI service** — `GET /health`, `GET /menu`, `POST /analyze` with full diagnostics in every response
+- **FastAPI service** — `GET /health`, `GET /menu`, `GET /goals`, `POST /analyze` with full diagnostics in every response
 - **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
-- **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn), each with its own coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
+- **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn); the default Light/Dark pair is porcelain + indigo so verdict green/amber/red stay semantic, and each theme keeps a coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
+- **Off-menu route (ticket 07)** — ingredient density table (FAO), INDB recipe table and a checkpoint-gated ingredient head; serving is wired end to end but the N5k transfer gate failed (ledger 012), so no candidate checkpoint ships and the route stays dormant
+- **Real-photo segmentation guard** — a point prompt that returns a sliver (< 0.5% of frame) now falls back to the box prompt instead of being measured as a serving (ledger 014)
 - **Synthetic scene renderer** — full GT (image, depth, masks, grams, anchor) powering the test suite
 
 ![Analysis result — verdict, reasons, coverage](docs/screenshots/result-fail-light.jpg)
 
-**Open gates (M1–M8, see `docs/final-report.md`):** physical reference-card run against a kitchen scale, prior-tier depth-scale validation, real-photo abstain/segmentation tuning (real canteen photos currently segment poorly — see Known Limitations), nutrient-table validation, holdout evaluation.
+**Open gates (M1–M8, see `docs/final-report.md`):** prior-tier depth-scale validation, multi-vessel (thali) stability and meal-composition scope, nutrient-table validation, and independent holdout evaluation. A 23-image / six-plate weighed ArUco pilot is complete and documented as EVAL-ONLY; it found severe mask spill and overestimation on many views, so it is not evidence of field readiness and must not be used for tuning.
+
+**Estimator improvement loop:** recent synthetic diagnostics rejected vessel-mask spill as a sufficient explanation and rejected a local surface-area integration candidate. A controlled card-position diagnostic now shows a promising perspective-scale mechanism on synthetic scenes, but its preregistered three-position criterion could not be assessed because one position per scene was not measurable. No serving code changed. Results, limitations, and the next independent-evaluation steps are in [`docs/agentic-improvement-loop.md`](docs/agentic-improvement-loop.md).
+
+**Model-quality status:** the current WED DEV reference is 15.034 g MAE on 108 views / 21 plates. This carve is also used for epoch selection, so it is development evidence rather than an independent generalization claim. Five-fold plate-grouped WED TRAIN cross-validation measured 16.421 g pooled baseline MAE. A 10×-decay candidate reduced pooled CV MAE by 0.148 g, but regressed the boondi subgroup by 39.1% and was rejected under its preregistered guardrail; other loss, bias-correction, augmentation and ROI-feature changes were also not promoted. WED LOCKED measured 14.667 g after the model freeze and was not used for tuning. No candidate passed promotion, and current intervals under-cover. Dataset decisions, remaining release gates, and deployment limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/ledger/021-wed-weight-decay-cv.md`](docs/ledger/021-wed-weight-decay-cv.md).
 
 ---
 
@@ -158,6 +169,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 | PM POSHAN menu + F&N guidelines (user-provided doc) | dishes, days, class bands, kcal/protein minimums | `data/menu.yaml`, `data/standards.yaml` |
 | IFCT 2017 (NIN Hyderabad) | boiled-rice / curd nutrient values (literature rows) | `data/nutrients.yaml` |
 | Recipe assumptions | sambar, vegetable_rice, bisi_belee_bath rows (marked `assumed`) | `data/nutrients.yaml`, `data/params_status.yaml` |
+| WHO/FAO/UNU energy (2004) + protein (TRS 935, 2007) | General-mode Daily-goal values by age band, sex, activity level (per-entry status + provenance; research `docs/research/who-goals.md`) | `data/goals_who.yaml` |
 | Canteen phone photos (46) | classifier gallery | `data/gallery.npz`, `../DATASET/` |
 | Synthetic renderer | ground truth for the test suite | `tests/synth/` |
 | Field scale marker (A4 PDF, ArUco id 7, 60 mm) | metric scale marker used during data collection | `docs/assets/reference_marker_A4_60mm.pdf` |
@@ -175,7 +187,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 160 tests (synthetic GT scenes + HTTP E2E + contract parity); 151 run without a GPU |
+| Tests | 281 pytest cases collected (271 non-GPU + 10 GPU-marked); frontend 70 Vitest tests |
 
 ---
 
@@ -183,7 +195,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 
 ```
 NutriSense/
-├── main.py                    # FastAPI: /health /menu /analyze
+├── main.py                    # FastAPI: /health /menu /goals /analyze
 ├── geo/                       # camera pose, planes, quads, back-projection
 ├── models/
 │   ├── scale_anchor.py        # S1: card / prior tiers
@@ -197,7 +209,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 160 tests incl. synth/ renderer with full GT
+├── tests/                     # 281 collected; synthetic renderer + API/contracts
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -235,6 +247,13 @@ uv sync --frozen --all-groups
 .venv/bin/uvicorn main:app --port 8731
 ```
 
+For a real deployment, run **one worker per GPU**; inference is serialized per
+process so concurrent uploads cannot contend for VRAM, while `/health` remains
+responsive. Put authentication and TLS in front of the API when it is not
+strictly local. Uploads default to a 12 MiB limit
+(`NUTRISENSE_CORS_ORIGINS` is a comma-separated allowlist and
+`NUTRISENSE_MAX_UPLOAD_BYTES` overrides the byte cap).
+
 **4. Run the frontend (separate terminal)**
 
 ```bash
@@ -248,17 +267,24 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # full backend: 160 passed (151 without a GPU)
-.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 150 passed, 9 deselected
-.venv/bin/pytest -m gpu -q             # the 9 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 43 vitest tests (wire parity, selectors, PolicyNote)
+.venv/bin/pytest -q                    # 281 collected (271 non-GPU + 10 GPU-marked)
+.venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
+.venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
+cd frontend && npm test                # 70 Vitest tests (wire parity, selectors, wizard, PolicyNote)
 ```
+
+The case counts above are collection counts, not a claim that the current
+checkout's complete backend suite passed. In the 2026-10-30 local verification,
+the full pytest run did not finish in this restricted environment; the
+unreadable-fixture contract test stalled after app startup reported CUDA
+unavailable. See the current verification record in
+[`docs/production-readiness.md`](docs/production-readiness.md).
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
 
 ```bash
 TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
-  .venv/bin/pytest -m "not gpu" -q     # 150 passed, 9 deselected, both dirs stay empty
+  .venv/bin/pytest -m "not gpu" -q     # no-GPU suite; see current verification record for execution status
 ```
 
 `pytest.ini` declares the `gpu` marker; `tests/conftest.py` pins the weight head to `None`, so non-gpu runs never touch `data/weight_head.pt`.
@@ -268,11 +294,16 @@ TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
 Report-only first pass (STAGE 5). **No autofix, no repo-wide format was ever applied** — the `ignore` list in `ruff.toml` is exactly the set of rules the current code violates.
 
 ```bash
-.venv/bin/ruff check .                  # the gate: 0 findings under ruff.toml
+.venv/bin/ruff check .                  # intended gate; current run has 18 experiment-script findings
 .venv/bin/ruff check . --isolated       # report-only baseline: 117 findings / 22 rules
 ```
 
 Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and why each one was left alone rather than fixed:
+
+The 2026-10-30 run of the configured gate currently reports 18 findings,
+primarily in ArUco and synthetic diagnostic scripts under
+`experiments/oracle_ablation/`; current details are recorded in
+`docs/production-readiness.md`.
 
 | Rule | n | Why relaxed |
 |---|---|---|
@@ -304,7 +335,7 @@ Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and
 ### 🧮 Typecheck
 
 ```bash
-.venv/bin/python -m tools.pyright_gate   # 216 errors vs pyright.baseline 216 — fails only on NEW errors
+.venv/bin/python -m tools.pyright_gate   # compares current findings against pyright.baseline
 ```
 
 `pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). Existing findings do not block CI: the gate compares against `pyright.baseline` and only fails when the count rises. When errors are genuinely fixed, re-record the lower count with `--update`.
@@ -318,7 +349,7 @@ uv sync --frozen   # install exactly what uv.lock pins (no upgrades) — CI does
 
 `uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync --frozen` installs exactly what uv.lock pins (no upgrades) and removes anything installed outside it — do not run it casually. Dev tools live in the `dev` dependency group, included by `--all-groups`.
 
-`.github/workflows/ci.yml` runs all four gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + vitest + build). It needs no GPU, secrets, datasets or model downloads; written and verified locally on 2026-10-12, **never pushed and never run remotely**.
+`.github/workflows/ci.yml` defines the repository gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + Vitest + build). The 2026-10-30 PR checks showed no completed CI jobs; local results and limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ### Access the App
 
@@ -338,11 +369,12 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 | GET | `/` | Server status |
 | GET | `/health` | Health check (`phase`) |
 | GET | `/menu` | Dishes, days, class bands, capture fields (single source of truth) |
+| GET | `/goals` | WHO Daily-goal values (General mode): energy kcal/day + protein g/day by age band × sex × activity level, status + provenance included |
 | POST | `/analyze` | Multipart upload (`file`, `day`, `band`, `serving_style`) → full analysis |
 
 ### Example Response — `/analyze`
 
-Every response is the full 16-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `learned_head` | `prior_geometry`, null when no portion ran); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried` (empty when nothing degraded); `policy` carries the whole rule set the UI renders (thresholds, band minima, coverage factors) under a 12-hex `policy_version` digest.
+Every response uses the 19-key contract (`engine/contract.py`, Zod schema generated into `frontend/src/types/contract.gen.ts`): `verdict, reasons, failures, lint, anchor, segmentation, classification, dish, portion, nutrition, coverage, assumptions, advisory, compliance, model_versions, policy, path_used, degradations, items`. Reasons are `{kind, text}` objects; `failures` lists only hard stage/gate failures; `path_used` says which portion path produced the grams (`card_geometry` | `ingredient_head` | `learned_head` | `prior_geometry` | `multi_item`, null when no portion ran); `items` contains per-vessel blocks (or a one-item mirror for the single-serving path); `degradations` carries machine-readable substitution tags such as `gpu_oom_retried`; `policy` carries the whole rule set the UI renders under a 12-hex `policy_version` digest.
 
 ```json
 {
@@ -443,19 +475,21 @@ B.M.S. College of Engineering, Bengaluru — 560 019
 
 ## ⚠️ Known Limitations
 
-- **Real-photo segmentation & anchor**: fully validated on synthetic scenes (160 tests green), but real canteen photos currently segment poorly (tiny masks → ~0 g) — the M1/M3 real-world tuning gate. Until it closes, treat field results as indicative.
+- **Multi-item estimates need validation**: the pipeline now portions detected vessels separately, decomposes combo dishes against their component vocabulary, and judges the aggregate meal (specs 003/004). In the six-photo diagnostic, component-restricted recognition reduced the multi-vessel estimates from 772–880 g to 202–535 g, but several frames assigned the same component to every vessel. There is no per-component ground truth, and near-duplicate views detected one vs. three vessels. Treat these as diagnostic estimates, not accuracy claims; see ledger 016 and spec 007.
+- **Real-photo segmentation**: synthetic scenes are fully validated; on unposed canteen photos the degenerate-mask failure is fixed (ledger 014 — six-photo diagnostic, 2/6 previously returned 0.08%/0.18% slivers, now plate-sized via the box fallback). `grid9_box` finds multiple vessels but the result varies across views; quantify stability with card-bearing repeated captures before relying on item counts.
+- **Ingredient head (07b)**: N5k transfer gate failed (ledger 012) — the off-menu route is wired but dormant until a checkpoint passes a re-registered gate.
 - **Prior tier depth scale** is uncalibrated (`depth_scale_sigma_pct` open at M6).
 - **Assumed nutrient rows**: sambar / vegetable_rice / bisi_belee_bath values are literature-plausible assumptions, flagged in every response (`assumptions`).
 
 ### How far off the predictions can be (deployable path, WED val carve, 108 views / 21 plates)
 
-All numbers below are measured on the deployable checkpoint (frozen DINOv2-S head, seed 42; source: a fresh `run_eval --tier dev`, identical to the figures recorded in `docs/ledger/001-current-state.md`). Grams MAE = mean absolute error of the portion estimate; every other metric inherits it because kcal and protein are the table value × grams.
+The following are WED DEV mass metrics on the deployable checkpoint (frozen DINOv2-S head, seed 42). Any kcal/protein values calculated from this mass use the app's composition-table density; they are arithmetic projections, not independently measured nutrition MAE against weighed nutrient ground truth. The separate Nutrition5k candidate evaluation is documented in `data/reports/nutrition5k_test_nutrients.json` and is not a serving claim.
 
 | Metric | How far off it can be |
 |---|---|
 | **Portion grams** | **MAE ≈ 15 g** (95% CI [12.2, 18.9]) — about 18% MAPE. Typical dishes land at **≈ 3–15 g** mean error; the hardest blends sit at **≈ 28–41 g** (steamed-rice 28.1, non-spicy-curry 31.1, beans-curry 40.6). Lightest items are near-exact (papad ≈ 1.6 g, boondi ≈ 2.5 g, mango-pickle ≈ 3.0 g). |
-| **Energy (kcal)** | Inherits the grams error proportionally: **≈ 18% MAPE**, so a 400-kcal serving can read ~±70 kcal off at one MAE; the 90% interval is wide enough to cover that (mean grams-interval width ≈ 62 g). |
-| **Protein (g)** | Same relative error as grams (≈ 18% MAPE) — a ~12 g protein claim is typically within ≈ 2 g, but carries the same worst-dish tails. |
+| **Energy (kcal)** | Derived from estimated grams × the selected food's table density. Error also depends on food mapping and the accuracy of the density row; no compatible WED kcal ground truth is available for an energy MAE claim. |
+| **Protein (g)** | Derived from estimated grams × the selected food's table density. This is not an independently validated protein MAE; food mapping and nutrient-table limitations also contribute. |
 | **Intervals (calibration)** | The 90% prediction intervals covered **85.2%** of outcomes (CI [79.2%, 89.9%]) — slightly below nominal 90%; treat hits at the interval edge as borderline rather than certain. |
 | **Capture robustness** | Under the frozen WED stress suite (*a lab stress test, not real-world field error*): perspective skew adds **≈ +2.9 g** MAE (17.9 g total); brightness/contrast, blur, JPEG, and half-resolution each add ≤ **0.2 g**. |
 | **Verdict edge cases** | PASS/FAIL requires P ≥ 0.9 / ≤ 0.1 × coverage — at C = 0.90 the margins are tight, so a ~10% gram swing can flip a PASS to BORDERLINE; a compliance verdict is not a precise measurement claim. |

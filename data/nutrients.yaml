@@ -35,3 +35,107 @@ foods:
     protein_g_per_100g: 3.1
     status: literature
     source: "IFCT curd (not portion-scored; recognition context only)"
+
+  # --- generic per-100 g rows for the 38 off_menu WED classes (ledger 003,
+  # ticket 02). ALL status: assumed — plausible values, not IFCT-verified;
+  # every meal scored with one of these carries it via assumed_nutrients.
+  # Calibrate against IFCT 2017 before trusting the numbers (M-gate).
+
+  dal_curry:
+    kcal_per_100g: 120
+    protein_g_per_100g: 6.0
+    status: assumed
+    source: "cooked thali dal/bean curry estimate (telugu pappu/rajma class); calibrate against recipe (IFCT)"
+
+  vegetable_curry:
+    kcal_per_100g: 85
+    protein_g_per_100g: 2.5
+    status: assumed
+    source: "gravy vegetable-curry estimate; calibrate against recipe (IFCT)"
+
+  vegetable_fry:
+    kcal_per_100g: 130
+    protein_g_per_100g: 2.8
+    status: assumed
+    source: "dry/shallow-fried vegetable estimate (poriyal/fry); calibrate against recipe (IFCT)"
+
+  salad_type:
+    kcal_per_100g: 25
+    protein_g_per_100g: 1.2
+    status: assumed
+    source: "raw vegetable salad estimate; calibrate against recipe (IFCT)"
+
+  rasam_type:
+    kcal_per_100g: 40
+    protein_g_per_100g: 1.5
+    status: assumed
+    source: "thin tamarind soup (rasam/pachi-pulusu) estimate; calibrate against recipe (IFCT)"
+
+  chutney_type:
+    kcal_per_100g: 110
+    protein_g_per_100g: 2.5
+    status: assumed
+    source: "coconut/herb chutney estimate; calibrate against recipe (IFCT)"
+
+  pickle_type:
+    kcal_per_100g: 130
+    protein_g_per_100g: 1.0
+    status: assumed
+    source: "oily mango-pickle estimate; calibrate against recipe (IFCT)"
+
+  raita_type:
+    kcal_per_100g: 60
+    protein_g_per_100g: 2.6
+    status: assumed
+    source: "curd-onion raita estimate; calibrate against recipe (IFCT)"
+
+  papad_type:
+    kcal_per_100g: 290
+    protein_g_per_100g: 18.0
+    status: assumed
+    source: "urad papad estimate; calibrate against recipe (IFCT)"
+
+  boondi_type:
+    kcal_per_100g: 380
+    protein_g_per_100g: 6.0
+    status: assumed
+    source: "fried boondi estimate; calibrate against recipe (IFCT)"
+
+  payasam_type:
+    kcal_per_100g: 130
+    protein_g_per_100g: 3.0
+    status: assumed
+    source: "milk-vermicelli payasam estimate; calibrate against recipe (IFCT)"
+
+  chicken_biryani_type:
+    kcal_per_100g: 165
+    protein_g_per_100g: 7.0
+    status: assumed
+    source: "chicken dum biryani (rice+meat) estimate; calibrate against recipe (IFCT)"
+
+  banana_fruit:
+    kcal_per_100g: 89
+    protein_g_per_100g: 1.1
+    status: assumed
+    source: "banana composition estimate (USDA-style); calibrate against IFCT"
+
+  watermelon_fruit:
+    kcal_per_100g: 30
+    protein_g_per_100g: 0.6
+    status: assumed
+    source: "watermelon composition estimate (USDA-style); calibrate against IFCT"
+
+  papaya_fruit:
+    kcal_per_100g: 43
+    protein_g_per_100g: 0.5
+    status: assumed
+    source: "papaya composition estimate (USDA-style); calibrate against IFCT"
+
+  muskmelon_fruit:
+    kcal_per_100g: 34
+    protein_g_per_100g: 0.8
+    status: assumed
+    source: "muskmelon composition estimate (USDA-style); calibrate against IFCT"
+
+  # (veg-dum-briyani reuses the generic `vegetable_rice` row; steamed-rice
+  # reuses `rice_boiled`; sambar reuses `sambar`; curd reuses `curd`.)

@@ -1,9 +1,15 @@
 import type { Analysis } from "../types/contract.gen";
 import type {
+  GoalsResponse,
   HealthResponse,
   MenuResponse,
 } from "../types/api";
-import { analysisSchema, healthSchema, menuSchema } from "../types/contract.gen";
+import {
+  analysisSchema,
+  goalsSchema,
+  healthSchema,
+  menuSchema,
+} from "../types/contract.gen";
 
 export const API_BASE =
   import.meta.env.VITE_API_BASE || "http://127.0.0.1:8731";
@@ -30,6 +36,7 @@ export interface AnalyzeParams {
 export interface ApiClient {
   readonly base: string;
   getMenu(): Promise<MenuResponse>;
+  getGoals(): Promise<GoalsResponse>;
   getHealth(): Promise<HealthResponse>;
   /** Fresh wire responses are full Analysis; stored records use Partial. */
   analyze(params: AnalyzeParams): Promise<Analysis>;
@@ -104,6 +111,7 @@ export function createClient(opts: {
   return {
     base,
     getMenu: () => getJson("/menu", menuSchema),
+    getGoals: () => getJson("/goals", goalsSchema),
     getHealth: () => getJson("/health", healthSchema),
     analyze,
   };

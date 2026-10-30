@@ -19,13 +19,37 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: box-shadow var(--t-med), border-color var(--t-med);
+  transition: box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease;
   min-width: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.kpi:hover {
-  box-shadow: var(--shadow-pop);
-  border-color: var(--border-strong);
+@media (hover: hover) {
+  .kpi:hover {
+    box-shadow: var(--shadow-pop), 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.kpi::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--grad-accent);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+@media (hover: hover) {
+  .kpi:hover::after {
+    opacity: 1;
+  }
 }
 
 .kpi-top {
@@ -377,6 +401,22 @@
   }
 }
 
+@media (max-width: 600px) {
+  .analyze-grid {
+    gap: var(--sp-4);
+  }
+
+  .dropzone {
+    min-height: 240px;
+    padding: var(--sp-6);
+  }
+
+  .analyze-grid .btn-lg {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
 .dropzone {
   position: relative;
   border: 1.5px dashed var(--border-strong);
@@ -396,10 +436,15 @@
 }
 
 .dropzone:hover,
-
+.dropzone:focus-within,
 .dropzone.dragging {
   border-color: var(--accent);
   background: var(--accent-soft);
+}
+
+.dropzone:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .dropzone input[type="file"] {
@@ -1314,6 +1359,26 @@
   min-width: 180px;
 }
 
+/* Profile pickers: three equal fields that stay readable when they wrap. */
+.profile-pickers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  flex: 1 1 100%;
+  max-width: 420px;
+}
+
+.profile-pickers .field {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .profile-pickers {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}
+
 .setting-info .si-title {
   font-weight: 550;
   font-size: var(--fs-base);
@@ -1419,4 +1484,53 @@
   border-radius: var(--r-md);
   background: var(--bg-subtle);
   border: 1px solid var(--border);
+}
+
+/* ---------------- General mode: goal shares (spec 002) ---------------- */
+
+.goal-row {
+  padding: 14px 0;
+}
+
+.goal-row + .goal-row {
+  border-top: 1px solid var(--border);
+}
+
+.goal-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.goal-share {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-share-pct {
+  color: var(--accent-text);
+}
+
+.goal-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.goal-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--grad-accent);
+  min-width: 0;
+  transition: width var(--t-slow, 240ms) ease;
+}
+
+.day-stack .seg-accent {
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
 }

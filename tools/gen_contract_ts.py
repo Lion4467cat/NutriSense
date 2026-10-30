@@ -101,6 +101,7 @@ export const segmentationSchema = z.object({{
   sam_score: z.number().nullable(),
   area_frac: z.number().nullable(),
   n_candidates: z.number().nullable(),
+  n_items: z.number().optional(),
 }});
 export type SegmentationBlock = z.infer<typeof segmentationSchema>;
 
@@ -141,6 +142,18 @@ export const portionSchema = z.object({{
 }});
 export type PortionBlock = z.infer<typeof portionSchema>;
 
+/** Spec 003: one serving of a (possibly multi-item) plate. */
+export const itemSchema = z.object({{
+  dish: dishSchema.nullable(),
+  classification: classificationSchema.nullable(),
+  portion: portionSchema.nullable(),
+  bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable(),
+  area_frac: z.number().nullable(),
+  sam_score: z.number().nullable(),
+  reason: reasonSchema.optional(),
+}});
+export type ItemBlock = z.infer<typeof itemSchema>;
+
 export const nutrientSummarySchema = z.object({{
   mean: z.number(),
   sd: z.number(),
@@ -160,6 +173,21 @@ export const nutritionSchema = z.object({{
   diagnostics: z.record(z.string(), z.unknown()),
   assumed_nutrients: z.array(z.string()),
   wider_ranges: z.boolean(),
+  nutrition_provenance: z.object({{
+    table: z.string(),
+    table_sha256: z.string(),
+    basis: z.string(),
+    components: z.record(z.string(), z.object({{
+      generic_id: z.string(),
+      grams: z.number(),
+      kcal_per_100g: z.number(),
+      protein_g_per_100g: z.number(),
+      kcal_contribution: z.number(),
+      protein_g_contribution: z.number(),
+      status: z.string(),
+      source: z.string(),
+    }})),
+  }}).optional(),
 }});
 export type NutritionBlock = z.infer<typeof nutritionSchema>;
 
@@ -220,6 +248,7 @@ export const analysisSchema = z.object({{
   policy: policySchema,
   path_used: z.enum([{path_used}]).nullable(),
   degradations: z.array(z.string()),
+  items: z.array(itemSchema).nullable(),
 }});
 export type Analysis = z.infer<typeof analysisSchema>;
 
@@ -277,6 +306,46 @@ export const healthSchema = z.object({{
   phase: z.string(),
 }});
 export type HealthResponse = z.infer<typeof healthSchema>;
+
+/** One band×sex row of the WHO daily-goal table (nested yaml is open). */
+export const goalProfileSchema = z.looseObject({{
+  referent_weight_kg: z.number().optional(),
+  protein_g_per_kg_day: z.number().optional(),
+  protein_g: z.number().optional(),
+  energy_kcal: z.record(z.string(), z.number()).optional(),
+  status: z.record(z.string(), z.string()).optional(),
+  provenance: z.record(z.string(), z.string()).optional(),
+}});
+export type GoalProfile = z.infer<typeof goalProfileSchema>;
+
+export const goalBandSchema = z.looseObject({{
+  label: z.string().optional(),
+  male: goalProfileSchema.optional(),
+  female: goalProfileSchema.optional(),
+}});
+export type GoalBand = z.infer<typeof goalBandSchema>;
+
+/** GET /goals (main.goals()) — top-level keys are closed; nested yaml is open. */
+export const goalsSchema = z.object({{
+  age_bands: z.array(z.string()),
+  sexes: z.array(z.string()),
+  activity_levels: z.array(z.string()),
+  units: z.looseObject({{
+    energy: z.string().optional(),
+    protein: z.string().optional(),
+    weight: z.string().optional(),
+  }}),
+  daily: z.record(z.string(), goalBandSchema),
+  source: z.looseObject({{
+    s1: z.string().optional(),
+    s2: z.string().optional(),
+    derivations: z.string().optional(),
+    verified: z.string().optional(),
+    currency_check: z.string().optional(),
+  }}),
+  caveats: z.array(z.string()),
+}});
+export type GoalsResponse = z.infer<typeof goalsSchema>;
 """
 
 

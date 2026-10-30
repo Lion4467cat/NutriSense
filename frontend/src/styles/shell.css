@@ -638,11 +638,56 @@
   }
 }
 
+/* mode switch lives between the spacer and the search box; the search box
+ * already disappears ≤900px, so the switch keeps the room until phones */
+.topbar-mode {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    gap: var(--sp-2);
+    padding: 0 var(--sp-3);
+  }
+
+  /* Keep the current page visible instead of crushing the breadcrumb. */
+  .crumb-root,
+  .crumb-sep,
+  .topbar .topbar-mode {
+    display: none;
+  }
+
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .profile-btn {
+    min-height: 40px;
+  }
+
+  .page-title {
+    font-size: var(--fs-2xl);
+  }
+
+  .page-head {
+    margin-bottom: var(--sp-4);
+  }
+
+  .name-tag {
+    margin-left: 0;
+    transform: none;
+  }
+
+  .input.name-input {
+    width: min(100%, 240px);
+    margin-left: 8px;
+    transform: none;
+  }
+}
+
 @media (max-width: 480px) {
   .profile-name {
     display: none;
-  }
-  .page-title {
-    font-size: var(--fs-xl);
   }
 }

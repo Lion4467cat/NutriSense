@@ -1,0 +1,6 @@
+/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/classifier_crops/Dish_1.png crops=18 size=1600x1500
+/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/classifier_crops/Dish_2.png crops=16 size=1600x1200
+/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/classifier_crops/Dish_4.png crops=6 size=1600x600
+/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/classifier_crops/Dish_5.png crops=7 size=1600x600
+/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/classifier_crops/Dish_6.png crops=10 size=1600x900
+total_classifier_crops=57

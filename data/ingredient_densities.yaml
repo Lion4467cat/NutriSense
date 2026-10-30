@@ -1,0 +1,426 @@
+# Ingredient-state density priors (ticket 07c) — derived from
+# the FAO/INFOODS Density Database v2 by tools/import_density_table.py.
+# Regenerate: uv run --python /usr/bin/python3 --with openpyxl \
+#   python -m tools.import_density_table --src <xlsx>
+source:
+  dataset: FAO/INFOODS Density Database, Version 2 (2012)
+  publisher: FAO/INFOODS
+  url: https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_final-1__1_.xlsx
+  landing_page: https://www.fao.org/infoods/infoods/tables-and-databases/faoinfoods-databases/en/
+  fetched: '2026-10-29'
+  xlsx_sha256: 329caaecbaa2031a73dd50c32e0cee8453d85655342829d80a3cd92053854227
+  extraction_tool: tools/import_density_table.py
+  extracted_at: 2026-10-29 12:24Z
+license:
+  posture: "use-with-citation \u2014 FAO/INFOODS compiled the values from third-party food-composition\
+    \ tables; only the cited rows (row text + value + BiblioID) are reproduced here, one per reference,\
+    \ never the sheet"
+  citation: FAO/INFOODS. Density Database Version 2.0 (2012). FAO, Rome.
+role: provenanced density priors for the ingredient-state alphabet (ticket 07c). The serving stack keeps
+  reading density_g_ml from the menu/yaml dish entries; this table is the audit + cite layer behind those
+  values until a pre-registered ledger experiment changes them.
+learned_residuals: "none yet \u2014 per-state residuals from measured plates land with future ledger experiments;\
+  \ the density_sigma_pct MC term stays the uncertainty vehicle in the meantime"
+states:
+  rice_boiled:
+    density_g_ml: 0.73
+    density_raw: '0.73'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 364: "Rice, boiled" (BiblioID
+      KEN)'
+    reference_rows:
+    - row: Rice, white, boiled
+      density_g_ml: 0.73
+      density_raw: '0.73'
+      biblio_id: RC
+      xlsx_row: 371
+    - row: Rice, hulled
+      density_g_ml: 0.75
+      density_raw: '0.75'
+      biblio_id: TB
+      xlsx_row: 367
+    note: plated boiled-rice bulk density; matches the pantry 0.73 g/ml class
+  rice_oiled:
+    density_g_ml: 0.699999988079071
+    density_raw: '0.699999988079071'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 365: "Rice, boiled with fat"
+      (BiblioID KEN)'
+    reference_rows:
+    - row: Rice + potato/banana
+      density_g_ml: 0.800000011920929
+      density_raw: '0.800000011920929'
+      biblio_id: KEN
+      xlsx_row: 638
+    note: oil-dressed rice (pulao-style plated)
+  cereal_pulse_onepot:
+    density_g_ml: 0.9800000190734863
+    density_raw: '0.9800000190734863'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 583: "Githeri (muthugo
+      + beans) + onion, boiled with fat" (BiblioID KEN)'
+    reference_rows:
+    - row: Rice + beans + potato/banana
+      density_g_ml: 0.8500000238418579
+      density_raw: '0.8500000238418579'
+      biblio_id: KEN
+      xlsx_row: 635
+    - row: Githeri (muthugo + beans) + vegetable
+      density_g_ml: 1.0399999618530273
+      density_raw: '1.0399999618530273'
+      biblio_id: KEN
+      xlsx_row: 585
+    note: cereal + pulse one-pot serving (bisi bele bath analogue)
+  dal_thick:
+    density_g_ml: 0.85
+    density_raw: '0.85'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 475: "Lentils, green, small,
+      boiled" (BiblioID RC)'
+    note: thick cooked whole/pureed lentils (muddha-pappu style)
+  dal_soup:
+    density_g_ml: 1.054
+    density_raw: '1.054'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 562: "Bean soup"
+      (BiblioID S&W)'
+    reference_rows:
+    - row: Soup, mixed
+      density_g_ml: 1.0499999523162842
+      density_raw: '1.0499999523162842'
+      biblio_id: KEN
+      xlsx_row: 568
+    note: pourable lentil stew (sambar/rasam analogue)
+  veg_stew:
+    density_g_ml: 1.0399999618530273
+    density_raw: '1.0399999618530273'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 585: "Githeri (muthugo
+      + beans) + vegetable" (BiblioID KEN)'
+    reference_rows:
+    - row: Mataha (maize stew), beans + vegetable
+      density_g_ml: 1.0199999809265137
+      density_raw: '1.0199999809265137'
+      biblio_id: KEN
+      xlsx_row: 619
+    note: boiled vegetable stew proxy
+  curd:
+    density_g_ml: 1.01
+    density_raw: '1.01'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 195: "Milk, acidophilus
+      cultured" (BiblioID DK)'
+    reference_rows:
+    - row: Milk, buttermilk
+      density_g_ml: 1.022
+      density_raw: '1.022'
+      biblio_id: DK
+      xlsx_row: 196
+    note: 'cultured-milk proxy: FAO v2 has no ''curd/yogurt'' row; value carries the proxy status, NOT
+      literature-grade for curd'
+  milk:
+    density_g_ml: 1.0399999618530273
+    density_raw: '1.0399999618530273'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 198: "Milk, cow, whole" (BiblioID
+      KEN)'
+    reference_rows:
+    - row: Milk, liquid, partially skimmed
+      density_g_ml: 1.034
+      density_raw: '1.034'
+      biblio_id: DK
+      xlsx_row: 202
+  milk_sweet:
+    density_g_ml: 1.0399999618530273
+    density_raw: '1.0399999618530273'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 198: "Milk, cow,
+      whole" (BiblioID KEN)'
+    note: milk-based sweets (payasam/kheer) inherit the whole-milk proxy
+  cooking_oil:
+    density_g_ml: 0.92
+    density_raw: '0.92'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 250: "Oil, other than palmoil"
+      (BiblioID DK)'
+    reference_rows:
+    - row: Oil, sunflower
+      density_g_ml: 0.96
+      density_raw: '0.96'
+      biblio_id: RC
+      xlsx_row: 256
+    - row: Cooking oil, sima
+      density_g_ml: 0.88
+      density_raw: '0.88'
+      biblio_id: KEN
+      xlsx_row: 242
+    note: generic vegetable cooking oil 0.88-0.92 g/ml band
+  papad_fried:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no FAO analogue for a crisp-fried lentil wafer stack; serving assumption stays (porous stacking
+      dominates)
+  boondi_fried:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no FAO analogue for fried chickpea boondi
+  salad_raw:
+    density_g_ml: 0.06
+    density_raw: '0.06'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 459: "Salad, green,
+      leaves, raw" (BiblioID RC)'
+    reference_rows:
+    - row: Salad dressing
+      density_g_ml: 1.1
+      density_raw: '1.1'
+      biblio_id: FNDDS 4.1
+      xlsx_row: 548
+    note: "loose-leaf packing 0.06 g/ml is NOT the kachumber/mixed salad state \u2014 kept as leafy-analogue\
+      \ context only; the serving value stays assumed"
+  pickle_oily:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no FAO analogue for oily Indian pickle
+  veg_fried_dry:
+    density_g_ml: 0.75
+    density_raw: '0.75'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 457: "Onions, fried,
+      cubed" (BiblioID RC)'
+    note: dry-fried vegetable analogue; serving assumed value stays
+  chutney:
+    density_g_ml: 1.12
+    density_raw: '1.12'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 553: "Sauce, soy"
+      (BiblioID FNDDS 4.1)'
+    note: condiment paste proxy; serving assumed value stays
+  gravy_curry:
+    density_g_ml: 1.0499999523162842
+    density_raw: '1.0499999523162842'
+    rule: analogue_transfer
+    status: assumed
+    provenance: 'nearest-analogue: FAO/INFOODS density DB v2 sheet ''Density DB'' row 568: "Soup, mixed"
+      (BiblioID KEN)'
+    reference_rows:
+    - row: Mataha (maize stew), maize + banana/potato + vegetable
+      density_g_ml: 1.100000023841858
+      density_raw: '1.100000023841858'
+      biblio_id: KEN
+      xlsx_row: 622
+    note: curry/gravied mix analogue, wide FAO spread 0.86-1.10
+  papaya_fruit:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: "DB has no ripe-papaya row (only 'Paw Paw, unripe' 0.56 KEN \u2014 vegetable-usage density,\
+      \ not a ripe-fruit analogue); serving value stays assumed"
+  banana_fruit:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no fresh-fruit rows for banana in FAO v2; serving value stays assumed
+  melon_fruit:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no fresh-melon rows in FAO v2; serving value stays assumed
+  watermelon_fruit:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no fresh-watermelon rows in FAO v2; serving value stays assumed
+  salt:
+    density_g_ml: 1.217
+    density_raw: '1.217'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 552: "Salt, table" (BiblioID
+      S&W)'
+  sugar:
+    density_g_ml: 0.95
+    density_raw: '0.95'
+    rule: literature
+    status: literature
+    provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 528: "Sugar" (BiblioID KEN)'
+audit:
+  role: cross-check of currently served assumed densities vs FAO literature rows; audit-only, never auto-applied
+  entries:
+  - serving_id: rice_boiled
+    state: rice_boiled
+    served_density_g_ml: 0.75
+    fao_density_g_ml: 0.73
+    value_status: literature
+    delta_pct: 2.7
+    status: audit_only
+  - serving_id: sambar
+    state: dal_soup
+    served_density_g_ml: 1.03
+    fao_density_g_ml: 1.054
+    value_status: analogue_transfer
+    delta_pct: -2.3
+    status: audit_only
+  - serving_id: vegetable_rice
+    state: rice_oiled
+    served_density_g_ml: 0.85
+    fao_density_g_ml: 0.699999988079071
+    value_status: literature
+    delta_pct: 21.4
+    status: audit_only
+  - serving_id: bisibelebath
+    state: cereal_pulse_onepot
+    served_density_g_ml: 0.9
+    fao_density_g_ml: 0.9800000190734863
+    value_status: analogue_transfer
+    delta_pct: -8.2
+    status: audit_only
+  - serving_id: dal_curry
+    state: dal_thick
+    served_density_g_ml: 1.0
+    fao_density_g_ml: 0.85
+    value_status: literature
+    delta_pct: 17.6
+    status: audit_only
+  - serving_id: sambar_type
+    state: dal_soup
+    served_density_g_ml: 1.03
+    fao_density_g_ml: 1.054
+    value_status: analogue_transfer
+    delta_pct: -2.3
+    status: audit_only
+  - serving_id: rasam_type
+    state: dal_soup
+    served_density_g_ml: 1.0
+    fao_density_g_ml: 1.054
+    value_status: analogue_transfer
+    delta_pct: -5.1
+    status: audit_only
+  - serving_id: chutney_type
+    state: chutney
+    served_density_g_ml: 1.0
+    fao_density_g_ml: 1.12
+    value_status: analogue_transfer
+    delta_pct: -10.7
+    status: audit_only
+  - serving_id: raita_type
+    state: curd
+    served_density_g_ml: 0.98
+    fao_density_g_ml: 1.01
+    value_status: analogue_transfer
+    delta_pct: -3.0
+    status: audit_only
+  - serving_id: curd
+    state: curd
+    served_density_g_ml: 1.03
+    fao_density_g_ml: 1.01
+    value_status: analogue_transfer
+    delta_pct: 2.0
+    status: audit_only
+  - serving_id: papad_type
+    state: papad_fried
+    served_density_g_ml: 0.4
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: boondi_type
+    state: boondi_fried
+    served_density_g_ml: 0.4
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: salad_type
+    state: salad_raw
+    served_density_g_ml: 0.5
+    fao_density_g_ml: 0.06
+    value_status: analogue_transfer
+    delta_pct: 733.3
+    status: audit_only
+  - serving_id: pickle_type
+    state: pickle_oily
+    served_density_g_ml: 1.0
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: vegetable_curry
+    state: veg_stew
+    served_density_g_ml: 0.95
+    fao_density_g_ml: 1.0399999618530273
+    value_status: analogue_transfer
+    delta_pct: -8.7
+    status: audit_only
+  - serving_id: vegetable_fry
+    state: veg_fried_dry
+    served_density_g_ml: 0.9
+    fao_density_g_ml: 0.75
+    value_status: analogue_transfer
+    delta_pct: 20.0
+    status: audit_only
+  - serving_id: chicken_biryani_type
+    state: cereal_pulse_onepot
+    served_density_g_ml: 0.85
+    fao_density_g_ml: 0.9800000190734863
+    value_status: analogue_transfer
+    delta_pct: -13.3
+    status: audit_only
+  - serving_id: payasam_type
+    state: milk_sweet
+    served_density_g_ml: 1.05
+    fao_density_g_ml: 1.0399999618530273
+    value_status: analogue_transfer
+    delta_pct: 1.0
+    status: audit_only
+  - serving_id: banana_fruit
+    state: banana_fruit
+    served_density_g_ml: 0.94
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: papaya_fruit
+    state: papaya_fruit
+    served_density_g_ml: 0.95
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: muskmelon_fruit
+    state: melon_fruit
+    served_density_g_ml: 0.93
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: watermelon_fruit
+    state: watermelon_fruit
+    served_density_g_ml: 0.92
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed

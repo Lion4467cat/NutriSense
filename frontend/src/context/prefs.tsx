@@ -8,7 +8,17 @@ import {
 } from "react";
 import type { AccentId, ThemeChoice } from "../hooks/useTheme";
 import { useTheme } from "../hooks/useTheme";
+import type { GoalOverridePref, ProfilePref } from "../services/goals";
 import type { Storage } from "../services/storage";
+
+/**
+ * Two app modes (ADR 0003): School = the verdict-centric compliance UI
+ * (unchanged behaviour); General = grams + nutrients + share of the Daily
+ * goal. Mode is a frontend-only concern — /analyze stays mode-agnostic.
+ */
+export type AppMode = "school" | "general";
+
+export type { GoalOverridePref, ProfilePref } from "../services/goals";
 
 export interface Prefs {
   theme: ThemeChoice;
@@ -16,6 +26,11 @@ export interface Prefs {
   userName: string;
   defaultDay: string;
   defaultBand: string;
+  mode: AppMode;
+  profile: ProfilePref | null;
+  goalOverride: GoalOverridePref | null;
+  /** true once the General-mode setup wizard was completed (not skipped). */
+  setupComplete: boolean;
 }
 
 export const PREFS_KEY = "nutrisense.prefs.v1";
@@ -27,6 +42,10 @@ function loadPrefs(storage: Storage): Prefs {
     userName: "",
     defaultDay: "",
     defaultBand: "",
+    mode: "school",
+    profile: null,
+    goalOverride: null,
+    setupComplete: false,
   };
   try {
     const raw = storage.get(PREFS_KEY);

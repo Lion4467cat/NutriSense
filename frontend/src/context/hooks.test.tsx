@@ -56,6 +56,10 @@ describe("usePrefs", () => {
       userName: "",
       defaultDay: "",
       defaultBand: "",
+      mode: "school",
+      profile: null,
+      goalOverride: null,
+      setupComplete: false,
     });
   });
 
@@ -72,8 +76,9 @@ describe("usePrefs", () => {
     expect(result.current.prefs.accent).toBe("teal");
     expect(result.current.prefs.userName).toBe("Ada");
     expect(result.current.prefs.defaultDay).toBe("tue");
-    // untouched keys keep their defaults
+    // untouched keys keep their defaults (school mode remains the default)
     expect(result.current.prefs.theme).toBe("system");
+    expect(result.current.prefs.mode).toBe("school");
   });
 
   it("setPrefs merges and persists through the injected storage", () => {
@@ -92,9 +97,44 @@ describe("usePrefs", () => {
       userName: "",
       defaultDay: "",
       defaultBand: "",
+      mode: "school",
+      profile: null,
+      goalOverride: null,
+      setupComplete: false,
     });
     // the real localStorage is never involved
     expect(window.localStorage.getItem(PREFS_KEY)).toBeNull();
+  });
+
+  it("mode, profile and goal override persist and survive a remount", () => {
+    storage.set(PREFS_KEY, JSON.stringify({ accent: "teal" }));
+    const wrapper =
+      ({ children }: { children: ReactNode }) => (
+        <PrefsProvider storage={storage}>{children}</PrefsProvider>
+      );
+
+    const first = renderHook(() => usePrefs(), { wrapper });
+    act(() =>
+      first.result.current.setPrefs({
+        mode: "general",
+        profile: { ageBand: "18-29", sex: "female", activityLevel: "moderate" },
+        goalOverride: { kcal: 2100, proteinG: 60 },
+      })
+    );
+    first.unmount();
+
+    const second = renderHook(() => usePrefs(), { wrapper });
+    expect(second.result.current.prefs.mode).toBe("general");
+    expect(second.result.current.prefs.profile).toEqual({
+      ageBand: "18-29",
+      sex: "female",
+      activityLevel: "moderate",
+    });
+    expect(second.result.current.prefs.goalOverride).toEqual({
+      kcal: 2100,
+      proteinG: 60,
+    });
+    expect(JSON.parse(storage.get(PREFS_KEY)!).mode).toBe("general");
   });
 });
 

@@ -1,0 +1,72 @@
+generated: 2026-10-29 12:56Z
+kind: audit-only; never verdict/policy input
+source: data/indb_recipes.yaml (INDB; use-with-citation)
+rows:
+- generic_id: rice_boiled
+  nutrient_status: literature
+  indb_recipe_code: ASC167
+  indb_recipe_name: Sambar
+  assumed:
+    kcal_per_100g: 112
+    protein_g_per_100g: 2.4
+  indb_per_100g:
+    energy_kcal: 96.9185
+    protein_g: 3.3501
+  delta_pct:
+    kcal_per_100g: 15.6
+    protein_g_per_100g: -28.4
+  note: 'status: assumed values — audit-only; adopting INDB numbers needs its own
+    honesty pass'
+- generic_id: sambar
+  nutrient_status: assumed
+  indb_recipe_code: ASC167
+  indb_recipe_name: Sambar
+  assumed:
+    kcal_per_100g: 60
+    protein_g_per_100g: 2.5
+  indb_per_100g:
+    energy_kcal: 96.9185
+    protein_g: 3.3501
+  delta_pct:
+    kcal_per_100g: -38.1
+    protein_g_per_100g: -25.4
+  note: 'status: assumed values — audit-only; adopting INDB numbers needs its own
+    honesty pass'
+- generic_id: vegetable_rice
+  nutrient_status: assumed
+  indb_recipe_code: ASC115
+  indb_recipe_name: Mixed vegetable pulao
+  assumed:
+    kcal_per_100g: 150
+    protein_g_per_100g: 3.5
+  indb_per_100g:
+    energy_kcal: 113.0494
+    protein_g: 2.7228
+  delta_pct:
+    kcal_per_100g: 32.7
+    protein_g_per_100g: 28.5
+  note: 'status: assumed values — audit-only; adopting INDB numbers needs its own
+    honesty pass'
+- generic_id: bisibelebath
+  nutrient_status: assumed
+  indb_recipe_code: null
+  indb_recipe_name: null
+  assumed:
+    kcal_per_100g: 185
+    protein_g_per_100g: 5.0
+- generic_id: curd
+  nutrient_status: literature
+  indb_recipe_code: ASC126
+  indb_recipe_name: Curd rice (Dahi bhaat/Dahi chawal/ Perugu annam/Daddojanam/Thayir
+    saadam)
+  assumed:
+    kcal_per_100g: 60
+    protein_g_per_100g: 3.1
+  indb_per_100g:
+    energy_kcal: 195.737
+    protein_g: 5.7532
+  delta_pct:
+    kcal_per_100g: -69.3
+    protein_g_per_100g: -46.1
+  note: 'status: assumed values — audit-only; adopting INDB numbers needs its own
+    honesty pass'

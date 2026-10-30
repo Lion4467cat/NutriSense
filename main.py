@@ -1,27 +1,40 @@
-"""NutriSense API (S6): /health, /menu, /analyze."""
+"""NutriSense API (S6): /health, /menu, /goals, /analyze."""
 import logging
 import os
 import tempfile
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+import anyio
 import cv2
-import numpy as np
-from fastapi import FastAPI, File, Form, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import load_menu, load_standards
+from config import load_goals, load_menu, load_standards
 from engine.contract import load_policy, log_analysis, unreadable_analysis
 from engine.pipeline import analyze
 from models.scale_anchor import read_exif
 
 app = FastAPI(title="NutriSense API", version="5.0")
 
+# One GPU inference at a time per process. The limiter belongs to the
+# threadpool call, so /health and other async endpoints remain responsive.
+INFERENCE_LIMITER = anyio.CapacityLimiter(1)
+MAX_UPLOAD_BYTES = int(os.environ.get("NUTRISENSE_MAX_UPLOAD_BYTES", str(12 * 1024 * 1024)))
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "NUTRISENSE_CORS_ORIGINS",
+        "http://127.0.0.1:5173,http://localhost:5173",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 
@@ -86,7 +99,7 @@ def root():
 
 
 @app.get("/health")
-def health():
+async def health():
     return {"status": "ok", "phase": "built"}
 
 
@@ -105,6 +118,43 @@ def menu():
     }
 
 
+@app.get("/goals")
+def goals():
+    """WHO daily-goal values (General mode, spec 002) — read-only like /menu.
+
+    Shapes the data file's `bands` table as `daily`, with the vocabulary and
+    activity-level lists the frontend renders as pickers. Provenance and
+    status travel with each profile; /analyze is untouched (ADR 0003).
+    """
+    g = load_goals()
+    return {
+        "age_bands": list(g["bands"]),
+        "sexes": g["vocabulary"]["sexes"],
+        "activity_levels": list(g["activity_levels"]),
+        "units": g["units"],
+        "daily": g["bands"],
+        "source": g["source"],
+        "caveats": g["caveats"],
+    }
+
+
+def _analyze_path(path: str, day: str, band: str,
+                  serving_style: str | None) -> dict:
+    """Blocking decode + inference, run in the bounded threadpool."""
+    image = cv2.imread(path, cv2.IMREAD_COLOR)
+    if image is None:
+        analysis = unreadable_analysis()
+        log.error("kind=%s stage=%s error=%s",
+                  analysis.failures[0].kind,
+                  analysis.failures[0].stage,
+                  analysis.failures[0].error)
+        log_analysis(str(analysis.verdict), day, band, {})
+        return analysis.to_wire()
+    exif = read_exif(path)
+    return analyze(image, day=day, band=band, exif=exif,
+                   serving_style=serving_style)
+
+
 @app.post("/analyze")
 async def analyze_upload(
     file: UploadFile = File(...),
@@ -112,26 +162,24 @@ async def analyze_upload(
     band: str = Form(...),
     serving_style: str | None = Form(None),
 ):
-    data = await file.read()
-    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-        tmp.write(data)
-        path = tmp.name
+    path = None
     try:
-        image = cv2.imread(path, cv2.IMREAD_COLOR)
-        if image is None:
-            arr = np.frombuffer(data, dtype=np.uint8)
-            image = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-        if image is None:
-            analysis = unreadable_analysis()
-            log.error("kind=%s stage=%s error=%s",
-                      analysis.failures[0].kind,
-                      analysis.failures[0].stage,
-                      analysis.failures[0].error)
-            log_analysis(str(analysis.verdict), day, band, {})
-            return analysis.to_wire()
-        exif = read_exif(path)
-        result = analyze(image, day=day, band=band, exif=exif,
-                         serving_style=serving_style)
-        return result
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+            path = tmp.name
+            total = 0
+            while chunk := await file.read(1024 * 1024):
+                total += len(chunk)
+                if total > MAX_UPLOAD_BYTES:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"image exceeds the {MAX_UPLOAD_BYTES}-byte upload limit",
+                    )
+                tmp.write(chunk)
+        return await anyio.to_thread.run_sync(
+            _analyze_path, path, day, band, serving_style,
+            limiter=INFERENCE_LIMITER,
+        )
     finally:
-        Path(path).unlink(missing_ok=True)
+        await file.close()
+        if path is not None:
+            Path(path).unlink(missing_ok=True)

@@ -1,0 +1,19 @@
+{
+  "purpose": "diagnostic of the already-deployed nonnegative output clamp; not a candidate selected from DEV",
+  "tier": "dev",
+  "n_samples": 1218,
+  "n_plates": 21,
+  "raw_unclamped_mae_g": 15.0338,
+  "serving_clamped_mae_g": 15.0338,
+  "negative_raw_predictions": 0,
+  "clamped_predictions": 0,
+  "paired_clamped_minus_raw_mae_g": 0.0,
+  "paired_plate_bootstrap_95ci_g": [
+    0.0,
+    0.0
+  ],
+  "checkpoint_sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1",
+  "run_eval_sha256": "bfab09a8212f8e45ed4eb351f2474af5a928f6a98ffef163ec2d361d515d721a",
+  "manifest_sha256": "f5bad6b32963c7ee2ed0ad3cddd7ca02d2d912c90b36c9b3cde7e82fb989214d",
+  "warning": "DEV was previously used for candidate comparisons and epoch selection. Diagnostic only; do not use it as independent validation."
+}

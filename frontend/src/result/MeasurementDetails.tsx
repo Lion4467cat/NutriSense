@@ -149,6 +149,29 @@ export default function MeasurementDetails({ result }: { result: AnalyzeResult }
         </div>
       </div>
 
+      {result.nutrition?.nutrition_provenance && (
+        <>
+          <hr className="divider" />
+          <h4 style={{ fontSize: "var(--fs-xs)", textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-3)", marginBottom: 9 }}>
+            Nutrition calculation sources
+          </h4>
+          <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
+            Per 100 g composition table: {result.nutrition.nutrition_provenance.table}
+            {" · SHA-256 "}{result.nutrition.nutrition_provenance.table_sha256.slice(0, 12)}
+          </p>
+          <div className="kv-grid">
+            {Object.entries(result.nutrition.nutrition_provenance.components).map(([name, row]) => (
+              <KV
+                key={name}
+                k={name.replace(/_/g, " ")}
+                v={`${row.grams.toFixed(1)} g · ${row.kcal_per_100g} kcal / 100 g`}
+                sub={`${row.status} · ${row.source} · estimated contribution ${row.kcal_contribution.toFixed(1)} kcal, ${row.protein_g_contribution.toFixed(2)} g protein`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
       <hr className="divider" />
 
       <h4 style={{ fontSize: "var(--fs-xs)", textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-3)", marginBottom: 9 }}>

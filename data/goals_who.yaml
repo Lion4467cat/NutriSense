@@ -1,0 +1,321 @@
+# Daily-goal values (spec 002, General mode) — WHO/FAO/UNU energy (2004) and
+# protein (TRS 935, 2007) defaults by age band, sex and activity level.
+# Feeds GET /goals; values trace to docs/research/who-goals.md (§3 energy,
+# §4 protein, §6.5 recommendation to keep WHO defaults for every band).
+#
+# STATUS VOCABULARY (same tokens as data/params_status.yaml):
+#   literature — the value is printed by the cited source; served as printed.
+#   assumed    — the value is computed or chosen here and is NOT printed by
+#                any source (includes band derivations from source-printed
+#                rows); `provenance` shows the exact inputs and arithmetic.
+#                Never trusted silently — treated like any assumed parameter.
+# (No `measured`/`calibrated` values exist here: nothing was measured from
+#  this project's captures.)
+# PROVENANCE tokens: `direct:` (source-printed) / `derived:` (computed here
+# from source-printed inputs, basis tokens follow S1/S2 table-row notation).
+#
+# SHAPING CHOICES — the research file lists G1–G13 as open (its §8); each is
+# resolved for v1 below as an assumed-with-provenance decision, revisitable
+# without touching code (§9 of the research file guided these):
+#
+#  [G1] Band convention — project bands 5-8/9-11/12-14/15-17 are inclusive
+#       whole-year ranges [a, b] and are used for BOTH nutrients (served
+#       table shape); energy values are the research file's own equal-weight
+#       means of S1 single-year rows (§3, reused verbatim); adult bands
+#       mirror S1's 18-29.9 / 30-59.9 / >=60 report bands per research §3.
+#       Rejected: week-protein S2 band keys as the served shape (would split
+#       calories/protein lookups across two band systems for ticket 05).
+#  [G2] PAL anchors + level names — one served vocabulary low/moderate/high:
+#       adults map to S1's printed columns sedentary 1.45 / moderate 1.75 /
+#       vigorous 2.05 (T5.4-T5.9; the anchor set used by the research file's
+#       §6.3 re-anchored comparisons — NOT the 1.4/1.6/1.8/2.0 set, which is
+#       EFSA's, §6.1); children map to S1 light(-15%)/moderate/vigorous(+15%)
+#       (§4.4.2-4.4.3; child moderate is per-year measured TEE, not a fixed
+#       PAL). S1 also offers midpoints 1.55/1.85/2.20 and Table 5.1 exemplars
+#       1.53/1.76/2.25 — rejected for v1; the printed columns are the ones
+#       every comparison in the research file anchors on. (assumed decision,
+#       sources S1·2004·T5.3/T4.5-4.6/T5.4-5.9·direct)
+#  [G3] Population-vs-individual — S1 §5.4.1: values are population-group
+#       averages (±8-10% within a PAL class). Resolved: caveat text served
+#       (`caveats` below); no per-user calibration path in v1.
+#  [G4] Adult weight referents — men 65 kg / women 55 kg (the rows S1
+#       tables 5.4-5.9 print and S2 T46 quotes: 65 kg -> 54 g, 55 kg -> 46 g),
+#       same as the research tables. Per-weight exact scaling is enabled in
+#       the file (Schofield BMR equations `adult_bmr_equations` × activity
+#       PAL factor) but NOT served in v1 — ticket 05 consumes referent
+#       values only. Other referents (60/70 kg men, 50/60 kg women; EFSA
+#       ~70/58 kg EU referents) rejected: never mix referents across systems.
+#  [G5] Child weight standard — protein referents for child bands come from
+#       S2·2007·T47's "WHO reference values" median weights (4-6/7-10/11-14/
+#       15-18 y) — kept, because the protein safe level and the referent
+#       weight must come from the same source row; S1's (WHO 1983, S4) child
+#       medians differ by <=0.5 kg for 5-10 y vs WHO 2007 (S3) and S1 gives
+#       no WFA >10 y, so no cross-substitution was made.
+#  [G6] Age-5 levels — S1 applies ±15% only from age 6: the 5-8 band's
+#       low/high means use rows 6-7/7-8/8-9 (n=3) while moderate uses
+#       5-6..8-9 (n=4), exactly as research §3 derives. The alternative
+#       (moderate-only at 5, or bands starting at 6) was rejected to keep
+#       the research file's printed values verbatim.
+#  [G7] Protein band split — project bands 5-8 and 9-11 span two S2 bands:
+#       their g/kg/day and referent weights are equal-weight means of the
+#       overlapped S2·2007·T47 band rows; bands lying inside one S2 row
+#       (12-14 ⊂ 11-14, 15-17 ⊂ 15-18) use that row as printed (direct).
+#       g/day = band g/kg × band referent (S2's own definition). Equal
+#       weights chosen because weights between bands are undefined in the
+#       source (per-year interpolation rejected: S2 Tables 33a/b per-year
+#       rows are unavailable here sex-tagged, and research §G13/G10 warns
+#       the 33b text layer is unreliable).
+#  [G8] Protein quality — every S2 value assumes protein quality score 1.0
+#       (PDCAAS era; DIAAS is the successor method, FN1). Resolved for v1:
+#       served values are the quality-1.0 safe level, no score correction
+#       applied (display/caveat only); S2·2007·§14.7's diet-side correction
+#       remains an option for later.
+#  [G9] Pregnancy/lactation/elderly add-ons — out of scope for v1 (school-
+#       meal app; S2·2007·T48 and S1 §6-7 values recorded only in the
+#       research file). No rows served for those states.
+#  [G10] S2 Table 33b text-layer artifact — not applicable: no per-year
+#       protein rows are stored (band values only), so the unreliable 33b
+#       layer is never consulted.
+#  [G11] Energy safety margin — S1 adds no percentile margin to energy by
+#       design. Never scale kcal up; a user wanting a margin moves up one
+#       activity level instead. Served as caveat text.
+#  [G12] IAAO protein uplift — contested journal-level proposals (+12-78%
+#       vs WHO; AHRQ 2024 review: evidence inconclusive; no national body
+#       has adopted). Resolved per research §6.5: keep WHO values for every
+#       band; no multiplier exposed. Re-research if FAO/WHO/UNU or NASEM
+#       adopts IAAO-informed values.
+#  [G13] Alternative authority sets — NASEM 2023 (US) and EFSA 2012/2013
+#       (EU) stay non-operative per research §6.5: WHO-only for v1. If ever
+#       accepted they must be separate top-level keys with their own PAL
+#       anchors (they are visited only in docs/research/who-goals.md §6).
+#
+# STANDING INSTRUCTION (research file §0): the currency check found no
+# superseding publication 2008-2026 as of 2026-10-28; re-run the currency
+# check before any production use of this file — if FAO/WHO/UNU publishes
+# revised energy values (FAO/WHO/IAEA reevaluation in progress), re-research
+# and replace.
+#
+# Rounding notes: S1 rounds child kcal/day to closest 25 (T4.5/4.6) and
+# adult to closest 50 (T5.4-5.9); S2 rounds protein to 2 significant figures
+# (§14.1.2). Band means below reuse the research file's printed means as-is
+# (no further rounding); protein g/day is rounded to 1 decimal, exactly like
+# S2's own g/day prints.
+#
+# School bands ("1-5"/"6-8"/"9-10" from data/standards.yaml) are a separate
+# compliance system — never map them onto these WHO age bands (General mode
+# does not touch school scoring; ADR 0003).
+
+source:
+  s1: "FAO/WHO/UNU, Human energy requirements (2004): https://www.fao.org/3/y5686e/y5686e00.htm"
+  s2: "WHO/FAO/UNU, Protein and amino acid requirements in human nutrition, TRS 935 (2007): https://iris.who.int/handle/10665/43411"
+  derivations: "band derivations + full source register: docs/research/who-goals.md"
+  verified: 2026-10-28
+  currency_check: "no superseding publication 2008-2026 as of 2026-10-28 (research §0); re-check before production use"
+
+units: {energy: kcal_per_day, protein: g_per_day, weight: kg}
+
+vocabulary:
+  sexes: [male, female]
+
+# Activity level vocabulary ([G2]): one served level name per S1 concept.
+activity_levels:
+  low:
+    definition: "children: S1 'light' (-15% of the per-year moderate row); adults: S1 sedentary/light class, PAL 1.45 column"
+    pal_factor: 1.45
+    status: literature
+    provenance: "direct: S1·2004·T5.3 (classes) + T5.4-T5.9 (1.45 column) + §4.4.2 (child ±15%, from age 6)"
+  moderate:
+    definition: "children: S1 per-year moderate rows (DLW/HRM-measured TEE basis); adults: S1 moderately active, PAL 1.75 column"
+    pal_factor: 1.75
+    status: literature
+    provenance: "direct: S1·2004·T4.5/T4.6 (moderate columns) + T5.4-T5.9 (1.75 column); child values measured on 801 boys + 808 girls (S1 §4.3-4.4)"
+  high:
+    definition: "children: S1 'vigorous'/'heavy' (+15% of the per-year moderate row); adults: S1 vigorous, PAL 2.05 column"
+    pal_factor: 2.05
+    status: literature
+    provenance: "direct: S1·2004·T5.3 + T5.4-T5.9 (2.05 column) + §4.4.3 (child +15%)"
+
+# Adult Schofield BMR equations, S1·2004·§5.4.1 + Table 5.2 ([G4]): BMR
+# (kcal/day) = slope*W_kg + intercept; kcal/day = BMR × PAL. Evaluated at the
+# referent weights (65/55 kg) these reproduce the served adult kcal within
+# S1's closest-50 rounding (tests reconcile every row against this block).
+adult_bmr_equations:
+  slope: "BMR = slope*W + intercept (kcal/day, W in kg)"
+  male:
+    "18-29": {slope: 15.057, intercept: 692.2}
+    "30-59": {slope: 11.472, intercept: 873.1}
+    "60-plus": {slope: 11.711, intercept: 587.7}
+  female:
+    "18-29": {slope: 14.818, intercept: 486.6}
+    "30-59": {slope: 8.126, intercept: 845.6}
+    "60-plus": {slope: 9.082, intercept: 658.5}
+  status: literature
+  provenance: "direct: S1·2004·§5.4.1 + T5.2 (Schofield), quoted in research §3 check block"
+
+# S2·2007·Table 47 verbatim (children) + Table 46 basis (adults) — the
+# direct anchor rows from which the project-band protein values derive [G7].
+who_protein_s2_bands:
+  "4-6":
+    male: {g_per_kg_day: 0.87, weight_kg: 19.7, g_per_day: 17.1}
+    female: {g_per_kg_day: 0.87, weight_kg: 18.6, g_per_day: 16.2}
+  "7-10":
+    male: {g_per_kg_day: 0.92, weight_kg: 28.1, g_per_day: 25.9}
+    female: {g_per_kg_day: 0.92, weight_kg: 28.5, g_per_day: 26.2}
+  "11-14":
+    male: {g_per_kg_day: 0.90, weight_kg: 45.0, g_per_day: 40.5}
+    female: {g_per_kg_day: 0.89, weight_kg: 46.1, g_per_day: 41.0}
+  "15-18":
+    male: {g_per_kg_day: 0.87, weight_kg: 66.5, g_per_day: 57.9}
+    female: {g_per_kg_day: 0.84, weight_kg: 56.4, g_per_day: 47.4}
+  status: literature
+  provenance: "direct: S2·2007·T47 (safe level, 97.5th percentile, WHO reference-value median weights footnote a); T46 (adults 0.83 g/kg/day; 65 kg -> 54 g, 55 kg -> 46 g)"
+  note: "band g/kg rises 4-6 -> 7-10 then falls through adolescence to the adult 0.83 (S2 growth-deposition pattern — research §4); no adult sex split (S2 §7.10); values assume protein quality 1.0 [G8]"
+
+# caveat lines served with the values (G3/G8/G11); user story 21
+# (auditability) is answered by the provenance strings + data file itself.
+caveats:
+  - "WHO goal values are population-group averages (S1 §5.4.1), not individual prescriptions; a personal goal override is expected and legitimate."   # [G3]
+  - "Energy carries no safety margin by design (S1) — never scale kcal up; move up one activity level instead."                                        # [G11]
+  - "Protein values assume protein quality score 1.0 (PDCAAS-era; DIAAS successor, FN1); mixed-quality diets reduce effective value below this."       # [G8]
+
+bands:
+  "5-8":
+    label: "ages 5-8 (inclusive)"
+    male:
+      referent_weight_kg: 23.9
+      protein_g_per_kg_day: 0.895
+      protein_g: 21.4
+      energy_kcal: {low: 1450, moderate: 1645, high: 1950}
+      status: {energy: assumed, protein: assumed}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.5 single-year rows — moderate: rows 5-6/6-7/7-8/8-9 (1475/1575/1700/1825 kcal); low: rows 6-7/7-8/8-9 (1350/1450/1550; no -15% value at age 5 [G6]); high: rows 6-7/7-8/8-9 (1800/1950/2100 [G6])"
+        protein: "derived (G7): equal-weight mean of S2·2007·T47 band rows 4-6 y (0.87) and 7-10 y (0.92) = 0.895 g/kg/day; referent = equal-weight mean of T47 medians 19.7 kg and 28.1 kg = 23.9 kg; g/day = 0.895 × 23.9 = 21.4"
+    female:
+      referent_weight_kg: 23.55
+      protein_g_per_kg_day: 0.895
+      protein_g: 21.1
+      energy_kcal: {low: 1335, moderate: 1500, high: 1790}
+      status: {energy: assumed, protein: assumed}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.6 single-year rows — moderate: rows 5-6/6-7/7-8/8-9 (1325/1425/1550/1700 kcal); low: rows 6-7/7-8/8-9 (1225/1325/1450; no -15% value at age 5 [G6]); high: rows 6-7/7-8/8-9 (1650/1775/1950 [G6])"
+        protein: "derived (G7): equal-weight mean of S2·2007·T47 band rows 4-6 y (0.87) and 7-10 y (0.92) = 0.895 g/kg/day; referent = equal-weight mean of T47 medians 18.6 kg and 28.5 kg = 23.55 kg; g/day = 0.895 × 23.55 = 21.1"
+  "9-11":
+    label: "ages 9-11 (inclusive)"
+    male:
+      referent_weight_kg: 36.55
+      protein_g_per_kg_day: 0.91
+      protein_g: 33.3
+      energy_kcal: {low: 1835, moderate: 2160, high: 2485}
+      status: {energy: assumed, protein: assumed}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.5 single-year rows 9-10/10-11/11-12 — low: 1675/1825/2000 kcal; moderate: 1975/2150/2350; high: 2275/2475/2700"
+        protein: "derived (G7): equal-weight mean of S2·2007·T47 band rows 7-10 y (0.92) and 11-14 y (0.90) = 0.91 g/kg/day; referent = mean of T47 medians 28.1 kg and 45.0 kg = 36.55 kg; g/day = 0.91 × 36.55 = 33.3"
+    female:
+      referent_weight_kg: 37.3
+      protein_g_per_kg_day: 0.905
+      protein_g: 33.8
+      energy_kcal: {low: 1700, moderate: 2000, high: 2300}
+      status: {energy: assumed, protein: assumed}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.6 single-year rows 9-10/10-11/11-12 — low: 1575/1700/1825 kcal; moderate: 1850/2000/2150; high: 2125/2300/2475"
+        protein: "derived (G7): equal-weight mean of S2·2007·T47 band rows 7-10 y (0.92) and 11-14 y (0.89) = 0.905 g/kg/day; referent = mean of T47 medians 28.5 kg and 46.1 kg = 37.3 kg; g/day = 0.905 × 37.3 = 33.8"
+  "12-14":
+    label: "ages 12-14 (inclusive)"
+    male:
+      referent_weight_kg: 45.0
+      protein_g_per_kg_day: 0.90
+      protein_g: 40.5
+      energy_kcal: {low: 2360, moderate: 2775, high: 3185}
+      status: {energy: assumed, protein: literature}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.5 single-year rows 12-13/13-14/14-15 — low: 2175/2350/2550 kcal; moderate: 2550/2775/3000; high: 2925/3175/3450"
+        protein: "direct: S2·2007·T47 row 11-14 y boys (band value applies; project band 12-14 sits inside it): 0.90 g/kg/day × 45.0 kg = 40.5 g/day as printed"
+    female:
+      referent_weight_kg: 46.1
+      protein_g_per_kg_day: 0.89
+      protein_g: 41.0
+      energy_kcal: {low: 2010, moderate: 2365, high: 2725}
+      status: {energy: assumed, protein: literature}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.6 single-year rows 12-13/13-14/14-15 — low: 1925/2025/2075 kcal; moderate: 2275/2375/2450; high: 2625/2725/2825"
+        protein: "direct: S2·2007·T47 row 11-14 y girls: 0.89 g/kg/day × 46.1 kg = 41.0 g/day as printed"
+  "15-17":
+    label: "ages 15-17 (inclusive)"
+    male:
+      referent_weight_kg: 66.5
+      protein_g_per_kg_day: 0.87
+      protein_g: 57.9
+      energy_kcal: {low: 2810, moderate: 3300, high: 3800}
+      status: {energy: assumed, protein: literature}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.5 single-year rows 15-16/16-17/17-18 — low: 2700/2825/2900 kcal; moderate: 3175/3325/3400; high: 3650/3825/3925"
+        protein: "direct: S2·2007·T47 row 15-18 y boys (band value applies; project band 15-17 sits inside it): 0.87 g/kg/day × 66.5 kg = 57.9 g/day as printed"
+    female:
+      referent_weight_kg: 56.4
+      protein_g_per_kg_day: 0.84
+      protein_g: 47.4
+      energy_kcal: {low: 2125, moderate: 2500, high: 2875}
+      status: {energy: assumed, protein: literature}
+      provenance:
+        energy: "derived (research §3): equal-weight mean of S1·2004·T4.6 single-year rows 15-16/16-17/17-18 — low: 2125/2125/2125 kcal; moderate: 2500/2500/2500; high: 2875/2875/2875"
+        protein: "direct: S2·2007·T47 row 15-18 y girls: 0.84 g/kg/day × 56.4 kg = 47.4 g/day as printed"
+  "18-29":
+    label: "adults 18-30 (S1 band 18-29.9)"
+    male:
+      referent_weight_kg: 65
+      protein_g_per_kg_day: 0.83
+      protein_g: 54
+      energy_kcal: {low: 2400, moderate: 2900, high: 3450}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.4 row 18-29.9 men at 65 kg — PAL columns 1.45/1.75/2.05 (report rounds to closest 50 kcal/day); reproduced by adult_bmr_equations × PAL within rounding"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 65 kg -> 54 g (safe level, quality 1.0 [G8]; IAAO uplift proposals not adopted [G12])"
+    female:
+      referent_weight_kg: 55
+      protein_g_per_kg_day: 0.83
+      protein_g: 46
+      energy_kcal: {low: 1900, moderate: 2300, high: 2650}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.7 row 18-29.9 women at 55 kg — PAL columns 1.45/1.75/2.05"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 55 kg -> 46 g"
+  "30-59":
+    label: "adults 30-60 (S1 band 30-59.9)"
+    male:
+      referent_weight_kg: 65
+      protein_g_per_kg_day: 0.83
+      protein_g: 54
+      energy_kcal: {low: 2350, moderate: 2850, high: 3300}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.5 row 30-59.9 men at 65 kg — PAL columns 1.45/1.75/2.05"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 65 kg -> 54 g"
+    female:
+      referent_weight_kg: 55
+      protein_g_per_kg_day: 0.83
+      protein_g: 46
+      energy_kcal: {low: 1850, moderate: 2250, high: 2650}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.8 row 30-59.9 women at 55 kg — PAL columns 1.45/1.75/2.05"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 55 kg -> 46 g"
+  "60-plus":
+    label: "adults 60 and older (S1 band >=60)"
+    male:
+      referent_weight_kg: 65
+      protein_g_per_kg_day: 0.83
+      protein_g: 54
+      energy_kcal: {low: 1950, moderate: 2350, high: 2750}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.6 row >=60 men at 65 kg — PAL columns 1.45/1.75/2.05; DLW age structure corroborated (S15, research §6.4)"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 65 kg -> 54 g (S2 splits no adult age; EFSA >=60 y agrees at 0.83, research §6.2; IAAO >=65 y uplift not adopted [G12])"
+    female:
+      referent_weight_kg: 55
+      protein_g_per_kg_day: 0.83
+      protein_g: 46
+      energy_kcal: {low: 1700, moderate: 2050, high: 2350}
+      status: {energy: literature, protein: literature}
+      provenance:
+        energy: "direct: S1·2004·T5.9 row >=60 women at 55 kg — PAL columns 1.45/1.75/2.05"
+        protein: "direct: S2·2007·T46/§14.2 — 0.83 g/kg/day, 55 kg -> 46 g"

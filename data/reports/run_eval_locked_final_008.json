@@ -1,0 +1,380 @@
+{
+  "tier": "locked",
+  "n_views": 248,
+  "n_plates": 48,
+  "n_samples": 2793,
+  "mae_g": 14.667,
+  "mae_g_bootstrap_95ci": [
+    13.331,
+    16.029
+  ],
+  "mape_pct": 19.99,
+  "n_mape_excluded_lt1g": 0,
+  "coverage_90": 0.8277,
+  "coverage_bootstrap_95ci": [
+    0.802,
+    0.855
+  ],
+  "mean_interval_width_g": 59.58,
+  "n_skipped_no_sigma": 82,
+  "per_dish_mae_g": {
+    "veg-dum-briyani": 44.15,
+    "aloo-curry": 37.7,
+    "steamed-rice": 28.36,
+    "Watermelon": 27.13,
+    "veg-pulao": 24.82,
+    "rajma": 24.36,
+    "chicken-dum-biryani": 21.28,
+    "non-spicy-dal": 20.48,
+    "non-spicy-curry": 19.44,
+    "beetroot-kobari": 18.26,
+    "tomato-pappu": 18.2,
+    "cabbage-dry": 18.2,
+    "leaf-dal": 17.79,
+    "Muskmelon": 17.66,
+    "kofta-curry": 17.38,
+    "beans-curry": 16.93,
+    "phulka": 15.79,
+    "channa-brinjal": 15.67,
+    "Bottle-gourd-curry": 13.35,
+    "sambar": 12.71,
+    "pachi-pulusu": 12.22,
+    "salad": 12.14,
+    "masoor-dal": 12.12,
+    "aloo-capsicum": 10.98,
+    "Papaya": 10.58,
+    "aloo-fry": 9.83,
+    "mirchi-ka-salan": 9.82,
+    "muddha-pappu": 9.71,
+    "curd": 9.67,
+    "beetroot-poriyal": 9.42,
+    "payasam": 7.71,
+    "dondakaya-fry": 7.25,
+    "rasam": 6.66,
+    "Banana": 5.8,
+    "chutney": 5.21,
+    "bisi-bele-bath": 4.73,
+    "kakarakaya-fry": 3.16,
+    "boondi": 2.86,
+    "raita": 2.8,
+    "papad": 2.19,
+    "mango-pickle": 2.06
+  },
+  "worst3_dishes": [
+    [
+      "veg-dum-briyani",
+      44.15
+    ],
+    [
+      "aloo-curry",
+      37.7
+    ],
+    [
+      "steamed-rice",
+      28.36
+    ]
+  ],
+  "per_plate": {
+    "20250512_set25": {
+      "n": 60,
+      "sum_abs_err": 1486.6368,
+      "n_sigma": 60,
+      "n_covered": 37
+    },
+    "20250512_set4": {
+      "n": 84,
+      "sum_abs_err": 1160.3272,
+      "n_sigma": 84,
+      "n_covered": 63
+    },
+    "20250512_set7": {
+      "n": 99,
+      "sum_abs_err": 1260.7732,
+      "n_sigma": 99,
+      "n_covered": 76
+    },
+    "20250512_set8": {
+      "n": 87,
+      "sum_abs_err": 1203.3501,
+      "n_sigma": 87,
+      "n_covered": 61
+    },
+    "20250515_set19": {
+      "n": 60,
+      "sum_abs_err": 567.0793,
+      "n_sigma": 60,
+      "n_covered": 47
+    },
+    "20250515_set23": {
+      "n": 60,
+      "sum_abs_err": 442.9056,
+      "n_sigma": 60,
+      "n_covered": 54
+    },
+    "20250515_set9": {
+      "n": 59,
+      "sum_abs_err": 736.3769,
+      "n_sigma": 59,
+      "n_covered": 45
+    },
+    "20250516_set1": {
+      "n": 50,
+      "sum_abs_err": 1059.9652,
+      "n_sigma": 50,
+      "n_covered": 42
+    },
+    "20250516_set17": {
+      "n": 51,
+      "sum_abs_err": 542.3246,
+      "n_sigma": 51,
+      "n_covered": 50
+    },
+    "20250516_set22": {
+      "n": 51,
+      "sum_abs_err": 1165.8487,
+      "n_sigma": 51,
+      "n_covered": 37
+    },
+    "20250516_set26": {
+      "n": 54,
+      "sum_abs_err": 514.3265,
+      "n_sigma": 54,
+      "n_covered": 49
+    },
+    "20250516_set27": {
+      "n": 55,
+      "sum_abs_err": 1028.8818,
+      "n_sigma": 55,
+      "n_covered": 43
+    },
+    "20250517_set1": {
+      "n": 48,
+      "sum_abs_err": 649.2976,
+      "n_sigma": 48,
+      "n_covered": 47
+    },
+    "20250517_set17": {
+      "n": 49,
+      "sum_abs_err": 1002.3332,
+      "n_sigma": 49,
+      "n_covered": 40
+    },
+    "20250517_set22": {
+      "n": 50,
+      "sum_abs_err": 546.1794,
+      "n_sigma": 50,
+      "n_covered": 49
+    },
+    "20250517_set26": {
+      "n": 49,
+      "sum_abs_err": 695.3013,
+      "n_sigma": 49,
+      "n_covered": 48
+    },
+    "20250517_set27": {
+      "n": 49,
+      "sum_abs_err": 710.3368,
+      "n_sigma": 49,
+      "n_covered": 42
+    },
+    "20250519_set25": {
+      "n": 55,
+      "sum_abs_err": 1144.7774,
+      "n_sigma": 55,
+      "n_covered": 38
+    },
+    "20250519_set4": {
+      "n": 60,
+      "sum_abs_err": 922.12,
+      "n_sigma": 60,
+      "n_covered": 48
+    },
+    "20250519_set7": {
+      "n": 55,
+      "sum_abs_err": 456.6875,
+      "n_sigma": 55,
+      "n_covered": 53
+    },
+    "20250519_set8": {
+      "n": 58,
+      "sum_abs_err": 619.2127,
+      "n_sigma": 58,
+      "n_covered": 51
+    },
+    "20250520_set18": {
+      "n": 52,
+      "sum_abs_err": 412.9837,
+      "n_sigma": 43,
+      "n_covered": 35
+    },
+    "20250520_set19": {
+      "n": 54,
+      "sum_abs_err": 406.2629,
+      "n_sigma": 44,
+      "n_covered": 40
+    },
+    "20250520_set20": {
+      "n": 54,
+      "sum_abs_err": 629.7051,
+      "n_sigma": 44,
+      "n_covered": 35
+    },
+    "20250520_set22": {
+      "n": 53,
+      "sum_abs_err": 462.3471,
+      "n_sigma": 43,
+      "n_covered": 38
+    },
+    "20250520_set28": {
+      "n": 55,
+      "sum_abs_err": 373.41,
+      "n_sigma": 45,
+      "n_covered": 44
+    },
+    "20250520_set7": {
+      "n": 51,
+      "sum_abs_err": 461.9913,
+      "n_sigma": 41,
+      "n_covered": 34
+    },
+    "20250521_set25": {
+      "n": 68,
+      "sum_abs_err": 1545.8147,
+      "n_sigma": 68,
+      "n_covered": 45
+    },
+    "20250521_set4": {
+      "n": 65,
+      "sum_abs_err": 1036.7133,
+      "n_sigma": 65,
+      "n_covered": 48
+    },
+    "20250521_set7": {
+      "n": 70,
+      "sum_abs_err": 981.0338,
+      "n_sigma": 70,
+      "n_covered": 59
+    },
+    "20250521_set8": {
+      "n": 70,
+      "sum_abs_err": 949.33,
+      "n_sigma": 70,
+      "n_covered": 56
+    },
+    "20250523_set18": {
+      "n": 55,
+      "sum_abs_err": 963.6201,
+      "n_sigma": 55,
+      "n_covered": 48
+    },
+    "20250523_set19": {
+      "n": 54,
+      "sum_abs_err": 1009.5662,
+      "n_sigma": 54,
+      "n_covered": 45
+    },
+    "20250523_set20": {
+      "n": 54,
+      "sum_abs_err": 868.4577,
+      "n_sigma": 54,
+      "n_covered": 51
+    },
+    "20250523_set22": {
+      "n": 55,
+      "sum_abs_err": 1104.4548,
+      "n_sigma": 55,
+      "n_covered": 47
+    },
+    "20250523_set28": {
+      "n": 55,
+      "sum_abs_err": 869.8307,
+      "n_sigma": 55,
+      "n_covered": 52
+    },
+    "20250523_set7": {
+      "n": 55,
+      "sum_abs_err": 932.9235,
+      "n_sigma": 55,
+      "n_covered": 47
+    },
+    "20250524_set10": {
+      "n": 59,
+      "sum_abs_err": 1133.0326,
+      "n_sigma": 59,
+      "n_covered": 44
+    },
+    "20250524_set18": {
+      "n": 53,
+      "sum_abs_err": 512.2221,
+      "n_sigma": 53,
+      "n_covered": 49
+    },
+    "20250524_set20": {
+      "n": 60,
+      "sum_abs_err": 726.1305,
+      "n_sigma": 60,
+      "n_covered": 54
+    },
+    "20250524_set22": {
+      "n": 60,
+      "sum_abs_err": 765.6385,
+      "n_sigma": 60,
+      "n_covered": 51
+    },
+    "20250524_set32": {
+      "n": 60,
+      "sum_abs_err": 1014.026,
+      "n_sigma": 60,
+      "n_covered": 56
+    },
+    "20250524_set8": {
+      "n": 60,
+      "sum_abs_err": 783.6731,
+      "n_sigma": 60,
+      "n_covered": 51
+    },
+    "20250526_set20": {
+      "n": 44,
+      "sum_abs_err": 769.1811,
+      "n_sigma": 40,
+      "n_covered": 28
+    },
+    "20250526_set22": {
+      "n": 57,
+      "sum_abs_err": 1086.3244,
+      "n_sigma": 53,
+      "n_covered": 43
+    },
+    "20250526_set25": {
+      "n": 59,
+      "sum_abs_err": 746.8764,
+      "n_sigma": 54,
+      "n_covered": 47
+    },
+    "20250526_set4": {
+      "n": 59,
+      "sum_abs_err": 956.0283,
+      "n_sigma": 54,
+      "n_covered": 38
+    },
+    "20250526_set9": {
+      "n": 59,
+      "sum_abs_err": 1546.9256,
+      "n_sigma": 54,
+      "n_covered": 39
+    }
+  },
+  "split": "WED test split (locked)",
+  "seed": 42,
+  "split_seed": 42,
+  "val_frac": 0.1,
+  "bootstrap_reps": 2000,
+  "z90": 1.644854,
+  "device": "cpu",
+  "checkpoint": "data/weight_head.pt",
+  "limit": null,
+  "stress": null,
+  "dev_real": null,
+  "wall_s": 19.42,
+  "peak_vram_mb": null
+}

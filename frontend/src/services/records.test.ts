@@ -5,8 +5,11 @@ import {
   MAX_RECORDS,
   attention,
   capRecords,
+  dayTotals,
   loadRecords,
   saveRecords,
+  sharesOfGoal,
+  unmeasured,
   tally,
   type AnalysisRecord,
 } from "./records";
@@ -244,5 +247,89 @@ describe("selectors", () => {
       "mid-bl",
       "old-fail",
     ]);
+  });
+});
+
+describe("general-mode selectors (spec 002 goal shares)", () => {
+  function withSummary(
+    rec: AnalysisRecord,
+    patch: Partial<AnalysisRecord["summary"]>
+  ): AnalysisRecord {
+    return { ...rec, summary: { ...rec.summary, ...patch } };
+  }
+
+  it("sharesOfGoal divides the stored meal means by the goal", () => {
+    const rec = makeRecord("a", iso(1)); // kcal 400, protein 12
+    expect(sharesOfGoal(rec, { kcal: 2000, proteinG: 48 })).toEqual({
+      kcal: 0.2,
+      protein: 0.25,
+    });
+  });
+
+  it("sharesOfGoal is null without a goal or without meal numbers", () => {
+    const rec = makeRecord("a", iso(1));
+    expect(sharesOfGoal(rec, { kcal: null, proteinG: null })).toEqual({
+      kcal: null,
+      protein: null,
+    });
+    const empty = withSummary(rec, { kcal: null, protein: null });
+    expect(sharesOfGoal(empty, { kcal: 2000, proteinG: 48 })).toEqual({
+      kcal: null,
+      protein: null,
+    });
+  });
+
+  it("dayTotals sums kcal/protein per local day, newest day first", () => {
+    const recs = [
+      makeRecord("d2-new", iso(20)),
+      makeRecord("d2-old", iso(10)),
+      makeRecord("d1", iso(0)),
+    ];
+    const patched = [
+      withSummary(recs[0], { kcal: 300, protein: 9 }),
+      withSummary(recs[1], { kcal: 400, protein: 12 }),
+      withSummary(recs[2], { kcal: 500, protein: 15 }),
+    ];
+    // iso(0..20) is 2026-01-01 12:00–12:20 UTC; one local day bucket in the
+    // test timezone only if it never crosses midnight — pin the assertion to
+    // whatever bucketing the local clock produces.
+    const totals = dayTotals(patched);
+    expect(totals.length).toBeGreaterThan(0);
+    // days appear in the records' newest-first order (no re-sort)
+    const dates = totals.map((t) => t.date);
+    expect([...dates].sort().reverse()).toEqual(dates);
+    const grandKcal = totals.reduce((s, t) => s + t.kcal, 0);
+    const grandProtein = totals.reduce((s, t) => s + t.protein, 0);
+    expect(grandKcal).toBeCloseTo(1200);
+    expect(grandProtein).toBeCloseTo(36);
+    expect(totals.reduce((s, t) => s + t.meals, 0)).toBe(3);
+  });
+
+  it("dayTotals skips records without any numbers rather than inventing zeros", () => {
+    const recs = [
+      withSummary(makeRecord("has", iso(5)), { kcal: 400, protein: 12 }),
+      withSummary(makeRecord("none", iso(6)), { kcal: null, protein: null }),
+    ];
+    const totals = dayTotals(recs);
+    const all = totals.flatMap((t) => [t.kcal, t.protein]);
+    expect(all.reduce((s, v) => s + v, 0)).toBeCloseTo(412);
+    expect(totals.reduce((s, t) => s + t.meals, 0)).toBe(2);
+  });
+
+  it("unmeasured lists analyses without grams or kcal, newest first", () => {
+    const recs = [
+      withSummary(makeRecord("new-none", iso(5)), {
+        kcal: null,
+        protein: null,
+        grams: null,
+      }),
+      withSummary(makeRecord("mid-has", iso(4)), { kcal: 400 }),
+      withSummary(makeRecord("old-none", iso(1)), {
+        kcal: null,
+        protein: null,
+        grams: null,
+      }),
+    ];
+    expect(unmeasured(recs).map((r) => r.id)).toEqual(["new-none", "old-none"]);
   });
 });

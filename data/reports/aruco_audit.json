@@ -1,0 +1,197 @@
+{
+  "source": "Aruco_7ID_60mm_with_food",
+  "n_images": 23,
+  "n_groups": 6,
+  "n_filename_weight_candidates": 6,
+  "n_mass_evaluation_eligible": 0,
+  "limitation": "Filename values do not establish food-only mass, tare semantics, or per-image correspondence; manual source records are required before scoring.",
+  "images": [
+    {
+      "relative_path": "Dish 1/20261025_184112.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 1/20261025_184421.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 1/20261025_191003.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 1/20261025_191009.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 1/20261025_191019.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 1/this plate weight is 127g and rice is 250g _bowl weight is 109g and sambar is 200g.jpg",
+      "group_id": "Dish 1",
+      "filename_contains_weight_values": [
+        127.0,
+        250.0,
+        109.0,
+        200.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 2/20261027_085735.jpg",
+      "group_id": "Dish 2",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 2/20261027_085741.jpg",
+      "group_id": "Dish 2",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 2/20261027_085746.jpg",
+      "group_id": "Dish 2",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 2/Rice plate 255g rice 211 g,Bowl 66g rasam 127g.jpg",
+      "group_id": "Dish 2",
+      "filename_contains_weight_values": [
+        255.0,
+        211.0,
+        66.0,
+        127.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 3/127 g plate 47 g bowl- 70g cocunt chutney _121 g of chappati.jpg",
+      "group_id": "Dish 3",
+      "filename_contains_weight_values": [
+        127.0,
+        47.0,
+        70.0,
+        121.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 3/20261029_125158.jpg",
+      "group_id": "Dish 3",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 3/20261029_125203.jpg",
+      "group_id": "Dish 3",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 4/127g plate 206g biryani rice 44 g egg.jpg",
+      "group_id": "Dish 4",
+      "filename_contains_weight_values": [
+        127.0,
+        206.0,
+        44.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 4/20261029_141529.jpg",
+      "group_id": "Dish 4",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 4/20261029_141536.jpg",
+      "group_id": "Dish 4",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 5/127g plate 150 g biryani rice.jpg",
+      "group_id": "Dish 5",
+      "filename_contains_weight_values": [
+        127.0,
+        150.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 5/20261029_141201.jpg",
+      "group_id": "Dish 5",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 5/20261029_141208.jpg",
+      "group_id": "Dish 5",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 6/127 g plate 257g biryani rice 94g egg_.jpg",
+      "group_id": "Dish 6",
+      "filename_contains_weight_values": [
+        127.0,
+        257.0,
+        94.0
+      ],
+      "label_status": "candidate_only_tare_semantics_unverified",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 6/20261029_141720.jpg",
+      "group_id": "Dish 6",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 6/20261029_141725.jpg",
+      "group_id": "Dish 6",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    },
+    {
+      "relative_path": "Dish 6/20261029_141729.jpg",
+      "group_id": "Dish 6",
+      "filename_contains_weight_values": [],
+      "label_status": "no_filename_weight",
+      "mass_evaluation_eligible": false
+    }
+  ]
+}

@@ -19,7 +19,7 @@ params:
   pose_tilt_residue_pct: {value: 1.5, status: assumed, note: "quad fit residual -> tilt error"}
 
   # --- recognition (S2) ---
-  gallery_match_threshold: {value: 0.82, status: assumed, note: "min top-1 cosine vs gallery; LOO correct-class min 0.857, synthetic renders ~0.67 -> abstain"}
+  gallery_match_threshold: {value: 0.80, status: calibrated, note: "min top-1 cosine vs gallery; re-derived 2026-10-28 for the 41-class gallery (ledger 003): LOO over 997 entries (46 gold photos + 951 WED train ROI crops) gives min correct-class match 0.8291 (mean 0.9254), synthetic render negative 0.7158 -> 0.80 sits between with margin. Supersedes the 2-class assumed value 0.82 (LOO min 0.857)"}
 
   # --- thickness (S3) ---
   thickness_depth_sigma_pct: {value: 8, status: assumed, unvalidated: true, note: "plate depth via depth map + boundary"}

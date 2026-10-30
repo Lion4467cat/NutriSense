@@ -1,0 +1,38 @@
+{
+  "measurement": "local uvicorn over loopback HTTP /analyze; sequential; first call dropped",
+  "image_sha256": "965e5daa9892769207c6094d267be3ec086e46e7af6f4aed0c040d4bc1e8668c",
+  "image_bytes": 2024319,
+  "runs_scored": 2,
+  "http_status_counts": {
+    "200": 3
+  },
+  "verdict_counts": {
+    "FAIL": 3
+  },
+  "latency_ms": {
+    "p50": 8262.6,
+    "p95": 8337.9,
+    "min": 8178.8,
+    "max": 8346.3
+  },
+  "resource": {
+    "server_rss_mib_after": 4719.6,
+    "server_peak_rss_mib": 4880.4,
+    "cuda_available": true,
+    "cuda_device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "gpu_used_mib_baseline_system": 141.8,
+    "gpu_used_mib_peak_system": 5554.9,
+    "gpu_used_mib_peak_delta_system": 5413.1
+  },
+  "environment": {
+    "platform": "Linux-7.2.9-2-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.7",
+    "torch": "2.13.0+cu130",
+    "upload_limit_bytes": 12582912
+  },
+  "limitations": [
+    "Loopback single-process latency excludes remote network effects.",
+    "Sequential single-worker measurement; no throughput or multi-worker claim.",
+    "No deployment latency/resource budget has been specified."
+  ]
+}

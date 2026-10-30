@@ -1,0 +1,178 @@
+{
+  "photos": [
+    {
+      "dish": "pepper_rasam_rice",
+      "photo": "IMG20260824131408.jpg",
+      "size": [
+        3072,
+        4080
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.0008,
+        "sam_score": 0.9503,
+        "seconds": 12.04
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.458,
+        "sam_score": 0.6894,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 1,
+        "area_frac": 0.5143,
+        "sam_score": 0.8494,
+        "seconds": 3.83
+      }
+    },
+    {
+      "dish": "pepper_rasam_rice",
+      "photo": "IMG20260824131418.jpg",
+      "size": [
+        3072,
+        4080
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.1166,
+        "sam_score": 0.8434,
+        "seconds": 0.43
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.3194,
+        "sam_score": 0.9572,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 3,
+        "area_frac": 0.5484,
+        "sam_score": 0.842,
+        "seconds": 3.83
+      }
+    },
+    {
+      "dish": "tomato_rasam_rice",
+      "photo": "IMG20260824131456.jpg",
+      "size": [
+        4080,
+        3072
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.0018,
+        "sam_score": 0.3327,
+        "seconds": 0.43
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.2458,
+        "sam_score": 0.98,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 2,
+        "area_frac": 0.4205,
+        "sam_score": 0.949,
+        "seconds": 3.85
+      }
+    },
+    {
+      "dish": "tomato_rasam_rice",
+      "photo": "IMG20260824131457.jpg",
+      "size": [
+        4080,
+        3072
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.1847,
+        "sam_score": 0.7187,
+        "seconds": 0.43
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.3612,
+        "sam_score": 0.9078,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 2,
+        "area_frac": 0.408,
+        "sam_score": 0.9233,
+        "seconds": 3.85
+      }
+    },
+    {
+      "dish": "vegetable_rice",
+      "photo": "IMG20260825130507.jpg",
+      "size": [
+        4080,
+        3072
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.3645,
+        "sam_score": 0.4174,
+        "seconds": 0.44
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.3565,
+        "sam_score": 0.9606,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 1,
+        "area_frac": 0.3693,
+        "sam_score": 0.9696,
+        "seconds": 3.89
+      }
+    },
+    {
+      "dish": "vegetable_rice",
+      "photo": "IMG20260825130516.jpg",
+      "size": [
+        3072,
+        4080
+      ],
+      "centre_point": {
+        "strategy": "centre_point",
+        "masks": 1,
+        "area_frac": 0.3256,
+        "sam_score": 0.7716,
+        "seconds": 0.43
+      },
+      "centre_box": {
+        "strategy": "centre_box",
+        "masks": 1,
+        "area_frac": 0.3581,
+        "sam_score": 0.9061,
+        "seconds": 0.43
+      },
+      "grid9_box": {
+        "strategy": "grid9_box",
+        "masks": 2,
+        "area_frac": 0.4265,
+        "sam_score": 0.8499,
+        "seconds": 3.9
+      }
+    }
+  ]
+}

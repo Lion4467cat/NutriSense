@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "n_observations": 555,
+  "n_groups": 555,
+  "rows_by_split": {
+    "test": 47,
+    "train": 450,
+    "val": 58
+  },
+  "groups_by_split": {
+    "test": 47,
+    "train": 450,
+    "val": 58
+  },
+  "cross_split_group_count": 0,
+  "cross_split_image_path_count": 0,
+  "cross_split_exact_image_hash_count": 0,
+  "errors": [],
+  "manifest": "datasets/processed/nutrition5k_local_manifest.csv"
+}

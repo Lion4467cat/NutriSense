@@ -1,6 +1,7 @@
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { HashRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
+import { OnboardingProvider } from "./context/onboarding";
 import type { ApiClient } from "./services/api";
 import type { Storage } from "./services/storage";
 import AppShell from "./layout/AppShell";
@@ -61,9 +62,13 @@ export default function App({
     <AppProvider storage={storage} client={client}>
       <MotionConfig reducedMotion="user">
         <HashRouter>
-          <AppShell>
-            <AnimatedRoutes />
-          </AppShell>
+          {/* First-run profile wizard: mounted at the root so Settings can
+              re-open it and the flag persists through the prefs storage. */}
+          <OnboardingProvider>
+            <AppShell>
+              <AnimatedRoutes />
+            </AppShell>
+          </OnboardingProvider>
         </HashRouter>
       </MotionConfig>
     </AppProvider>

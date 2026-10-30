@@ -28,6 +28,11 @@ yields:
     interval: [1.0, 1.0]
     status: literature
     source: "dissolves into dish; added as-is"
+  as_is:
+    yield: 1.0
+    interval: [1.0, 1.0]
+    status: assumed
+    source: "served-as-is items (fruits, curd, chutney, pickle, papad, boondi, payasam, soups) — raw-equivalent diagnostic only (ledger 003)"
 
 # IFCT nutrient units used everywhere (kcal & g per 100 g edible portion)
 units: {energy: kcal, protein: g, per: 100g}

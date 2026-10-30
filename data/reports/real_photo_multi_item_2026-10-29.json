@@ -1,0 +1,81 @@
+{
+  "photos": [
+    {
+      "photo": "IMG20260824131408.jpg",
+      "verdict": "FAIL",
+      "path_used": "learned_head",
+      "n_items": 1,
+      "item_dishes": [
+        "rice_sambar"
+      ],
+      "grams": 287.8,
+      "degradations": [],
+      "seconds": 30.6
+    },
+    {
+      "photo": "IMG20260824131418.jpg",
+      "verdict": "PASS",
+      "path_used": "multi_item",
+      "n_items": 3,
+      "item_dishes": [
+        "rice_sambar",
+        "rice_sambar",
+        "rice_sambar"
+      ],
+      "grams": 772.3,
+      "degradations": [],
+      "seconds": 5.5
+    },
+    {
+      "photo": "IMG20260824131456.jpg",
+      "verdict": "PASS",
+      "path_used": "multi_item",
+      "n_items": 3,
+      "item_dishes": [
+        "rice_sambar",
+        "rice_sambar",
+        "rice_sambar"
+      ],
+      "grams": 879.6,
+      "degradations": [],
+      "seconds": 5.9
+    },
+    {
+      "photo": "IMG20260824131457.jpg",
+      "verdict": "BORDERLINE",
+      "path_used": "multi_item",
+      "n_items": 2,
+      "item_dishes": [
+        "rice_sambar",
+        "rice_sambar"
+      ],
+      "grams": 492.1,
+      "degradations": [],
+      "seconds": 5.2
+    },
+    {
+      "photo": "IMG20260825130507.jpg",
+      "verdict": "FAIL",
+      "path_used": "learned_head",
+      "n_items": 1,
+      "item_dishes": [
+        "vegetable_rice"
+      ],
+      "grams": 90.6,
+      "degradations": [],
+      "seconds": 5.0
+    },
+    {
+      "photo": "IMG20260825130516.jpg",
+      "verdict": "FAIL",
+      "path_used": "learned_head",
+      "n_items": 1,
+      "item_dishes": [
+        "vegetable_rice"
+      ],
+      "grams": 57.6,
+      "degradations": [],
+      "seconds": 5.0
+    }
+  ]
+}
