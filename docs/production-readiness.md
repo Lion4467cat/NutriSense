@@ -184,8 +184,9 @@ isolate food or plate ground-truth masks.
   negative supervision. The oracle-present decomposition is explicitly
   non-deployable; both are documented in the report and no candidate was
   promoted.
-- Full backend suite: **281 passed** in 109.46 s. The final focused paired-CV
-  tests were run again after the split-identity validation change.
+- A prior local verification record reports the full backend suite as
+  **281 passed** in 109.46 s. The 2026-10-30 verification attempt below did
+  not reproduce that full-suite pass in the restricted environment.
 - API integration suite: **9 passed** (also included in the full backend
   count). The happy-wire check passed separately with optional nutrition
   provenance.
@@ -193,3 +194,27 @@ isolate food or plate ground-truth masks.
   Vite reported existing dependency-comment and >500 kB bundle advisories.
 - Repository Ruff check, `git diff --check`, WED evaluation lock guard, and
   three exact-image-hash dataset audits passed.
+
+## Verification attempt for the current branch (2026-10-30)
+
+Commands were run from the project checkout with its `.venv` activated.
+
+- `pytest --collect-only -q`: **281 collected** (271 non-GPU, 10 GPU-marked).
+- `pytest -q`: did not complete; interrupted after it stopped making progress.
+  The isolated `tests/test_contract_gen.py::test_unreadable_fixture_matches_wire`
+  attempt timed out at 25 seconds after app startup logged
+  `torch.cuda.is_available()=False` and selected CPU inference. The no-GPU
+  suite with `tests/test_api.py` excluded also stopped making progress, so no
+  passing full-suite claim is made for this environment.
+- Frontend: **70 Vitest tests passed**; `npm run build` succeeded. Vite emitted
+  its existing dependency-comment and >500 kB bundle advisories.
+- `.venv/bin/python -m tools.check_locked`: **502 ok, 0 skipped, 0 failed**.
+- `UV_CACHE_DIR=/tmp/nutrisense-uv-cache uv lock --check`: passed.
+- `ruff check .`: failed with **18 findings**, concentrated in
+  `experiments/oracle_ablation/` diagnostic scripts.
+- `.venv/bin/python -m tools.pyright_gate`: failed at **214 errors vs baseline
+  209** (five above the recorded baseline). The baseline was not changed.
+
+These are verification outcomes, not changes to the evaluation protocol. The
+ArUco plates remain permanently EVAL-ONLY; none of these results authorize
+tuning or promotion of a serving-path candidate.

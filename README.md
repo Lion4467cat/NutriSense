@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-243%20pytest%20%C2%B7%2070%20vitest-brightgreen.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-281%20pytest%20collected%20%C2%B7%2070%20vitest%20passed-orange.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -137,6 +137,8 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 **Open gates (M1–M8, see `docs/final-report.md`):** prior-tier depth-scale validation, multi-vessel (thali) stability and meal-composition scope, nutrient-table validation, and independent holdout evaluation. A 23-image / six-plate weighed ArUco pilot is complete and documented as EVAL-ONLY; it found severe mask spill and overestimation on many views, so it is not evidence of field readiness and must not be used for tuning.
 
+**Estimator improvement loop:** recent synthetic diagnostics rejected vessel-mask spill as a sufficient explanation and rejected a local surface-area integration candidate. A controlled card-position diagnostic now shows a promising perspective-scale mechanism on synthetic scenes, but its preregistered three-position criterion could not be assessed because one position per scene was not measurable. No serving code changed. Results, limitations, and the next independent-evaluation steps are in [`docs/agentic-improvement-loop.md`](docs/agentic-improvement-loop.md).
+
 **Model-quality status:** the current WED DEV reference is 15.034 g MAE on 108 views / 21 plates. This carve is also used for epoch selection, so it is development evidence rather than an independent generalization claim. Five-fold plate-grouped WED TRAIN cross-validation measured 16.421 g pooled baseline MAE. A 10×-decay candidate reduced pooled CV MAE by 0.148 g, but regressed the boondi subgroup by 39.1% and was rejected under its preregistered guardrail; other loss, bias-correction, augmentation and ROI-feature changes were also not promoted. WED LOCKED measured 14.667 g after the model freeze and was not used for tuning. No candidate passed promotion, and current intervals under-cover. Dataset decisions, remaining release gates, and deployment limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/ledger/021-wed-weight-decay-cv.md`](docs/ledger/021-wed-weight-decay-cv.md).
 
 ---
@@ -185,7 +187,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | pytest — 178 tests (synthetic GT scenes + HTTP E2E + contract parity); 169 run without a GPU |
+| Tests | 281 pytest cases collected (271 non-GPU + 10 GPU-marked); frontend 70 Vitest tests |
 
 ---
 
@@ -207,7 +209,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 160 tests incl. synth/ renderer with full GT
+├── tests/                     # 281 collected; synthetic renderer + API/contracts
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -265,17 +267,24 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # full backend: 243 passed (233 without a GPU)
-.venv/bin/pytest -m "not gpu" -q       # CI subset, no GPU/weights: 233 passed, 10 deselected
+.venv/bin/pytest -q                    # 281 collected (271 non-GPU + 10 GPU-marked)
+.venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
 .venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 70 vitest tests (wire parity, selectors, wizard, PolicyNote)
+cd frontend && npm test                # 70 Vitest tests (wire parity, selectors, wizard, PolicyNote)
 ```
+
+The case counts above are collection counts, not a claim that the current
+checkout's complete backend suite passed. In the 2026-10-30 local verification,
+the full pytest run did not finish in this restricted environment; the
+unreadable-fixture contract test stalled after app startup reported CUDA
+unavailable. See the current verification record in
+[`docs/production-readiness.md`](docs/production-readiness.md).
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
 
 ```bash
 TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
-  .venv/bin/pytest -m "not gpu" -q     # 233 passed, 10 deselected, both dirs stay empty
+  .venv/bin/pytest -m "not gpu" -q     # no-GPU suite; see current verification record for execution status
 ```
 
 `pytest.ini` declares the `gpu` marker; `tests/conftest.py` pins the weight head to `None`, so non-gpu runs never touch `data/weight_head.pt`.
@@ -285,11 +294,16 @@ TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
 Report-only first pass (STAGE 5). **No autofix, no repo-wide format was ever applied** — the `ignore` list in `ruff.toml` is exactly the set of rules the current code violates.
 
 ```bash
-.venv/bin/ruff check .                  # the gate: 0 findings under ruff.toml
+.venv/bin/ruff check .                  # intended gate; current run has 18 experiment-script findings
 .venv/bin/ruff check . --isolated       # report-only baseline: 117 findings / 22 rules
 ```
 
 Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and why each one was left alone rather than fixed:
+
+The 2026-10-30 run of the configured gate currently reports 18 findings,
+primarily in ArUco and synthetic diagnostic scripts under
+`experiments/oracle_ablation/`; current details are recorded in
+`docs/production-readiness.md`.
 
 | Rule | n | Why relaxed |
 |---|---|---|
@@ -321,7 +335,7 @@ Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and
 ### 🧮 Typecheck
 
 ```bash
-.venv/bin/python -m tools.pyright_gate   # 209 errors vs pyright.baseline 209 — fails only on NEW errors
+.venv/bin/python -m tools.pyright_gate   # compares current findings against pyright.baseline
 ```
 
 `pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). Existing findings do not block CI: the gate compares against `pyright.baseline` and only fails when the count rises. When errors are genuinely fixed, re-record the lower count with `--update`.
@@ -335,7 +349,7 @@ uv sync --frozen   # install exactly what uv.lock pins (no upgrades) — CI does
 
 `uv.lock` pins the environment that was verified on this box (torch 2.13.0, transformers 5.16.1, opencv 5.0.0, pytest 9.1.1, ruff 0.17.0, pyright 1.1.414, …). `uv sync --frozen` installs exactly what uv.lock pins (no upgrades) and removes anything installed outside it — do not run it casually. Dev tools live in the `dev` dependency group, included by `--all-groups`.
 
-`.github/workflows/ci.yml` runs all four gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + vitest + build). It needs no GPU, secrets, datasets or model downloads; written and verified locally on 2026-10-12, **never pushed and never run remotely**.
+`.github/workflows/ci.yml` defines the repository gates (ruff, pyright, `pytest -m "not gpu"` with empty `TORCH_HOME`/`HF_HOME`, then `tsc --noEmit` + Vitest + build). The 2026-10-30 PR checks showed no completed CI jobs; local results and limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ### Access the App
 
