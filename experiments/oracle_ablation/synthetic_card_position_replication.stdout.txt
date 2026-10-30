@@ -1,0 +1,33 @@
+scenes=6 fixed_positions=[(170.0, -80.0), (170.0, 15.0), (170.0, 100.0)]
+food_mask_and_food_depth_invariant=True
+all_18_positions_measured=True
+all_mean_corner_errors_le_3px=True
+assessable=True
+global_spread_ge_5pct=6/6
+homography_spread_le_2pct_among_sensitive=4/6
+preregistered_criterion_met=True
+plate_150_low: truth=150.00g measured_positions=3/3 global_spread_pct=70.73541906577861 homography_spread_pct=3.2732718214432865
+  card=[170.0, -80.0] global=102.86g (-31.43%) detected_global=104.30g H_area=144.13g (-3.91%) corner_error=0.48px
+  card=[170.0, 15.0] global=154.99g (+3.33%) detected_global=158.47g H_area=146.88g (-2.08%) corner_error=0.78px
+  card=[170.0, 100.0] global=212.49g (+41.66%) detected_global=219.09g H_area=148.94g (-0.71%) corner_error=0.81px
+plate_250_mid: truth=250.00g measured_positions=3/3 global_spread_pct=65.96432669835575 homography_spread_pct=1.3776996878591676
+  card=[170.0, -80.0] global=163.98g (-34.41%) detected_global=167.69g H_area=244.82g (-2.07%) corner_error=0.68px
+  card=[170.0, 15.0] global=239.67g (-4.13%) detected_global=244.96g H_area=241.49g (-3.40%) corner_error=0.75px
+  card=[170.0, 100.0] global=322.07g (+28.83%) detected_global=329.68g H_area=241.60g (-3.36%) corner_error=0.65px
+plate_450_high: truth=450.00g measured_positions=3/3 global_spread_pct=70.27447639831176 homography_spread_pct=1.9158829666840484
+  card=[170.0, -80.0] global=334.87g (-25.58%) detected_global=340.97g H_area=437.34g (-2.81%) corner_error=0.72px
+  card=[170.0, 15.0] global=503.49g (+11.89%) detected_global=513.29g H_area=435.43g (-3.24%) corner_error=0.59px
+  card=[170.0, 100.0] global=688.70g (+53.04%) detected_global=710.65g H_area=443.81g (-1.38%) corner_error=0.90px
+bowl_150_low: truth=150.00g measured_positions=3/3 global_spread_pct=70.73541906577863 homography_spread_pct=3.2731721029251375
+  card=[170.0, -80.0] global=101.59g (-32.27%) detected_global=103.01g H_area=143.10g (-4.60%) corner_error=0.48px
+  card=[170.0, 15.0] global=153.08g (+2.06%) detected_global=156.52g H_area=145.83g (-2.78%) corner_error=0.78px
+  card=[170.0, 100.0] global=209.87g (+39.92%) detected_global=216.39g H_area=147.87g (-1.42%) corner_error=0.81px
+bowl_250_mid: truth=250.00g measured_positions=3/3 global_spread_pct=65.96432669835572 homography_spread_pct=1.3779408325056783
+  card=[170.0, -80.0] global=162.27g (-35.09%) detected_global=165.95g H_area=243.35g (-2.66%) corner_error=0.68px
+  card=[170.0, 15.0] global=237.17g (-5.13%) detected_global=242.41g H_area=240.04g (-3.98%) corner_error=0.75px
+  card=[170.0, 100.0] global=318.72g (+27.49%) detected_global=326.25g H_area=240.15g (-3.94%) corner_error=0.65px
+bowl_450_high: truth=450.00g measured_positions=3/3 global_spread_pct=70.27447639831175 homography_spread_pct=1.9160353609878193
+  card=[170.0, -80.0] global=332.05g (-26.21%) detected_global=338.10g H_area=436.80g (-2.93%) corner_error=0.72px
+  card=[170.0, 15.0] global=499.25g (+10.95%) detected_global=508.97g H_area=434.89g (-3.36%) corner_error=0.59px
+  card=[170.0, 100.0] global=682.90g (+51.76%) detected_global=704.67g H_area=443.26g (-1.50%) corner_error=0.90px
+raw_jsonl=/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/synthetic_card_position_replication.jsonl

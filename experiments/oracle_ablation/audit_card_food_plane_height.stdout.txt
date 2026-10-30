@@ -1,0 +1,33 @@
+scenes=6 positions_per_scene=3
+all_18_positions_measured=True
+mean_abs_area_error_pct_detected_card_plane=1.326379
+mean_abs_area_error_pct_renderer_card_plane=1.055537
+mean_abs_area_error_pct_renderer_food_base_plane=8.681966
+food_base_plane_error_reduction_pct=-554.561468
+scenes_food_base_error_le_2pct=0/6
+preregistered_criterion_met=False
+plate_150_low: base_height=4.00mm detected_card_mean_abs_error=1.6845151944318477% renderer_card_mean_abs_error=0.976199969777907% renderer_food_base_mean_abs_error=2.8409093899234015%
+  card=[170.0, -80.0] analytic_area=172.0336cm2 detected_card=171.7249cm2 renderer_card=170.3542cm2 renderer_food_base=167.1463cm2
+  card=[170.0, 15.0] analytic_area=172.0336cm2 detected_card=174.9992cm2 renderer_card=170.3542cm2 renderer_food_base=167.1463cm2
+  card=[170.0, 100.0] analytic_area=172.0336cm2 detected_card=177.4531cm2 renderer_card=170.3542cm2 renderer_food_base=167.1463cm2
+plate_250_mid: base_height=4.00mm detected_card_mean_abs_error=1.123062964965443% renderer_card_mean_abs_error=0.9986056407640257% renderer_food_base_mean_abs_error=2.7198960096480937%
+  card=[170.0, -80.0] analytic_area=191.1345cm2 detected_card=195.0196cm2 renderer_card=189.2258cm2 renderer_food_base=185.9358cm2
+  card=[170.0, 15.0] analytic_area=191.1345cm2 detected_card=192.3681cm2 renderer_card=189.2258cm2 renderer_food_base=185.9358cm2
+  card=[170.0, 100.0] analytic_area=191.1345cm2 detected_card=192.4555cm2 renderer_card=189.2258cm2 renderer_food_base=185.9358cm2
+plate_450_high: base_height=4.00mm detected_card_mean_abs_error=1.3680797675563758% renderer_card_mean_abs_error=0.9168634111168168% renderer_food_base_mean_abs_error=2.8920860830964785%
+  card=[170.0, -80.0] analytic_area=211.2407cm2 detected_card=213.3909cm2 renderer_card=209.3039cm2 renderer_food_base=205.1314cm2
+  card=[170.0, 15.0] analytic_area=211.2407cm2 detected_card=212.4563cm2 renderer_card=209.3039cm2 renderer_food_base=205.1314cm2
+  card=[170.0, 100.0] analytic_area=211.2407cm2 detected_card=216.5447cm2 renderer_card=209.3039cm2 renderer_food_base=205.1314cm2
+bowl_150_low: base_height=26.00mm detected_card_mean_abs_error=1.5949151435446673% renderer_card_mean_abs_error=1.229446090459829% renderer_food_base_mean_abs_error=14.697005668038193%
+  card=[170.0, -80.0] analytic_area=98.5203cm2 detected_card=98.0920cm2 renderer_card=97.3091cm2 renderer_food_base=84.0408cm2
+  card=[170.0, 15.0] analytic_area=98.5203cm2 detected_card=99.9624cm2 renderer_card=97.3091cm2 renderer_food_base=84.0408cm2
+  card=[170.0, 100.0] analytic_area=98.5203cm2 detected_card=101.3639cm2 renderer_card=97.3091cm2 renderer_food_base=84.0408cm2
+bowl_250_mid: base_height=26.00mm detected_card_mean_abs_error=0.9573173748866092% renderer_card_mean_abs_error=1.1607070674079398% renderer_food_base_mean_abs_error=13.634457820934834%
+  card=[170.0, -80.0] analytic_area=113.0973cm2 detected_card=115.2071cm2 renderer_card=111.7846cm2 renderer_food_base=97.6771cm2
+  card=[170.0, 15.0] analytic_area=113.0973cm2 detected_card=113.6404cm2 renderer_card=111.7846cm2 renderer_food_base=97.6771cm2
+  card=[170.0, 100.0] analytic_area=113.0973cm2 detected_card=113.6926cm2 renderer_card=111.7846cm2 renderer_food_base=97.6771cm2
+bowl_450_high: base_height=26.00mm detected_card_mean_abs_error=1.2303833442531966% renderer_card_mean_abs_error=1.051402717428343% renderer_food_base_mean_abs_error=15.307438799229777%
+  card=[170.0, -80.0] analytic_area=128.6796cm2 detected_card=129.8129cm2 renderer_card=127.3267cm2 renderer_food_base=108.9821cm2
+  card=[170.0, 15.0] analytic_area=128.6796cm2 detected_card=129.2442cm2 renderer_card=127.3267cm2 renderer_food_base=108.9821cm2
+  card=[170.0, 100.0] analytic_area=128.6796cm2 detected_card=131.7315cm2 renderer_card=127.3267cm2 renderer_food_base=108.9821cm2
+raw_jsonl=/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/oracle_ablation/audit_card_food_plane_height.jsonl

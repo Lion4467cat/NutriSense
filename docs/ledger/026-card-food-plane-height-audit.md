@@ -3,7 +3,7 @@
 - **id**: 026
 - **branch**: `codex/iter-synthetic-card-homography-check`
 - **date**: 2026-10-30
-- **status**: preregistered; outcome pending
+- **status**: completed; preregistered criterion not met
 
 ## Question and hypothesis
 
@@ -39,8 +39,37 @@ serving change.
 
 ## Result
 
-Pending.
+All 18 placements were measurable. Mean absolute analytic-footprint area error
+was **1.326379%** using the detected card homography, **1.055537%** using the
+renderer camera at card height, and **8.681966%** using the renderer camera at
+the nominal food-base height. Food-base-plane mapping therefore worsened the
+mean error by 554.56%; 0/6 scenes met the 2% per-scene threshold. The
+preregistered criterion was **not met**.
+
+This surprising result led to a source audit of `tests/synth/scene.py`: its
+food support radius is computed from `P0`, the camera ray's intersection with
+the table plane, before assigning the food height. A separate table-plane
+projection of the six exact masks returned signed area errors from **−0.8994%
+to −0.5662%**, close to the analytic footprint. This supports a renderer
+coordinate inconsistency: its mask footprint is parameterized at the table
+ray intersection even when the rendered food surface is elevated. The audit
+does not establish how a real plate's food boundary should be projected.
+
+Reproduction:
+
+```bash
+.venv/bin/python -m experiments.oracle_ablation.audit_card_food_plane_height
+```
+
+Raw per-position values and output are in
+`experiments/oracle_ablation/audit_card_food_plane_height.jsonl` and
+`experiments/oracle_ablation/audit_card_food_plane_height.stdout.txt`. The
+table-plane spot-check output is in
+`experiments/oracle_ablation/audit_renderer_food_mask_plane.stdout.txt`.
 
 ## Decision
 
-Pending. No serving change is authorized by this audit.
+**Revert the plane-height explanation for this renderer as preregistered; do
+not change production or renderer code in this diagnostic.** The 025
+card-position mechanism remains supported in this synthetic setup, while its
+area/error figures must be interpreted alongside this renderer limitation.

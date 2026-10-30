@@ -1,0 +1,6 @@
+plate_150_low: table_plane_area=170.9235cm2 analytic=172.0336cm2 signed_error=-0.6453%
+plate_250_mid: table_plane_area=189.8094cm2 analytic=191.1345cm2 signed_error=-0.6933%
+plate_450_high: table_plane_area=210.0446cm2 analytic=211.2407cm2 signed_error=-0.5662%
+bowl_150_low: table_plane_area=97.6343cm2 analytic=98.5203cm2 signed_error=-0.8994%
+bowl_250_mid: table_plane_area=112.1294cm2 analytic=113.0973cm2 signed_error=-0.8559%
+bowl_450_high: table_plane_area=127.7773cm2 analytic=128.6796cm2 signed_error=-0.7012%

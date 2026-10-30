@@ -3,7 +3,7 @@
 - **id**: 025
 - **branch**: `codex/iter-synthetic-card-homography-check`
 - **date**: 2026-10-30
-- **status**: preregistered; outcome pending
+- **status**: completed; preregistered criterion met
 
 ## Question and hypothesis
 
@@ -47,8 +47,43 @@ diagnostic.
 
 ## Result
 
-Pending.
+All 18 fixed placements returned measured anchors and homographies. Food masks
+and food-pixel depth were invariant within each scene; the maximum mean
+absolute marker-corner error was **0.897921 px**. The anchor detector's
+fallback intrinsics matched the renderer configuration (4.0 mm focal length,
+6.17 mm sensor width).
+
+The mechanism criterion was met:
+
+- Planted-global-scale spread was **65.964327–70.735419%** of the per-scene
+  median in all 6/6 scenes.
+- Homography-area spread was **1.377700–3.273272%**; it was at most 2% in
+  4/6 scenes, all of which also had global spread above 5%.
+- Across all 18 positions, planted-global signed error was **−35.090787% to
+  +53.044918%**; detected-global signed error was **−33.620460% to
+  +57.924275%**; homography-area scaled signed error was **−4.600079% to
+  −0.706182%**.
+
+The planted and detected global-scale estimates both show the position
+effect, so it is not solely a renderer-planted-scale artifact. The homography
+result remains conditional on exact synthetic masks and matching camera
+intrinsics. These are the same six base scenes used by prior synthetic
+diagnostics, with new card placements; this is not independent scene or
+real-photo validation.
+
+Reproduction:
+
+```bash
+.venv/bin/python -m experiments.oracle_ablation.synthetic_card_position_replication
+```
+
+Raw output is in
+`experiments/oracle_ablation/synthetic_card_position_replication.jsonl`,
+`experiments/oracle_ablation/synthetic_card_position_replication.stdout.txt`,
+and the exact-range audit is in
+`experiments/oracle_ablation/synthetic_card_position_replication.audit.txt`.
 
 ## Decision
 
-Pending. No serving change is authorized by this diagnostic.
+**Keep as synthetic mechanism evidence; no serving change.** Independent
+weighed captures are still required before evaluating any serving candidate.

@@ -1,0 +1,6 @@
+planted_global_signed_error_pct: min=-35.090787 max=53.044918 mean=4.258743
+detected_global_signed_error_pct: min=-33.620460 max=57.924275 mean=6.772282
+homography_signed_error_pct: min=-4.600079 max=-0.706182 mean=-2.784248
+global_spread_pct: min=65.964327 max=70.735419 mean=68.991407
+homography_spread_pct: min=1.377700 max=3.273272 mean=2.189000
+mean_corner_error_px: min=0.478654 max=0.897921 mean=0.706124
