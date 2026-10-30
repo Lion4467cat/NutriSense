@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-281%20pytest%20collected%20%C2%B7%2070%20vitest%20passed-orange.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2070%20vitest%20passed-orange.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -135,11 +135,29 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 ![Analysis result — verdict, reasons, coverage](docs/screenshots/result-fail-light.jpg)
 
-**Open gates (M1–M8, see `docs/final-report.md`):** prior-tier depth-scale validation, multi-vessel (thali) stability and meal-composition scope, nutrient-table validation, and independent holdout evaluation. A 23-image / six-plate weighed ArUco pilot is complete and documented as EVAL-ONLY; it found severe mask spill and overestimation on many views, so it is not evidence of field readiness and must not be used for tuning.
+**Open release gates:** prior-tier depth-scale validation, multi-vessel (thali) stability and meal-composition scope, nutrient-table validation, data rights, and independent representative holdout evaluation. A 23-image / six-plate weighed ArUco pilot is complete and documented as EVAL-ONLY; it found severe mask spill and overestimation on many views, so it is not evidence of field readiness and must not be used for tuning. See the current gate-by-gate status in [`docs/production-readiness.md`](docs/production-readiness.md).
 
 **Estimator improvement loop:** synthetic diagnostics rejected vessel-mask spill as a sufficient explanation and rejected a local surface-area integration candidate. A preregistered card-position replication measured all 18 fixed placements: global-scale spread was 65.96–70.74% in all six scenes, while homography-area estimates had 1.38–3.27% spread and −4.60% to −0.71% signed error. A follow-up found the renderer defines its mask footprint at table-plane ray intersections, limiting interpretation of plane-height results. These are synthetic diagnostics using exact masks and matching intrinsics; no serving or renderer code changed. The weighed ArUco plates remain EVAL-ONLY. See [`docs/agentic-improvement-loop.md`](docs/agentic-improvement-loop.md) and ledgers [025](docs/ledger/025-synthetic-card-position-replication.md) and [026](docs/ledger/026-card-food-plane-height-audit.md).
 
-**Model-quality status:** the current WED DEV reference is 15.034 g MAE on 108 views / 21 plates. This carve is also used for epoch selection, so it is development evidence rather than an independent generalization claim. Five-fold plate-grouped WED TRAIN cross-validation measured 16.421 g pooled baseline MAE. A 10×-decay candidate reduced pooled CV MAE by 0.148 g, but regressed the boondi subgroup by 39.1% and was rejected under its preregistered guardrail; other loss, bias-correction, augmentation and ROI-feature changes were also not promoted. WED LOCKED measured 14.667 g after the model freeze and was not used for tuning. No candidate passed promotion, and current intervals under-cover. Dataset decisions, remaining release gates, and deployment limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/ledger/021-wed-weight-decay-cv.md`](docs/ledger/021-wed-weight-decay-cv.md).
+**Model-quality status:** the current WED DEV reference is 15.034 g MAE on 108 views / 21 plates. This carve is also used for epoch selection, so it is development evidence rather than an independent generalization claim. Five-fold plate-grouped WED TRAIN cross-validation measured 16.421 g pooled baseline MAE. A 10×-decay candidate reduced pooled CV MAE by 0.148 g, but regressed the boondi subgroup by 39.1% and was rejected under its preregistered guardrail; other loss, bias-correction, augmentation and ROI-feature changes were also not promoted. WED LOCKED measured 14.667 g after the model freeze and was not used for tuning. No candidate passed promotion, and current intervals under-cover. Dataset decisions, remaining release gates, and deployment limitations are recorded in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/ledger/021-wed-weight-decay-cv.md`](docs/ledger/021-wed-weight-decay-cv.md). The deeper living architecture, data, evidence and readiness synthesis is in [`docs/technical-project-report.md`](docs/technical-project-report.md).
+
+**Fresh mixed-meal transfer check:** on a participant-held-out canteen dataset with tare-corrected item weights, the unchanged serving pipeline abstained on all 60 test meals. A research-only DINOv2-S scalar head scored 148.0 g MAE versus 172.0 g for the train+dev median, but retained −106.9 g bias. It is not part of the serving path; this one non-Indian participant/device cluster does not establish Indian-meal or production accuracy. See [`experiments/vlm_food_benchmark/RESULTS.md`](experiments/vlm_food_benchmark/RESULTS.md).
+
+### Evidence snapshot — 30 Oct 2026
+
+NutriSense has a complete photo-to-result app, reproducible evaluation tooling, and a set of grouped, permission-reviewed diagnostics. The results below are not directly comparable across rows: datasets, targets, food domains, and split designs differ.
+
+| Evidence | Observed result | What it supports |
+|---|---|---|
+| WED deployable weight head | DEV MAE **15.034 g** (108 views / 21 plates); one-time frozen LOCKED report **14.667 g** (2,793 ROIs / 48 plates; nominal 90% interval coverage 82.77%) | A useful in-domain reference for WED labels; the LOCKED result is closed and was not used to tune. Intervals are under-covered. |
+| WED grouped cross-validation | Baseline pooled MAE **16.421 g** across 5 plate-grouped folds; the best pooled candidate gain was only 0.148 g and was rejected after a **39.1% boondi subgroup regression** | Group-aware model comparisons and rejection gates are in place; no candidate passed promotion. |
+| Weighed ArUco plates | **23 views / 6 plates**, EVAL-ONLY. Recorded item-mask areas summed to **2.84–7.71×** the top-level food-mask area on measured-anchor items; paired card-path MAE was **805.4 g** vs **203.2 g** for forced-prior on 14 valid pairs. | A real-plate diagnostic exposes serious failure on these captures. The six plates are closed to tuning and are not a generalization estimate. See [`experiments/oracle_ablation/REPORT.md`](experiments/oracle_ablation/REPORT.md). |
+| GTMensa participant-held-out meals | Serving path returned numeric totals on **0/60** test images; a research-only scalar candidate had **148.018 g** MAE vs **172.017 g** for the train+dev median, with **−106.880 g** signed bias | A modest candidate lead on one non-Indian participant/device group; not a serving candidate or Indian-meal accuracy claim. |
+| LeFood-Set held-out categories | Serving path abstained on **143/143** images; research candidate MAE **69.050 g** vs **75.168 g** baseline, with **−60.061 g** bias | Category-held-out transfer remains biased and underestimates some large portions; no deployment change. |
+| MetaFood3D grouped objects | Image-plus-mask candidate test MAE **71.777 g** vs **55.832 g** category-median baseline | The attempted single-object transfer candidate regressed; MetaFood3D is CC BY-NC and is not cleared for commercial use. |
+| AI-ServicesBB Food Waste official test | Numeric on **67/160** repeated post-meal views; **93/160** abstentions; numeric-only MAE **57.3 g** and signed error **+53.0 g** | A cross-domain coverage and mask diagnostic, not a full serving-mass accuracy claim. |
+
+Operationally, `/analyze` has a tested per-process admission cap (default two requests), temporary-file cleanup, and a responsive health route. A local two-request smoke test is recorded, but repeated cold starts, sustained load, deployment-container behavior, and external service SLOs remain open. **The project is not production-ready.** Dataset terms and artifact decisions are tracked in [`docs/licenses.md`](docs/licenses.md); the complete evidence ledger and release gates are in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/technical-project-report.md`](docs/technical-project-report.md).
 
 ---
 
@@ -187,7 +205,7 @@ No USDA API, no external database, no network calls at runtime — all policy li
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | 281 pytest cases collected (271 non-GPU + 10 GPU-marked); frontend 70 Vitest tests |
+| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 70 Vitest tests |
 
 ---
 
@@ -209,7 +227,8 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 281 collected; synthetic renderer + API/contracts
+├── tests/                     # 281 backend tests; synthetic renderer + API/contracts
+├── experiments/               # per-source protocols, results, raw outputs, scripts
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
 └── frontend/                  # React 18 + TypeScript UI (src/pages, src/result, src/layout)
@@ -248,9 +267,12 @@ uv sync --frozen --all-groups
 ```
 
 For a real deployment, run **one worker per GPU**; inference is serialized per
-process so concurrent uploads cannot contend for VRAM, while `/health` remains
-responsive. Put authentication and TLS in front of the API when it is not
-strictly local. Uploads default to a 12 MiB limit
+process. The API admits at most two concurrent `/analyze` requests per worker
+by default (one may wait for the GPU slot); excess requests receive HTTP 503
+with `Retry-After: 1` before multipart parsing. Set
+`NUTRISENSE_MAX_INFLIGHT_ANALYSES` to change this cap. `/health` stays
+responsive while inference runs. Put authentication and TLS in front of the
+API when it is not strictly local. Uploads default to a 12 MiB limit
 (`NUTRISENSE_CORS_ORIGINS` is a comma-separated allowlist and
 `NUTRISENSE_MAX_UPLOAD_BYTES` overrides the byte cap).
 
@@ -267,17 +289,19 @@ npm run dev
 ### 🧪 Testing
 
 ```bash
-.venv/bin/pytest -q                    # 281 collected (271 non-GPU + 10 GPU-marked)
+.venv/bin/pytest -q                    # full backend suite; latest run: 281 passed
 .venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
 .venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
 cd frontend && npm test                # 70 Vitest tests (wire parity, selectors, wizard, PolicyNote)
 ```
 
-The case counts above are collection counts, not a claim that the current
-checkout's complete backend suite passed. In the 2026-10-30 local verification,
-the full pytest run did not finish in this restricted environment; the
-unreadable-fixture contract test stalled after app startup reported CUDA
-unavailable. See the current verification record in
+On 2026-10-30, `.venv/bin/pytest -q` completed with **281 passed in 107.83 s**,
+including the 10 GPU-marked tests. `npx tsc --noEmit`, all **70 Vitest tests**,
+`npm run build`, and `uv lock --check` also passed. The build emits existing
+dependency-comment and >500 kB bundle advisories. An earlier run on the same
+date stalled while CUDA was unavailable; the later successful run is current.
+Ruff and Pyright remain failing gates, so a passing test suite does not mean
+CI or production readiness is green. See the latest record in
 [`docs/production-readiness.md`](docs/production-readiness.md).
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
@@ -294,15 +318,16 @@ TORCH_HOME=$(mktemp -d) HF_HOME=$(mktemp -d) HF_HUB_OFFLINE=1 \
 Report-only first pass (STAGE 5). **No autofix, no repo-wide format was ever applied** — the `ignore` list in `ruff.toml` is exactly the set of rules the current code violates.
 
 ```bash
-.venv/bin/ruff check .                  # intended gate; current run has 18 experiment-script findings
+.venv/bin/ruff check .                  # current run: 48 findings; see verification record
 .venv/bin/ruff check . --isolated       # report-only baseline: 117 findings / 22 rules
 ```
 
 Rules relaxed (ruff 0.17.0 defaults), with the report-only first-pass counts and why each one was left alone rather than fixed:
 
-The 2026-10-30 run of the configured gate currently reports 18 findings,
-primarily in ArUco and synthetic diagnostic scripts under
-`experiments/oracle_ablation/`; current details are recorded in
+The 2026-10-30 final run of the configured gate reports 48 findings, mostly in
+diagnostic and research scripts. The API-admission files were checked
+separately and passed their focused Ruff check. The global gate is still red;
+details and the earlier 18-finding snapshot are recorded in
 `docs/production-readiness.md`.
 
 | Rule | n | Why relaxed |
@@ -338,7 +363,7 @@ primarily in ArUco and synthetic diagnostic scripts under
 .venv/bin/python -m tools.pyright_gate   # compares current findings against pyright.baseline
 ```
 
-`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). Existing findings do not block CI: the gate compares against `pyright.baseline` and only fails when the count rises. When errors are genuinely fixed, re-record the lower count with `--update`.
+`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). The latest gate reports 214 errors against a baseline of 209 (five over baseline); the baseline was not changed. Existing findings do not block CI, but this increase does. Re-record a lower count with `--update` only after fixing actual errors.
 
 ### 🔒 Lockfile
 

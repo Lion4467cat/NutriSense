@@ -20,6 +20,9 @@ below for exactly what was and was not found.
 | ITD / WED (CVIT) | dataset: **none stated** — `WED.tar.gz`/`ITD.tar.gz` ship only images (0 non-image files); page silent on license | cvit.iiit.ac.in | **no terms published** (verified 2026-10-28 — see [WED/ITD](#wed--itd-cvit-iiit-h)) | **used for local training only**: WED images live at `data/wed/{train,test}` but are **git-ignored** (never committed; `data/wed/.gitignore`); committed derived assets are the manifest (weights from the MIT metadata JSON), the slot mapping, the head-only checkpoint, and the σ yaml; cite; no redistribution of images |
 | Nutrition5k (Google) | CC BY 4.0 (all data) | GitHub README "License & Contact" | confirmed (2026-10-28) | **planned**: weight-head cross-check + capture-protocol reference; attribution shipped with any use; images still kept out of the repo per house rule |
 | FPB (Food Portion Benchmark, ISSAI) — dataset | CC BY-NC 4.0 | HF dataset card metadata | confirmed (2026-10-28) | **eval-only preferred** (NC): portion-geometry teacher; no redistribution; images never committed |
+| AI-ServicesBB Food Waste Dataset | CC BY 4.0 (author repository and dataset card) | [author repository](https://github.com/aihpi/pilotproject-food-waste); [dataset card](https://huggingface.co/datasets/AI-ServicesBB/food-waste-dataset) | confirmed (2026-10-30) | Local research/training with attribution; raw images remain git-ignored; reconfirm rights before commercial release |
+| LeFood-Set V1 | CC BY 4.0 | [Mendeley Data record](https://data.mendeley.com/datasets/cchsk79jkt/1) | confirmed from dataset record (2026-10-30) | Local research and derived analysis with attribution; raw archive remains git-ignored; food-only/tare semantics need clarification before commercial claims |
+| VLM Food Benchmark | Dataset: CC BY 4.0; code: MIT | [author repository](https://github.com/Metabolic-Intelligence-Lab/vlm-food-benchmark), [`LICENSE-DATA`](https://github.com/Metabolic-Intelligence-Lab/vlm-food-benchmark/blob/main/LICENSE-DATA), [paper](https://doi.org/10.3390/nu18213582) | verified from repository at commit `d715df0c0debe65da805618431e67f6d0fa01c71` (2026-10-30) | Local research and derived analysis with attribution; raw images remain git-ignored; authors state food-item scale weights have empty-plate tare subtracted |
 | FPB — code (IS2AI/Multitask-Food-Portion-Estimation) | AGPL-3.0 | GitHub license metadata | confirmed (2026-10-28) | **not vendored** — reference only; any borrowed idea re-implemented, repo stays AGPL-free |
 | RASOI (Ashoka Food Computing Lab, NCVPRIPG 2025 challenge) | CC BY-NC-SA 4.0 + mandatory attribution string | official FKG.in library page | confirmed (2026-10-28) | gallery/segmentation prototyping only (NC/SA); **no redistribution**; the required credit line must appear wherever the dataset is referenced |
 | Kaggle "Indian Food Images (2026)" | CC BY-NC-SA 4.0 | kaggle.com dataset page | confirmed | gallery prototypes only (if used): attribution + no derivatives redistribution |
@@ -156,6 +159,76 @@ note. ADR 0002 makes no FPB assumption; nothing to correct there.
 shipped — even the credit line — must carry the exact attribution string and **the
 dataset or its derivatives redistribute nowhere** (NC + SA + mandated credit). This
 matches the research doc's claim; now verified from the primary source.
+
+### AI-ServicesBB Food Waste Dataset
+
+- The author repository identifies the photographs and structured records as
+  **CC BY 4.0**; the Hugging Face dataset card carries `license: cc-by-4.0`.
+  Sources: https://github.com/aihpi/pilotproject-food-waste and
+  https://huggingface.co/datasets/AI-ServicesBB/food-waste-dataset (accessed
+  2026-10-30).
+- The author description says each image is a post-meal view, one `bonid`
+  receipt is photographed 12–40 times, there are no before-meal images, and
+  the records include grams returned per ingredient. Use `Menge_Rückläufer`
+  for returned food grams; the separate `Gewicht_nachher` includes plate tare.
+- Local research copy contains the author `train` split (215 images / 12
+  receipts) and the official `test` split (160 images / 4 receipts). The test
+  split was fetched and evaluated once on 2026-10-30, then closed to
+  development. See `experiments/food_waste/PROTOCOL.md`,
+  `OFFICIAL_TEST_PROTOCOL.md`, `RESULTS.md`, and `RESULTS_OFFICIAL_TEST.md`.
+
+**Verdict.** Data use is CC BY 4.0 with attribution. Keep the photos and raw
+records local and git-ignored under the existing workspace policy; include the
+author citation and license link in distributed derived reports or models.
+
+### LeFood-Set V1
+
+- The [Mendeley Data record](https://data.mendeley.com/datasets/cchsk79jkt/1)
+  identifies the dataset as **CC BY 4.0** and describes before/after food
+  weights in grams. The accompanying [PLOS One paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0320426)
+  says measurements were made by weighing a plate containing food, but does
+  not explain whether the empty plate tare was subtracted. Treat the dataset's
+  gram labels as stated, while preserving this target-semantics uncertainty.
+- The local archive has 524 complete before/after pairs across 34 categories;
+  154 workbook rows have no corresponding archived before/after images. The
+  archive and workbook hashes, row audit, and fixed category split are in
+  `experiments/lefoodset/DATA_AUDIT.md`.
+- The category-held-out test split was evaluated once. The existing pipeline
+  abstained on all 143 images. A single preregistered research-only scalar
+  regression candidate had 69.050 g MAE and −60.061 g signed bias against a
+  train-only-median baseline of 75.168 g MAE; this aggregate difference does
+  not overcome its high-mass underestimation or establish product accuracy.
+  The held-out categories are closed to further selection or tuning. Full
+  protocols, raw predictions, and results are under `experiments/lefoodset/`.
+
+**Verdict.** CC BY 4.0 permits reuse with attribution under the dataset's
+license, but the local source archive remains ignored by Git. The paper's
+unspecified tare procedure limits interpretation of gram-error results.
+This is single-food cross-domain research evidence, not mixed-meal or
+commercial validation.
+
+### VLM Food Benchmark (GTMensa)
+
+- The [author repository](https://github.com/Metabolic-Intelligence-Lab/vlm-food-benchmark)
+  separates MIT-licensed code (`LICENSE`) from the image, labels, and model
+  outputs under CC BY 4.0 (`LICENSE-DATA`). The repository asks users to cite
+  Marchetti et al., *Benchmarking Open-Source Vision-Language Models for Food
+  Image Recognition and Portion Size Estimation*, *Nutrients* 2026, 18(21),
+  3582, [DOI 10.3390/nu18213582](https://doi.org/10.3390/nu18213582).
+- The source describes 200 canteen meal images and 870 food items. It states
+  each item was scale-weighed and the empty-plate tare subtracted, and that
+  images have no EXIF/GPS and participant names are anonymous codes.
+- We downloaded only the resized images, ground-truth files, participant map,
+  README, and license/citation files at source commit
+  `d715df0c0debe65da805618431e67f6d0fa01c71`; model outputs and code were not
+  included in the local sparse checkout. Raw files remain ignored by Git.
+- A frozen participant-held-out evaluation and one research-only candidate
+  are documented in `experiments/vlm_food_benchmark/`. The candidate is not
+  integrated into NutriSense. This non-Indian canteen test does not establish
+  Indian meal accuracy or production readiness.
+
+**Verdict.** Dataset reuse is permitted under CC BY 4.0 with attribution.
+Retain the citation and license with any derived report or model release.
 
 ### Standing consequence of stricter-than-assumed terms
 

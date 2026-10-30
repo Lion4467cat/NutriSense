@@ -11,8 +11,18 @@ The current pipeline and evaluation tools still use these established paths:
 | WED | `data/wed/` | Indian plated-food images with measured grams; current mass model and locked evaluation |
 | Nutrition5k | `data/nutrition5k/` | Ingredient weights and nutrition; transfer/teacher experiments |
 | ECUSTFD | `datasets/raw/portion/ecustfd/` | 2,978 views grouped into 160 physical portions with box annotations; local mirror is missing `portions.csv`, so it has no verified mass/volume targets and is not grams-training eligible |
-| MetaFood3D | User's download location; copy/extract to `datasets/raw/marker/metafood3d/` after it finishes | 3D food, nutrition and fiducial-marker imagery; request-gated, CC BY-NC 4.0 |
+| MetaFood3D | `datasets/raw/marker/metafood3d/` | 3D meshes, RGBD videos, flipped-food videos, point clouds, and a nutrition workbook with object weights; CC BY-NC 4.0 |
 | FinnFoodPics | `datasets/raw/portion/finnfoodpics/` | Controlled 72-snack portion series, energy-density labels, and nutrition workbook; auxiliary snack experiment only (see `datasets/finnfoodpics/README.md`) |
+| AI-ServicesBB Food Waste Dataset | `datasets/raw/portion/ai-servicesbb-food-waste/{train,test}/` | CC BY 4.0; 215 train images / 12 receipts and 160 official-test images / 4 receipts. The author test split was evaluated once and is now closed to development (see `experiments/food_waste/`) |
+| LeFood-Set V1 | `datasets/raw/portion/lefood-set/` | CC BY 4.0; 524 complete before/after pairs across 34 Indonesian food categories. The frozen current pipeline abstained on all 143 category-held-out test images. One preregistered research-only scalar candidate was tested once (69.050 g MAE, −60.061 g signed bias) and the test categories are now closed. Tare handling is undocumented in the paper. See `experiments/lefoodset/`. |
+| VLM Food Benchmark | `datasets/raw/portion/vlm-food-benchmark/` | CC BY 4.0 data, MIT code; selectively downloaded 200 canteen meal images and 870 manually verified item weights with empty-plate tare subtracted. Participant-held-out experiment: 106 train / 34 dev / 60 test. Current pipeline abstained on all test images; research DINOv2-S candidate MAE 148.0 g vs 172.0 g median baseline, bias −106.9 g. Test is one participant/device cluster; details at `experiments/vlm_food_benchmark/`. |
+
+The local VLM Food Benchmark checkout is sparse and pinned to commit
+`d715df0c0debe65da805618431e67f6d0fa01c71`; it contains the images, labels,
+participant map, citation, and data license, but not the source model outputs
+or code. The source data license is CC BY 4.0 and its code license is MIT.
+Audit and reproduce the frozen comparison with the commands in
+`experiments/vlm_food_benchmark/PROTOCOL.md`.
 
 Two useful user-collected image sets currently sit one directory above this repository and are intentionally left in place because existing tools and reports refer to those paths:
 
@@ -21,7 +31,7 @@ Two useful user-collected image sets currently sit one directory above this repo
 | Gallery/canteen images | `../DATASET/` | 46 gallery photos and diagnostic real-plate images; `tools/build_gallery.py` uses this path |
 | ArUco food captures | `../Aruco_7ID_60mm_with_food/` | 23 existing card-in-frame images in six dish folders; some filenames encode weights. Audit existing labels only; use for exploratory checks if verifiable—no new capture is assumed. |
 
-`CARD_REPORT/` contains geometry diagnostics/reports, not source training images. Keep reports separate from raw images.
+`datasets/metafood3d/README.md` records the local MetaFood3D inventory and its use limits; `experiments/metafood3d/RESULTS.md` records a failed research-only single-object benchmark. `CARD_REPORT/` contains geometry diagnostics/reports, not source training images. Keep reports separate from raw images.
 
 WED and Nutrition5k are not moved because training scripts, manifests and the protected WED test split refer to their current paths. `data/cache/` is a derived feature cache, not source data. The local Nutrition5k ingredient table uses a deterministic dish-ID hash split, not the upstream official split. Do not combine datasets by concatenating raw labels: their target units, food granularity, capture conditions and licensing differ. Build source-aware adapters and train only compatible task heads; evaluate WED with its existing locked split.
 

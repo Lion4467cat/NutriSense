@@ -2,6 +2,7 @@
 import logging
 import os
 import tempfile
+import threading
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -9,11 +10,42 @@ import anyio
 import cv2
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 from config import load_goals, load_menu, load_standards
 from engine.contract import load_policy, log_analysis, unreadable_analysis
 from engine.pipeline import analyze
 from models.scale_anchor import read_exif
+
+class AnalyzeAdmissionMiddleware:
+    """Bound admitted /analyze requests before multipart parsing or disk copies."""
+
+    def __init__(self, app, max_inflight: int):
+        self.app = app
+        self._slots = threading.BoundedSemaphore(max_inflight)
+
+    async def __call__(self, scope, receive, send):
+        if not (
+            scope["type"] == "http"
+            and scope["method"] == "POST"
+            and scope["path"] == "/analyze"
+        ):
+            await self.app(scope, receive, send)
+            return
+
+        if not self._slots.acquire(blocking=False):
+            response = JSONResponse(
+                {"detail": "analysis capacity reached; retry shortly"},
+                status_code=503,
+                headers={"Retry-After": "1"},
+            )
+            await response(scope, receive, send)
+            return
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            self._slots.release()
+
 
 app = FastAPI(title="NutriSense API", version="5.0")
 
@@ -21,6 +53,9 @@ app = FastAPI(title="NutriSense API", version="5.0")
 # threadpool call, so /health and other async endpoints remain responsive.
 INFERENCE_LIMITER = anyio.CapacityLimiter(1)
 MAX_UPLOAD_BYTES = int(os.environ.get("NUTRISENSE_MAX_UPLOAD_BYTES", str(12 * 1024 * 1024)))
+MAX_INFLIGHT_ANALYSES = int(os.environ.get("NUTRISENSE_MAX_INFLIGHT_ANALYSES", "2"))
+if MAX_INFLIGHT_ANALYSES < 1:
+    raise ValueError("NUTRISENSE_MAX_INFLIGHT_ANALYSES must be at least 1")
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
@@ -30,6 +65,8 @@ CORS_ORIGINS = [
     if origin.strip()
 ]
 
+# CORS stays outside admission so browser clients can read the overload response.
+app.add_middleware(AnalyzeAdmissionMiddleware, max_inflight=MAX_INFLIGHT_ANALYSES)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
