@@ -4,7 +4,7 @@
 - **branch**: `codex/synthetic-mask-spill-loop`
 - **date**: 2026-10-30
 - **author**: Codex
-- **status**: preregistered
+- **status**: completed; fixed three-position criterion not assessable
 
 ## Hypothesis
 
@@ -41,4 +41,43 @@ renderer-generated synthetic scenes and the existing detected-anchor API.
 
 ## Result
 
-Pending.
+The fixed three-position criterion was **not met**: in every scene only two
+of three card positions returned a measured anchor with a homography. The
+third was unavailable because the marker was out of frame or below the
+existing minimum-marker-size gate. This leaves no complete three-position
+spread for any scene.
+
+The paired two-position diagnostic is nevertheless strong mechanism evidence
+in this synthetic renderer. The food mask and food-pixel depth were identical
+at all positions. For each scene, the two available global-scale estimates
+had 54.45–79.26% max-to-min spread relative to their pair median, while the
+homography-area estimates had 0.17–1.84% spread. Detected marker corners were
+compared to the renderer-planted corners in the raw output; the registered
+baseline used the planted card scale, and the local-area candidate used the
+detected anchor homography. Homography-area totals were −2.08% to −4.55% below
+truth for the 150/250 g scenes and −3.07% to −3.36% for the 450 g scenes. These
+paired results are incomplete and are not a serving candidate or validated
+correction.
+
+The first exploratory harness run accidentally used detected scale for its
+baseline. It was superseded and is not used in the figures above; the final
+script follows the preregistered planted-scale baseline.
+
+Reproduction command:
+
+```bash
+.venv/bin/python -m experiments.oracle_ablation.synthetic_card_position
+```
+
+Command output is in
+`experiments/oracle_ablation/synthetic_card_position.stdout.txt`; per-position
+measurements, detected and planted marker corners, and unavailable-anchor
+reasons are in `experiments/oracle_ablation/synthetic_card_position.jsonl`.
+
+## Decision and next step
+
+**No serving change.** Preregister a follow-up with card positions that all
+remain visible and pass the existing detector unchanged. Even a complete
+synthetic replication is insufficient to promote a correction; independent
+new weighed captures are required. The ArUco evaluation plates remain
+permanently excluded from tuning.

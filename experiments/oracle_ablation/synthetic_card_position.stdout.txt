@@ -1,0 +1,31 @@
+scenes=6 card_positions_per_scene=3
+food_mask_and_depth_invariant=True
+scenes_with_all_positions_measured=0/6
+global_spread_ge_5pct=0/6
+homography_spread_le_2pct_among_sensitive=0/0
+preregistered_criterion_met=False
+plate_150_low: truth=150.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] scale=67.01g (-55.33%) H_area=144.21g (-3.86%) marker_corner_delta=0.66px base=ring flags=[]
+  card=[170.0, 15.0] scale=154.99g (+3.33%) H_area=146.88g (-2.08%) marker_corner_delta=0.78px base=ring flags=[]
+  card=[0.0, 180.0] unavailable: card marker found but too small (80 px < 80)
+plate_250_mid: truth=250.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] scale=121.53g (-51.39%) H_area=242.39g (-3.05%) marker_corner_delta=0.75px base=ring flags=[]
+  card=[170.0, 15.0] scale=239.67g (-4.13%) H_area=241.49g (-3.40%) marker_corner_delta=0.75px base=ring flags=[]
+  card=[0.0, 180.0] unavailable: card marker found but too small (76 px < 80)
+plate_450_high: truth=450.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] unavailable: no reference card in frame — scale from size priors
+  card=[170.0, 15.0] scale=503.49g (+11.89%) H_area=435.43g (-3.24%) marker_corner_delta=0.59px base=ring flags=[]
+  card=[0.0, 180.0] scale=880.23g (+95.61%) H_area=436.18g (-3.07%) marker_corner_delta=0.78px base=ring flags=[]
+bowl_150_low: truth=150.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] scale=66.18g (-55.88%) H_area=143.17g (-4.55%) marker_corner_delta=0.66px base=ring flags=[]
+  card=[170.0, 15.0] scale=153.08g (+2.06%) H_area=145.83g (-2.78%) marker_corner_delta=0.78px base=ring flags=[]
+  card=[0.0, 180.0] unavailable: card marker found but too small (80 px < 80)
+bowl_250_mid: truth=250.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] scale=120.27g (-51.89%) H_area=240.93g (-3.63%) marker_corner_delta=0.75px base=ring flags=[]
+  card=[170.0, 15.0] scale=237.17g (-5.13%) H_area=240.04g (-3.98%) marker_corner_delta=0.75px base=ring flags=[]
+  card=[0.0, 180.0] unavailable: card marker found but too small (76 px < 80)
+bowl_450_high: truth=450.00g measured_positions=2/3 global_spread=None homography_spread=None
+  card=[0.0, -170.0] unavailable: no reference card in frame — scale from size priors
+  card=[170.0, 15.0] scale=499.25g (+10.95%) H_area=434.89g (-3.36%) marker_corner_delta=0.59px base=ring flags=[]
+  card=[0.0, 180.0] scale=872.82g (+93.96%) H_area=435.65g (-3.19%) marker_corner_delta=0.78px base=ring flags=[]
+raw_jsonl=experiments/oracle_ablation/synthetic_card_position.jsonl
