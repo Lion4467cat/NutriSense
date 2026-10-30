@@ -50,3 +50,14 @@ Each iteration **must** run the kill switch first:
 | --- | --- |
 | `_template.md` | The blank entry — copy it, do not re-invent the fields |
 | `000-baseline.md` | Chunk-A baseline: the numbers every later entry compares against |
+
+## Recent synthetic diagnostics
+
+| Entry | Question | Decision |
+|---|---|---|
+| [022 — mask spill](022-synthetic-mask-spill.md) | Does 25% vessel-pixel spill reproduce the synthetic total errors? | Criterion failed; no serving change. |
+| [023 — surface-area integration](023-synthetic-surface-area-integration.md) | Does local pixel-area integration improve exact-mask synthetic estimates? | Candidate rejected; no serving change. |
+| [024 — card position](024-synthetic-card-position-scale.md) | Does card position change measured scale, and does homography reduce spread? | Two-position evidence is promising, but the three-position criterion was not assessable; no serving change. |
+
+These are synthetic mechanism diagnostics only. The weighed ArUco plates are
+permanently EVAL-ONLY and are not eligible for tuning or candidate selection.

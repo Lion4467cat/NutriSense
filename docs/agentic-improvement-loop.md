@@ -1,8 +1,6 @@
 # Agentic improvement loop status
 
 **Status date:** 2026-10-30  
-**Working branch:** `codex/synthetic-mask-spill-loop`
-
 This loop is currently diagnostic. It has not changed serving code, model
 weights, thresholds, configuration, or checkpoints. The ArUco weighed plates
 remain EVAL-ONLY permanently; WED LOCKED is never a tuning signal, and the
@@ -41,3 +39,12 @@ the final stdout and JSONL are the source of its reported measurements.
 The current evidence is synthetic mechanism analysis, not real-world accuracy
 validation. It does not establish reliable performance across foods, plates,
 phones, users, or capture conditions.
+
+## Current verification boundary
+
+The 2026-10-30 verification run collected 281 backend tests (271 non-GPU and
+10 GPU-marked) but did not complete the backend suite in the restricted
+execution environment. The frontend suite passed 70 tests and its production
+build succeeded. Ruff and the Pyright baseline gate reported findings; the
+details are recorded in `docs/production-readiness.md`. These status checks do
+not alter the diagnostic decisions above.

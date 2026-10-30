@@ -17,6 +17,13 @@ are not pixel-level food ground truth, and plate/table height cannot be
 isolated from the saved overlays. Multi-item mass accuracy remains
 unestablished beyond this pilot; per-component accuracy is unmeasured.
 
+The follow-up synthetic diagnostics are recorded in ledger entries 022–024.
+Mask spill alone failed its registered criterion, local surface-area
+integration regressed the fixed synthetic scenes, and the card-position test
+had only two detectable positions per scene. The latter is a mechanism lead,
+not a serving correction or independent validation. See
+[`docs/agentic-improvement-loop.md`](agentic-improvement-loop.md).
+
 ## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C; measured honestly 2026-10-29)
 
 The per-class lognormal intervals implied by `data/weight_head_sigma.yaml`
