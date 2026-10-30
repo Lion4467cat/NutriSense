@@ -1,0 +1,11 @@
+scenes=6
+improvement_ge_5pp=0/6
+max_absolute_error_regression_pp=21.11
+preregistered_criterion_met=False
+plate_150_low: truth=150.00g baseline=154.99g (+3.33%) candidate=136.54g (-8.98%) abs_error_improvement=-5.65pp
+plate_250_mid: truth=250.00g baseline=239.67g (-4.13%) candidate=223.93g (-10.43%) abs_error_improvement=-6.30pp
+plate_450_high: truth=450.00g baseline=503.49g (+11.89%) candidate=387.05g (-13.99%) abs_error_improvement=-2.10pp
+bowl_150_low: truth=150.00g baseline=153.08g (+2.06%) candidate=115.24g (-23.17%) abs_error_improvement=-21.11pp
+bowl_250_mid: truth=250.00g baseline=237.17g (-5.13%) candidate=189.72g (-24.11%) abs_error_improvement=-18.98pp
+bowl_450_high: truth=450.00g baseline=499.25g (+10.95%) candidate=317.31g (-29.49%) abs_error_improvement=-18.54pp
+raw_jsonl=experiments/oracle_ablation/synthetic_surface_area.jsonl

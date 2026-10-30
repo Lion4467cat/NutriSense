@@ -4,7 +4,7 @@
 - **branch**: `codex/synthetic-mask-spill-loop`
 - **date**: 2026-10-30
 - **author**: Codex
-- **status**: preregistered synthetic candidate; no serving change
+- **status**: completed synthetic candidate; no serving change
 
 ## Hypothesis
 
@@ -43,11 +43,28 @@ authorize serving-path promotion.
 
 ## Result
 
-Not run yet. No WED DEV, WED TRAIN, WED LOCKED, or ArUco observations are used.
+The preregistered criterion was **not met**: improvement of at least 5
+percentage points occurred in 0/6 scenes, and the largest absolute-error
+regression was 21.11 percentage points. The per-pixel candidate underpredicted
+all six scenes. No WED DEV, WED TRAIN, WED LOCKED, or ArUco observations were
+used.
+
+| Scene | Truth (g) | Global estimator (g; signed %) | Surface integration (g; signed %) | Change in absolute error (pp) |
+| --- | ---: | ---: | ---: | ---: |
+| plate_150_low | 150.00 | 154.99 (+3.33%) | 136.54 (−8.98%) | +5.65 |
+| plate_250_mid | 250.00 | 239.67 (−4.13%) | 223.93 (−10.43%) | +6.30 |
+| plate_450_high | 450.00 | 503.49 (+11.89%) | 387.05 (−13.99%) | +2.10 |
+| bowl_150_low | 150.00 | 153.08 (+2.06%) | 115.24 (−23.17%) | +21.11 |
+| bowl_250_mid | 250.00 | 237.17 (−5.13%) | 189.72 (−24.11%) | +18.98 |
+| bowl_450_high | 450.00 | 499.25 (+10.95%) | 317.31 (−29.49%) | +18.54 |
+
+Raw paired measurements are in
+`experiments/oracle_ablation/synthetic_surface_area.jsonl`; command output is
+in `experiments/oracle_ablation/synthetic_surface_area.stdout.txt`.
 
 ## Decision
 
-- **revert** — provisional until the registered criterion is evaluated; no pipeline change is authorized.
+- **revert** — the candidate failed the registered criterion and regressed all six synthetic scenes, so it is not a serving-path change.
 
 ## Follow-ups
 
