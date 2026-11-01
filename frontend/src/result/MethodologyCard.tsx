@@ -112,7 +112,7 @@ function stageRows(r: AnalyzeResult): Row[] {
     label: "7 · The verdict gate",
     ok: true,
     plain: c
-      ? `The verdict compares the sampled nutrition against the scheme's thresholds, discounted by how confident the system is overall (coverage ${formatPct(c.score, 0)}; PASS needs at least ${formatPct(c.pass_min, 0)}).`
+      ? `The verdict compares the sampled nutrition against the scheme's thresholds, discounted by how confident the system is overall (coverage ${formatPct(c.score, 0)}; Pass needs at least ${formatPct(c.pass_min, 0)}).`
       : "No coverage was computed for this capture.",
     detail: `verdict=${r.verdict} · coverage=${c?.score ?? "n/a"} · factors=${JSON.stringify(c?.factors ?? {})} · pass_min=${c?.pass_min ?? "n/a"}`,
   });

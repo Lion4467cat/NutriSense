@@ -428,3 +428,107 @@ browser history. The app smoke output and complete cross-dataset limitations
 do not make the product production-ready: configured lint and type gates now
 pass, but independent representative Indian mixed-meal evidence is still
 missing.
+
+## Exploration layer and section motion (2026-11-01)
+
+Frontend-only change; no estimator, contract or policy path was touched.
+
+Added a motion + exploration layer aimed at the reference site's feel
+(section-to-section movement, scroll reveals, hand-drawn accents) plus small
+rewards for curiosity:
+
+- **Section motion.** `App.tsx` slides each route in along the nav order
+  (`areaDepth`), so moving down the nav enters from the right and moving back
+  enters from the left. The exit phase was dropped deliberately: with
+  `AnimatePresence mode="wait"` the incoming page mounted roughly 0.7 s after
+  the old one had finished fading, which read as a hang. Measured instead with
+  the enter-only form: the new page mounts within one frame and settles in
+  300 ms. `AppShell.tsx` adds a fixed reading rail that measures whichever
+  container actually scrolls, plus scroll-to-top on every route change (the
+  old `.main`-only reset was a no-op in the compact-bar layout, so sections
+  used to open mid-page anywhere down the nav order).
+- **Hand-drawn accents.** The italic turn in a `.page-title` gets an SVG-masked
+  ink underline that draws itself on each mount and takes the active accent.
+- **Pointer gestures.** `TiltPanel` (few-degree lean plus a soft sheen) on the
+  dashboard's recent-meals card; `Magnetic` on the primary call to action.
+  Both short-circuit under `prefers-reduced-motion` and only respond to
+  `pointerType === "mouse"`, so touch users never get a stuck tilt.
+- **Exploration rewards.** `src/explore/achievements.ts` is a pure rules
+  module: 7 areas, 7 badges (3 milestones from browsing, 1 late-night, 3
+  secrets), a level ladder, and versioned `nutrisense.explore.v1` persistence
+  through the existing `Storage` seam. The field notebook (`DiscoverPanel`)
+  shows sections opened, badges earned and a riddle — never the answer — for
+  each sealed badge; unlocks raise a dismissible toast. Secret triggers are
+  documented only as riddles: five quick taps on the brand mark, the konami
+  arrows, and typing the app's first five letters outside a text field.
+
+Verification on this branch:
+
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` (from `frontend/`) | Passed. |
+| `npx vitest run --maxWorkers=2` (from `frontend/`) | 12 files, **88 tests passed** (71 pre-existing + 17 new exploration-rule tests). The default worker pool timed out starting forks twice and reported "no tests"; `--maxWorkers=2` runs clean. |
+| `npm run build` (from `frontend/`) | Passed; the pre-existing >500 kB chunk advisory remains. |
+
+Manual browser checks against the dev server (`127.0.0.1:5173`): route slides
+run in both directions and reset scroll; the rail tracks window scroll to
+0.998 at the bottom; the marker underline draws on Home and Analyze; the
+notebook opens from the topbar and from the drawer, lists 4/7 sections after
+four visits, and renders found badges in both themes; the whisper and konami
+secrets and the five-tap brand pattern each unlocked and persisted a badge; a
+synthetic `pointermove` produced a 1.5°/1.8° tilt with the sheen tracking the
+cursor. Not covered: a real reduced-motion session (code paths short-circuit,
+but no `emulateMedia` run was performed) and mobile touch behaviour beyond the
+430 px screenshot pass.
+
+## Data-landing motion replaces section decoration (2026-11-01)
+
+User verdict on the first "per-section signatures" pass was blunt: the drawn
+underlines, the ink circle, the drawn rules and the dropzone scan sweep were
+decoration, not information — removed. The surviving rule for animation in
+this app: **an animation must communicate real data or a real interaction.**
+
+What ships now:
+
+- **Count-ups on measured values.** Result summary cards (energy kcal, protein
+  g), the measurement-confidence score, Analytics KPIs (total, compliance rate,
+  avg portion, avg energy, donut center) and Student-row KPIs (meals logged,
+  pass rate, avg energy) settle onto their real numbers through
+  `useCountUp` ([motion.tsx](frontend/src/ui/motion.tsx)); digits are
+  `tabular-nums` so the number does not judder while settling.
+- **Bars grow to their measured width.** The coverage bar on the Result page
+  and the comparison brackets on Analytics scale from 0 to the value the
+  pipeline computed; the donut slices ([Analytics.tsx](frontend/src/pages/Analytics.tsx))
+  sweep from zero arc length to their real share of the ring, staggered by
+  slice, reduced-motion safe (`initial={false}`).
+- **A chosen photo arrives as its own event.** `photo-settle` on the Analyze
+  dropzone image — feedback attached to the actual interaction, replacing the
+  fake scan/bracket sweep.
+- **Quiet sequential reveals** (summary cards, menu bands, roster cards,
+  settings tiles) — plain `card-in` fade-up stagger; no rotation, no slides,
+  no drawn lines.
+
+Removed: the hand-drawn `em` underline (ripple: marker-draw block), the Home
+ink circle + word-by-word headline masks (`WordReveal`/`MarkerCircle` in
+section-fx.tsx — deleted; only `CountValue` remains there), the Analyze
+highlighter + dropzone brackets/scan, the drawn table/KPI rules, and the
+spin-stamped verdict icon override (framer's existing `popIn` drives it).
+
+Verification on this branch:
+
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` (from `frontend/`) | Passed. |
+| `npx vitest run --maxWorkers=2` (from `frontend/`) | 12 files, 88 tests passed. |
+| `npm run build` (from `frontend/`) | Passed. |
+
+Live browser check (dev server `127.0.0.1:5173`, real backend on `:8731`):
+analyzed a real meal photo from the dataset, then sampled the remounting
+Result page at 120 ms intervals — coverage **20% → 55% → 74% → 81% → 86%**,
+the coverage bar transform `scaleX(0) → 0.55 → 0.83 → 1.0`, energy
+**98 → 263 → 354 → 412 kcal**, protein **2.0 → 7.1 → 8.3 g**, everything
+settling exactly on the measured values. Analytics KPIs and the donut slice
+sweep (arc length 221 → 377, the full circumference for the single scored
+record) and Student KPIs (1 / 0% / 412) were confirmed the same way. Empty
+states and Students roster without named records render nothing animated,
+by design.

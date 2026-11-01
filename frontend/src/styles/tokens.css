@@ -1,71 +1,74 @@
 /* ------------------------------------------------------------------ */
 /* NutriSense design tokens                                            */
-/* Distinctive visual identity for a nutrition compliance dashboard.   */
-/* Palette: cool porcelain neutrals with an indigo accent (verdict     */
-/* green/amber/red stay semantic). Typography:                         */
-/* Inter for data, Fraunces for display. Layout: editorial bento       */
-/* grid, glassmorphism panels, deliberate asymmetry.                  */
+/* Paper-and-ink foundation (desertant-inspired): warm cream surfaces, */
+/* near-black ink, terracotta accent, mono data labels. Semantic       */
+/* verdict colors continue to encode analysis state.                   */
 /* ------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
 
-  /* palette — cool porcelain with an indigo accent */
-  --bg: #f7f6fb;
-  --bg-subtle: #f1eff8;
+  /* neutral canvas, alpha-black rungs (scandinavian system) */
+  --bg: #ffffff;
+  --bg-subtle: rgb(0 0 0 / 2.5%);
   --surface: #ffffff;
-  --surface-2: #f7f6fc;
-  --surface-3: #eceaf5;
-  --border: #e2e0ee;
-  --border-strong: #cdc9de;
-  --text: #16151f;
-  --text-2: #45425c;
-  --text-3: #6d6882;
+  --surface-2: rgb(0 0 0 / 4%);
+  --surface-3: rgb(0 0 0 / 8%);
+  --border: rgb(0 0 0 / 10%);
+  --border-strong: rgb(0 0 0 / 18%);
+  --text: #0e1113;
+  --text-2: rgb(0 0 0 / 64%);
+  --text-3: rgb(0 0 0 / 56%);
 
-  /* brand — indigo accent */
-  --accent: #4b45c6;
-  --accent-hover: #3d38ac;
-  --accent-ink: #ffffff;
-  --accent-soft: #ecebff;
-  --accent-soft-border: #c4c0f2;
-  --accent-text: #35309c;
+  /* terracotta accent over ink */
+  --accent: #d53712;
+  --accent-hover: #b32c0d;
+  --accent-ink: #fbfaf4;
+  --accent-soft: #f8e7dc;
+  --accent-soft-border: #eac9b3;
+  --accent-text: #a82e0e;
 
-  /* semantic verdicts */
-  --pass: #1a6b3d;
-  --pass-soft: #eaf5ef;
-  --pass-border: #a8d4bf;
-  --warn: #a67c00;
-  --warn-soft: #faf3e0;
-  --warn-border: #e8d9a0;
-  --fail: #b91c1c;
-  --fail-soft: #fce8e8;
-  --fail-border: #e8b4b4;
-  --neutral: #4a4a48;
-  --neutral-soft: #f1f0ec;
-  --neutral-border: #d8d5cc;
-  --info: #1a5a7a;
-  --info-soft: #e6f0f5;
+  /* ink used for primary actions */
+  --ink: #181e1d;
+  --ink-hover: #2c3134;
+  --ink-ink: #fbfaf4;
+
+  /* semantic verdicts (desertant signal palette) */
+  --pass: #3c8a52;
+  --pass-soft: #e6f1e7;
+  --pass-border: #b5d6bb;
+  --warn: #c2691a;
+  --warn-soft: #f9eedd;
+  --warn-border: #ecd3ab;
+  --fail: #be3a2e;
+  --fail-soft: #f9e6e2;
+  --fail-border: #ecbdb3;
+  --neutral: #57606a;
+  --neutral-soft: #efeee7;
+  --neutral-border: #d5d3c8;
+  --info: #1e8c8c;
+  --info-soft: #e2f0ee;
 
   /* chart strokes */
-  --chart-grid: #e8e6f1;
-  --chart-axis: #b3aec4;
+  --chart-grid: #e6e4da;
+  --chart-axis: #a5a399;
 
-  /* typography — Inter for data, Fraunces for display */
-  --font: "Inter Variable", Inter, ui-sans-serif, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
-    monospace;
+  /* Inclusive Sans everywhere; JetBrains Mono for data/eyebrows */
+  --font: "Inclusive Sans Variable", "Inclusive Sans", ui-sans-serif,
+    -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font);
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono",
+    "Cascadia Mono", Menlo, Consolas, monospace;
 
   --fs-xs: 12px;
-  --fs-sm: 13px;
-  --fs-base: 14px;
+  --fs-sm: 14px;
+  --fs-base: 15px;
   --fs-md: 15px;
   --fs-lg: 17px;
   --fs-xl: 22px;
   --fs-2xl: 28px;
-  --fs-display: 36px;
-  --fs-display-alt: 48px;
+  --fs-display: 44px;
+  --fs-display-alt: 64px;
 
   /* spacing — editorial rhythm */
   --sp-1: 4px;
@@ -79,96 +82,93 @@
   --sp-12: 48px;
   --sp-16: 64px;
 
-  /* shape — sharp corners for authority, soft for approachability */
+  /* shape — restrained Scandinavian radii */
   --r-sm: 4px;
   --r-md: 8px;
-  --r-lg: 12px;
-  --r-xl: 16px;
+  --r-lg: 10px;
+  --r-xl: 12px;
+  --r-2xl: 16px;
   --r-pill: 999px;
 
-  /* elevation — subtle, never heavy */
-  --shadow-1: 0 1px 2px rgba(26, 26, 26, 0.04);
-  --shadow-2: 0 1px 2px rgba(26, 26, 26, 0.04), 0 4px 12px -8px rgba(
-      26,
-      26,
-      26,
-      0.12
-    );
-  --shadow-pop: 0 2px 6px rgba(26, 26, 26, 0.06), 0 8px 20px -12px rgba(
-      26,
-      26,
-      26,
-      0.15
-    );
+  /* elevation — hairlines do the work; shadows only for floating layers */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 3%);
+  --shadow-2: 0 1px 2px rgb(0 0 0 / 4%),
+    0 8px 24px -16px rgb(0 0 0 / 12%);
+  --shadow-pop: 0 2px 8px -2px rgb(0 0 0 / 8%),
+    0 16px 40px -20px rgb(0 0 0 / 18%);
 
   /* layout */
-  --sidebar-w: 260px;
-  --topbar-h: 60px;
+  --sidebar-w: 264px;
+  --topbar-h: 64px;
   --content-max: 1480px;
 
   /* motion — deliberate, not scattered */
-  --t-fast: 120ms ease;
-  --t-med: 200ms ease;
-  --t-slow: 300ms ease;
+  --t-fast: 140ms cubic-bezier(0.22, 1, 0.36, 1);
+  --t-med: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  --t-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* gradient + glass system */
-  --grad-accent: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #ffffff));
-  --grad-sheen: linear-gradient(160deg, color-mix(in srgb, var(--accent) 4%, var(--surface)) 0%, var(--surface) 45%);
-  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent),
-    0 4px 16px -4px color-mix(in srgb, var(--accent) 35%, transparent);
-  --glow-pass: 0 0 0 1px color-mix(in srgb, var(--pass) 25%, transparent),
-    0 4px 16px -4px color-mix(in srgb, var(--pass) 40%, transparent);
-  --glass: color-mix(in srgb, var(--surface) 75%, transparent);
-  --glass-border: color-mix(in srgb, var(--border-strong) 50%, transparent);
+  /* Legacy component tokens now resolve to quiet, opaque surfaces. */
+  --grad-accent: var(--accent);
+  --grad-sheen: var(--surface);
+  --glow-accent: none;
+  --glow-pass: none;
+  --glass: var(--surface);
+  --glass-border: var(--border);
 
   /* ambient accents */
-  --aurora-1: color-mix(in srgb, var(--accent) 10%, transparent);
-  --aurora-2: color-mix(in srgb, var(--pass) 6%, transparent);
-  --aurora-3: color-mix(in srgb, var(--info) 7%, transparent);
+  --aurora-1: transparent;
+  --aurora-2: transparent;
+  --aurora-3: transparent;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #14131b;
-  --bg-subtle: #1a1922;
-  --surface: #1f1e28;
-  --surface-2: #262530;
-  --surface-3: #2e2c3a;
-  --border: #2b2a35;
-  --border-strong: #3a3847;
-  --text: #eae9f2;
-  --text-2: #a9a6bb;
-  --text-3: #9792ab;
+  --bg: #0e1113;
+  --bg-subtle: #141819;
+  --surface: #181e1d;
+  --surface-2: #202726;
+  --surface-3: #2a3230;
+  --border: rgb(251 250 244 / 10%);
+  --border-strong: rgb(251 250 244 / 20%);
+  --text: #fbfaf4;
+  --text-2: rgb(251 250 244 / 70%);
+  --text-3: rgb(251 250 244 / 52%);
 
-  --accent: #8b84f0;
-  --accent-hover: #7a72e6;
-  --accent-ink: #16151f;
-  --accent-soft: #211f3a;
-  --accent-soft-border: #35306b;
-  --accent-text: #a9a3f7;
+  --accent: #e0764e;
+  --accent-hover: #eb8a64;
+  --accent-ink: #181e1d;
+  --accent-soft: #2c1d16;
+  --accent-soft-border: #53372a;
+  --accent-text: #eb9c78;
 
-  --pass: #4a9d6e;
-  --pass-soft: #16241b;
-  --pass-border: #2a4535;
-  --warn: #c9a227;
-  --warn-soft: #2a2410;
-  --warn-border: #4a3a10;
-  --fail: #eb6666;
-  --fail-soft: #2a1010;
-  --fail-border: #4a2020;
-  --neutral: #a8a8a8;
-  --neutral-soft: #1a1a1a;
-  --neutral-border: #353535;
-  --info: #4a8bbf;
-  --info-soft: #0a1a2a;
+  --ink: #fbfaf4;
+  --ink-hover: #e6e4da;
+  --ink-ink: #0e1113;
 
-  --chart-grid: #2b2a35;
-  --chart-axis: #454356;
+  --pass: #5fae74;
+  --pass-soft: #182a1e;
+  --pass-border: #2f4d39;
+  --warn: #d8924a;
+  --warn-soft: #2c2214;
+  --warn-border: #4d3a1e;
+  --fail: #e06a5c;
+  --fail-soft: #2c1714;
+  --fail-border: #4d2620;
+  --neutral: #9aa1a5;
+  --neutral-soft: #1d2221;
+  --neutral-border: #353c3a;
+  --info: #4fb3ae;
+  --info-soft: #122624;
 
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px -8px rgba(0, 0, 0, 0.6);
-  --shadow-pop: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 20px -12px rgba(0, 0, 0, 0.6);
+  --chart-grid: #262c2b;
+  --chart-axis: #5b6260;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-2: 0 2px 6px -2px rgb(0 0 0 / 35%),
+    0 12px 32px -18px rgb(0 0 0 / 50%);
+  --shadow-pop: 0 4px 12px -4px rgb(0 0 0 / 40%),
+    0 24px 48px -20px rgb(0 0 0 / 60%);
 }
 
 /* ---- full theme: Nord (preserved for users who prefer it) ---- */

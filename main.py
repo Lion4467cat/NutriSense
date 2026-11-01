@@ -1,19 +1,25 @@
 """NutriSense API (S6): /health, /menu, /goals, /analyze."""
 import logging
 import os
+import struct
 import tempfile
 import threading
+import json
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import anyio
 import cv2
+import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Literal
 from starlette.responses import JSONResponse
 
 from config import load_goals, load_menu, load_standards
 from engine.contract import load_policy, log_analysis, unreadable_analysis
+from engine.meal_coach import MealCoachUnavailable, chat as meal_chat, critique as meal_critique
 from engine.pipeline import analyze
 from models.scale_anchor import read_exif
 
@@ -47,12 +53,31 @@ class AnalyzeAdmissionMiddleware:
             self._slots.release()
 
 
+class ChatTurn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=1200)
+
+
+class MealCoachRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    analysis: dict
+
+
+class MealChatRequest(MealCoachRequest):
+    history: list[ChatTurn] = Field(default_factory=list, max_length=8)
+    message: str = Field(min_length=1, max_length=1200)
+
+
 app = FastAPI(title="NutriSense API", version="5.0")
 
 # One GPU inference at a time per process. The limiter belongs to the
 # threadpool call, so /health and other async endpoints remain responsive.
 INFERENCE_LIMITER = anyio.CapacityLimiter(1)
 MAX_UPLOAD_BYTES = int(os.environ.get("NUTRISENSE_MAX_UPLOAD_BYTES", str(12 * 1024 * 1024)))
+MAX_IMAGE_PIXELS = int(os.environ.get("NUTRISENSE_MAX_IMAGE_PIXELS", "40000000"))
+if MAX_IMAGE_PIXELS < 1:
+    raise ValueError("NUTRISENSE_MAX_IMAGE_PIXELS must be at least 1")
 MAX_INFLIGHT_ANALYSES = int(os.environ.get("NUTRISENSE_MAX_INFLIGHT_ANALYSES", "2"))
 if MAX_INFLIGHT_ANALYSES < 1:
     raise ValueError("NUTRISENSE_MAX_INFLIGHT_ANALYSES must be at least 1")
@@ -175,10 +200,48 @@ def goals():
     }
 
 
+@app.post("/meal-critique")
+async def meal_critique_endpoint(request: MealCoachRequest):
+    """Generate one advisory critique from a structured meal analysis."""
+    if len(json.dumps(request.analysis, separators=(",", ":"))) > 30000:
+        raise HTTPException(status_code=413, detail="analysis context is too large")
+    try:
+        return await meal_critique(request.analysis)
+    except MealCoachUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/meal-chat")
+async def meal_chat_endpoint(request: MealChatRequest):
+    """Answer a bounded follow-up question about the supplied meal only."""
+    if len(json.dumps(request.analysis, separators=(",", ":"))) > 30000:
+        raise HTTPException(status_code=413, detail="analysis context is too large")
+    try:
+        reply = await meal_chat(
+            request.analysis,
+            [turn.model_dump() for turn in request.history],
+            request.message,
+        )
+        return {"reply": reply}
+    except MealCoachUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 def _analyze_path(path: str, day: str, band: str,
                   serving_style: str | None) -> dict:
     """Blocking decode + inference, run in the bounded threadpool."""
-    image = cv2.imread(path, cv2.IMREAD_COLOR)
+    encoded = Path(path).read_bytes()
+    dimensions = _encoded_image_dimensions(encoded)
+    if dimensions is None:
+        status = 422 if encoded.startswith((b"\xff\xd8", b"\x89PNG\r\n\x1a\n")) else 415
+        raise HTTPException(status_code=status, detail="upload a valid JPEG or PNG image")
+    width, height = dimensions
+    if width <= 0 or height <= 0 or width * height > MAX_IMAGE_PIXELS:
+        raise HTTPException(
+            status_code=413,
+            detail=f"image exceeds the {MAX_IMAGE_PIXELS}-pixel limit",
+        )
+    image = cv2.imdecode(np.frombuffer(encoded, dtype=np.uint8), cv2.IMREAD_COLOR)
     if image is None:
         analysis = unreadable_analysis()
         log.error("kind=%s stage=%s error=%s",
@@ -192,6 +255,41 @@ def _analyze_path(path: str, day: str, band: str,
                    serving_style=serving_style)
 
 
+def _encoded_image_dimensions(data: bytes) -> tuple[int, int] | None:
+    """Read JPEG/PNG dimensions before asking OpenCV to allocate decoded pixels."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24:
+        return struct.unpack(">II", data[16:24])
+    if not data.startswith(b"\xff\xd8"):
+        return None
+
+    start_of_frame = {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                      0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}
+    offset = 2
+    while offset + 4 <= len(data):
+        if data[offset] != 0xFF:
+            offset += 1
+            continue
+        while offset < len(data) and data[offset] == 0xFF:
+            offset += 1
+        if offset >= len(data):
+            break
+        marker = data[offset]
+        offset += 1
+        if marker in {0xD8, 0xD9, 0x01} or 0xD0 <= marker <= 0xD7:
+            continue
+        if offset + 2 > len(data):
+            break
+        segment_length = int.from_bytes(data[offset:offset + 2], "big")
+        if segment_length < 2 or offset + segment_length > len(data):
+            break
+        if marker in start_of_frame and segment_length >= 7:
+            height = int.from_bytes(data[offset + 3:offset + 5], "big")
+            width = int.from_bytes(data[offset + 5:offset + 7], "big")
+            return width, height
+        offset += segment_length
+    return None
+
+
 @app.post("/analyze")
 async def analyze_upload(
     file: UploadFile = File(...),
@@ -199,6 +297,11 @@ async def analyze_upload(
     band: str = Form(...),
     serving_style: str | None = Form(None),
 ):
+    if serving_style is not None:
+        style_config = load_menu().get("capture_fields", {}).get("serving_style", {})
+        allowed_styles = set(style_config.get("values") or [])
+        if serving_style not in allowed_styles:
+            raise HTTPException(status_code=422, detail="invalid serving_style")
     path = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:

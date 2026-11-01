@@ -303,8 +303,9 @@ def test_goals_endpoint_covers_every_profile():
 # --- /analyze contracts are untouched by /goals --------------------------------
 
 def test_analyze_result_contract_unchanged():
+    from tests.conftest import UNREADABLE_JPEG
     r = client.post("/analyze",
-                    files={"file": ("bad.jpg", b"not an image", "image/jpeg")},
+                    files={"file": ("bad.jpg", UNREADABLE_JPEG, "image/jpeg")},
                     data={"day": "mon", "band": "1-5"})
     assert r.status_code == 200
     wire = unreadable_analysis().to_wire()

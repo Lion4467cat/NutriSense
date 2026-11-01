@@ -36,9 +36,18 @@ def _stub_stages(scene, monkeypatch, *, classify=None):
 
 
 def _post(image_bgr, day="mon", band="1-5"):
+    """Upload a JPEG carrying DigitalZoomRatio 1.0 — absent zoom is a hard
+    input reject, and these tests target later stages."""
+    import io
+    from PIL import Image
     ok, buf = cv2.imencode(".jpg", image_bgr)
     assert ok
-    r = client.post("/analyze", files={"file": ("p.jpg", buf.tobytes())},
+    im = Image.open(io.BytesIO(buf.tobytes()))
+    ex = im.getexif()
+    ex.get_ifd(0x8769)[41988] = 1.0
+    out = io.BytesIO()
+    im.save(out, format="JPEG", exif=ex)
+    r = client.post("/analyze", files={"file": ("p.jpg", out.getvalue())},
                     data={"day": day, "band": band})
     assert r.status_code == 200
     return r.json()
@@ -97,7 +106,8 @@ def test_anchor_raise_degrades_to_prior(scene, monkeypatch):
 
 
 def test_unreadable_image_is_full_shape():
-    r = client.post("/analyze", files={"file": ("p.jpg", b"not an image")},
+    from tests.conftest import UNREADABLE_JPEG
+    r = client.post("/analyze", files={"file": ("p.jpg", UNREADABLE_JPEG)},
                     data={"day": "mon", "band": "1-5"})
     assert r.status_code == 200
     body = r.json()

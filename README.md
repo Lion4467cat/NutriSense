@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2071%20vitest%20passed-orange.svg)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2088%20vitest%20passed-orange.svg)](#-testing)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -13,7 +13,7 @@
 
 NutriSense turns a single **photo of a plated mid-day meal** into a compliance verdict against the **PM POSHAN (MDM) food & nutrition guidelines**. One capture → dish identification → portion in grams → Monte Carlo nutrient intervals → **PASS / BORDERLINE / FAIL** with honest coverage and assumptions — and when the photo has no reference card, the result carries an explicit disclaimer that the weight is an estimate.
 
-Everything the pipeline decides is traceable: which scale anchor was used, how large the uncertainty was, which parameters are still `assumed`, and why a verdict landed where it did. No attendance tracking, no chatbot, no database — v5 is deliberately a single, testable photo-analysis pipeline.
+Everything the pipeline decides is traceable: which scale anchor was used, how large the uncertainty was, which parameters are still `assumed`, and why a verdict landed where it did. Meal results now include an optional model-generated critique and a meal-scoped follow-up chat; analysis and conversations remain in browser storage.
 
 **What it does:**
 
@@ -128,6 +128,7 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 - **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
 - **FastAPI service** — `GET /health`, `GET /menu`, `GET /goals`, `POST /analyze` with full diagnostics in every response
 - **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
+- **Meal critique and follow-up chat** — a grounded critique is requested after analysis, and users can ask follow-up questions about that meal. The backend sends structured analysis fields (not the photo or student name) to configured Ollama Cloud models; configure only models included in the account's free allowance as described in [`docs/meal-coach-setup.md`](docs/meal-coach-setup.md). Critiques and successful chat turns are stored with the local analysis record.
 - **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn); the default Light/Dark pair is porcelain + indigo so verdict green/amber/red stay semantic, and each theme keeps a coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
 - **Off-menu route (ticket 07)** — ingredient density table (FAO), INDB recipe table and a checkpoint-gated ingredient head; serving is wired end to end but the N5k transfer gate failed (ledger 012), so no candidate checkpoint ships and the route stays dormant
 - **Real-photo segmentation guard** — a point prompt that returns a sliver (< 0.5% of frame) now falls back to the box prompt instead of being measured as a serving (ledger 014)
@@ -205,7 +206,7 @@ No USDA API or external database is used. Model weights may download from Huggin
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 71 Vitest tests |
+| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 88 Vitest tests |
 
 ---
 
@@ -292,7 +293,7 @@ npm run dev
 .venv/bin/pytest -q                    # full backend suite; latest run: 281 passed
 .venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
 .venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 71 Vitest tests (wire parity, selectors, wizard, PolicyNote)
+cd frontend && npm test                # 88 Vitest tests (wire parity, selectors, wizard, PolicyNote, exploration rules)
 ```
 
 On 2026-10-30, `.venv/bin/pytest -q` completed with **281 passed in 107.83 s**,

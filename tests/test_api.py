@@ -1,12 +1,14 @@
 """S6: API + pipeline integration tests (real S1 anchor + S2 segmenter;
 classifier stubbed for determinism, depth injected as GT)."""
 import asyncio
+import io
 import threading
 from pathlib import Path
 
 import cv2
 import httpx
 import pytest
+from PIL import Image
 from fastapi.testclient import TestClient
 
 import main as main_module
@@ -28,6 +30,22 @@ def jpg_bytes(scene):
     ok, buf = cv2.imencode(".jpg", scene["image_bgr"], [cv2.IMWRITE_JPEG_QUALITY, 95])
     assert ok
     return buf.tobytes()
+
+
+@pytest.fixture(scope="module")
+def jpg_exif_ok(jpg_bytes):
+    """JPEG carrying DigitalZoomRatio 1.0 — the upload path reads capture
+    metadata from the temp file, and absent zoom is a hard reject (AUDIT P1)."""
+    im = Image.open(io.BytesIO(jpg_bytes))
+    ex = im.getexif()
+    ex.get_ifd(0x8769)[41988] = 1.0
+    out = io.BytesIO()
+    im.save(out, format="JPEG", exif=ex)
+    return out.getvalue()
+
+
+_OK_EXIF = {"focal_mm": None, "subject_distance_cm": None,
+            "digital_zoom": 1.0, "camera": None}
 
 
 def test_health():
@@ -57,13 +75,13 @@ def test_menu_endpoint():
 
 
 @pytest.mark.gpu
-def test_analyze_upload_end_to_end(jpg_bytes, monkeypatch):
+def test_analyze_upload_end_to_end(jpg_exif_ok, monkeypatch):
     # classifier stubbed (synthetic renders abstain at 0.67 < 0.82 by design)
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
         "match_score": 0.9, "margin": None, "scores": {}, "uncovered": [],
         "reason": "test stub"})
-    r = client.post("/analyze", files={"file": ("plate.jpg", jpg_bytes, "image/jpeg")},
+    r = client.post("/analyze", files={"file": ("plate.jpg", jpg_exif_ok, "image/jpeg")},
                     data={"day": "mon", "band": "1-5", "serving_style": "mixed"})
     assert r.status_code == 200
     body = r.json()
@@ -78,18 +96,33 @@ def test_analyze_upload_end_to_end(jpg_bytes, monkeypatch):
     assert body["model_versions"]["segmenter"] == "facebook/sam2.1-hiera-large"
 
 
-def test_analyze_bad_band(jpg_bytes):
-    r = client.post("/analyze", files={"file": ("p.jpg", jpg_bytes, "image/jpeg")},
+def test_analyze_upload_stripped_exif_rejected(jpg_bytes, monkeypatch):
+    """End-to-end AUDIT P1: no DigitalZoomRatio in the upload → cannot_verify."""
+    monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
+        "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
+        "match_score": 0.9, "reason": "test stub"})
+    r = client.post("/analyze", files={"file": ("plate.jpg", jpg_bytes, "image/jpeg")},
+                    data={"day": "mon", "band": "1-5", "serving_style": "mixed"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["verdict"] == "cannot_verify"
+    assert body["reasons"][0]["kind"] == "zoom"
+    assert body["failures"][0]["stage"] == "input"
+    assert body["failures"][0]["kind"] == "gate_rejected"
+
+
+def test_analyze_bad_band(jpg_exif_ok):
+    r = client.post("/analyze", files={"file": ("p.jpg", jpg_exif_ok, "image/jpeg")},
                     data={"day": "mon", "band": "99-100"})
     assert r.status_code == 200
     assert r.json()["verdict"] == "cannot_verify"
 
 
 def test_analyze_unreadable_file():
+    # magic-byte validation rejects non-image bytes outright (not 422/200)
     r = client.post("/analyze", files={"file": ("bad.jpg", b"not an image", "image/jpeg")},
                     data={"day": "mon", "band": "1-5"})
-    assert r.status_code == 200
-    assert r.json()["verdict"] == "cannot_verify"
+    assert r.status_code == 415
 
 
 def test_analyze_rejects_oversize_upload(monkeypatch):
@@ -183,14 +216,16 @@ def test_pipeline_gates(scene, monkeypatch):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", exif=exif2, deps=deps)
     assert out["verdict"] == "cannot_verify"
     # unknown day
-    out = pipe_analyze(scene["image_bgr"], day="sunday", band="1-5", deps=deps)
+    out = pipe_analyze(scene["image_bgr"], day="sunday", band="1-5", deps=deps,
+                       exif=dict(_OK_EXIF))
     assert out["verdict"] == "cannot_verify"
     # out-of-scope dish (deps classify stub must be replaced, not the module attr)
     deps_oos = dict(deps)
     deps_oos["classify"] = lambda img: {"dish": "wheat_product", "confidence": 1.0,
                                         "method": "stub", "match_score": 0.9,
                                         "reason": "stub"}
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps_oos)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps_oos,
+                       exif=dict(_OK_EXIF))
     assert out["verdict"] == "out_of_scope"
 
 
@@ -207,8 +242,10 @@ def test_pipeline_gt_depth_deterministic(scene, monkeypatch):
                                  "method": "stub", "match_score": 0.9,
                                  "reason": "stub"},
     }
-    a = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps, seed=5)
-    b = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps, seed=5)
+    a = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps,
+                     exif=dict(_OK_EXIF), seed=5)
+    b = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps,
+                     exif=dict(_OK_EXIF), seed=5)
     assert a["nutrition"]["kcal"]["mean"] == b["nutrition"]["kcal"]["mean"]
     assert a["verdict"] == b["verdict"]
     assert a["portion"]["grams"] > 0

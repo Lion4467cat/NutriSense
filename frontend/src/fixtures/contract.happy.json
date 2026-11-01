@@ -124,7 +124,7 @@
     }
   ],
   "lint": {
-    "digital_zoom": null,
+    "digital_zoom": 1.0,
     "focal_mm": null,
     "min_side_px": 1100,
     "notes": [

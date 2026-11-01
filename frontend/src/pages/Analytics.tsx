@@ -1,8 +1,11 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
-import { IconChart } from "../ui/Icon";
+import { CountValue } from "../ui/section-fx";
+import { EASE } from "../ui/motion";
+import { IconChart, IconCheck, IconFlame, IconScale } from "../ui/Icon";
 import { formatNum, formatPct } from "../utils/format";
 import { scored, tally } from "../services/records";
 
@@ -10,18 +13,22 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
   const total = parts.reduce((s, p) => s + p.value, 0) || 1;
   const R = 60;
   const C = 2 * Math.PI * R;
+  const reduced = useReducedMotion();
   let offset = 0;
   return (
     <div className="donut-wrap">
       <div className="donut">
         <svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="Verdict distribution">
           <circle cx="75" cy="75" r={R} fill="none" stroke="var(--surface-3)" strokeWidth="17" />
-          {parts.map((p) => {
+          {parts.map((p, i) => {
             if (p.value === 0) return null;
             const frac = p.value / total;
+            // Each slice grows from its own start angle to its real share
+            // of the ring, slice by slice, so the distribution is read as
+            // it is built. Dashoffset stays put: nothing slides around.
             const dash = `${frac * C} ${C}`;
             const el = (
-              <circle
+              <motion.circle
                 key={p.label}
                 cx="75"
                 cy="75"
@@ -29,9 +36,15 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
                 fill="none"
                 stroke={p.color}
                 strokeWidth="17"
-                strokeDasharray={dash}
                 strokeDashoffset={-offset}
                 strokeLinecap="butt"
+                initial={reduced ? false : { strokeDasharray: `0.001 ${C}` }}
+                animate={{ strokeDasharray: dash }}
+                transition={
+                  reduced
+                    ? { duration: 0 }
+                    : { duration: 0.85, ease: EASE, delay: 0.12 + i * 0.12 }
+                }
               />
             );
             offset += frac * C;
@@ -39,7 +52,9 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
           })}
         </svg>
         <div className="donut-center">
-          <b>{total}</b>
+          <b>
+            <CountValue value={total} format={(v) => String(Math.round(v))} />
+          </b>
           <span>scored</span>
         </div>
       </div>
@@ -100,7 +115,7 @@ export default function AnalyticsPage() {
 
   if (records.length === 0) {
     return (
-      <div className="page">
+      <div className="page page-insights">
         <div className="page-head">
           <div>
             <h1 className="page-title">Analytics</h1>
@@ -130,7 +145,7 @@ export default function AnalyticsPage() {
   const maxDish = Math.max(1, ...stats.dishes.map((d) => d.n));
 
   return (
-    <div className="page">
+    <div className="page page-insights">
       <div className="page-head">
         <div>
           <h1 className="page-title">Analytics</h1>
@@ -150,30 +165,43 @@ export default function AnalyticsPage() {
               <IconChart size={14} />
             </span>
           </div>
-          <div className="kpi-value">{stats.total}</div>
+          <div className="kpi-value">
+            <CountValue value={stats.total} format={(v) => String(Math.round(v))} />
+          </div>
           <div className="kpi-foot">{stats.scored} scored</div>
         </article>
         <article className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Compliance rate</span>
             <span className="kpi-ico pass" aria-hidden="true">
-              ✓
+              <IconCheck size={14} />
             </span>
           </div>
           <div className="kpi-value">
-            {stats.complianceRate != null ? formatPct(stats.complianceRate, 0) : "—"}
+            {stats.complianceRate != null ? (
+              <CountValue
+                value={stats.complianceRate}
+                format={(v) => formatPct(v, 0)}
+              />
+            ) : (
+              "—"
+            )}
           </div>
-          <div className="kpi-foot">PASS ÷ scored</div>
+          <div className="kpi-foot">Pass divided by scored meals</div>
         </article>
         <article className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Average portion</span>
             <span className="kpi-ico warn" aria-hidden="true">
-              ⚖
+              <IconScale size={14} />
             </span>
           </div>
           <div className="kpi-value">
-            {stats.avgPortion != null ? formatNum(stats.avgPortion, 0) : "—"}
+            {stats.avgPortion != null ? (
+              <CountValue value={stats.avgPortion} format={(v) => formatNum(v, 0)} />
+            ) : (
+              "—"
+            )}
           </div>
           <div className="kpi-foot">grams per scored meal</div>
         </article>
@@ -181,11 +209,15 @@ export default function AnalyticsPage() {
           <div className="kpi-top">
             <span className="kpi-label">Average energy</span>
             <span className="kpi-ico fail" aria-hidden="true">
-              🔥
+              <IconFlame size={14} />
             </span>
           </div>
           <div className="kpi-value">
-            {stats.avgKcal != null ? formatNum(stats.avgKcal, 0) : "—"}
+            {stats.avgKcal != null ? (
+              <CountValue value={stats.avgKcal} format={(v) => formatNum(v, 0)} />
+            ) : (
+              "—"
+            )}
           </div>
           <div className="kpi-foot">
             kcal · protein avg{" "}
@@ -198,37 +230,13 @@ export default function AnalyticsPage() {
         <Card title="Verdict distribution" sub="Across scored analyses">
           <Donut
             parts={[
-              { label: "PASS", value: stats.pass, color: "var(--pass)" },
-              { label: "BORDERLINE", value: stats.warn, color: "var(--warn)" },
-              { label: "FAIL", value: stats.fail, color: "var(--fail)" },
+              { label: "Pass", value: stats.pass, color: "var(--pass)" },
+              { label: "Borderline", value: stats.warn, color: "var(--warn)" },
+              { label: "Fail", value: stats.fail, color: "var(--fail)" },
             ]}
           />
         </Card>
 
-        <Card title="Scored share" sub="How often each verdict occurs">
-          <div className="bar-rows">
-            {[
-              { label: "PASS", n: stats.pass, cls: "pass" },
-              { label: "Borderline", n: stats.warn, cls: "warn" },
-              { label: "FAIL", n: stats.fail, cls: "fail" },
-            ].map((row) => (
-              <div className="bar-row" key={row.label}>
-                <span className="bar-label">{row.label}</span>
-                <div className="bar-track">
-                  <div
-                    className={`bar-seg ${row.cls}`}
-                    style={{
-                      width: stats.scored
-                        ? `${(row.n / stats.scored) * 100}%`
-                        : "0%",
-                    }}
-                  />
-                </div>
-                <span className="bar-count">{row.n}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
       </div>
 
       <Card
@@ -245,7 +253,7 @@ export default function AnalyticsPage() {
               <div
                 className="bar-row"
                 key={d.name}
-                title={`${d.name}: ${d.n} analyses, avg ${formatNum(d.avgKcal, 0)} kcal, ${d.pass} PASS`}
+                title={`${d.name}: ${d.n} analyses, avg ${formatNum(d.avgKcal, 0)} kcal, ${d.pass} pass`}
               >
                 <span className="bar-label">{d.name}</span>
                 <div className="bar-track">

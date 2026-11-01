@@ -3,6 +3,7 @@ import { shareOfGoal } from "./goals";
 import { localDateKey } from "../utils/format";
 import { toReasons } from "../utils/reasons";
 import type { Storage } from "./storage";
+import type { MealChatMessage, MealCritique } from "../types/mealCoach";
 
 /**
  * Local analysis store.
@@ -36,10 +37,15 @@ export interface AnalysisRecord {
   day: string;
   band: string;
   serving_style: string;
+  mode?: "school" | "general";
   student: RecordStudent | null;
   photo: string | null;
   summary: RecordSummary;
   result: AnalyzeResult;
+  critiqueStatus?: "pending" | "ready" | "unavailable";
+  critique?: MealCritique | null;
+  critiqueError?: string | null;
+  chatMessages?: MealChatMessage[];
 }
 
 export const KEY = "nutrisense.records.v2";
@@ -172,7 +178,13 @@ export function dishLabel(
 }
 
 function isValidRecord(r: unknown): r is AnalysisRecord {
-  return !!r && typeof r === "object" && typeof (r as AnalysisRecord).id === "string";
+  if (!r || typeof r !== "object") return false;
+  const record = r as Partial<AnalysisRecord>;
+  return typeof record.id === "string"
+    && !!record.result
+    && typeof record.result === "object"
+    && typeof record.result.verdict === "string"
+    && Array.isArray(record.result.reasons);
 }
 
 /**
@@ -219,17 +231,19 @@ export function loadRecords(storage: Storage): AnalysisRecord[] {
   return migrated;
 }
 
-export function saveRecords(storage: Storage, records: AnalysisRecord[]): void {
+export function saveRecords(storage: Storage, records: AnalysisRecord[]): boolean {
   const capped = capRecords(records);
   try {
     storage.set(KEY, JSON.stringify(capped));
+    return true;
   } catch {
     /* storage full — drop thumbnails from oldest entries and retry once */
     try {
       const slim = capped.map((r, i) => (i < 30 ? r : { ...r, photo: null }));
       storage.set(KEY, JSON.stringify(slim));
+      return true;
     } catch {
-      /* give up silently — history is a convenience, never data-critical */
+      return false;
     }
   }
 }
@@ -238,6 +252,7 @@ export function makeRecord(input: {
   day: string;
   band: string;
   serving_style: string;
+  mode?: "school" | "general";
   student: RecordStudent | null;
   photo: string | null;
   result: AnalyzeResult;
@@ -249,6 +264,7 @@ export function makeRecord(input: {
     day: input.day,
     band: input.band,
     serving_style: input.serving_style,
+    mode: input.mode,
     student: input.student,
     photo: input.photo,
     summary: {
@@ -261,5 +277,9 @@ export function makeRecord(input: {
       confidence: r.classification?.confidence ?? null,
     },
     result: r,
+    critiqueStatus: "pending",
+    critique: null,
+    critiqueError: null,
+    chatMessages: [],
   };
 }

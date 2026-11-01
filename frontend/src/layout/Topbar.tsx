@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { EASE } from "../ui/motion";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
+import { useExplore } from "../context/explore";
+import { TOTAL_AREAS, exploredCount } from "../explore/achievements";
+import { ProgressRing } from "../ui/fx";
 import {
   attention as selectAttention,
   unmeasured as selectUnmeasured,
@@ -12,46 +17,31 @@ import ModeSwitch from "../ui/ModeSwitch";
 import { formatDate } from  "../utils/format";
 import {
   IconBell,
-  IconHelp,
   IconMenu,
-  IconMonitor,
   IconMoon,
-  IconSearch,
   IconSun,
+  IconX,
+  IconSettings,
 } from  "../ui/Icon";
 
-const TITLES: Record<string, string> = {
-  "/": "Dashboard",
-  "/analyze": "Analyze Meal",
-  "/history": "Analysis History",
-  "/students": "Student Records",
-  "/menu": "Menu & Standards",
-  "/analytics": "Analytics",
-  "/settings": "Settings",
-  "/result": "Analysis Result",
-};
-
-function titleFor(pathname: string): string {
-  if (pathname.startsWith("/result")) return TITLES["/result"];
-  if (pathname.startsWith("/students/")) return "Student Detail";
-  return TITLES[pathname] || "NutriSense";
-}
-
 export default function Topbar({
-  onOpenDrawer,
-  onToggleTheme,
+  drawerOpen,
+  onToggleDrawer,
 }: {
-  onOpenDrawer: () => void;
-  onToggleTheme: () => void;
+  drawerOpen: boolean;
+  onToggleDrawer: () => void;
 }) {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const { apiUp } = useMenu();
   const { prefs, setPrefs } = usePrefs();
   const { records } = useRecords();
+  const { state: explored, panelOpen, togglePanel } = useExplore();
+  const areasSeen = exploredCount(explored);
   const general = (prefs.mode ?? "school") === "general";
-  const [search, setSearch] = useState(params.get("q") || "");
+  const darkTheme =
+    ["dark", "nord", "rosepine", "dracula", "catppuccin"].includes(prefs.theme) ||
+    (prefs.theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -67,10 +57,6 @@ export default function Topbar({
   );
 
   useEffect(() => {
-    setSearch(params.get("q") || "");
-  }, [params]);
-
-  useEffect(() => {
     if (!profileOpen && !alertsOpen) return;
     const onDoc = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -84,59 +70,56 @@ export default function Topbar({
     return () => document.removeEventListener("mousedown", onDoc);
   }, [profileOpen, alertsOpen]);
 
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate(search.trim() ? `/history?q=${encodeURIComponent(search.trim())}` : "/history");
-  };
-
-  const resolved =
-    prefs.theme !== "system"
-      ? prefs.theme
-      : window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-  const darkish =
-    resolved === "dark" || resolved === "nord" ||
-    resolved === "rosepine" || resolved === "dracula" ||
-    resolved === "catppuccin";
-
-  const crumbRoot =
-    pathname === "/" ? "Workspace" : pathname.startsWith("/result")
-      ? "Workspace / History"
-      : "Workspace";
-
   return (
-    <header className="topbar">
+    <motion.header
+      className="topbar"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: EASE }}
+    >
       <button
         className="icon-btn hamburger"
-        onClick={onOpenDrawer}
-        aria-label="Open navigation menu"
+        onClick={onToggleDrawer}
+        aria-label={drawerOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-expanded={drawerOpen}
       >
-        <IconMenu size={18} />
+        {drawerOpen ? <IconX size={18} /> : <IconMenu size={18} />}
       </button>
-
-      <div className="crumb">
-        <span className="crumb-root">{crumbRoot}</span>
-        <span className="crumb-sep" aria-hidden="true">
-          /
-        </span>
-        <span className="crumb-page">{titleFor(pathname)}</span>
-      </div>
 
       <div className="topbar-spacer" />
 
+      <button
+        className="icon-btn theme-toggle"
+        onClick={() => setPrefs({ theme: darkTheme ? "light" : "dark" })}
+        aria-label={darkTheme ? "Switch to light theme" : "Switch to dark theme"}
+        title={darkTheme ? "Switch to light theme" : "Switch to dark theme"}
+      >
+        <motion.span
+          key={darkTheme ? "sun" : "moon"}
+          initial={{ rotate: -80, opacity: 0, scale: 0.6 }}
+          animate={{ rotate: 0, opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, ease: EASE }}
+          style={{ display: "grid", placeItems: "center" }}
+        >
+          {darkTheme ? <IconSun size={17} /> : <IconMoon size={17} />}
+        </motion.span>
+      </button>
+
       <ModeSwitch className="topbar-mode" />
 
-      <form className="search-box" onSubmit={submitSearch} role="search">
-        <IconSearch size={14} />
-        <input
-          type="search"
-          placeholder="Search analyses…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search analyses"
-        />
-      </form>
+      <button
+        className="icon-btn explorer-btn"
+        onClick={togglePanel}
+        aria-expanded={panelOpen}
+        aria-haspopup="dialog"
+        aria-label={`Field notebook — ${areasSeen} of ${TOTAL_AREAS} sections explored`}
+        title="Field notebook"
+      >
+        <ProgressRing value={areasSeen / TOTAL_AREAS} size={18} stroke={2} />
+        {areasSeen > 0 && areasSeen < TOTAL_AREAS && (
+          <span className="explore-dot" aria-hidden="true" />
+        )}
+      </button>
 
       <div ref={alertsRef} style={{ position: "relative" }}>
         <button
@@ -231,21 +214,13 @@ export default function Topbar({
         )}
       </div>
 
-      <button
-        className="icon-btn"
-        onClick={onToggleTheme}
-        aria-label={`Switch to ${resolved === "dark" ? "light" : "dark"} mode`}
-        title="Toggle theme"
-      >
-        {darkish ? <IconSun size={17} /> : <IconMoon size={17} />}
-      </button>
-
       <div ref={profileRef} style={{ position: "relative" }}>
         <button
           className="profile-btn"
           onClick={() => setProfileOpen((o) => !o)}
           aria-expanded={profileOpen}
           aria-haspopup="menu"
+          aria-label="Open profile menu"
         >
           <span className="avatar" aria-hidden="true">
             {(() => {
@@ -259,16 +234,14 @@ export default function Topbar({
             })()}
           </span>
           <span className="profile-name">
-            {prefs.userName.trim().split(/\s+/)[0] || "Monitor"}
+              {prefs.userName.trim().split(/\s+/)[0] || "Workspace"}
           </span>
         </button>
         {profileOpen && (
           <div className="menu-pop" role="menu">
             <div className="pop-head">
-              <div className="workspace-name">NutriSense Monitor</div>
-              <div className="workspace-role">
-                {apiUp ? "Backend connected" : "Backend offline"} · local workspace
-              </div>
+              <div className="workspace-name">Your workspace</div>
+              <div className="workspace-role">Settings and meal preferences</div>
             </div>
             <button
               className="pop-item"
@@ -278,21 +251,11 @@ export default function Topbar({
                 navigate("/settings");
               }}
             >
-              <IconHelp size={15} /> Help & settings
-            </button>
-            <button
-              className="pop-item"
-              role="menuitem"
-              onClick={() => {
-                setProfileOpen(false);
-                setPrefs({ theme: darkish ? "light" : "dark" });
-              }}
-            >
-              <IconMonitor size={15} /> Theme: {prefs.theme}
+              <IconSettings size={15} /> Settings
             </button>
           </div>
         )}
       </div>
-    </header>
+    </motion.header>
   );
 }

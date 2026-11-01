@@ -58,9 +58,24 @@ def read_exif(path):
     f35 = _rational(_get(_EXIF_FOCAL_35))
     if f35:
         out["focal_length_35mm"] = f35
-    dz = _rational(_get(_EXIF_DIGI_ZOOM))
-    if dz:
-        out["digital_zoom"] = dz
+    dz = _get(_EXIF_DIGI_ZOOM)
+    if dz is not None:
+        # EXIF spec: DigitalZoomRatio 0/0 (undefined) means digital zoom was
+        # not used — Samsung phones write exactly that. PIL surfaces it as a
+        # NaN float and some writers emit the literal string "0/0". Map both
+        # to 1.0 (verified unzoomed) instead of swallowing them as absent.
+        try:
+            f = float(dz)
+        except (TypeError, ValueError):
+            f = None
+        if f is not None and (not np.isfinite(f) or f == 0):
+            out["digital_zoom"] = 1.0
+        elif isinstance(dz, str) and dz.strip() == "0/0":
+            out["digital_zoom"] = 1.0
+        else:
+            v = _rational(dz)
+            if v:
+                out["digital_zoom"] = v
     sd = _get(_EXIF_SUBJ_DIST)
     if sd is not None:
         try:

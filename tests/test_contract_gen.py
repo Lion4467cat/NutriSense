@@ -59,19 +59,21 @@ def test_gen_matches_committed():
 
 
 def _happy_wire():
+    from tests.conftest import OK_EXIF
     from engine.pipeline import analyze
     from tests.synth.scene import render_scene
     from tests.test_pipeline_seams import make_deps
     scene = render_scene()
     return analyze(scene["image_bgr"], day="mon", band="1-5",
-                   deps=make_deps(scene))
+                   deps=make_deps(scene), exif=OK_EXIF)
 
 
 def _unreadable_wire():
+    from tests.conftest import UNREADABLE_JPEG
     from fastapi.testclient import TestClient
     from main import app
     client = TestClient(app)
-    r = client.post("/analyze", files={"file": ("p.jpg", b"not an image")},
+    r = client.post("/analyze", files={"file": ("p.jpg", UNREADABLE_JPEG)},
                     data={"day": "mon", "band": "1-5"})
     assert r.status_code == 200
     return r.json()

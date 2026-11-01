@@ -16,6 +16,7 @@ import models.recipe_table as recipe_table
 from engine.general_mode import (match_recipe, recipe_profile,
                                  serve_with_head)
 from engine.pipeline import analyze as pipe_analyze
+from tests.conftest import OK_EXIF
 from tests.synth.scene import render_scene
 
 
@@ -153,7 +154,7 @@ def test_pipeline_ingredient_route_fires():
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(recipe_table, "_CACHE", {"recipes": dict(MINI_RECIPES)})
         out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                           deps=_make_deps(scene) | {"ingredient_head": head})
+                           deps=_make_deps(scene) | {"ingredient_head": head}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "off_menu_dish"
     assert out["path_used"] == "ingredient_head"
@@ -179,7 +180,7 @@ def test_pipeline_unmatched_profile_falls_back():
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=_make_deps(scene)
-                       | {"weight_head": _WedHead(), "ingredient_head": ing})
+                       | {"weight_head": _WedHead(), "ingredient_head": ing}, exif=OK_EXIF)
     # existing off-menu path, byte-for-byte: learned dish-slot head
     assert out["path_used"] == "learned_head"
     assert out["portion"]["base_method"] == "learned_weight"
@@ -206,7 +207,7 @@ def test_pipeline_school_dish_never_takes_ingredient_route():
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=_make_deps(scene, classify=cls)
-                       | {"weight_head": _WedHead(), "ingredient_head": ing})
+                       | {"weight_head": _WedHead(), "ingredient_head": ing}, exif=OK_EXIF)
     assert ing.calls == []                       # route never consulted
     assert out["path_used"] == "learned_head"
     assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}

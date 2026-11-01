@@ -198,6 +198,37 @@ export const IconLayers = (p: P) =>
     </>
   ));
 
+export const IconMeal = (p: P) =>
+  base(p, (
+    <>
+      <path d="M4 11.5h16a8 8 0 0 1-16 0Z" />
+      <path d="M3 11.5h18M7 7.5c0-1 .8-1.4.8-2.4M12 7.5c0-1 .8-1.4.8-2.4M17 7.5c0-1 .8-1.4.8-2.4" />
+    </>
+  ));
+
+export const IconScale = (p: P) =>
+  base(p, (
+    <>
+      <path d="M5 5h14l2 15H3L5 5Z" />
+      <path d="M8 9a4 4 0 0 1 8 0M12 9l2-1.5" />
+    </>
+  ));
+
+export const IconFlame = (p: P) =>
+  base(p, <path d="M12 22a7 7 0 0 0 7-7c0-3.2-2.1-5.4-4.5-8.5-.2 2.5-1.1 3.4-2 4.1C12 7.4 10 4.8 8.5 3 8.7 7.7 5 10.5 5 15a7 7 0 0 0 7 7Z" />);
+
+export const IconProtein = (p: P) =>
+  base(p, (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="5" cy="6" r="1.5" />
+      <circle cx="19" cy="6" r="1.5" />
+      <circle cx="5" cy="18" r="1.5" />
+      <circle cx="19" cy="18" r="1.5" />
+      <path d="m6.2 7.1 3.7 3.1m4.2 0 3.7-3.1M6.2 16.9l3.7-3.1m4.2 0 3.7 3.1" />
+    </>
+  ));
+
 export function LogoMark({ size = 26 }: { size?: number }) {
   return (
     <span className="brand-mark" style={{ width: size, height: size }}>

@@ -19,9 +19,22 @@ import models.dish_segmenter as dish_segmenter
 import models.food_classifier as fc
 from engine.pipeline import analyze as pipe_analyze
 from main import app
+from tests.conftest import OK_EXIF
 from tests.synth.scene import render_scene
 
 client = TestClient(app)
+
+
+def _jpg_with_zoom_ok(buf: bytes) -> bytes:
+    """Embed DigitalZoomRatio 1.0 EXIF — absent zoom is a hard input reject."""
+    import io
+    from PIL import Image
+    im = Image.open(io.BytesIO(buf))
+    ex = im.getexif()
+    ex.get_ifd(0x8769)[41988] = 1.0
+    out = io.BytesIO()
+    im.save(out, format="JPEG", exif=ex)
+    return out.getvalue()
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +74,7 @@ def make_deps(scene, *, segment=None, classify=None, depth=None):
 def test_lint_resolution_note_is_non_blocking(scene):
     # default scene min side = 1100 < 1280 protocol minimum
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     assert out["lint"]["resolution_ok"] is False
     assert any("min side" in n for n in out["lint"]["notes"])
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
@@ -70,7 +83,7 @@ def test_lint_resolution_note_is_non_blocking(scene):
 def test_lint_resolution_ok_large_image(scene):
     big = cv2.resize(scene["image_bgr"], (1500, 1400),
                      interpolation=cv2.INTER_CUBIC)
-    out = pipe_analyze(big, day="mon", band="1-5", deps=make_deps(scene))
+    out = pipe_analyze(big, day="mon", band="1-5", deps=make_deps(scene), exif=OK_EXIF)
     assert out["lint"]["resolution_ok"] is True
     assert out["lint"]["notes"] == []
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
@@ -83,10 +96,12 @@ def test_segment_failure_cannot_verify(scene):
         raise RuntimeError("segment exploded")
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene, segment=boom))
+                       deps=make_deps(scene, segment=boom), exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
-    assert any(r["kind"] == "stage_failed"
-               and "segment exploded" in r["text"] for r in out["reasons"])
+    # error text is redacted for clients (AUDIT P1); kind + stage attribution
+    # (asserted on failures[]) still identify the stage
+    assert all(r["kind"] == "stage_failed" for r in out["reasons"])
+    assert any(r["text"].startswith("segment failed: ") for r in out["reasons"])
     assert out["failures"][0]["stage"] == "segment"
     assert out["anchor"] is not None  # anchor ran before segment
     assert out["segmentation"] is None
@@ -102,7 +117,7 @@ def test_classify_unrecognized_cannot_verify(scene):
                 "match_score": 0.3, "reason": "below threshold"}
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene, classify=unknown))
+                       deps=make_deps(scene, classify=unknown), exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert any(r["kind"] == "unrecognized" and "dish unrecognized" in r["text"]
                for r in out["reasons"])
@@ -123,7 +138,7 @@ def no_card_scene():
 
 def test_depth_scale_calibrated_and_recorded(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     assert out["anchor"]["tier"] == "measured"
     assert out["anchor"]["depth_scale_source"] == "card"
     # GT depth is already metric: calibration factor must stay near 1
@@ -134,7 +149,7 @@ def test_depth_scale_none_on_prior_tier(no_card_scene):
     # STAGE 5: a headless no-card run on a mapped dish cannot verify, so a
     # working fake head is injected to reach the prior-tier depth wiring.
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": _FakeHead(310.0)})
+                       deps=make_deps(no_card_scene) | {"weight_head": _FakeHead(310.0)}, exif=OK_EXIF)
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
@@ -151,10 +166,12 @@ def test_depth_failure_cannot_verify(scene):
         raise RuntimeError("depth exploded")
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene, depth=boom))
+                       deps=make_deps(scene, depth=boom), exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
-    assert any(r["kind"] == "stage_failed" and "depth exploded" in r["text"]
-               for r in out["reasons"])
+    # error text is redacted for clients (AUDIT P1); kind + stage attribution
+    # (asserted on failures[]) still identify the stage
+    assert all(r["kind"] == "stage_failed" for r in out["reasons"])
+    assert any(r["text"].startswith("depth failed: ") for r in out["reasons"])
     assert out["failures"][0]["stage"] == "depth"
     assert out["classification"]["dish"] == "rice_sambar"
     assert out["dish"] is not None  # dish lookup happened before portion
@@ -166,7 +183,7 @@ def test_depth_failure_cannot_verify(scene):
 
 def test_result_contract_keys_and_types(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene), serving_style="mixed")
+                       deps=make_deps(scene), serving_style="mixed", exif=OK_EXIF)
     # API response contract (spec literal, not derived from the code)
     assert set(out) == {
         "verdict", "reasons", "failures", "lint", "anchor", "segmentation",
@@ -198,7 +215,7 @@ def test_result_contract_keys_and_types(scene):
 
 def test_result_contract_flags_populated_on_ring_path(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     # card anchor + healthy area -> ring path, no uncertainty flags
     assert out["portion"]["base_method"] == "ring"
     assert out["portion"]["flags"] == []
@@ -235,7 +252,8 @@ def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
         "match_score": 0.9, "margin": None, "scores": {}, "uncovered": [],
         "reason": "test stub"})
     r = client.post("/analyze",
-                    files={"file": ("p.jpg", jpg_bytes, "image/jpeg")},
+                    files={"file": ("p.jpg", _jpg_with_zoom_ok(jpg_bytes),
+                            "image/jpeg")},
                     data={"day": "mon", "band": "1-5",
                           "serving_style": "mixed"})
     assert r.status_code == 200
@@ -249,7 +267,7 @@ def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
 
 def test_result_contract_compliance_block(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     comp = out["compliance"]
     assert comp["day"] == "mon"
     assert comp["band"] == "1-5"
@@ -284,7 +302,7 @@ def test_assess_failures_reach_the_wire(scene, monkeypatch):
 
     monkeypatch.setattr(pl, "assess", fake_assess)
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["failures"] and out["failures"][0]["stage"] == "nutrition"
     assert any(r["kind"] == "stage_failed" for r in out["reasons"])
@@ -304,7 +322,7 @@ def test_depth_receives_known_fov_x(scene):
         return {"depth_m": d, "model": "gt"}
 
     pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                 deps=make_deps(scene, depth=dep))
+                 deps=make_deps(scene, depth=dep), exif=OK_EXIF)
     assert "fov_x" in seen
     assert 0.0 < seen["fov_x"] < 180.0
 
@@ -319,7 +337,7 @@ def test_uncalibrated_measured_depth_cannot_certify(scene, monkeypatch):
 
     monkeypatch.setattr(pl, "calibrate_depth_scale", decline)
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     assert out["anchor"]["tier"] == "measured"
     factors = out["coverage"]["factors"]
     assert factors["depth_uncalibrated"] == 0.80
@@ -348,7 +366,7 @@ class _FakeHead:
 def test_learned_head_replaces_prior_geometry(no_card_scene):
     head = _FakeHead(310.0)
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": head})
+                       deps=make_deps(no_card_scene) | {"weight_head": head}, exif=OK_EXIF)
     # rice_sambar maps to [steamed-rice, sambar] slots in wed_dishes.yaml
     assert head.calls and head.calls[0] == [33, 32]
     p = out["portion"]
@@ -381,21 +399,21 @@ def test_learned_head_failure_cannot_verify(no_card_scene):
             raise RuntimeError("cuda exploded")
 
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": Boom()})
+                       deps=make_deps(no_card_scene) | {"weight_head": Boom()}, exif=OK_EXIF)
     # STAGE 3: no silent geometry substitution — the plate cannot be verified
     assert out["verdict"] == "cannot_verify"
     assert out["portion"] is None                 # no grams reach the wire
     assert out["failures"][0]["kind"] == "weight_head_unavailable"
     assert out["failures"][0]["stage"] == "portion"
     assert out["reasons"][0]["kind"] == "weight_head_unavailable"
-    assert "cuda exploded" in out["reasons"][0]["text"]
+    assert "unavailable" in out["reasons"][0]["text"]
     assert out["path_used"] is None               # no portion path ran
 
 
 def test_weight_head_none_cannot_verify_mapped_dish(no_card_scene):
     # STAGE 5: explicit None head == failing head on a mapped dish
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": None})
+                       deps=make_deps(no_card_scene) | {"weight_head": None}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["portion"] is None               # no grams reach the wire
     assert out["path_used"] is None
@@ -403,14 +421,14 @@ def test_weight_head_none_cannot_verify_mapped_dish(no_card_scene):
     assert out["failures"][0]["kind"] == "weight_head_unavailable"
     assert out["failures"][0]["stage"] == "portion"
     assert out["reasons"][0]["kind"] == "weight_head_unavailable"
-    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
+    assert "unavailable" in out["reasons"][0]["text"]
 
 
 def test_missing_checkpoint_cannot_verify_mapped_dish(no_card_scene):
     # STAGE 5: no weight_head in deps -> _get_weight_head() -> the hermetic
     # registry pin (a stand-in for a missing data/weight_head.pt) -> None.
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene))
+                       deps=make_deps(no_card_scene), exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["portion"] is None
     assert out["path_used"] is None
@@ -419,13 +437,13 @@ def test_missing_checkpoint_cannot_verify_mapped_dish(no_card_scene):
     assert out["failures"][0]["kind"] == "weight_head_unavailable"
     assert out["failures"][0]["stage"] == "portion"
     assert out["reasons"][0]["kind"] == "weight_head_unavailable"
-    assert "checkpoint missing or failed to load" in out["reasons"][0]["text"]
+    assert "unavailable" in out["reasons"][0]["text"]
 
 
 def test_learned_head_not_used_when_card_measured(scene):
     head = _FakeHead(310.0)
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene) | {"weight_head": head})
+                       deps=make_deps(scene) | {"weight_head": head}, exif=OK_EXIF)
     assert head.calls == []                          # measured tier wins
     assert out["portion"]["base_method"] == "ring"
     assert out["portion"]["grams_source"] == "geometry"
@@ -441,9 +459,9 @@ def test_measured_moge_uses_table_plane_but_gt_depth_keeps_ring(scene):
         return out
 
     real = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                        deps=deps | {"depth": moge})
+                        deps=deps | {"depth": moge}, exif=OK_EXIF)
     synthetic = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                             deps=deps)
+                             deps=deps, exif=OK_EXIF)
     assert real["portion"]["base_method"] == "table_prior"
     assert "vessel_shape_uncertain" in real["portion"]["flags"]
     assert synthetic["portion"]["base_method"] == "ring"
@@ -469,7 +487,7 @@ def test_recognized_off_menu_learns_grams_and_cannot_verify(no_card_scene):
     head = _FakeHead(220.0)
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene)
-                       | {"weight_head": head, "classify": _classify_stub("rajma")})
+                       | {"weight_head": head, "classify": _classify_stub("rajma")}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "off_menu_dish"       # leads the reasons
     assert any(r["kind"] == "no_reference_card" for r in out["reasons"][1:])
@@ -490,7 +508,7 @@ def test_recognized_off_menu_learns_grams_and_cannot_verify(no_card_scene):
 
 def test_recognized_off_menu_geometry_with_measured_card(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene) | {"classify": _classify_stub("steamed-rice")})
+                       deps=make_deps(scene) | {"classify": _classify_stub("steamed-rice")}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "off_menu_dish"
     assert not any(r["kind"] == "no_reference_card" for r in out["reasons"])
@@ -507,7 +525,7 @@ def test_off_menu_head_unavailable_still_precedes_nothing(no_card_scene):
     # WeightHeadUnavailable -> cannot_verify, no grams, no silent geometry.
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene)
-                       | {"classify": _classify_stub("rajma")})
+                       | {"classify": _classify_stub("rajma")}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["portion"] is None
     assert out["path_used"] is None
@@ -518,7 +536,7 @@ def test_menu_equivalent_class_keeps_out_of_scope_verdict(scene):
     # 'phulka' is a WED class whose serving target is the menu dish
     # wheat_product (out_of_scope) — that verdict path stays byte-for-byte.
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene) | {"classify": _classify_stub("phulka")})
+                       deps=make_deps(scene) | {"classify": _classify_stub("phulka")}, exif=OK_EXIF)
     assert out["verdict"] == "out_of_scope"
     assert out["reasons"][0]["kind"] == "out_of_scope"
     assert out["dish"]["id"] == "wheat_product"
@@ -530,7 +548,7 @@ def test_unknown_classified_key_fails_the_classify_stage(scene):
     # A classifier key with no serving entry anywhere is a stage failure —
     # never an off-menu serve, never a crash.
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene) | {"classify": _classify_stub("not_a_key")})
+                       deps=make_deps(scene) | {"classify": _classify_stub("not_a_key")}, exif=OK_EXIF)
     assert out["verdict"] == "cannot_verify"
     assert out["failures"][0]["stage"] == "classify"
     assert out["portion"] is None

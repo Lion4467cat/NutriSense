@@ -71,6 +71,12 @@ def make_deps(scene, **extra):
     return {"segment": seg, "depth": dep, "classify": cls} | extra
 
 
+def _analyze(image, **kwargs):
+    """Admit these fixtures with explicit, compliant capture metadata."""
+    kwargs.setdefault("exif", {"digital_zoom": 1.0})
+    return pipe_analyze(image, **kwargs)
+
+
 class _FakeHead:
     """WeightHead stand-in: deterministic grams per call."""
 
@@ -90,7 +96,7 @@ class _FakeHead:
 # --- seam 1: two vessels, measured tier, geometry per item -----------------
 
 def test_two_items_aggregate_meal(scene):
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene,
                                       segment_items=lambda img: _half_masks(scene)))
     assert out["path_used"] == "multi_item"
@@ -117,7 +123,7 @@ def test_two_items_aggregate_meal(scene):
 
 def test_learned_head_per_item(no_card_scene):
     head = _FakeHead(310.0)
-    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene,
                                       weight_head=head,
                                       segment_items=lambda img: _half_masks(no_card_scene)))
@@ -136,7 +142,7 @@ def test_learned_head_per_item(no_card_scene):
 # --- seam 3: single-serving frames ------------------------------------------
 
 def test_single_flow_items_mirror(scene):
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene))
     assert out["path_used"] != "multi_item"
     assert len(out["items"]) == 1
@@ -148,7 +154,7 @@ def test_single_flow_items_mirror(scene):
 
 def test_single_vessel_detection_keeps_single_flow(scene):
     one = {"items": [_half_masks(scene)["items"][0]], "strategy": "grid9_box"}
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene,
                                       segment_items=lambda img: one))
     assert out["path_used"] != "multi_item"
@@ -162,7 +168,7 @@ def test_detection_failure_degrades(scene):
     def boom(img):
         raise RuntimeError("grid9 exploded")
 
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, segment_items=boom))
     assert "multi_item_detection_failed" in out["degradations"]
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
@@ -171,7 +177,7 @@ def test_detection_failure_degrades(scene):
 
 # --- seam 5: partially unrecognized plate ------------------------------------
 
-def test_unrecognized_item_skipped_not_guessed(scene):
+def test_unrecognized_item_abstains_from_incomplete_total(scene):
     calls = {"n": 0}
 
     def cls(img):
@@ -182,7 +188,7 @@ def test_unrecognized_item_skipped_not_guessed(scene):
         return {"dish": "rice_sambar", "confidence": 1.0, "method": "stub",
                 "match_score": 0.9, "reason": "stub"}
 
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, classify=cls,
                                       segment_items=lambda img: _half_masks(scene)))
     assert out["path_used"] == "multi_item"
@@ -192,9 +198,12 @@ def test_unrecognized_item_skipped_not_guessed(scene):
     assert len(skipped) == 1 and len(measured) == 1
     assert skipped[0]["dish"] is None
     assert skipped[0]["reason"]["kind"] == "unrecognized"
-    assert out["portion"]["grams"] == pytest.approx(
-        measured[0]["portion"]["grams"], abs=0.2)
-    assert any("excluded from the aggregate" in a for a in out["assumptions"])
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["nutrition"] is None
+    assert out["compliance"] is None
+    assert any("complete meal total cannot be verified" in a
+               for a in out["assumptions"])
 
 
 # --- seam 6: every item unrecognized -> single flow --------------------------
@@ -210,7 +219,7 @@ def test_all_items_unrecognized_falls_back(scene):
         return {"dish": None, "confidence": 0.2, "method": "gallery",
                 "match_score": 0.3, "reason": "below threshold"}
 
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, classify=cls,
                                       segment_items=lambda img: _half_masks(scene)))
     assert out["path_used"] != "multi_item"
@@ -248,7 +257,7 @@ def test_combo_decomposition_per_item(scene):
         {"rice_sambar": 0.95, "steamed-rice": 0.91, "sambar": 0.55},
         {"rice_sambar": 0.95, "steamed-rice": 0.55, "sambar": 0.92},
     ])
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, classify=cls,
                                       segment_items=lambda img: _half_masks(scene)))
     assert out["path_used"] == "multi_item"
@@ -268,7 +277,7 @@ def test_combo_below_threshold_keeps_unrestricted(scene):
         {"rice_sambar": 0.95, "steamed-rice": 0.6, "sambar": 0.55},
         {"rice_sambar": 0.95, "steamed-rice": 0.55, "sambar": 0.6},
     ])
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene, classify=cls,
                                       segment_items=lambda img: _half_masks(scene)))
     assert out["path_used"] == "multi_item"
@@ -279,7 +288,7 @@ def test_combo_below_threshold_keeps_unrestricted(scene):
 # --- spec 005: capture-angle lint -------------------------------------------
 
 def test_capture_angle_in_band_no_note(scene):
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+    out = _analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene))
     assert out["anchor"]["tier"] == "measured"
     assert not any("capture angle" in n for n in out["lint"]["notes"])
@@ -288,7 +297,7 @@ def test_capture_angle_in_band_no_note(scene):
 def test_capture_angle_out_of_band_notes(scene):
     # near-top-down camera (~14° from face-on) -> below the 25° band floor
     steep = render_scene({"camera": {"pos": (0.0, -100.0, 400.0)}})
-    out = pipe_analyze(steep["image_bgr"], day="mon", band="1-5",
+    out = _analyze(steep["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(steep))
     assert any("capture angle" in n for n in out["lint"]["notes"])
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}  # non-blocking

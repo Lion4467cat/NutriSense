@@ -10,8 +10,18 @@ import { VerdictPill } from "../result/VerdictPill";
 import PolicyNote from "../result/PolicyNote";
 import { IconHistory, IconSearch, IconTrash } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
-import { revealContainer, revealItem } from "../ui/motion";
+import { EASE, revealContainer } from "../ui/motion";
 import { sharesOfGoal } from "../services/records";
+
+/**
+ * Signature motion for this section: entries arrive like a ledger being
+ * ruled — sliding in from the left, one after another. Distinct from the
+ * Insights count-ups and the Menu's right-to-left rules.
+ */
+const ledgerRow = {
+  hidden: { opacity: 0, x: -16 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.36, ease: EASE } },
+};
 
 type SortKey = "date" | "dish" | "verdict" | "coverage" | "kcal";
 
@@ -67,7 +77,7 @@ export default function HistoryPage() {
   const toggleSort = (key: SortKey) => setSort(key);
 
   return (
-    <div className="page">
+    <div className="page page-history">
       <div className="page-head">
         <div>
           <h1 className="page-title">Analysis history</h1>
@@ -115,12 +125,12 @@ export default function HistoryPage() {
               aria-label="Filter by verdict"
             >
               <option value="">All verdicts</option>
-              <option value="PASS">PASS</option>
-              <option value="BORDERLINE">BORDERLINE</option>
-              <option value="FAIL">FAIL</option>
-              <option value="ESTIMATED">ESTIMATED</option>
-              <option value="cannot_verify">CANNOT VERIFY</option>
-              <option value="out_of_scope">OUT OF SCOPE</option>
+              <option value="PASS">Pass</option>
+              <option value="BORDERLINE">Borderline</option>
+              <option value="FAIL">Fail</option>
+              <option value="ESTIMATED">Estimated</option>
+              <option value="cannot_verify">Cannot verify</option>
+              <option value="out_of_scope">Out of scope</option>
             </select>
 
             <select
@@ -302,7 +312,7 @@ export default function HistoryPage() {
                 return (
                   <motion.tr
                     key={r.id}
-                    variants={revealItem}
+                    variants={ledgerRow}
                     className="clickable"
                     onClick={() => navigate(`/result/${r.id}`)}
                     tabIndex={0}

@@ -227,6 +227,7 @@ def segment_items(image_bgr):
             if all(_iou(small, m) < IOU_DEDUPE for m, _ in kept):
                 kept.append((small, score))
     kept.sort(key=lambda m: float(m[0].sum()), reverse=True)
+    candidate_count = len(kept)
     kept = kept[:MAX_ITEMS]
     if not kept:
         raise RuntimeError("SAM2 produced no usable food mask")
@@ -237,4 +238,9 @@ def segment_items(image_bgr):
                           interpolation=cv2.INTER_NEAREST).astype(bool)
         items.append({"mask": full, "sam_score": score,
                       "area_frac": float(full.mean()), "bbox": _bbox(full)})
-    return {"items": items, "strategy": "grid9_box"}
+    return {
+        "items": items,
+        "strategy": "grid9_box",
+        "candidate_count": candidate_count,
+        "truncated_count": max(0, candidate_count - MAX_ITEMS),
+    }

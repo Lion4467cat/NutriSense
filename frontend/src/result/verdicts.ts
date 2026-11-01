@@ -1,11 +1,13 @@
 import type { Reason, Verdict } from "../types/api";
+import type { ComponentType } from "react";
+import { IconAlert, IconCheck, IconHelp, IconLayers, IconScale, IconX } from "../ui/Icon";
 
 /* ---------------- verdict meta — single truth ---------------- */
 
 export interface VerdictMeta {
   key: Verdict;
   label: string;
-  icon: string;
+  icon: ComponentType<{ size?: number }>;
   cls: "pass" | "warn" | "fail" | "neutral";
   blurb: string;
 }
@@ -13,43 +15,43 @@ export interface VerdictMeta {
 export const VERDICT_META: Record<Verdict, VerdictMeta> = {
   PASS: {
     key: "PASS",
-    label: "PASS",
-    icon: "✓",
+    label: "Pass",
+    icon: IconCheck,
     cls: "pass",
     blurb: "Meal meets the required nutrition threshold with sufficient coverage.",
   },
   BORDERLINE: {
     key: "BORDERLINE",
-    label: "BORDERLINE",
-    icon: "!",
+    label: "Borderline",
+    icon: IconAlert,
     cls: "warn",
     blurb: "Probabilities are close to a threshold, or coverage is short of the gate.",
   },
   FAIL: {
     key: "FAIL",
-    label: "FAIL",
-    icon: "✕",
+    label: "Fail",
+    icon: IconX,
     cls: "fail",
     blurb: "Mandatory nutrition is below the required minimum with sufficient coverage.",
   },
   ESTIMATED: {
     key: "ESTIMATED",
-    label: "ESTIMATED",
-    icon: "≈",
+    label: "Estimated",
+    icon: IconScale,
     cls: "neutral",
     blurb: "Legacy verdict (pre-2026-10-11): no reference card, weight was an estimate and never PASS/FAIL. Current no-card plates are scored (PASS/FAIL/BORDERLINE) with a no-reference-card disclaimer and a coverage reduction -- see the Measurement confidence panel on the result page.",
   },
   cannot_verify: {
     key: "cannot_verify",
-    label: "CANNOT VERIFY",
-    icon: "?",
+    label: "Cannot verify",
+    icon: IconHelp,
     cls: "neutral",
     blurb: "The capture could not be verified — check capture quality and try again.",
   },
   out_of_scope: {
     key: "out_of_scope",
-    label: "OUT OF SCOPE",
-    icon: "–",
+    label: "Out of scope",
+    icon: IconLayers,
     cls: "warn",
     blurb: "This item is not portion-scored under PM POSHAN compliance.",
   },

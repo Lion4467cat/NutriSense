@@ -296,12 +296,13 @@ def stage(name, fn, *args, timings=None, **kwargs):
     try:
         value = fn(*args, **kwargs)
     except WeightHeadUnavailable as e:
-        failure = Failure(FailureKind.WEIGHT_HEAD_UNAVAILABLE, stage_v, str(e))
+        failure = Failure(FailureKind.WEIGHT_HEAD_UNAVAILABLE, stage_v,
+                          "required weight model is unavailable; retry later")
         log.error("stage=%s weight head unavailable: %s", stage_v,
                   failure.error, exc_info=True)
     except Exception as e:
         failure = Failure(FailureKind.STAGE_FAILED, stage_v,
-                          f"{type(e).__name__}: {e}")
+                          "analysis stage failed; retry with a new capture")
         if isinstance(entry, Degrade):
             log.warning("stage=%s degraded, fallback=%s error=%s",
                         stage_v, entry.fallback, failure.error, exc_info=True)

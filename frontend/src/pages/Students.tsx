@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import { useRecords } from "../context/records";
 import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
-import { IconArrowLeft, IconUsers } from "../ui/Icon";
+import { IconArrowLeft, IconCheck, IconFlame, IconUsers } from "../ui/Icon";
 import { formatDate, formatNum, formatPct } from "../utils/format";
 import { revealContainer, revealItem } from "../ui/motion";
+import { CountValue } from "../ui/section-fx";
 import {
   byNewest,
   scored as scoredRecords,
@@ -188,7 +189,7 @@ function StudentDetail({ name }: { name: string }) {
             Classes {group.bands.join(", ")} ·{" "}
             {group.records.length} meal
             {group.records.length === 1 ? "" : "s"} ·{" "}
-            {t.scored ? `${t.pass}/${t.scored} PASS` : "no scored meals"}
+            {t.scored ? `${t.pass}/${t.scored} pass` : "no scored meals"}
           </p>
         </div>
         <Link className="btn btn-secondary" to="/analyze">
@@ -204,18 +205,24 @@ function StudentDetail({ name }: { name: string }) {
               <IconUsers size={14} />
             </span>
           </div>
-          <div className="kpi-value">{group.records.length}</div>
+          <div className="kpi-value">
+            <CountValue value={group.records.length} format={(v) => String(Math.round(v))} />
+          </div>
           <div className="kpi-foot">stored in this browser</div>
         </article>
         <article className="kpi">
           <div className="kpi-top">
-            <span className="kpi-label">PASS rate</span>
+            <span className="kpi-label">Pass rate</span>
             <span className="kpi-ico pass" aria-hidden="true">
-              ✓
+              <IconCheck size={14} />
             </span>
           </div>
           <div className="kpi-value">
-            {t.scored ? formatPct(t.pass / t.scored, 0) : "—"}
+            {t.scored ? (
+              <CountValue value={t.pass / t.scored} format={(v) => formatPct(v, 0)} />
+            ) : (
+              "—"
+            )}
           </div>
           <div className="kpi-foot">over scored meals</div>
         </article>
@@ -223,10 +230,16 @@ function StudentDetail({ name }: { name: string }) {
           <div className="kpi-top">
             <span className="kpi-label">Average energy</span>
             <span className="kpi-ico warn" aria-hidden="true">
-              🔥
+              <IconFlame size={14} />
             </span>
           </div>
-          <div className="kpi-value">{meanKcal != null ? formatNum(meanKcal, 0) : "—"}</div>
+          <div className="kpi-value">
+            {meanKcal != null ? (
+              <CountValue value={meanKcal} format={(v) => formatNum(v, 0)} />
+            ) : (
+              "—"
+            )}
+          </div>
           <div className="kpi-foot">kcal per scored meal</div>
         </article>
       </div>
@@ -292,7 +305,7 @@ export default function StudentsPage() {
   return (
     <div className="page">
       {name ? (
-        <StudentDetail name={decodeURIComponent(name)} />
+        <StudentDetail name={name} />
       ) : (
         <>
           <div className="page-head">

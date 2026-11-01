@@ -22,6 +22,21 @@ export function createWebStorage(area: WebStorageArea): Storage {
   };
 }
 
+/** Resolve localStorage lazily so privacy settings cannot prevent app startup. */
+export function createSafeWebStorage(): Storage {
+  return {
+    get: (key) => {
+      try {
+        return window.localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set: (key, value) => window.localStorage.setItem(key, value),
+    remove: (key) => window.localStorage.removeItem(key),
+  };
+}
+
 export function createMemoryStorage(seed: Record<string, string> = {}): Storage {
   const data = new Map(Object.entries(seed));
   return {

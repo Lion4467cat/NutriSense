@@ -1,3 +1,5 @@
+import { useId } from "react";
+import { motion } from "framer-motion";
 import { usePrefs, type AppMode } from "../context/prefs";
 import { useOnboarding } from "../context/onboarding";
 
@@ -16,6 +18,7 @@ export default function ModeSwitch({ className = "" }: { className?: string }) {
   const { prefs, setPrefs } = usePrefs();
   const { openWizard } = useOnboarding();
   const mode: AppMode = prefs.mode ?? "school";
+  const gliderId = useId();
 
   const choose = (m: AppMode) => {
     setPrefs({ mode: m });
@@ -29,7 +32,15 @@ export default function ModeSwitch({ className = "" }: { className?: string }) {
       aria-pressed={mode === m}
       onClick={() => choose(m)}
     >
-      {label}
+      {mode === m && (
+        <motion.span
+          className="seg-glider"
+          layoutId={`seg-${gliderId}`}
+          transition={{ type: "spring", stiffness: 520, damping: 40 }}
+          aria-hidden="true"
+        />
+      )}
+      <span className="seg-label">{label}</span>
     </button>
   );
 

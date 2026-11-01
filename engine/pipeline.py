@@ -558,7 +558,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 skipped.append(_item_wire_block(
                     item, None, None, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: classification failed ({e})")))
+                           "item could not be classified")))
                 continue
             if info_i is None:
                 skipped.append(_item_wire_block(
@@ -576,7 +576,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 skipped.append(_item_wire_block(
                     item, cls_info, info_i, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: portion failed ({e})")))
+                           "item portion could not be measured")))
                 continue
             mc_i, mc_failure = stage(Stage.NUTRITION, sample_nutrients,
                                      portion_i, dish_i, band, n=n_mc,
@@ -587,13 +587,60 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 skipped.append(_item_wire_block(
                     item, cls_info, info_i, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: {mc_failure.error}")))
+                           "item nutrition could not be estimated")))
                 continue
             resolved.append((item, cls_info, info_i, dish_i, portion_i, mc_i))
         if not resolved:
             if "multi_item_fallback" not in degradations:
                 degradations.append("multi_item_fallback")
             return None
+
+        item_evidence = [
+            _item_wire_block(it, ci, ii, pi)
+            for it, ci, ii, _d, pi, _m in resolved
+        ] + skipped
+        if skipped:
+            note = (f"{len(skipped)} detected item(s) could not be measured; "
+                    "the complete meal total cannot be verified")
+            seg_multi = dict(seg_info or {})
+            seg_multi["n_items"] = len(items)
+            return Analysis(
+                verdict="cannot_verify",
+                reasons=[Reason(ReasonKind.STAGE_FAILED, note)],
+                lint=lint,
+                anchor=anchor_info,
+                segmentation=seg_multi,
+                classification=classification,
+                dish=dish_info,
+                assumptions=[note],
+                model_versions=_model_versions(depth_out, head),
+                items=item_evidence,
+                path_used="multi_item",
+            )
+
+        labels = [entry[2]["id"] for entry in resolved]
+        item_area = sum(float(np.asarray(entry[0]["mask"], dtype=bool).sum())
+                        for entry in resolved)
+        whole_area = float(np.asarray(mask, dtype=bool).sum())
+        if len(set(labels)) != len(labels) and item_area > whole_area:
+            note = ("Repeated food labels were detected across separate regions; "
+                    "their combined area exceeds the full-meal region, so the "
+                    "whole-meal total cannot be verified")
+            seg_multi = dict(seg_info or {})
+            seg_multi["n_items"] = len(items)
+            return Analysis(
+                verdict="cannot_verify",
+                reasons=[Reason(ReasonKind.STAGE_FAILED, note)],
+                lint=lint,
+                anchor=anchor_info,
+                segmentation=seg_multi,
+                classification=classification,
+                dish=dish_info,
+                assumptions=[note],
+                model_versions=_model_versions(depth_out, head),
+                items=item_evidence,
+                path_used="multi_item",
+            )
 
         portions = [r[4] for r in resolved]
         total_g = float(sum(p["grams"] for p in portions))
@@ -719,6 +766,66 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 degradations.append("multi_item_detection_failed")
             items_det = None
         if items_det is not None and len(items_det.get("items") or []) >= 2:
+            detected_items = items_det["items"]
+            if items_det.get("truncated_count", 0):
+                note = ("More food regions were detected than the current "
+                        "four-item limit can process; this meal was not scored")
+                seg_multi = dict(seg_info or {})
+                seg_multi["n_items"] = len(detected_items)
+                evidence = [
+                    _item_wire_block(
+                        item, None, None, None,
+                        Reason(ReasonKind.STAGE_FAILED,
+                               "Not scored because the detected-item limit was reached"),
+                    )
+                    for item in detected_items
+                ]
+                return finish(Analysis(
+                    verdict="cannot_verify",
+                    reasons=[Reason(ReasonKind.STAGE_FAILED, note)],
+                    lint=lint,
+                    anchor=anchor_info,
+                    segmentation=seg_multi,
+                    classification=classification,
+                    dish=dish_info,
+                    assumptions=[note],
+                    model_versions=_model_versions(depth_out, head),
+                    items=evidence,
+                    path_used="multi_item",
+                ))
+            masks = [item.get("mask") for item in detected_items]
+            has_overlap = any(
+                np.logical_and(masks[i], masks[j]).any()
+                for i in range(len(masks))
+                for j in range(i + 1, len(masks))
+                if masks[i] is not None and masks[j] is not None
+            )
+            if has_overlap:
+                note = ("Detected food regions overlap; separate portions "
+                        "cannot be safely added into one meal total")
+                seg_multi = dict(seg_info or {})
+                seg_multi["n_items"] = len(detected_items)
+                evidence = [
+                    _item_wire_block(
+                        item, None, None, None,
+                        Reason(ReasonKind.STAGE_FAILED,
+                               "Not scored because detected regions overlap"),
+                    )
+                    for item in detected_items
+                ]
+                return finish(Analysis(
+                    verdict="cannot_verify",
+                    reasons=[Reason(ReasonKind.STAGE_FAILED, note)],
+                    lint=lint,
+                    anchor=anchor_info,
+                    segmentation=seg_multi,
+                    classification=classification,
+                    dish=dish_info,
+                    assumptions=[note],
+                    model_versions=_model_versions(depth_out, head),
+                    items=evidence,
+                    path_used="multi_item",
+                ))
             multi = _multi_item_analysis(items_det["items"])
             if multi is not None:
                 return finish(multi)

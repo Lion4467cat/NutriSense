@@ -85,7 +85,7 @@ describe("ResultPage from a fixture record", () => {
   it("renders the stored analysis (happy-path wire fixture)", async () => {
     renderResult();
     expect(await screen.findAllByText("Rice & Sambar")).not.toHaveLength(0);
-    expect(screen.getAllByText("BORDERLINE").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Borderline").length).toBeGreaterThan(0);
   });
 
   it("maps a reason kind to its icon (below_min → bad ✕)", async () => {

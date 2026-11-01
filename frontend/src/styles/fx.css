@@ -1,0 +1,671 @@
+/* ------------------------------------------------------------------ */
+/* Exploration kit                                                     */
+/* Route motion, the reading rail, tilt + magnet gestures, the marker  */
+/* underline, the field notebook and reward toasts. Everything here is */
+/* additive: no existing layout rule is redefined.                     */
+/* ------------------------------------------------------------------ */
+
+/* ---------------------------- route motion -------------------------- */
+
+.route-anim {
+  min-height: 100%;
+  will-change: opacity, transform;
+}
+
+/* --------------------------- reading rail --------------------------- */
+
+/* A hairline of accent that tracks the reading position of the page. It
+   sits on the window's top edge: the product bar scrolls away at desktop
+   widths, so anything lower would float over the content mid-page. */
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 46;
+}
+
+@media (max-width: 480px) {
+  .scroll-rail {
+    height: 1.5px;
+  }
+}
+
+
+/* --------------------------- tilt + magnet -------------------------- */
+
+.tilt {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card {
+  border-radius: var(--r-xl);
+}
+
+.tilt-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.magnet {
+  display: inline-flex;
+}
+
+/* ---------------------------- progress ring ------------------------- */
+
+.ring {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.ring svg {
+  display: block;
+}
+
+/* ------------------------- notebook entry points -------------------- */
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: opacity var(--t-fast);
+}
+
+.brand-link:hover {
+  opacity: 0.82;
+}
+
+.brand-link:active {
+  opacity: 0.95;
+}
+
+.explore-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+
+.explore-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.explore-btn.open {
+  border-color: var(--accent-soft-border);
+  background: var(--accent-soft);
+}
+
+.explore-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.25;
+}
+
+.explore-copy strong {
+  font-size: 12.5px;
+  font-weight: 560;
+}
+
+.explore-copy small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.01em;
+  color: var(--text-3);
+}
+
+.explore-chev {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* compact topbar trigger */
+.explorer-btn {
+  position: relative;
+}
+
+.explorer-btn:hover .ring circle:last-of-type {
+  stroke-width: 3.4;
+}
+
+.explore-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------------------------- field notebook ------------------------ */
+
+.discover-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgb(10 12 16 / 24%);
+  z-index: 60;
+}
+
+.discover-pop {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  width: min(430px, calc(100vw - 36px));
+  max-height: min(82vh, 760px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-pop);
+  z-index: 70;
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.discover-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.discover-head h2 {
+  font-size: var(--fs-xl);
+  margin-top: 2px;
+}
+
+.discover-head p {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.discover-kicker,
+.discover-secrets-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.discover-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-subtle);
+}
+
+.discover-progress > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.discover-progress strong {
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.discover-progress span {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.discover-areas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-top: 1px solid var(--border);
+}
+
+.discover-areas li {
+  border-bottom: 1px solid var(--border);
+}
+
+.discover-areas button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 2px;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: padding-left var(--t-fast), color var(--t-fast);
+}
+
+.discover-areas button:hover {
+  padding-left: 6px;
+  color: var(--accent-text);
+}
+
+.discover-tick {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 11px;
+  flex: none;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+}
+
+.discover-areas .seen .discover-tick {
+  border-color: var(--accent-soft-border);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.discover-area-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.discover-area-body strong {
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.discover-area-body small {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.discover-areas .unseen .discover-area-body strong {
+  color: var(--text-2);
+}
+
+.discover-go {
+  font-size: 11px;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.discover-areas button:hover .discover-go {
+  opacity: 1;
+}
+
+.discover-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discover-badges h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  font-weight: 560;
+}
+
+.discover-badges h3 .num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.discover-badge-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.discover-badge {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 9px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border: 1px solid var(--accent-soft-border);
+  border-radius: var(--r-lg);
+  background: var(--accent-soft);
+}
+
+.discover-badge strong {
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.discover-badge small {
+  grid-column: 2;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.badge-pip {
+  color: var(--accent-text);
+  font-size: 12px;
+}
+
+.discover-secrets {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 10px 12px;
+}
+
+.discover-secrets ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.discover-secrets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-3);
+}
+
+.sealed-glyph {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+.discover-foot {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+/* ---------------------------- reward toasts ------------------------- */
+
+.reward-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: min(360px, calc(100vw - 40px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.reward-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 12px 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--accent-soft-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop);
+}
+
+.reward-mark {
+  position: relative;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 11px;
+}
+
+.reward-mark i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.reward-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.reward-kicker {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.reward-body strong {
+  font-size: 13.5px;
+  font-weight: 570;
+}
+
+.reward-note {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.reward-close {
+  flex: none;
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.reward-close:hover {
+  color: var(--text);
+}
+
+@media (max-width: 1120px) {
+  /* the compact bar loses the sidebar foot, so the notebook opens as a
+     bottom sheet on small screens instead of hugging the corner */
+  .discover-pop {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-height: 80vh;
+  }
+
+  .reward-stack {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discover-areas button,
+  .brand-link,
+  .explore-btn {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Data-landing motion                                                 */
+/* One rule: an animation here has to communicate real information —   */
+/* a number settling on its measured value, a bar growing to its       */
+/* measured share, a chosen photo arriving as a distinct event. Zero   */
+/* decoration; if it stops informing, delete it.                       */
+/* ------------------------------------------------------------------ */
+
+/* Count-up values: fixed-width digits so the number does not judder
+   while it is animating toward the actual measurement. */
+.sc-value,
+.kpi-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Result page: the four summary cards land one after another in the
+   order the pipeline reports them — dish, portion, energy, protein. */
+.page-result .summary-card {
+  animation: card-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.page-result .summary-card:nth-child(2) { animation-delay: 70ms; }
+.page-result .summary-card:nth-child(3) { animation-delay: 140ms; }
+.page-result .summary-card:nth-child(4) { animation-delay: 210ms; }
+
+/* The coverage bar grows to its measured width: what you see settle is
+   literally the score the pipeline computed. */
+.page-result .cov-fill {
+  transform-origin: left center;
+  animation: measure-grow 800ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+}
+
+/* Analyze: a chosen photo arrives as its own event — one small settle —
+   rather than a hard swap inside the dropzone. */
+.dropzone.has-image img {
+  animation: photo-settle 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Insights: comparison bars grow from the baseline to their real share,
+   row by row, so the ranking is read as it is built. */
+.page-insights .bar-seg {
+  transform-origin: left center;
+  animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-insights .bar-row:nth-child(2) .bar-seg { animation-delay: 60ms; }
+.page-insights .bar-row:nth-child(3) .bar-seg { animation-delay: 120ms; }
+.page-insights .bar-row:nth-child(4) .bar-seg { animation-delay: 180ms; }
+.page-insights .bar-row:nth-child(5) .bar-seg { animation-delay: 240ms; }
+.page-insights .bar-row:nth-child(n + 6) .bar-seg { animation-delay: 300ms; }
+
+/* Plain grids (menu bands, roster, settings): quiet sequential reveal —
+   no rotation, no slide — so the content order is what animates. */
+.page-menu .band-card,
+.student-grid .student-card,
+.page-settings .theme-tile {
+  animation: card-in 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.page-menu .band-card:nth-child(2),
+.student-grid .student-card:nth-child(2),
+.page-settings .theme-tile:nth-child(2) { animation-delay: 80ms; }
+
+.page-menu .band-card:nth-child(3),
+.student-grid .student-card:nth-child(3),
+.page-settings .theme-tile:nth-child(3) { animation-delay: 160ms; }
+
+.page-menu .band-card:nth-child(n + 4),
+.student-grid .student-card:nth-child(n + 4),
+.page-settings .theme-tile:nth-child(n + 4) { animation-delay: 240ms; }
+
+/* ----------------------------- keyframes ---------------------------- */
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes measure-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes photo-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------ reduced-motion opt-out -------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .page-result .summary-card,
+  .page-result .cov-fill,
+  .dropzone.has-image img,
+  .page-insights .bar-seg,
+  .page-menu .band-card,
+  .student-grid .student-card,
+  .page-settings .theme-tile {
+    animation: none !important;
+  }
+}

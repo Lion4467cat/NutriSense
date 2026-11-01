@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { FALLBACK_POLICY } from "../types/api";
 import { Card, EmptyState, Skeleton } from "../ui/primitives";
-import { IconBook } from "../ui/Icon";
+import { IconBook, IconLayers } from "../ui/Icon";
 
 export default function MenuPage() {
   const { menu, menuError, reloadMenu } = useMenu();
 
   if (!menu) {
     return (
-      <div className="page">
+      <div className="page page-menu">
         <div className="page-head">
           <div>
             <h1 className="page-title">Menu & standards</h1>
@@ -49,7 +49,7 @@ export default function MenuPage() {
   const days = Object.entries(menu.days);
 
   return (
-    <div className="page">
+    <div className="page page-menu">
       <div className="page-head">
         <div>
           <h1 className="page-title">Menu & standards</h1>
@@ -83,10 +83,10 @@ export default function MenuPage() {
           ))}
         </div>
         <p className="card-sub" style={{ marginTop: 14 }}>
-          Verdict rules (backend-owned): PASS needs P ≥ {fmtP(policy.pass_p)} on
-          every mandatory nutrient with coverage ≥ {fmtP(policy.pass_min)} · FAIL
+          Verdict rules (backend-owned): Pass needs P ≥ {fmtP(policy.pass_p)} on
+          every mandatory nutrient with coverage ≥ {fmtP(policy.pass_min)} · Fail
           needs P ≤ {fmtP(policy.fail_p)} with coverage ≥ {fmtP(policy.fail_min)} ·
-          anything else is BORDERLINE · plates without a reference card are
+          anything else is Borderline · plates without a reference card are
           scored the same way, with a leading disclaimer that their weight is
           an estimate.
         </p>
@@ -115,7 +115,7 @@ export default function MenuPage() {
                   <td>
                     {d.status === "out_of_scope" ? (
                       <span className="pill warn">
-                        <span className="pill-ico">–</span> OUT OF SCOPE
+                        <span className="pill-ico"><IconLayers size={14} /></span> Out of scope
                       </span>
                     ) : (
                       <span className="pill neutral">scored</span>

@@ -1,6 +1,8 @@
 import type { AnalyzeResult } from  "../types/api";
+import { CountValue } from  "../ui/section-fx";
 import { formatNum, formatPct } from  "../utils/format";
 import { dishLabel } from  "../services/records";
+import { IconFlame, IconMeal, IconProtein, IconScale } from "../ui/Icon";
 
 function Card({
   label,
@@ -10,8 +12,8 @@ function Card({
   text = false,
 }: {
   label: string;
-  icon: string;
-  value: string;
+  icon: React.ReactNode;
+  value: React.ReactNode;
   sub?: React.ReactNode;
   text?: boolean;
 }) {
@@ -39,7 +41,7 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
     <div className="summary-grid">
       <Card
         label="Dish"
-        icon="🍽"
+        icon={<IconMeal size={14} />}
         value={dishName}
         text
         sub={
@@ -55,7 +57,7 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
       />
       <Card
         label="Portion"
-        icon="⚖"
+        icon={<IconScale size={14} />}
         value={p ? `${formatNum(p.grams, 1)} g` : "—"}
         sub={
           p ? (
@@ -71,8 +73,18 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
       />
       <Card
         label="Energy"
-        icon="🔥"
-        value={kcal ? `${formatNum(kcal.mean, 0)} kcal` : "—"}
+        icon={<IconFlame size={14} />}
+        /* Measured values settle onto the number the pipeline produced
+           instead of simply appearing. */
+        value={
+          kcal ? (
+            <>
+              <CountValue value={kcal.mean} format={(v) => formatNum(v, 0)} /> kcal
+            </>
+          ) : (
+            "—"
+          )
+        }
         sub={
           kcal ? (
             <span className="interval">
@@ -84,8 +96,16 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
       />
       <Card
         label="Protein"
-        icon="🧬"
-        value={prot ? `${formatNum(prot.mean, 1)} g` : "—"}
+        icon={<IconProtein size={14} />}
+        value={
+          prot ? (
+            <>
+              <CountValue value={prot.mean} format={(v) => formatNum(v, 1)} /> g
+            </>
+          ) : (
+            "—"
+          )
+        }
         sub={
           prot ? (
             <span className="interval">

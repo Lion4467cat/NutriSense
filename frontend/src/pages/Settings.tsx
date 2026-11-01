@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { EASE, popIn } from "../ui/motion";
+import { IconCheck } from "../ui/Icon";
 import { useGoals } from "../context/goals";
 import { useMenu } from "../context/menu";
 import { THEME_OPTS } from "../hooks/useTheme";
@@ -19,12 +22,25 @@ export default function SettingsPage() {
   const { openWizard } = useOnboarding();
   const [confirmClear, setConfirmClear] = useState(false);
 
+  // Rewarding feedback: every discrete settings change pulses a "Saved"
+  // toast — all prefs persist to localStorage instantly.
+  const [toastKey, setToastKey] = useState<number | null>(null);
+  const update = (p: Parameters<typeof setPrefs>[0]) => {
+    setPrefs(p);
+    setToastKey(Date.now());
+  };
+  useEffect(() => {
+    if (toastKey == null) return;
+    const t = setTimeout(() => setToastKey(null), 1600);
+    return () => clearTimeout(t);
+  }, [toastKey]);
+
   const goal = resolveGoal(goals, prefs.profile, prefs.goalOverride);
   const served = defaultProfile(goals);
   const profile = prefs.profile ?? served;
   const setProfileField = (patch: Partial<ProfilePref>) => {
     if (!profile) return;
-    setPrefs({
+    update({
       profile: {
         ageBand: profile.ageBand || "",
         sex: profile.sex || "",
@@ -46,7 +62,7 @@ export default function SettingsPage() {
     const k = Number(goalDraft.kcal);
     const p = Number(goalDraft.proteinG);
     if (Number.isFinite(k) && k > 0 && Number.isFinite(p) && p > 0) {
-      setPrefs({ goalOverride: { kcal: k, proteinG: p } });
+      update({ goalOverride: { kcal: k, proteinG: p } });
     }
     setGoalDraft(null);
   };
@@ -73,9 +89,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="page">
+    <div className="page page-settings">
       <div className="page-head">
         <div>
+          <span className="eyebrow">Workspace — preferences</span>
           <h1 className="page-title">Settings</h1>
           <p className="page-sub">Appearance, app mode, Daily goal and local preferences.</p>
         </div>
@@ -83,6 +100,7 @@ export default function SettingsPage() {
 
       <div className="settings-stack">
         <Card
+          className="settings-mode-card"
           title="App mode"
           sub="School keeps the compliance verdicts; General shows grams, nutrients and share of your Daily goal."
         >
@@ -102,6 +120,7 @@ export default function SettingsPage() {
         </Card>
 
         <Card
+          className="settings-profile-card"
           title="Your profile"
           sub="Name, sex, age band and activity level feed the WHO Daily goal lookup; your own goal always wins."
           action={
@@ -245,7 +264,7 @@ export default function SettingsPage() {
                 {prefs.goalOverride && (
                   <button
                     className="btn btn-ghost btn-sm"
-                    onClick={() => setPrefs({ goalOverride: null })}
+                    onClick={() => update({ goalOverride: null })}
                   >
                     Reset to WHO default
                   </button>
@@ -283,7 +302,7 @@ export default function SettingsPage() {
           )}
         </Card>
 
-        <Card title="Appearance">
+        <Card className="settings-appearance-card" title="Appearance">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Theme</div>
@@ -294,7 +313,7 @@ export default function SettingsPage() {
             </div>
             <div className="theme-grid" role="radiogroup" aria-label="Theme">
               {THEME_OPTS.map((t) => (
-                <button
+                <motion.button
                   key={t.id}
                   role="radio"
                   aria-checked={prefs.theme === t.id}
@@ -303,8 +322,28 @@ export default function SettingsPage() {
                   className={
                     prefs.theme === t.id ? "theme-tile active" : "theme-tile"
                   }
-                  onClick={() => setPrefs({ theme: t.id })}
+                  onClick={() => update({ theme: t.id })}
+                  whileTap={{ scale: 0.96 }}
                 >
+                  {prefs.theme === t.id && (
+                    <>
+                      <motion.span
+                        className="theme-ring"
+                        layoutId="theme-ring"
+                        transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                        aria-hidden="true"
+                      />
+                      <motion.span
+                        className="theme-check"
+                        variants={popIn}
+                        initial="hidden"
+                        animate="show"
+                        aria-hidden="true"
+                      >
+                        <IconCheck size={10} />
+                      </motion.span>
+                    </>
+                  )}
                   <span
                     className="theme-mini"
                     style={{
@@ -325,13 +364,13 @@ export default function SettingsPage() {
                     </span>
                   </span>
                   <span className="theme-tile-name">{t.label}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
         </Card>
 
-        <Card title="API">
+        <Card className="settings-api-card" title="API">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Connection status</div>
@@ -362,7 +401,7 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card title="Local data" sub="History and student records live in this browser.">
+        <Card className="settings-local-card" title="Local data" sub="History and student records live in this browser.">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Analysis records</div>
@@ -410,6 +449,22 @@ export default function SettingsPage() {
           </div>
         </Card>
       </div>
+
+      <AnimatePresence>
+        {toastKey != null && (
+          <motion.div
+            className="save-toast"
+            role="status"
+            key={toastKey}
+            initial={{ opacity: 0, y: 14, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
+            transition={{ duration: 0.28, ease: EASE }}
+          >
+            <IconCheck size={14} /> Saved on this device
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

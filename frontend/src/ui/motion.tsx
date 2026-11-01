@@ -48,6 +48,23 @@ export const revealItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE } },
 };
 
+/** App-open intro: shell chrome staggers in once on first mount. */
+export const introStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } },
+};
+
+export const introItem: Variants = {
+  hidden: { opacity: 0, y: -8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.34, ease: EASE } },
+};
+
+/** Scroll-into-view reveal for landing sections. */
+export const scrollReveal: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
+
 /** Springy pop (verdict icon, pills). */
 export const popIn: Variants = {
   hidden: { opacity: 0, scale: 0.55 },

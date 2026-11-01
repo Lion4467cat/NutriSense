@@ -30,7 +30,9 @@ class Gate(NamedTuple):
 
 def _zoom(ctx: dict) -> str | None:
     zoom = (ctx.get("lint") or {}).get("digital_zoom")
-    if zoom is None or float(zoom) == 1.0:
+    if zoom is None:
+        return "digital zoom could not be verified from image metadata"
+    if float(zoom) == 1.0:
         return None
     return f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)"
 
