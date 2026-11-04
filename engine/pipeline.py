@@ -1131,14 +1131,18 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         ms = float((cls_crop or {}).get("match_score") or 0.0)
                         sem_score = float(crop_scores.get(semantic_name, 0.0))
                         if is_decoy:
-                            if sem_score < 0.80:
-                                if crop_dish and ms >= 0.85 and crop_dish not in ("papad", "salad", "curd"):
-                                    cls_i = dict(
-                                        cls_crop,
-                                        reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
-                                    )
-                                else:
-                                    continue
+                            # Papad and salad are frequent DeepLabV3 spurious artifacts on plate rims,
+                            # specular highlights, and card margins. Only admit if SigLIP independently
+                            # confirms the crop with high confidence.
+                            if crop_dish == semantic_name and ms >= 0.85:
+                                pass
+                            elif crop_dish and ms >= 0.85 and crop_dish not in ("papad", "salad", "curd"):
+                                cls_i = dict(
+                                    cls_crop,
+                                    reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
+                                )
+                            else:
+                                continue
                         else:
                             if crop_dish is None and sem_score < 0.80:
                                 continue
@@ -1181,6 +1185,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             and np.isfinite(float(value))}
                     if cand:
                         best = max(cand, key=lambda key: cand[key])
+                        if cand[best] < 0.65:
+                            continue
                         note = (
                             "An item classifier score was below its "
                             f"acceptance threshold; {best} is used only for "
@@ -1378,9 +1384,12 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                (_same_food_family(id1, "dal") and _same_food_family(id2, "rice")):
                 matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
 
-        agg_dish_name = " + ".join(
-            (info_i.get("display_name") or info_i["id"])
-            for _i, _c, info_i, _d, _p, _m in resolved)
+        if matched_menu_dish and matched_menu_dish.get("display_name"):
+            agg_dish_name = "Rice + Sambar"
+        else:
+            agg_dish_name = " + ".join(
+                (info_i.get("display_name") or info_i["id"])
+                for _i, _c, info_i, _d, _p, _m in resolved)
         agg_days = list(matched_menu_dish.get("days") or []) if matched_menu_dish else []
 
         agg_dish = {

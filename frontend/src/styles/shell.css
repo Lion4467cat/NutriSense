@@ -370,15 +370,15 @@
 
 .menu-pop {
   position: absolute;
-  top: calc(var(--topbar-h) - 6px);
-  right: var(--sp-5);
+  top: calc(100% + 8px);
+  right: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-pop);
   min-width: 220px;
   padding: 8px;
-  z-index: 60;
+  z-index: 100;
   animation: pop-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -705,16 +705,20 @@
   background: var(--bg);
   z-index: 50;
   overflow: visible;
+  pointer-events: none;
+}
+.sidebar > * {
+  pointer-events: auto;
 }
 .sidebar-brand { width: 184px; height: auto; padding: 0; border: 0; }
 .sidebar-nav {
   flex: 1;
   min-width: 0;
-  margin: 0 clamp(14px, 2vw, 30px);
-  padding: 0 clamp(400px, 34vw, 500px) 0 0;
+  margin: 0 clamp(12px, 1.8vw, 24px);
+  padding: 0 clamp(360px, 30vw, 440px) 0 0;
   flex-direction: row;
   align-items: center;
-  gap: 1px;
+  gap: 2px;
   overflow: visible;
 }
 .sidebar-nav::-webkit-scrollbar { display: none; }
@@ -740,17 +744,34 @@
   border-radius: 2px;
   background: var(--accent);
 }
+.explorer-nav-btn {
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.explorer-nav-btn:hover {
+  color: var(--text);
+}
+.explorer-nav-btn.active {
+  color: var(--accent);
+}
 .sidebar-foot { display: none; }
 .topbar {
   position: absolute;
   top: 0;
   right: 0;
-  width: clamp(400px, 34vw, 500px);
+  width: auto;
+  min-width: 420px;
+  max-width: 600px;
   height: 76px;
   padding: 0 clamp(20px, 3.5vw, 54px) 0 16px;
   background: transparent;
   border: 0;
-  z-index: 45;
+  z-index: 70;
+  pointer-events: auto;
 }
 .topbar .search-box { width: 150px; min-width: 110px; padding-inline: 8px; }
 .topbar .profile-btn { gap: 6px; }
@@ -850,7 +871,7 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  min-width: 210px;
+  min-width: 240px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -876,10 +897,15 @@
   transition: background var(--t-fast), color var(--t-fast);
 }
 
-.more-link:hover,
-.more-link.active {
+.more-link:hover {
   color: var(--text);
   background: var(--surface-2);
+}
+
+.more-link.active {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  font-weight: 550;
 }
 
 .more-link svg {

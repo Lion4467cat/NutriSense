@@ -1,7 +1,7 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { introItem, introStagger } from "../ui/motion";
 import { ProgressRing } from "../ui/fx";
 import { useMenu } from "../context/menu";
@@ -13,19 +13,20 @@ import {
   IconBook,
   IconCamera,
   IconChart,
+  IconChevronDown,
   IconDashboard,
   IconHistory,
+  IconSettings,
+  IconSparkle,
   IconUsers,
   LogoMark,
 } from  "../ui/Icon";
 
-const NAV = [
+const PRIMARY_NAV = [
   { to: "/", label: "Home", icon: IconDashboard, end: true },
   { to: "/analyze", label: "Analyze", icon: IconCamera },
   { to: "/history", label: "History", icon: IconHistory },
   { to: "/analytics", label: "Insights", icon: IconChart },
-  { to: "/students", label: "Students", icon: IconUsers },
-  { to: "/menu", label: "Menu", icon: IconBook },
 ];
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -36,11 +37,36 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { state, panelOpen, togglePanel, discover } = useExplore();
   const explored = exploredCount(state);
   const points = pointsFor(state);
-  // Brand easter egg: five taps in quick succession. The brand is a real
-  // home link, so keyboard users are never asked to discover a fake button.
-  // The window is deliberately generous — the point is curiosity, not speed.
+  // Brand easter egg: five taps in quick succession.
   const taps = useRef<number[]>([]);
   const TAP_WINDOW_MS = 2600;
+
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMoreOpen(false);
+    }
+    if (moreOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [moreOpen]);
+
+  const isMoreActive =
+    pathname.startsWith("/students") ||
+    pathname.startsWith("/menu") ||
+    pathname.startsWith("/settings");
 
   const isActive = (to: string, end?: boolean) =>
     end ? pathname === to : pathname.startsWith(to);
@@ -80,38 +106,133 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </motion.div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+        {PRIMARY_NAV.map(({ to, label, icon: Icon, end }) => (
           <motion.div
             key={to}
             variants={introItem}
             whileTap={{ scale: 0.95 }}
             style={{ display: "flex", flexShrink: 0 }}
           >
-          <NavLink
-            to={to}
-            end={end}
-            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            onClick={onNavigate}
-          >
-            {isActive(to, end) && (
-              <motion.span
-                className="nav-glider"
-                layoutId="nav-glider"
-                transition={{ type: "spring", stiffness: 480, damping: 38 }}
-                aria-hidden="true"
-              />
-            )}
-            <Icon size={17} />
-            <span>{label}</span>
-            {to === "/history" && records.length > 0 && (
-              <span className="nav-badge num">{records.length}</span>
-            )}
-            {to === "/menu" && menu && Object.keys(menu.dishes).length > 0 && (
-              <span className="nav-badge num">{Object.keys(menu.dishes).length}</span>
-            )}
-          </NavLink>
+            <NavLink
+              to={to}
+              end={end}
+              className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+              onClick={onNavigate}
+            >
+              {isActive(to, end) && (
+                <motion.span
+                  className="nav-glider"
+                  layoutId="nav-glider"
+                  transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                  aria-hidden="true"
+                />
+              )}
+              <Icon size={17} />
+              <span>{label}</span>
+              {to === "/history" && records.length > 0 && (
+                <span className="nav-badge num">{records.length}</span>
+              )}
+            </NavLink>
           </motion.div>
         ))}
+
+        {/* Desktop More dropdown / Mobile drawer section */}
+        <div className="sidebar-more" ref={moreRef}>
+          <button
+            className={`nav-link sidebar-more-button${isMoreActive ? " active" : ""}`}
+            type="button"
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
+            onClick={() => setMoreOpen((open) => !open)}
+            title="School tools, settings, and more"
+          >
+            <span>More</span>
+            <IconChevronDown size={14} className={moreOpen ? "rotate-180" : ""} />
+          </button>
+
+          <AnimatePresence>
+            {moreOpen && (
+              <motion.div
+                className="sidebar-more-menu"
+                role="menu"
+                aria-label="More sections"
+                initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+              >
+                <NavLink
+                  to="/students"
+                  role="menuitem"
+                  className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
+                  onClick={() => {
+                    setMoreOpen(false);
+                    onNavigate?.();
+                  }}
+                >
+                  <IconUsers size={16} />
+                  <span>Student records</span>
+                </NavLink>
+
+                <NavLink
+                  to="/menu"
+                  role="menuitem"
+                  className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
+                  onClick={() => {
+                    setMoreOpen(false);
+                    onNavigate?.();
+                  }}
+                >
+                  <IconBook size={16} />
+                  <span>Menu & standards</span>
+                  {menu && Object.keys(menu.dishes).length > 0 && (
+                    <span className="nav-badge num" style={{ marginLeft: "auto" }}>
+                      {Object.keys(menu.dishes).length}
+                    </span>
+                  )}
+                </NavLink>
+
+                <NavLink
+                  to="/settings"
+                  role="menuitem"
+                  className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
+                  onClick={() => {
+                    setMoreOpen(false);
+                    onNavigate?.();
+                  }}
+                >
+                  <IconSettings size={16} />
+                  <span>Settings & preferences</span>
+                </NavLink>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="more-link explorer-more-btn"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    togglePanel();
+                    onNavigate?.();
+                  }}
+                  style={{
+                    background: "none",
+                    border: 0,
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    font: "inherit",
+                  }}
+                >
+                  <IconSparkle size={16} />
+                  <span>Field notebook & Explorer</span>
+                  <span className="nav-badge num" style={{ marginLeft: "auto" }}>
+                    {explored}/{TOTAL_AREAS}
+                  </span>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </nav>
 
       <div className="sidebar-foot">

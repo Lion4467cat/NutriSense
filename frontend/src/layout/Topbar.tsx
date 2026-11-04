@@ -22,6 +22,7 @@ import {
   IconSun,
   IconX,
   IconSettings,
+  IconSparkle,
 } from  "../ui/Icon";
 
 export default function Topbar({
@@ -135,14 +136,14 @@ export default function Topbar({
       <ModeSwitch className="topbar-mode" />
 
       <button
-        className="icon-btn explorer-btn"
+        className={`icon-btn explorer-btn${panelOpen ? " active" : ""}`}
         onClick={togglePanel}
         aria-expanded={panelOpen}
         aria-haspopup="dialog"
-        aria-label={`Field notebook — ${areasSeen} of ${TOTAL_AREAS} sections explored`}
-        title="Field notebook"
+        aria-label={`Field notebook & Explorer — ${areasSeen} of ${TOTAL_AREAS} sections explored`}
+        title={`Field notebook & Explorer (${areasSeen}/${TOTAL_AREAS} sections)`}
       >
-        <ProgressRing value={areasSeen / TOTAL_AREAS} size={18} stroke={2} />
+        <IconSparkle size={17} />
         {areasSeen > 0 && areasSeen < TOTAL_AREAS && (
           <span className="explore-dot" aria-hidden="true" />
         )}
@@ -150,7 +151,7 @@ export default function Topbar({
 
       <div ref={alertsRef} style={{ position: "relative" }}>
         <button
-          className="icon-btn"
+          className={`icon-btn notif-btn${alertsOpen ? " active" : ""}`}
           onClick={() => alertsOpen ? closeAlerts() : setAlertsOpen(true)}
           aria-label={
             visibleAttention.length
@@ -218,7 +219,7 @@ export default function Topbar({
             </AnimatePresence>
             {visibleAttention.length === 0 && apiUp !== false && (
               <div className="pop-empty">
-                {general ? "Every analysis has numbers." : "Nothing needs attention."}
+                {general ? "Every analysis has numbers." : "No urgent meal alerts — all logged analyses nominal."}
               </div>
             )}
             <button
@@ -235,6 +236,15 @@ export default function Topbar({
         )}
         </AnimatePresence>
       </div>
+
+      <button
+        className="icon-btn settings-btn"
+        onClick={() => navigate("/settings")}
+        aria-label="Settings"
+        title="Settings & preferences"
+      >
+        <IconSettings size={17} />
+      </button>
 
       <div ref={profileRef} style={{ position: "relative" }}>
         <button
