@@ -335,9 +335,7 @@ def _is_valid_secondary_vessel(
     if y2 >= H - 6: touches += 1
     if x1 <= 5: touches += 1
     if x2 >= W - 6: touches += 1
-    if aspect < 0.50 or solidity < 0.60 or touches > 0:
-        return False
-    return True
+    return aspect >= 0.50 and solidity >= 0.60 and touches == 0
 
 
 def _same_food_family(id1: str | None, id2: str | None) -> bool:
@@ -354,9 +352,7 @@ def _same_food_family(id1: str | None, id2: str | None) -> bool:
         return True
     if any(k in n1 for k in ("dal", "sambar", "rasam", "curd", "raita")) and any(k in n2 for k in ("dal", "sambar", "rasam", "curd", "raita")):
         return True
-    if any(k in n1 for k in ("wheat", "chapati", "roti", "phulka")) and any(k in n2 for k in ("wheat", "chapati", "roti", "phulka")):
-        return True
-    return False
+    return bool(any(k in n1 for k in ("wheat", "chapati", "roti", "phulka")) and any(k in n2 for k in ("wheat", "chapati", "roti", "phulka")))
 
 
 def _reconcile_dense_grid_items(
@@ -1180,9 +1176,8 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         if min_area > 0 and (inter_area / min_area) > 0.15:
                             overlap = True
                     m1, m2 = item.get("mask"), c_item.get("mask")
-                    if m1 is not None and m2 is not None:
-                        if (m1 & m2).any():
-                            overlap = True
+                    if m1 is not None and m2 is not None and (m1 & m2).any():
+                        overlap = True
                     if overlap:
                         m_merged = (m1 | m2) if (m1 is not None and m2 is not None) else (m1 or m2)
                         b_merged = None

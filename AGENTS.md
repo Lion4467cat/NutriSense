@@ -76,3 +76,22 @@ Never pinned, by design — the variable under test: `models/weight_head.py`,
 `tools/train_weight_head.py`, `data/weight_head_sigma.yaml`,
 `data/weight_head.pt`. Model integrity is guarded separately (encoder
 checksum + golden MAE, `tests/test_weight_head_load.py`).
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live in GitHub Issues using the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical triage roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context repository layout (`GLOSSARY.md` and `docs/adr/`). See `docs/agents/domain.md`.
+
+### Spec-Kit & Engineering Suite
+
+The repository is equipped with both GitHub Spec-Kit (`specify` CLI, `.specify/`, `speckit-*`) and Matt Pocock's engineering skill suite (`tdd`, `code-review`, `diagnosing-bugs`, `domain-modeling`, `grilling`, `pr`, `prototype`, `research`, etc.) in `.agents/skills/` and `~/.agents/skills/`.
+
