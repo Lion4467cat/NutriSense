@@ -21,8 +21,24 @@ import { useMenu } from "../context/menu";
 import MealCoach from "../result/MealCoach";
 import ItemEvidence from "../result/ItemEvidence";
 import type { Analysis } from "../types/contract.gen";
+import type { AnalyzeResult } from "../types/api";
+import MealRegionFigure from "../result/MealRegionFigure";
+import { IS_DEMO_MODE } from "../services/mode";
 
 const critiqueRequests = new Set<string>();
+
+function mealStructureLabel(result: AnalyzeResult): string {
+  if (result.path_used === "multi_item") {
+    const count = result.segmentation?.n_items ?? result.items?.length ?? 0;
+    return count > 0
+      ? `${count} ${count === 1 ? "food region" : "food regions"} detected`
+      : "Food regions could not be separated";
+  }
+  if (result.segmentation?.n_items === 1) return "1 food region detected";
+  return result.portion
+    ? "Analyzed as one serving"
+    : "Meal structure could not be confirmed";
+}
 
 export default function ResultPage() {
   const { id } = useParams();
@@ -98,7 +114,7 @@ export default function ResultPage() {
             </button>
             <h1 className="page-title">Meal estimate</h1>
             <p className="page-sub">
-              {formatDateTime(record.createdAt)} · Estimated portions and nutrients are compared with your daily goals. General mode does not include a school compliance verdict.
+              {formatDateTime(record.createdAt)} · {mealStructureLabel(r)}. Estimated portions and nutrients are compared with your daily goals. General mode does not include a school compliance verdict.
             </p>
           </div>
           <div className="result-toolbar">
@@ -118,6 +134,7 @@ export default function ResultPage() {
             result={r}
             goal={resolveGoal(goals, prefs.profile, prefs.goalOverride)}
             photo={record.photo}
+            demo={IS_DEMO_MODE}
             summaryAddon={(
               <MealCoach record={record} client={client} updateRecord={updateRecord} retryCritique={retryCritique} />
             )}
@@ -141,7 +158,7 @@ export default function ResultPage() {
           <h1 className="page-title">Analysis result</h1>
           <p className="page-sub">
             {formatDateTime(record.createdAt)} · {record.day.toUpperCase()} ·
-            band {record.band} · {record.serving_style}
+            band {record.band} · {mealStructureLabel(r)}
             {record.student ? ` · ${record.student.name}` : ""}
           </p>
           <PolicyNote record={record} />
@@ -162,10 +179,7 @@ export default function ResultPage() {
       <div className="result-stack">
         <section className={`result-overview${record.photo ? " has-photo" : ""}`} aria-label="Meal summary">
           {record.photo && (
-            <figure className="result-photo">
-              <img src={record.photo} alt="Analyzed meal" />
-              <figcaption>Captured meal</figcaption>
-            </figure>
+            <MealRegionFigure photo={record.photo} items={r.items ?? []} demo={IS_DEMO_MODE} />
           )}
           <div className="result-summary">
             <VerdictCard result={r} />

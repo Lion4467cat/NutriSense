@@ -72,7 +72,7 @@ export default function HistoryPage() {
       });
     }
     return out;
-  }, [records, q, verdict, sort]);
+  }, [records, q, verdict, sort, general]);
 
   const toggleSort = (key: SortKey) => setSort(key);
 

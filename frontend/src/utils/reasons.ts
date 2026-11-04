@@ -32,10 +32,18 @@ export function explainReason(reason: Reason): string {
       return "This dish is outside the school menu used for this analysis.";
     case "unrecognized":
       return "The meal could not be identified with enough confidence.";
+    case "estimate_only":
+      return "A tentative meal estimate is shown. The system did not issue a compliance verdict.";
     case "unreadable":
       return "The photo could not be read. Try a clear photo of the full plate.";
     case "stage_failed":
-      return "The analysis could not be completed. Check the photo and try again.";
+      if (reason.text.includes("four-item limit")) {
+        return "The region detector found more food areas than the analyzer can safely measure in one meal.";
+      }
+      if (reason.text.includes("Detected food regions overlap")) {
+        return "The detected food regions overlap, so their portions cannot be measured separately.";
+      }
+      return "The analysis could not be completed with enough reliable evidence. See the reason below.";
     case "in_zone":
       return "All required nutrients fall within the target range.";
     case "below_min":

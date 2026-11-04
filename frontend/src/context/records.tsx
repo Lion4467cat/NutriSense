@@ -23,7 +23,7 @@ interface RecordsState {
   addRecord: (r: AnalysisRecord) => void;
   updateRecord: (id: string, update: Partial<AnalysisRecord>) => void;
   removeRecord: (id: string) => void;
-  clearRecords: () => void;
+  clearRecords: () => boolean;
 }
 
 const Ctx = createContext<RecordsState | null>(null);
@@ -74,14 +74,18 @@ export function RecordsProvider({
   );
 
   const clearRecords = useCallback(() => {
-    persist([]);
+    const savedEmptyList = saveRecords(storage, []);
     setRecords([]);
+    let legacyRemoved = true;
     try {
       storage.remove("nutrisense.records.v1");
     } catch {
-      /* Keep the in-memory clear action available when storage is blocked. */
+      legacyRemoved = false;
     }
-  }, [persist, storage]);
+    const cleared = savedEmptyList && legacyRemoved;
+    setPersistenceWarning(!cleared);
+    return cleared;
+  }, [storage]);
 
   const value = useMemo<RecordsState>(
     () => ({ records, persistenceWarning, addRecord, updateRecord, removeRecord, clearRecords }),

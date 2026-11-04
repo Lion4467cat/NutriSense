@@ -23,7 +23,7 @@
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
 - [x] Dependencies and assumptions identified
-- [x] Uncollected project-dataset results are explicitly reserved and kept separate from WED fallback evidence
+- [x] WED component evidence, the pre-change pilot, and the lack of fresh current-integration validation are distinct; no placeholder result table remains
 - [x] Figure and author-block readability requirements are stated in reviewable terms
 - [x] The architecture figure is intended to appear near its System Overview discussion
 - [x] Citation completeness, primary-source metadata, and claim support are specified and audited
@@ -39,4 +39,4 @@
 
 - The official IEEE conference template is a required deliverable constraint, not an implementation choice.
 - The target conference and exact page limit remain unspecified by design; the plan uses the generic official IEEE conference template and leaves venue-specific checks for when a venue is selected.
-- Placeholder coauthor email addresses are explicitly identified and are not submission-ready.
+- Unverified author email addresses are omitted.

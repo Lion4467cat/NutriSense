@@ -76,6 +76,7 @@ class ReasonKind(StrEnum):
     UNKNOWN_BAND = "unknown_band"
     OUT_OF_SCOPE = "out_of_scope"
     UNRECOGNIZED = "unrecognized"
+    ESTIMATE_ONLY = "estimate_only"
     UNREADABLE = "unreadable"
     STAGE_FAILED = "stage_failed"
     IN_ZONE = "in_zone"

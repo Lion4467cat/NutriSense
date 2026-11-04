@@ -60,6 +60,13 @@ Each iteration **must** run the kill switch first:
 | [024 — card position](024-synthetic-card-position-scale.md) | Does card position change measured scale, and does homography reduce spread? | Two-position evidence is promising, but the three-position criterion was not assessable; no serving change. |
 | [025 — card-position replication](025-synthetic-card-position-replication.md) | Does the effect replicate across three fixed placements with all 18 markers detectable? | Criterion met: global-scale sensitivity in 6/6 scenes; homography spread ≤2% in 4/6; no serving change. |
 | [026 — card/food plane-height audit](026-card-food-plane-height-audit.md) | Does projecting the food contour through card height bias its footprint area? | Criterion not met; source audit found the renderer defines mask support from table-plane ray intersections. No code change. |
+| [027 — VLM canteen heldout](027-vlm-canteen-participant-heldout.md) | How does direct vision-language transfer perform on held-out university canteen meals? | Large negative bias (-106.9g); retained as research benchmark with serving guarded behind 0.80 gallery threshold. |
+| [028 — synthetic food data](028-synthetic-food-data.md) | Strategy for physical volume and depth simulation for Indian institutional meals. | Outlined physical rendering criteria; rejected analytic naive surfaces. |
+| [029 — WED semantic segmentation study](029-wed-semantic-segmentation-study.md) | Evaluation of native 42-class DeepLabV3 segmentation on institutional thalis. | Achieved 0.8211 macro food IoU, 0.9196 foreground IoU, and 0.7541 region F1. |
+| [030 — WED boundary-loss confirmatory](030-wed-boundary-loss-confirmatory.md) | Confirmatory 3-seed evaluation of boundary-aware loss on institutional food boundaries. | Boundary F1 0.5973; tiny-component recall increased to 0.3953. |
+| [031 — mass-conditioned GAN](031-mass-conditioned-gan.md) | Feasibility of conditioning generative appearance models on class-level gram targets. | Architecture verified; flagged domain shift risks for raw generation. |
+| [032 — reject stylized renderer pilot](032-reject-stylized-renderer-pilot.md) | Can an 88-image stylized procedural renderer pilot be used for appearance training? | Rejected for appearance training; retained strictly for geometry and invariance tests. |
+| [033 — ArUco card plane & vessel fusion](033-aruco-card-plane-and-vessel-fusion.md) | Fix multi-item mask explosion, quiet-zone dropouts, and rim-plane truncation on real captures. | Approved and deployed: 23/23 admission (100%), 0 tabletop items, 29.7g primary MAE (9.42% MAPE). |
 
 These are synthetic mechanism diagnostics only. The weighed ArUco plates are
 permanently EVAL-ONLY and are not eligible for tuning or candidate selection.

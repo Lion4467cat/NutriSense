@@ -552,8 +552,30 @@ table.data tbody tr.clickable:hover {
 }
 
 .collapse-body {
-  padding: 0 var(--sp-4) var(--sp-4);
-  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-rows: 0fr;
+  padding-inline: var(--sp-4);
+  border-top: 0 solid transparent;
+  transition: grid-template-rows 220ms ease, padding-block 220ms ease, border-color 160ms ease;
+}
+
+.collapse-body.is-open {
+  grid-template-rows: 1fr;
+  padding-block: var(--sp-4);
+  border-top-width: 1px;
+  border-top-color: var(--border);
+}
+
+.collapse-body-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.collapse-body.is-open .collapse-body-inner {
+  opacity: 1;
+  transition-delay: 35ms;
 }
 
 /* ---------------- steps / progress ---------------- */
@@ -647,7 +669,7 @@ table.data tbody tr.clickable:hover {
     var(--surface-2) 63%
   );
   background-size: 400% 100%;
-  animation: skel-shimmer 1.6s ease infinite;
+  animation: skel-shimmer 1.25s ease-in-out infinite;
 }
 
 .skel-line:last-child {

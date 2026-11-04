@@ -267,6 +267,12 @@ states:
     rule: literature
     status: literature
     provenance: 'direct: FAO/INFOODS density DB v2 sheet ''Density DB'' row 528: "Sugar" (BiblioID KEN)'
+  wheat_flatbread:
+    rule: assumed_transfer
+    status: assumed
+    provenance: "no FAO/INFOODS v2 row matched this state; no FAO analogue exists \u2014 serving value\
+      \ stays assumed"
+    note: no FAO analogue for cooked wheat flatbread (roti/phulka); serving value stays assumed
 audit:
   role: cross-check of currently served assumed densities vs FAO literature rows; audit-only, never auto-applied
   entries:
@@ -420,6 +426,13 @@ audit:
   - serving_id: watermelon_fruit
     state: watermelon_fruit
     served_density_g_ml: 0.92
+    fao_density_g_ml: null
+    value_status: assumed
+    delta_pct: null
+    status: assumed
+  - serving_id: wheat_roti
+    state: wheat_flatbread
+    served_density_g_ml: 0.65
     fao_density_g_ml: null
     value_status: assumed
     delta_pct: null

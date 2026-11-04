@@ -31,11 +31,14 @@ export interface AnalyzeParams {
   file: File;
   day: string;
   band: string;
+  mode?: "school" | "general";
   serving_style?: string;
 }
 
 export interface ApiClient {
   readonly base: string;
+  /** True when responses come from the local fixed-sample demo adapter. */
+  readonly demo?: boolean;
   getMenu(): Promise<MenuResponse>;
   getGoals(): Promise<GoalsResponse>;
   getHealth(): Promise<HealthResponse>;
@@ -135,6 +138,7 @@ export function createClient(opts: {
     fd.append("file", params.file);
     fd.append("day", params.day);
     fd.append("band", params.band);
+    if (params.mode) fd.append("mode", params.mode);
     if (params.serving_style) fd.append("serving_style", params.serving_style);
 
     let res: Response;
@@ -160,6 +164,7 @@ export function createClient(opts: {
 
   return {
     base,
+    demo: false,
     getMenu: () => getJson("/menu", menuSchema),
     getGoals: () => getJson("/goals", goalsSchema),
     getHealth: () => getJson("/health", healthSchema),

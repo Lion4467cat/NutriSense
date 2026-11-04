@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 /* ---------------- empty state ---------------- */
 
 export function EmptyState({
@@ -106,9 +107,20 @@ export function Collapse({
   defaultOpen?: boolean;
   className?: string;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const [closing, setClosing] = useState(false);
   return (
-    <details className={`collapse ${className}`} open={defaultOpen}>
-      <summary>
+    <details className={`collapse ${className}`} open={open || closing}>
+      <summary onClick={(event) => {
+        event.preventDefault();
+        if (open) {
+          setOpen(false);
+          setClosing(true);
+        } else {
+          setClosing(false);
+          setOpen(true);
+        }
+      }}>
         {summary}
         {meta && <span className="tag">{meta}</span>}
         <svg
@@ -125,7 +137,12 @@ export function Collapse({
           <path d="m6 9.5 6 6 6-6" />
         </svg>
       </summary>
-      <div className="collapse-body">{children}</div>
+      <div
+        className={`collapse-body${open ? " is-open" : ""}`}
+        onTransitionEnd={(event) => {
+          if (closing && event.propertyName === "grid-template-rows") setClosing(false);
+        }}
+      ><div className="collapse-body-inner">{children}</div></div>
     </details>
   );
 }

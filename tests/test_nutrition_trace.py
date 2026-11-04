@@ -55,3 +55,33 @@ def test_multi_item_trace_keeps_same_components_from_both_dishes():
         for dish_name in ("a", "b")
         for component in dish["components"]
     }
+
+
+def test_multi_item_uncertainty_aligns_shared_error_ranks_conservatively():
+    import numpy as np
+
+    def item(samples, seed):
+        values = np.asarray(samples, dtype=float)
+        return {
+            "seed": seed,
+            "n": len(values),
+            "kcal_samples": values,
+            "protein_g_samples": values,
+            "grams_samples": values,
+            "components_g": {},
+            "diagnostics": {"raw_equivalent_g": {},
+                            "raw_allocation_per_day_g": {},
+                            "raw_basis_note": "test"},
+            "assumed_nutrients": [],
+            "wider_ranges": False,
+            "nutrition_provenance": {"components": {}},
+        }
+
+    # These independent simulations have opposite ranks. Elementwise addition
+    # would erase variance (4, 4, 4); shared-image uncertainty should not.
+    merged = aggregate_meal([item([1, 2, 3], 1), item([3, 2, 1], 2)])
+    assert merged["grams_samples"].tolist() == [2.0, 4.0, 6.0]
+    assert merged["grams"]["sd"] > 0
+    assert merged["diagnostics"]["uncertainty_dependence"].startswith(
+        "conservative_positive_rank_alignment"
+    )

@@ -3,8 +3,8 @@
 The registry is the single load-once point for SAM2, SigLIP2, MoGe-2 and
 the weight head (STAGE 2). These tests pin its contract: factory runs once,
 repeated calls return the same instance (including under concurrency),
-a failing factory is sticky, register() overrides, unload() frees and
-resets.
+failed loads back off then retry, register() overrides, and unload() frees
+and resets.
 """
 from __future__ import annotations
 
@@ -60,17 +60,27 @@ def test_concurrent_get_or_create_loads_once(clean):
     assert all(r is results[0] for r in results)
 
 
-def test_failed_factory_is_sticky_and_returns_none(clean):
+def test_failed_factory_backs_off_then_retries(clean, monkeypatch):
+    now = [100.0]
+    monkeypatch.setattr(registry.time, "monotonic", lambda: now[0])
     calls = []
 
     def factory():
         calls.append(1)
-        raise RuntimeError("boom")
+        if len(calls) == 1:
+            raise RuntimeError("temporary model download failure")
+        return "loaded"
 
     with pytest.raises(RuntimeError):
         registry.get_or_create("t3", factory)
+    assert registry.failed() == ("t3",)
     assert registry.get_or_create("t3", factory) is None
-    assert len(calls) == 1  # no retry after the first failure
+    assert len(calls) == 1  # no repeated download during the cooldown
+
+    now[0] += registry._RETRY_BASE_SECONDS
+    assert registry.get_or_create("t3", factory) == "loaded"
+    assert registry.failed() == ()
+    assert len(calls) == 2
 
 
 def test_registered_factory_overrides_inline(clean):

@@ -39,7 +39,18 @@ export function PageFade({ children, className }: { children: ReactNode; classNa
 /** Container that staggers its motion children once on mount. */
 export const revealContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+  show: { transition: { staggerChildren: 0.055, delayChildren: 0.025 } },
+};
+
+/** Short, restrained result-list reveal. */
+export const resultList: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.035 } },
+};
+
+export const resultItem: Variants = {
+  hidden: { opacity: 0, y: 5 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.19, ease: EASE } },
 };
 
 /** Standard child fade-up. */
@@ -62,7 +73,7 @@ export const introItem: Variants = {
 /** Scroll-into-view reveal for landing sections. */
 export const scrollReveal: Variants = {
   hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.36, ease: EASE } },
 };
 
 /** Springy pop (verdict icon, pills). */
@@ -85,7 +96,7 @@ export const popIn: Variants = {
 export function useCountUp(
   to: number,
   fmt: (v: number) => string,
-  duration = 0.9
+  duration = 0.52
 ): string {
   const reduced = useReducedMotion();
   const [value, setValue] = useState(reduced ? to : 0);

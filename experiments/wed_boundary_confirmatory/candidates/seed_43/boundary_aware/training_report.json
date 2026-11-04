@@ -1,0 +1,667 @@
+{
+  "training_seed": 43,
+  "loss_kind": "boundary_aware",
+  "candidate": "boundary_aware_deeplabv3",
+  "initialization_checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/initializations/seed_43.pt",
+  "initialization_sha256": "1b1b35dd11bc205a0bc55620cfac10676b8e92601f8aa7b6a5a2da762145da17",
+  "train_example_order_sha256_per_epoch": [
+    "fbb4e31a2a6fe2e5eccf1c9f8feef07fe27537aa8efadb8268156111cab4efee",
+    "7f09668ad28f8420ba949b806c96b005a2d2587747bc2c5a525259f2d3dda246",
+    "5c297125f520626156ebe82fe5b0472e6af27ef47fa3187fb8a472779312f9ed",
+    "39d62e8f875c92d038e0e6ce168c857e3078d716dc9a464d5da3e606900d264f",
+    "e3445ce7488035f7509e46311c63d5af273388c85141880ed8735cb68448dbd5",
+    "dd9e0c91044e8299de49cba3e4037c9fedf59b73f7e57c9dbafdad356b45ebc5",
+    "79d1e0c284e41014fa8f5097c525937d766dfb93993e4dfb6848fca89dc5548b",
+    "98362dc8bf94a76bfe4953ed6eb7fa27a775446b5c19a8673fd8d05405650638",
+    "14d195c4895033c1899a7e98f1bd94e4067514528657043e4607578bc6c85986",
+    "0e20a4d401be53eafe0ae16496568daf51597774206ea0cdd53b7a0880732665",
+    "30599adef003dae5c5cd43f031fe9e71810b68fa319dd23b4159e409d4b046da",
+    "8ccf6426cadaded3b0c4f59f40dd356bd1e0ae58922b6d40ffc75b467956df88",
+    "9ca021579c865a7e68a54667209bdf30cdcc3ef574b050f0f00da1a393e55741",
+    "b9fc026bf969efbcbf8807530a9410190b7123bb3783a046114e42631b6f5653",
+    "598e548400b2126a98984996c683fc23aa4b4f0a4c69c14e48e3ef589d6f7c54",
+    "54270cebbf431d4f16731ac1b099704569a904435ec2ae0be84826fa439930a1",
+    "b2d763af5f2e6682896ea7659965b1d1d913b50adb008a118b2e5ecd85f5234f",
+    "a14388b9c514f76673f5c7afd42900749d611dcf8818b8c6c8154bab34762aa4",
+    "0ec2e702d64ffe0c959eaa77a96057bfe325d63333fab3119e01363487f26828",
+    "ed1dad7075b8977c96692f8f2177ccaa8e1243b84160c394c786ceaca0720973"
+  ],
+  "train_example_order_matched_pair": true,
+  "data_groups": {
+    "train_group_sha256": "aca084cd4e80a3c8a1933689537ecb4ad38c9d687c0c0f2ca0724823ebc3f901",
+    "internal_val_group_sha256": "9b9bc459e2cf9fa2c755ca3438238b2d013dc2fb5e7726fab814cdbca5c043eb",
+    "dev_group_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd"
+  },
+  "training_budget": {
+    "epochs_requested": 20,
+    "epochs_completed": 20,
+    "selected_epoch": 18,
+    "train_views_per_epoch": 928,
+    "internal_val_views": 110,
+    "batch_size": 2,
+    "optimizer_updates_per_epoch": 464,
+    "optimizer_updates_total": 9280
+  },
+  "selection_metric": "best internal-validation macro food IoU",
+  "optimizer": "AdamW; backbone LR 2e-5, head LR 2e-4; cosine schedule T_max=20; weight decay 1e-4",
+  "augmentations": "horizontal flip 0.5; brightness/contrast alpha 0.88-1.12, beta -12..12; no extra augmentation",
+  "loss": "0.7 boundary-weighted class-weighted CE + 0.3 foreground soft Dice",
+  "pretrained_backbone": "torchvision ResNet-50 IMAGENET1K_V2",
+  "pretrained_backbone_sha256": "11ad3fa62ca79e40addfd354a8ec4b7c75143b3038b8d2a807fbc68deab379ca",
+  "internal_val_best_macro_food_iou": 0.8217542220695832,
+  "internal_val_metrics_selected": {
+    "per_class": {
+      "1": {
+        "class": "Bottle-gourd-curry",
+        "pixel_precision": 0.6554342783190487,
+        "pixel_recall": 0.9706371591813119,
+        "iou": 0.6426912486531785,
+        "dice": 0.7824857521827219,
+        "ground_truth_pixels": 27654,
+        "predicted_pixels": 40953
+      },
+      "2": {
+        "class": "aloo-capsicum",
+        "pixel_precision": 0.9328574927399321,
+        "pixel_recall": 0.8900461514066581,
+        "iou": 0.8364614624428427,
+        "dice": 0.9109491046223099,
+        "ground_truth_pixels": 119823,
+        "predicted_pixels": 114324
+      },
+      "3": {
+        "class": "aloo-curry",
+        "pixel_precision": 0.9327619578286753,
+        "pixel_recall": 0.9321946966199928,
+        "iou": 0.8734981119121181,
+        "dice": 0.9324782409528172,
+        "ground_truth_pixels": 136479,
+        "predicted_pixels": 136396
+      },
+      "4": {
+        "class": "aloo-fry",
+        "pixel_precision": 0.8786659788642742,
+        "pixel_recall": 0.922443646191988,
+        "iou": 0.818219478121378,
+        "dice": 0.9000227837915138,
+        "ground_truth_pixels": 201273,
+        "predicted_pixels": 211301
+      },
+      "5": {
+        "class": "beans-curry",
+        "pixel_precision": 0.929328934682912,
+        "pixel_recall": 0.9539205021228737,
+        "iou": 0.8894022510600497,
+        "dice": 0.9414641594303704,
+        "ground_truth_pixels": 407231,
+        "predicted_pixels": 418007
+      },
+      "6": {
+        "class": "beetroot-kobari",
+        "pixel_precision": 0.8849571281582257,
+        "pixel_recall": 0.9495858522415012,
+        "iou": 0.8452450108976235,
+        "dice": 0.9161330944192091,
+        "ground_truth_pixels": 203792,
+        "predicted_pixels": 218675
+      },
+      "7": {
+        "class": "beetroot-poriyal",
+        "pixel_precision": 0.909835772764324,
+        "pixel_recall": 0.9567150494214388,
+        "iou": 0.8738640528380159,
+        "dice": 0.9326867138675573,
+        "ground_truth_pixels": 585677,
+        "predicted_pixels": 615854
+      },
+      "8": {
+        "class": "bisi-bele-bath",
+        "pixel_precision": 0.942430540502633,
+        "pixel_recall": 0.9880887130195313,
+        "iou": 0.9318439698429108,
+        "dice": 0.9647197024081446,
+        "ground_truth_pixels": 74803,
+        "predicted_pixels": 78427
+      },
+      "9": {
+        "class": "boondi",
+        "pixel_precision": 0.8012296361026153,
+        "pixel_recall": 0.9369537052243572,
+        "iou": 0.7602422304150195,
+        "dice": 0.8637927408840476,
+        "ground_truth_pixels": 54801,
+        "predicted_pixels": 64084
+      },
+      "10": {
+        "class": "cabbage-dry",
+        "pixel_precision": 0.9286925517195843,
+        "pixel_recall": 0.948221935758019,
+        "iou": 0.8838700401708905,
+        "dice": 0.9383556416563772,
+        "ground_truth_pixels": 978986,
+        "predicted_pixels": 999573
+      },
+      "11": {
+        "class": "channa-brinjal",
+        "pixel_precision": 0.7598866806638097,
+        "pixel_recall": 0.9614534338922297,
+        "iou": 0.7374208899402008,
+        "dice": 0.8488684511737183,
+        "ground_truth_pixels": 109919,
+        "predicted_pixels": 139076
+      },
+      "12": {
+        "class": "chicken-dum-biryani",
+        "pixel_precision": 0.8527887294327919,
+        "pixel_recall": 0.8992073610110304,
+        "iou": 0.7783834099436698,
+        "dice": 0.875383121087848,
+        "ground_truth_pixels": 180410,
+        "predicted_pixels": 190230
+      },
+      "13": {
+        "class": "chutney",
+        "pixel_precision": 0.9118517909826614,
+        "pixel_recall": 0.8723006623456978,
+        "iou": 0.8044643483548093,
+        "dice": 0.8916378415436874,
+        "ground_truth_pixels": 394356,
+        "predicted_pixels": 377251
+      },
+      "14": {
+        "class": "curd",
+        "pixel_precision": 0.9492251294995749,
+        "pixel_recall": 0.976329860041495,
+        "iou": 0.9278719992088172,
+        "dice": 0.9625867273238142,
+        "ground_truth_pixels": 1691287,
+        "predicted_pixels": 1739581
+      },
+      "15": {
+        "class": "dondakaya-fry",
+        "pixel_precision": 0.9058641975308642,
+        "pixel_recall": 0.8381722989052832,
+        "iou": 0.771015761821366,
+        "dice": 0.8707045735475896,
+        "ground_truth_pixels": 71434,
+        "predicted_pixels": 66096
+      },
+      "16": {
+        "class": "kakarakaya-fry",
+        "pixel_precision": 0.9111809870454325,
+        "pixel_recall": 0.9228378230995746,
+        "iou": 0.8466749384618464,
+        "dice": 0.9169723602433989,
+        "ground_truth_pixels": 91690,
+        "predicted_pixels": 92863
+      },
+      "17": {
+        "class": "kofta-curry",
+        "pixel_precision": 0.9193696995507799,
+        "pixel_recall": 0.9573580770198413,
+        "iou": 0.8832026624600218,
+        "dice": 0.9379794114206454,
+        "ground_truth_pixels": 234511,
+        "predicted_pixels": 244201
+      },
+      "18": {
+        "class": "leaf-dal",
+        "pixel_precision": 0.54096359589287,
+        "pixel_recall": 0.8269125233234552,
+        "iou": 0.4859391124871001,
+        "dice": 0.6540498307144718,
+        "ground_truth_pixels": 27333,
+        "predicted_pixels": 41781
+      },
+      "19": {
+        "class": "mango-pickle",
+        "pixel_precision": 0.808683748819095,
+        "pixel_recall": 0.9560103933992797,
+        "iou": 0.7796717289068164,
+        "dice": 0.8761972404716892,
+        "ground_truth_pixels": 87748,
+        "predicted_pixels": 103734
+      },
+      "20": {
+        "class": "masoor-dal",
+        "pixel_precision": 0.8914595697329377,
+        "pixel_recall": 0.970048097944906,
+        "iou": 0.8675791531924494,
+        "dice": 0.9290949213150138,
+        "ground_truth_pixels": 59462,
+        "predicted_pixels": 64704
+      },
+      "21": {
+        "class": "mirchi-ka-salan",
+        "pixel_precision": 0.9325573320546948,
+        "pixel_recall": 0.9270926648859668,
+        "iou": 0.8688392011276024,
+        "dice": 0.9298169693822459,
+        "ground_truth_pixels": 121675,
+        "predicted_pixels": 120962
+      },
+      "22": {
+        "class": "muddha-pappu",
+        "pixel_precision": 0.862851441773937,
+        "pixel_recall": 0.8132481140279555,
+        "iou": 0.7201575236974243,
+        "dice": 0.8373157850677169,
+        "ground_truth_pixels": 141439,
+        "predicted_pixels": 133308
+      },
+      "23": {
+        "class": "non-spicy-curry",
+        "pixel_precision": 0.9250699858523224,
+        "pixel_recall": 0.9102399869676933,
+        "iou": 0.8477373350068274,
+        "dice": 0.9175950704093934,
+        "ground_truth_pixels": 270098,
+        "predicted_pixels": 265768
+      },
+      "24": {
+        "class": "non-spicy-dal",
+        "pixel_precision": 0.8740496392598212,
+        "pixel_recall": 0.8276078465058901,
+        "iou": 0.7394253748366452,
+        "dice": 0.8501949960412495,
+        "ground_truth_pixels": 419091,
+        "predicted_pixels": 396823
+      },
+      "25": {
+        "class": "pachi-pulusu",
+        "pixel_precision": 0.9300770568080682,
+        "pixel_recall": 0.9866065313949165,
+        "iou": 0.9184802655846551,
+        "dice": 0.9575081715054797,
+        "ground_truth_pixels": 204428,
+        "predicted_pixels": 216853
+      },
+      "26": {
+        "class": "papad",
+        "pixel_precision": 0.8888951934259266,
+        "pixel_recall": 0.959880331389997,
+        "iou": 0.8570533177335785,
+        "dice": 0.9230249983124451,
+        "ground_truth_pixels": 2072724,
+        "predicted_pixels": 2238247
+      },
+      "27": {
+        "class": "payasam",
+        "pixel_precision": 0.9350332782229005,
+        "pixel_recall": 0.980841066081646,
+        "iou": 0.9182619918261992,
+        "dice": 0.9573895492262839,
+        "ground_truth_pixels": 134924,
+        "predicted_pixels": 141534
+      },
+      "28": {
+        "class": "phulka",
+        "pixel_precision": 0.946494569827079,
+        "pixel_recall": 0.9581527584624132,
+        "iou": 0.9089215078873374,
+        "dice": 0.952287984740943,
+        "ground_truth_pixels": 2189535,
+        "predicted_pixels": 2216504
+      },
+      "29": {
+        "class": "raita",
+        "pixel_precision": 0.9081360702521246,
+        "pixel_recall": 0.9310014104372355,
+        "iou": 0.8508691809074838,
+        "dice": 0.9194266020360244,
+        "ground_truth_pixels": 124075,
+        "predicted_pixels": 127199
+      },
+      "30": {
+        "class": "rajma",
+        "pixel_precision": 0.9408806800987367,
+        "pixel_recall": 0.9658807724601175,
+        "iou": 0.9106153653736854,
+        "dice": 0.9532168346145209,
+        "ground_truth_pixels": 595500,
+        "predicted_pixels": 611323
+      },
+      "31": {
+        "class": "rasam",
+        "pixel_precision": 0.9717471939881497,
+        "pixel_recall": 0.7953514962741001,
+        "iou": 0.7773752866143856,
+        "dice": 0.8747452408828759,
+        "ground_truth_pixels": 50726,
+        "predicted_pixels": 41518
+      },
+      "32": {
+        "class": "salad",
+        "pixel_precision": 0.934211607693623,
+        "pixel_recall": 0.9130363331862305,
+        "iou": 0.8578772277571273,
+        "dice": 0.9235026027987616,
+        "ground_truth_pixels": 1083142,
+        "predicted_pixels": 1058591
+      },
+      "33": {
+        "class": "sambar",
+        "pixel_precision": 0.9409786649478831,
+        "pixel_recall": 0.9554054024277653,
+        "iou": 0.9013885842760163,
+        "dice": 0.9481371580015394,
+        "ground_truth_pixels": 907666,
+        "predicted_pixels": 921582
+      },
+      "34": {
+        "class": "steamed-rice",
+        "pixel_precision": 0.9259184399607308,
+        "pixel_recall": 0.8922546068482728,
+        "iou": 0.83280237790585,
+        "dice": 0.9087748771445893,
+        "ground_truth_pixels": 3342361,
+        "predicted_pixels": 3220842
+      },
+      "35": {
+        "class": "tomato-pappu",
+        "pixel_precision": 0.8142668616009626,
+        "pixel_recall": 0.8261962586150312,
+        "iou": 0.6951856004330033,
+        "dice": 0.8201881850051477,
+        "ground_truth_pixels": 152350,
+        "predicted_pixels": 154582
+      },
+      "36": {
+        "class": "veg-dum-briyani",
+        "pixel_precision": 0.8278929617957649,
+        "pixel_recall": 0.9399819211309337,
+        "iou": 0.7863268060347317,
+        "dice": 0.8803840410145456,
+        "ground_truth_pixels": 159302,
+        "predicted_pixels": 180870
+      },
+      "37": {
+        "class": "veg-pulao",
+        "pixel_precision": 0.8679197051785473,
+        "pixel_recall": 0.9341924886902351,
+        "iou": 0.8179132696699342,
+        "dice": 0.8998375041493998,
+        "ground_truth_pixels": 1439243,
+        "predicted_pixels": 1549141
+      },
+      "38": {
+        "class": "Watermelon",
+        "pixel_precision": 0.9110137515742671,
+        "pixel_recall": 0.9615945061199338,
+        "iou": 0.879029956853079,
+        "dice": 0.9356210140739233,
+        "ground_truth_pixels": 743227,
+        "predicted_pixels": 784492
+      },
+      "39": {
+        "class": "Papaya",
+        "pixel_precision": 0.9294302820198639,
+        "pixel_recall": 0.9707791982575038,
+        "iou": 0.9041360062537551,
+        "dice": 0.9496548600355234,
+        "ground_truth_pixels": 288322,
+        "predicted_pixels": 301149
+      },
+      "40": {
+        "class": "Banana",
+        "pixel_precision": 0.946312829905582,
+        "pixel_recall": 0.9779121094022825,
+        "iou": 0.9265094642390395,
+        "dice": 0.9618530107818656,
+        "ground_truth_pixels": 286356,
+        "predicted_pixels": 295918
+      },
+      "41": {
+        "class": "Muskmelon",
+        "pixel_precision": 0.5419933995939692,
+        "pixel_recall": 0.97796875,
+        "iou": 0.5354555997034277,
+        "dice": 0.6974550091931679,
+        "ground_truth_pixels": 57600,
+        "predicted_pixels": 103933
+      }
+    },
+    "macro_food_iou": 0.8217542220695832,
+    "macro_food_dice": 0.8986461677432825,
+    "foreground_pixel_accuracy": 0.9356143731940816,
+    "all_pixel_accuracy": 0.971637402158795,
+    "foreground_union": {
+      "precision": 0.946182453388471,
+      "recall": 0.9699631423202675,
+      "iou": 0.9192480793990029,
+      "dice": 0.9579252304755288
+    }
+  },
+  "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_43/boundary_aware/model_best.pt",
+  "checkpoint_sha256": "3df96d7b1a419179fb0ecaafd073ef66684261409c630a7a7b1586982c57467e",
+  "training_wall_s": 4672.29,
+  "peak_training_vram_mb": 5684.6,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.42508344772946216,
+      "internal_val_macro_food_iou": 0.6780709519253751,
+      "internal_val_foreground_iou": 0.8759573355377994,
+      "learning_rates": [
+        1.988303923565381e-05,
+        0.00019877498988921623
+      ],
+      "elapsed_s": 236.08
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.25273080706467915,
+      "internal_val_macro_food_iou": 0.7478028527845164,
+      "internal_val_foreground_iou": 0.8899901464089894,
+      "learning_rates": [
+        1.9535036904803962e-05,
+        0.00019513012337136782
+      ],
+      "elapsed_s": 469.53
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.23273514525900627,
+      "internal_val_macro_food_iou": 0.7809821436066957,
+      "internal_val_foreground_iou": 0.9026771534992201,
+      "learning_rates": [
+        1.8964561979789496e-05,
+        0.00018915514915674264
+      ],
+      "elapsed_s": 702.98
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.22207238065913834,
+      "internal_val_macro_food_iou": 0.7814866284497088,
+      "internal_val_foreground_iou": 0.9050685916316843,
+      "learning_rates": [
+        1.8185661446562005e-05,
+        0.0001809971909403073
+      ],
+      "elapsed_s": 936.44
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.1371498500109361,
+      "internal_val_macro_food_iou": 0.773768610281845,
+      "internal_val_foreground_iou": 0.9056768834765262,
+      "learning_rates": [
+        1.7217514421272206e-05,
+        0.00017085712472806152
+      ],
+      "elapsed_s": 1169.89
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.06461245556169286,
+      "internal_val_macro_food_iou": 0.7735726031653213,
+      "internal_val_foreground_iou": 0.90765237163504,
+      "learning_rates": [
+        1.60839598967785e-05,
+        0.00015898463260310112
+      ],
+      "elapsed_s": 1403.28
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.04642772605112786,
+      "internal_val_macro_food_iou": 0.7914559655869504,
+      "internal_val_foreground_iou": 0.9084359638898957,
+      "learning_rates": [
+        1.4812909747525698e-05,
+        0.00014567205472408495
+      ],
+      "elapsed_s": 1636.65
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.04022653843276203,
+      "internal_val_macro_food_iou": 0.8104048762533987,
+      "internal_val_foreground_iou": 0.9142046602712246,
+      "learning_rates": [
+        1.3435661446562005e-05,
+        0.00013124719094030732
+      ],
+      "elapsed_s": 1870.21
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.036289311186731635,
+      "internal_val_macro_food_iou": 0.8153462338563192,
+      "internal_val_foreground_iou": 0.9138878471840514,
+      "learning_rates": [
+        1.1986127417882198e-05,
+        0.00011606522927150302
+      ],
+      "elapsed_s": 2103.69
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.032658298018163646,
+      "internal_val_macro_food_iou": 0.815802332949149,
+      "internal_val_foreground_iou": 0.9151656000347989,
+      "learning_rates": [
+        1.0500000000000003e-05,
+        0.00010050000000000003
+      ],
+      "elapsed_s": 2337.23
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.031150351077767795,
+      "internal_val_macro_food_iou": 0.814857315004865,
+      "internal_val_foreground_iou": 0.9152988567133256,
+      "learning_rates": [
+        9.013872582117811e-06,
+        8.493477072849708e-05
+      ],
+      "elapsed_s": 2570.76
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.030303991560278267,
+      "internal_val_macro_food_iou": 0.8197290981452877,
+      "internal_val_foreground_iou": 0.9150645970867116,
+      "learning_rates": [
+        7.564338553438001e-06,
+        6.975280905969276e-05
+      ],
+      "elapsed_s": 2804.2
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.028488615479577203,
+      "internal_val_macro_food_iou": 0.8031451361607188,
+      "internal_val_foreground_iou": 0.91699793454621,
+      "learning_rates": [
+        6.1870902524743065e-06,
+        5.5327945275915107e-05
+      ],
+      "elapsed_s": 3037.72
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.026952740013727855,
+      "internal_val_macro_food_iou": 0.8202329314045965,
+      "internal_val_foreground_iou": 0.9177133741270798,
+      "learning_rates": [
+        4.916040103221507e-06,
+        4.201536739689894e-05
+      ],
+      "elapsed_s": 3271.14
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.025954726975057917,
+      "internal_val_macro_food_iou": 0.8113000377079518,
+      "internal_val_foreground_iou": 0.9187203686349749,
+      "learning_rates": [
+        3.7824855787278e-06,
+        3.0142875271938532e-05
+      ],
+      "elapsed_s": 3504.66
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.025251691004839438,
+      "internal_val_macro_food_iou": 0.8164012649394193,
+      "internal_val_foreground_iou": 0.9183742526053975,
+      "learning_rates": [
+        2.814338553438001e-06,
+        2.0002809059692742e-05
+      ],
+      "elapsed_s": 3738.12
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.024620639477406853,
+      "internal_val_macro_food_iou": 0.8174224339507485,
+      "internal_val_foreground_iou": 0.9190025703591642,
+      "learning_rates": [
+        2.0354380202105066e-06,
+        1.1844850843257407e-05
+      ],
+      "elapsed_s": 3971.57
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.02417749332480839,
+      "internal_val_macro_food_iou": 0.8217542220695832,
+      "internal_val_foreground_iou": 0.9192480793990029,
+      "learning_rates": [
+        1.4649630951960418e-06,
+        5.869876628632224e-06
+      ],
+      "elapsed_s": 4205.04
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.023872317967069304,
+      "internal_val_macro_food_iou": 0.8167263169290435,
+      "internal_val_foreground_iou": 0.9185486038039935,
+      "learning_rates": [
+        1.1169607643461924e-06,
+        2.225010110783803e-06
+      ],
+      "elapsed_s": 4438.58
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.02365573866951183,
+      "internal_val_macro_food_iou": 0.8193806308584491,
+      "internal_val_foreground_iou": 0.918989481227191,
+      "learning_rates": [
+        1e-06,
+        1e-06
+      ],
+      "elapsed_s": 4672.02
+    }
+  ],
+  "locked_accessed": false,
+  "aruco_accessed": false,
+  "wed_test_split_accessed": false,
+  "synthetic_data_used": false,
+  "geometry_or_weight_code_changed": false,
+  "trainer_sha256": "0b624d3297725aa279a68ebf1c8bc5d40a2b8af3ce07ea21c13d058fe8c8c049"
+}

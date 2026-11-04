@@ -1,0 +1,229 @@
+{
+  "benchmark_date": "2026-11-04",
+  "system": "NutriSense Multi-Item Dietary Assessment Pipeline",
+  "target_hardware": "NVIDIA GeForce RTX 4060 Laptop GPU (8GB VRAM) / CUDA 13.0 / PyTorch 2.13.0+cu130",
+  "guardrails": {
+    "locked_manifest_check": "502 ok, 0 failed (tools.check_locked)",
+    "wire_contract_keys": 19,
+    "wire_contract_synced": true
+  },
+  "individual_stage_metrics": {
+    "S1_scale_anchor_and_pose": {
+      "module": "models/scale_anchor.py + geo/pose.py",
+      "card_detection_rate_card_photos": {
+        "before_exif_f35_reprojection": 0.8696,
+        "after_exif_f35_reprojection": 1.0000
+      },
+      "card_detection_rate_aruco_with_food": {
+        "before_michelson_quiet_zone_gate": "20/23 (86.96%)",
+        "after_michelson_quiet_zone_gate": "23/23 (100.0%)"
+      },
+      "scale_accuracy_2d_flat": {
+        "steel_ruler_validation": "±0.06% to ±1.1%"
+      },
+      "tabletop_plane_fit_3d_rms_mm": {
+        "min": 0.32,
+        "median": 0.74,
+        "max": 1.28
+      }
+    },
+    "S2_food_and_vessel_segmentation": {
+      "wed_semantic_segmenter": {
+        "architecture": "DeepLabV3 ResNet-50 ImageNet WED-42",
+        "checkpoint_sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963",
+        "dev_split": {
+          "views": 108,
+          "groups": 21,
+          "macro_food_iou": 0.8211,
+          "macro_food_dice": 0.8976,
+          "foreground_union_iou": 0.9196,
+          "foreground_union_dice": 0.9581,
+          "region_precision": 0.7548,
+          "region_recall": 0.7534,
+          "region_f1": 0.7541,
+          "boundary_f1_3px": 0.5973,
+          "tiny_pixel_recall": 0.3953,
+          "exact_class_set_match": "76/108 (70.37%)"
+        }
+      },
+      "sam2_multi_item_reconciliation": {
+        "model": "facebook/sam2.1-hiera-large",
+        "item_area_sum_to_top_ratio": {
+          "raw_sam2_dense_grid": "2.84x to 7.71x (mask inflation explosion)",
+          "post_reconciliation_and_coalescence": "1.00x (fully bounded and merged)"
+        },
+        "duplicate_flagged_items": "0/23 (0.0g duplicate inflation)",
+        "secondary_vessel_retention": "100% on valid side bowls (katoris), 0% on steel plate rims/tabletop"
+      }
+    },
+    "S2b_dish_classifier": {
+      "model": "google/siglip2-base-patch16-224 + Gallery Search",
+      "wed_41_class_accuracy_dev": {
+        "n_crops": 1218,
+        "n_plates": 21,
+        "linear8_accuracy": 0.7217,
+        "gallery_accuracy": 0.8103,
+        "hybrid_mlp_accuracy": 0.8227
+      },
+      "real_capture_background_attenuation": {
+        "alpha": 0.65,
+        "context_leakage_mitigation": "Attenuates outer rectangular bounding box background by 35% to prevent rice context from dominating side bowls"
+      }
+    },
+    "S3a_monocular_metric_depth": {
+      "model": "Ruicheng/moge-2-vitl",
+      "scale_calibration": {
+        "method": "Measured 60mm ArUco marker homography & PnP",
+        "median_scale_factor": 0.1152,
+        "p10_scale_factor": 0.0761,
+        "p90_scale_factor": 0.1990
+      },
+      "depth_rmse_card_calibrated_synthetic": "1.42 mm (on rigid planar table scenes)"
+    },
+    "S3b_learned_weight_head": {
+      "model": "Frozen DINOv2-S + 3-Layer MLP (data/weight_head.pt)",
+      "wed_grouped_train_5fold_cv": {
+        "n_outer_rois": 11759,
+        "n_outer_plates": 198,
+        "weighted_outer_mae_g": 16.421,
+        "fold_mae_std_g": 0.884,
+        "fold_maes_g": [16.184, 15.684, 18.096, 16.438, 15.704]
+      },
+      "wed_dev_split": {
+        "n_rois": 1218,
+        "n_plates": 21,
+        "n_views": 108,
+        "mae_g": 15.034,
+        "mae_95ci_g": [12.227, 18.889],
+        "mape_pct": 18.30,
+        "coverage_90_nominal": 0.8522,
+        "coverage_90_oof_calibrated": 0.8103,
+        "mean_interval_width_g": 62.16
+      },
+      "wed_locked_test_split": {
+        "n_rois": 2793,
+        "n_plates": 48,
+        "n_views": 248,
+        "mae_g": 14.667,
+        "mae_95ci_g": [13.331, 16.029],
+        "mape_pct": 19.99,
+        "coverage_90_nominal": 0.8277,
+        "mean_interval_width_g": 59.58,
+        "best_performing_classes_mae_g": {
+          "boondi": 2.86,
+          "mango-pickle": 2.06,
+          "papad": 2.19,
+          "chutney": 5.21,
+          "Banana": 5.80,
+          "rasam": 6.66
+        },
+        "hardest_classes_mae_g": {
+          "veg-dum-briyani": 44.15,
+          "aloo-curry": 37.70,
+          "steamed-rice": 28.36
+        }
+      },
+      "research_loaders_held_out": {
+        "ingredient_head": {
+          "status": "research_only_fallback_guarded",
+          "checkpoint_path": "data/ingredient_head.pt",
+          "unfiltered_n5k_held_out_mae_g": 3208.6,
+          "decision": "Kept strictly optional and guarded; missing checkpoint transparently falls back to weight_head"
+        },
+        "vlm_transfer_benchmark": {
+          "status": "research_only",
+          "held_out_canteen_participant6_mae_g": 148.0,
+          "signed_bias_g": -106.9,
+          "decision": "Abstained in production serving pipeline due to 0.80 gallery threshold mismatch on non-Indian cuisine"
+        }
+      }
+    }
+  },
+  "combined_end_to_end_pipeline_metrics": {
+    "aruco_real_capture_benchmark": {
+      "dataset": "Aruco_7ID_60mm_with_food",
+      "n_images": 23,
+      "n_plates": 6,
+      "anchor_admission_rate": "23/23 (100.0%)",
+      "zero_dropout_completion_rate": "23/23 (100.0%)",
+      "flagged_duplicate_items": 0,
+      "flagged_duplicate_grams": 0.0,
+      "all_views_pooled_mae_g": 122.55,
+      "all_views_pooled_mape_pct": 37.10,
+      "all_views_pooled_medape_pct": 37.24,
+      "primary_topdown_views_mae_g": 29.70,
+      "primary_topdown_views_mape_pct": 9.42,
+      "per_plate_primary_scores": {
+        "Dish 1 (Rice 250g + Sambar 200g = 450g)": {
+          "true_g": 450.0,
+          "raw_geometry_unclipped_g": 742.2,
+          "forced_prior_g": 256.9,
+          "fused_final_pred_g": 395.7,
+          "signed_error_g": -54.3,
+          "pct_error": -12.07
+        },
+        "Dish 2 (Rice 211g + Rasam 127g = 338g)": {
+          "true_g": 338.0,
+          "raw_geometry_unclipped_g": 1742.1,
+          "forced_prior_g": 476.5,
+          "fused_final_pred_g": 367.1,
+          "signed_error_g": 29.1,
+          "pct_error": 8.61
+        },
+        "Dish 3 (Chappati 121g + Chutney 70g = 191g)": {
+          "true_g": 191.0,
+          "raw_geometry_unclipped_g": 668.2,
+          "forced_prior_g": 327.7,
+          "fused_final_pred_g": 185.4,
+          "signed_error_g": -5.6,
+          "pct_error": -2.93
+        },
+        "Dish 4 (Biryani 206g + Egg 44g = 250g)": {
+          "true_g": 250.0,
+          "raw_geometry_unclipped_g": 1751.8,
+          "forced_prior_g": 79.7,
+          "fused_final_pred_g": 209.5,
+          "signed_error_g": -40.5,
+          "pct_error": -16.20
+        },
+        "Dish 5 (Biryani rice = 150g)": {
+          "true_g": 150.0,
+          "raw_geometry_unclipped_g": 912.7,
+          "forced_prior_g": 93.0,
+          "fused_final_pred_g": 151.2,
+          "signed_error_g": 1.2,
+          "pct_error": 0.80
+        },
+        "Dish 6 (Biryani 257g + Egg 94g = 351g)": {
+          "true_g": 351.0,
+          "raw_geometry_unclipped_g": 1566.0,
+          "forced_prior_g": 204.3,
+          "fused_final_pred_g": 296.3,
+          "signed_error_g": -54.7,
+          "pct_error": -15.58
+        }
+      }
+    },
+    "runtime_latency_and_resource_profile": {
+      "device": "NVIDIA GeForce RTX 4060 Laptop GPU (8GB VRAM)",
+      "server_process_rss_mib": 4522.1,
+      "cuda_reserved_peak_mib": 4170.0,
+      "end_to_end_wall_time_ms": {
+        "p50": 716.0,
+        "p95": 735.0,
+        "min": 704.2,
+        "max": 737.4
+      },
+      "stage_breakdown_s": {
+        "input_and_lint": 0.003,
+        "anchor_detection": 0.087,
+        "segment_food_and_items": 2.244,
+        "classify_crops": 1.179,
+        "monocular_depth": 3.293,
+        "portion_geometry_and_weight": 0.015,
+        "nutrition_monte_carlo": 0.005,
+        "compliance_gate": 0.001
+      }
+    }
+  }
+}

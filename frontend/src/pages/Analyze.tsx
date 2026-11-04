@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
@@ -11,8 +12,8 @@ import { HOW_IT_WORKS } from "../analysis/stages";
 import { STAGE_NAMES } from "../types/contract.gen";
 import { IconCamera, IconUpload } from "../ui/Icon";
 import { bandLabel, dayLabel } from "../utils/format";
-
-type Status = "idle" | "loading" | "error";
+import { useMealCapture } from "../analysis/useMealCapture";
+import { EASE } from "../ui/motion";
 
 export default function AnalyzePage() {
   const { menu, apiUp, checkHealth, client } = useMenu();
@@ -24,76 +25,47 @@ export default function AnalyzePage() {
   // /analyze is mode-agnostic, so General still sends served defaults.
   const general = (prefs.mode ?? "school") === "general";
 
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const capture = useMealCapture();
+  const { file, preview, dragging, error } = capture;
+  const status = capture.phase === "submitting"
+    ? "loading"
+    : capture.phase === "failed"
+      ? "error"
+      : "idle";
   const [day, setDay] = useState("");
   const [band, setBand] = useState("");
-  const [style, setStyle] = useState("mixed");
   const [student, setStudent] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const previewRef = useRef<string | null>(null);
-
   const days = menu ? Object.keys(menu.days) : [];
   const bands = menu ? Object.keys(menu.bands) : [];
-  const styles = menu?.capture_fields?.serving_style?.values || ["mixed", "single"];
 
   useEffect(() => {
     if (!menu) return;
     setDay((d) => d || prefs.defaultDay || days[0] || "");
     setBand((b) => b || prefs.defaultBand || bands[0] || "");
-    setStyle((s) => (menu.capture_fields?.serving_style?.values.includes(s) ? s : "mixed"));
   }, [menu]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    if (!file) {
-      setPreview(null);
-      previewRef.current = null;
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    previewRef.current = url;
-    return () => {
-      if (previewRef.current === url) {
-        URL.revokeObjectURL(url);
-        previewRef.current = null;
-      }
-    };
-  }, [file]);
-
-  const pickFile = (f: File | null | undefined) => {
-    if (!f) return;
-    if (!f.type.startsWith("image/")) {
-      setError("That file type isn't supported — please choose an image (JPEG or PNG).");
-      setStatus("error");
-      return;
-    }
-    setError(null);
-    setStatus("idle");
-    setFile(f);
-  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || status === "loading") return;
-    setStatus("loading");
-    setError(null);
+    const submittedFile = capture.begin();
+    if (!submittedFile) return;
     try {
-      const result = await client.analyze({ file, day, band, serving_style: style });
-      const thumb = await fileToThumbnail(file);
+      const result = await client.analyze({
+        file: submittedFile,
+        day,
+        band,
+        mode: general ? "general" : "school",
+      });
+      const thumb = await fileToThumbnail(submittedFile);
       const record = makeRecord({
         day,
         band,
-        serving_style: style,
         mode: general ? "general" : "school",
         student: student.trim() ? { name: student.trim() } : null,
         photo: thumb,
         result,
       });
       addRecord(record);
+      capture.complete();
       navigate(`/result/${record.id}`);
     } catch (err) {
       const msg =
@@ -102,8 +74,7 @@ export default function AnalyzePage() {
             ? "Cannot reach the NutriSense backend. Start the API and retry."
             : err.message
           : "Something went wrong while analyzing this photo.";
-      setError(msg);
-      setStatus("error");
+      capture.fail(msg);
       if (err instanceof ApiError && err.status === 0) checkHealth();
     }
   };
@@ -117,7 +88,7 @@ export default function AnalyzePage() {
           <p className="page-sub">
             {general
               ? "A photo becomes a nutrition estimate, followed by practical ideas for what to add or ease back on."
-              : "Capture the full serving to assess nutrition and school meal coverage."}
+              : "Capture the full meal to estimate energy and protein against school standards, then review practical suggestions."}
           </p>
         </div>
         <div className="analyze-intro-note">
@@ -141,35 +112,40 @@ export default function AnalyzePage() {
         <section className="photo-workspace" aria-label="Meal photo">
           <div className="workspace-heading">
             <div><span className="workspace-index">01</span><div><h2>Photograph the meal</h2><p>A clear, complete view helps the estimate.</p></div></div>
-            <span className="photo-format">JPG · PNG</span>
+            <span className="photo-format">JPG · PNG · 12 MB max</span>
           </div>
           <label
               className={`dropzone${dragging ? " dragging" : ""}${preview ? " has-image" : ""}`}
               onDragOver={(e) => {
                 e.preventDefault();
-                setDragging(true);
+                capture.setDragging(true);
               }}
-              onDragLeave={() => setDragging(false)}
+              onDragLeave={() => capture.setDragging(false)}
               onDrop={(e) => {
                 e.preventDefault();
-                setDragging(false);
-                pickFile(e.dataTransfer.files?.[0]);
+                capture.setDragging(false);
+                capture.selectFile(e.dataTransfer.files?.[0]);
               }}
             >
               <input
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                 capture="environment"
-                onChange={(e) => pickFile(e.target.files?.[0])}
+                disabled={status === "loading"}
+                onChange={(e) => {
+                  capture.selectFile(e.target.files?.[0]);
+                  e.currentTarget.value = "";
+                }}
                 aria-label="Upload meal photo"
               />
+              <AnimatePresence mode="wait" initial={false}>
               {preview ? (
-                <>
+                <motion.span key={preview} className="photo-preview-state" initial={{ opacity: 0, scale: 0.985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.99 }} transition={{ duration: 0.2, ease: EASE }}>
                   <img src={preview} alt="Selected meal" />
                   <span className="replace-chip">Tap to replace</span>
-                </>
+                </motion.span>
               ) : (
-                <span className="dropzone-empty">
+                <motion.span key="empty-upload" className="dropzone-empty" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }} transition={{ duration: 0.18, ease: EASE }}>
                   <span className="upload-copy">
                     <span className="upload-kicker">Step 1 · Photo</span>
                     <span className="dz-title">Bring your plate into focus.</span>
@@ -181,9 +157,18 @@ export default function AnalyzePage() {
                     <img src="/plate.jpg" alt="Example of a full meal tray photographed from above" />
                     <span className="example-caption">Example capture <i /> Full tray in frame</span>
                   </span>
-                </span>
+                </motion.span>
               )}
+              </AnimatePresence>
           </label>
+          {file && (
+            <div className="selected-photo-meta">
+              <span title={file.name}>{file.name} · {Math.max(1, Math.round(file.size / 1024))} KB</span>
+              <button type="button" className="btn btn-ghost btn-sm" disabled={status === "loading"} onClick={capture.clear}>
+                Remove photo
+              </button>
+            </div>
+          )}
 
           <details className="collapse capture-req studio-capture-req">
               <summary>
@@ -204,7 +189,7 @@ export default function AnalyzePage() {
               </summary>
               <div className="capture-req" style={{ padding: "0 16px 16px" }}>
                 <ul>
-                  <li>Turn off digital zoom (EXIF zoom must be 1.0).</li>
+                  <li>Keep digital zoom off. If the photo has no zoom metadata, NutriSense can identify the meal but will withhold the school-standard verdict.</li>
                   <li>Use the original image, not a screenshot or an edited copy.</li>
                   <li>Keep the entire tray or vessel in the frame.</li>
                   <li>Place the reference card beside the vessel for a measured scale. Without it, weight is estimated.</li>
@@ -216,22 +201,10 @@ export default function AnalyzePage() {
         </section>
 
         <aside className="meal-setup">
-          <div className="setup-head"><span className="workspace-index">02</span><div><h2>Tell us a little more</h2><p>{general ? "Choose the serving style for this meal." : "Match the meal to its school service."}</p></div></div>
+          <div className="setup-head"><span className="workspace-index">02</span><div><h2>Meal details</h2><p>{general ? "Your meal structure is identified from the photo." : "Match the meal to its school service."}</p></div></div>
           <div className="setup-fields">
-            <div className="field-row">
-              {general ? (
-                <label className="field">
-                  <span className="field-label">Serving style</span>
-                  <select className="select" value={style} onChange={(e) => setStyle(e.target.value)}>
-                    {styles.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : (
-                <>
+            {!general && (
+              <div className="field-row">
                   <label className="field">
                     <span className="field-label">Day</span>
                     <select className="select" value={day} onChange={(e) => setDay(e.target.value)}>
@@ -255,20 +228,11 @@ export default function AnalyzePage() {
                       {!menu && <option value="">—</option>}
                     </select>
                   </label>
-
-                  <label className="field">
-                    <span className="field-label">Serving style</span>
-                    <select className="select" value={style} onChange={(e) => setStyle(e.target.value)}>
-                      {styles.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </>
-              )}
-            </div>
+              </div>
+            )}
+            <p className="field-hint" role="status">
+              NutriSense checks for one or several food regions and chooses the analysis path automatically.
+            </p>
 
             {!general && (
               <label className="field student-field">
@@ -279,7 +243,7 @@ export default function AnalyzePage() {
             )}
 
             {status === "error" && error && (
-              <div className="banner error" style={{ marginTop: 14 }}>
+              <div className="banner error" role="alert" style={{ marginTop: 14 }}>
                 <span aria-hidden="true">✕</span>
                 <div>
                   <strong>Analysis could not be completed</strong>
@@ -295,16 +259,16 @@ export default function AnalyzePage() {
                 type="submit"
                 className="btn btn-primary btn-lg"
                 disabled={
-                  !file ||
+                  !file || status === "error" ||
                   status === "loading" ||
                   (general ? !menu : !day || !band)
                 }
               >
                 <IconCamera size={16} />
-                {status === "loading" ? "Reading your meal…" : "Analyze this meal"}
+                {status === "loading" ? (client.demo ? "Preparing demo result…" : "Reading your meal…") : "Analyze this meal"}
               </button>
               {status === "error" && (
-                <button type="button" className="btn btn-ghost" onClick={() => setStatus("idle")}>
+                <button type="button" className="btn btn-ghost" onClick={capture.dismissError}>
                   Dismiss
                 </button>
               )}
@@ -315,12 +279,12 @@ export default function AnalyzePage() {
                 can be analyzed.
               </p>
             )}
-          <p className="privacy-note">{records.length > 0 ? `${records.length} previous analysis${records.length === 1 ? "" : "es"} saved locally` : "Your meal history stays on this device"}</p>
+          <p className="privacy-note">{records.length > 0 ? `${records.length} previous ${records.length === 1 ? "analysis" : "analyses"} saved locally` : "Your meal history stays on this device"}</p>
         </aside>
 
         <div className="analysis-progress">
           {status === "loading" ? (
-            <PipelineProgress running />
+            <PipelineProgress running demo={client.demo} />
           ) : status === "error" ? (
             <PipelineProgress running={false} failed />
           ) : (

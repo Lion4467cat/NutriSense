@@ -1,0 +1,270 @@
+{
+  "aruco_accessed": false,
+  "baseline_kind": "renderer_grounded_metric_depth",
+  "configuration": {
+    "camera_resolution": [
+      640,
+      480
+    ],
+    "card_conditions": [
+      "card",
+      "no_card"
+    ],
+    "class_count": 41,
+    "depth_device": null,
+    "portion_levels_per_class": 3,
+    "portion_source": "WED TRAIN observed min-to-max by class",
+    "renderer": "analytic-heightfield-v1"
+  },
+  "created_at": "2026-11-02T17:10:37.131669+00:00",
+  "data_sha256": "e82322215f3785ef3bb6eb8835bfa3bd0261c83b79a7b9162baf463dad8a4334",
+  "elapsed_s": 97.78,
+  "feature": "009-synthetic-training-data",
+  "ground_truth": "analytic_renderer_camera_z_metres",
+  "groups": 123,
+  "locked_accessed": false,
+  "metrics_by_condition": {
+    "card": {
+      "all_visible": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 8.681623020746889,
+          "delta_1_25": 0.0,
+          "mae_m": 4.270182652141512,
+          "median_prediction_m": 4.5383486505446395,
+          "median_prediction_to_target_scale": 9.806459944050992,
+          "median_target_m": 0.4600951552875643,
+          "rmse_m": 4.399822469717567,
+          "silog_pct": 4.576251053706309,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            7.999732800219439,
+            9.397209526426524
+          ],
+          "rmse_m": [
+            4.061757937814683,
+            4.7642777038687
+          ]
+        }
+      },
+      "card": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 8.896359324318981,
+          "delta_1_25": 0.0,
+          "mae_m": 3.9011547384039056,
+          "median_prediction_m": 4.328615997864948,
+          "median_prediction_to_target_scale": 9.905711318665231,
+          "median_target_m": 0.43795835947602746,
+          "rmse_m": 3.907481572991614,
+          "silog_pct": 0.4955725143880187,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            8.207924872696246,
+            9.630905081429086
+          ],
+          "rmse_m": [
+            3.6072475487398217,
+            4.232506405560815
+          ]
+        }
+      },
+      "food": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 9.402711543854146,
+          "delta_1_25": 0.0,
+          "mae_m": 3.8235583746232136,
+          "median_prediction_m": 4.219005588593522,
+          "median_prediction_to_target_scale": 10.42431151973243,
+          "median_target_m": 0.40499819597093073,
+          "rmse_m": 3.8272200635073577,
+          "silog_pct": 1.312791432464123,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            8.688830819383382,
+            10.160803617603237
+          ],
+          "rmse_m": [
+            3.54257304433441,
+            4.1334467820961125
+          ]
+        }
+      },
+      "table": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 8.618553199728952,
+          "delta_1_25": 0.0,
+          "mae_m": 4.324266983122275,
+          "median_prediction_m": 4.725701185745922,
+          "median_prediction_to_target_scale": 9.749773133793578,
+          "median_target_m": 0.4853110531481301,
+          "rmse_m": 4.4634387939272075,
+          "silog_pct": 4.0619941796390036,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            7.940209685927917,
+            9.326066422199833
+          ],
+          "rmse_m": [
+            4.118102367187653,
+            4.8307271259987346
+          ]
+        }
+      },
+      "vessel": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 9.473068896581225,
+          "delta_1_25": 0.0,
+          "mae_m": 3.8101835729017473,
+          "median_prediction_m": 4.151038495990319,
+          "median_prediction_to_target_scale": 10.52933731916235,
+          "median_target_m": 0.39718380279657317,
+          "rmse_m": 3.822557123601439,
+          "silog_pct": 2.2864343338057025,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            8.751176687563666,
+            10.258562710087201
+          ],
+          "rmse_m": [
+            3.5316405001402087,
+            4.1399628812285
+          ]
+        }
+      }
+    },
+    "no_card": {
+      "all_visible": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 5.289248947737286,
+          "delta_1_25": 0.008130081300813009,
+          "mae_m": 2.595426591157579,
+          "median_prediction_m": 2.944171727672825,
+          "median_prediction_to_target_scale": 6.361708378515691,
+          "median_target_m": 0.46024256653902007,
+          "rmse_m": 2.6681604345837795,
+          "silog_pct": 5.435963605437604,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            4.662798288675182,
+            5.971227511322034
+          ],
+          "rmse_m": [
+            2.349361532831312,
+            3.0123321946501163
+          ]
+        }
+      },
+      "card": {
+        "metrics": {},
+        "n_scenes": 0
+      },
+      "food": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 5.92536092499526,
+          "delta_1_25": 0.008130081300813009,
+          "mae_m": 2.4095764554425925,
+          "median_prediction_m": 2.8136599135350404,
+          "median_prediction_to_target_scale": 6.949845734303104,
+          "median_target_m": 0.40499819597093073,
+          "rmse_m": 2.4115812790552824,
+          "silog_pct": 1.7522672297953936,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            5.226140943975066,
+            6.6753746179534685
+          ],
+          "rmse_m": [
+            2.1310466011790226,
+            2.7133691808237264
+          ]
+        }
+      },
+      "table": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 5.2486320833773075,
+          "delta_1_25": 0.008130081300813009,
+          "mae_m": 2.6135913299748745,
+          "median_prediction_m": 3.007844267337303,
+          "median_prediction_to_target_scale": 6.326732483297238,
+          "median_target_m": 0.4768412504496613,
+          "rmse_m": 2.689741755953202,
+          "silog_pct": 4.841777219159225,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            4.626648270753069,
+            5.927410554135325
+          ],
+          "rmse_m": [
+            2.366347703670509,
+            3.037354223791205
+          ]
+        }
+      },
+      "vessel": {
+        "group_count": 123,
+        "metrics": {
+          "abs_rel": 5.794658730442745,
+          "delta_1_25": 0.008130081300813009,
+          "mae_m": 2.331736539352201,
+          "median_prediction_m": 2.6987715311409013,
+          "median_prediction_to_target_scale": 6.8184572340712135,
+          "median_target_m": 0.39718380279657317,
+          "rmse_m": 2.3380080373057575,
+          "silog_pct": 2.4896319222555814,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 123,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            5.117869067248835,
+            6.53296626825042
+          ],
+          "rmse_m": [
+            2.0633522642047066,
+            2.6335092134829594
+          ]
+        }
+      }
+    }
+  },
+  "model": {
+    "id": "Ruicheng/moge-2-vitl",
+    "revision": "39c4d5e957afe587e04eec59dc2bcc3be5ecd968",
+    "source_sha256": "480d7d503a1ad9f76aa1dead2ff916d0cbfccdee08476475483e23ff5cb3bf35"
+  },
+  "real_depth_accuracy_claim": false,
+  "record_count": 1107,
+  "rendered_views": 246,
+  "stage": "depth_geometry"
+}

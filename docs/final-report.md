@@ -1,7 +1,10 @@
 # NutriSense v5 — Final Build Report
 
-**Date:** 2026-10-08 (updated 2026-10-12)
-**Historical milestone snapshot (2026-10-11):** S0–S6 were recorded complete — 160 pytest (151 non-GPU + 9 GPU) and 43 Vitest tests passed at that time, with the server smoke-tested. Frontend rebuilt (React 18 + TypeScript); post-build hardening (11 bugs + 6 candidates) landed 2026-10-10; learned weight fallback + no-card scored-with-disclaimer graduation landed 2026-10-11 (ADR 0002 + amendment). This document is a historical build report; current project status and verification are in `README.md` and `docs/production-readiness.md`.
+**Date:** 2026-10-08 (updated 2026-11-04)
+**Current Milestone Snapshot (2026-11-04, Ledger 033):**
+- **Test Suite:** **380 pytest passed (1 skipped, 0 failures)** and 502/502 locked files verified (`tools.check_locked`).
+- **Real-World ArUco Benchmark:** **100% card admission (23/23)**, **0% dropouts**, **29.70 g MAE (9.42% MAPE)** on primary top-down captures, 0 tabletop mask explosions, 0 duplicate item inflation.
+- **Master Benchmark Documentation:** See [`docs/model-metrics.md`](model-metrics.md), [`docs/ledger/033-aruco-card-plane-and-vessel-fusion.md`](ledger/033-aruco-card-plane-and-vessel-fusion.md), and [`data/reports/system_metrics_summary_2026_11.json`](../data/reports/system_metrics_summary_2026_11.json).
 
 Pipeline: photo → dish ID → portion grams → nutrients → MDM compliance verdict.
 
@@ -86,12 +89,12 @@ Configs locked (`docs/protocol.md`), conversion tables (`data/conversions.yaml`)
 - **Verdict:** PASS if P≥0.9, FAIL if P≤0.1, else BORDERLINE — same zones for every tier; no-card plates add `no_reference_card` as reasons[0] ("weight is an estimate") and pay for it in coverage (learned ×0.90, geometry ×0.60 — ADR 0002 amendment).
 - **Coverage** `C` = product of ledger factors: `coverage_anchor_prior` 0.60 (geometry) / `coverage_estimated_weight` 0.90 (learned) × `coverage_base_table_prior` 0.85 × `coverage_quality_degraded` 0.90 × `coverage_depth_uncalibrated` 0.80 (when a measured anchor declined depth calibration). `base_method: learned_weight` skips the table-prior factor (the head's grams already carry model error, measured as per-class σ).
 - **Gates:** FAIL requires C≥0.90 (table-prior C=0.85 blocks FAIL, still allows PASS); PASS requires C≥0.85; geometry-prior C=0.60 → never PASS/FAIL; learned-prior C=0.90 → both reachable.
-- Zoom / band violations → `cannot_verify`; wheat products → `out_of_scope` (MDM scope rule).
+- Zoom / band violations → `cannot_verify`; recognized WED classes, including roti/chapati, receive a portion/nutrient estimate. School mode checks the aggregate against the selected band standard; generic food rows and cooked-roti values are marked assumed.
 - Salt: advisory only, never affects verdict.
 
 ### S6 — Pipeline + API (`engine/pipeline.py`, `main.py`)
 - `analyze(image, day, band, exif, deps)` — `deps` injects segment/classify/depth overrides for tests.
-- Endpoints: `GET /health` → `{"status":"ok","phase":"built"}`, `GET /menu`, `POST /analyze` (multipart: file, day, band, serving_style).
+- Endpoints: `GET /health` → `{"status":"ok","phase":"built"}`, `GET /menu`, `POST /analyze` (multipart: file, day, band, mode; legacy `serving_style` is optional and does not choose the meal path).
 - Lint gates for digital zoom, day, band run before ML stages.
 - E2E test exercises the real anchor → SAM → MoGe depth → portion → MC chain over HTTP.
 

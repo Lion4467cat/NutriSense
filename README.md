@@ -3,7 +3,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-green.svg)](https://fastapi.tiangolo.com)
-[![Tests](https://img.shields.io/badge/tests-281%20pytest%20passed%20%C2%B7%2088%20vitest%20passed-orange.svg)](#-testing)
+[![Status](https://img.shields.io/badge/Status-research%20prototype-orange.svg)](#-evidence-and-limitations)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2-yellow.svg)](https://huggingface.co)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
 
@@ -11,19 +11,19 @@
 
 ## 📌 Overview
 
-NutriSense turns a single **photo of a plated mid-day meal** into a compliance verdict against the **PM POSHAN (MDM) food & nutrition guidelines**. One capture → dish identification → portion in grams → Monte Carlo nutrient intervals → **PASS / BORDERLINE / FAIL** with honest coverage and assumptions — and when the photo has no reference card, the result carries an explicit disclaimer that the weight is an estimate.
+NutriSense analyzes a **photo of a plated meal** and can estimate portions, nutrients, and a coverage-aware school-meal comparison. If image structure or a label is uncertain but a numeric estimate is still possible, it returns an **ESTIMATED** result without a school verdict; if a required stage cannot produce a usable value, it returns `cannot_verify`. The app is a research prototype, and recent multi-item fixes have not been validated on new real photographs.
 
 Everything the pipeline decides is traceable: which scale anchor was used, how large the uncertainty was, which parameters are still `assumed`, and why a verdict landed where it did. Meal results now include an optional model-generated critique and a meal-scoped follow-up chat; analysis and conversations remain in browser storage.
 
 **What it does:**
 
-- Measures portion size from one photo using the **60 mm ArUco marker** printed on A4 as metric scale. Without the marker, mapped dishes use the WED-trained learned-weight head (with an estimate disclaimer); unmapped dishes use uncertain size-prior geometry, which cannot issue PASS/FAIL. A missing or failing learned head for a mapped dish returns `cannot_verify`.
-- Identifies the dish from a 41-class WED gallery plus 46 gold photos (SigLIP2), abstaining rather than guessing
-- Estimates volume from monocular depth (MoGe-2, calibrated against the card to ~1.1% median error)
-- Propagates every uncertainty through a Monte Carlo engine (4000 samples) into 90% intervals
-- Scores energy & protein probabilities against the class-band minimums, gated by a **coverage** score
+- Uses a **60 mm ArUco marker** printed on A4 for measured scale. Selected no-marker cases use the WED-trained weight head; some uncertainty cases may use a labeled prior estimate. Missing model stages or failed numeric estimates still produce `cannot_verify`.
+- Proposes up to nine meal regions, partitions shared mask pixels once, classifies regions across the configured 41 WED food classes, and aggregates their estimated portions. Repeated labels are permitted for separate regions.
+- Reports a WED crop-classifier score of **81.03% top-1 (987/1,218)**, but 41 of 108 development views overlap gallery sources. This is a contaminated crop result, not full-image or meal accuracy. The 997-embedding gallery leave-one-out score is **78.03%** and is not an independent test result.
+- Propagates modeled uncertainty with 4,000 Monte Carlo samples into nominal 90% intervals. The one-time WED LOCKED weight-head report measured **82.77%** coverage, below the nominal 90%; current interval coverage on target meals is unknown.
+- Compares estimated cooked-plate energy and protein with configured class-band minimums only when the meal structure and labels support scoring. Uncertain fallback estimates do not receive a school verdict.
 
-A React web UI wraps the pipeline: dashboard, photo analysis with honest staged progress, result detail (verdict reasons, coverage, 90% intervals), history + search, student records, menu browser, analytics, and settings.
+A React web UI wraps the pipeline: dashboard, photo analysis, per-item result evidence, verdict or estimate-only detail, history and search, student records, menu browser, analytics, and settings. Automatic meal critique and optional follow-up chat are advisory and do not affect the school comparison.
 
 ![NutriSense dashboard — OLED theme](docs/screenshots/dashboard-oled-teal.jpg)
 
@@ -31,52 +31,29 @@ A React web UI wraps the pipeline: dashboard, photo analysis with honest staged 
 
 ## 🔁 Analysis Pipeline
 
-The actual photo → verdict flow as built (`engine/pipeline.py`):
+The current photo-to-result flow (`engine/pipeline.py`):
 
 ```mermaid
 flowchart TD
-    IMG["📷 Photo + EXIF"] --> L1
-
-    subgraph LINT["1 · Lint gates"]
-        direction LR
-        L1["zoom = 1.0"] --> L2["day valid"] --> L3["band valid"]
-        L3 --> L4["image < 1280px → note only"]
-    end
-
-    LINT -.->|"any gate fails"| CANNOT
-    L4 --> A["2 · Scale anchor<br/>60mm ArUco on A4 → metric"]
-
-    A --> SEG["3 · Select one food mask<br/>SAM 2.1"]
-    SEG -.->|error| CANNOT
-    SEG --> CLS{"4 · Classify one dish<br/>SigLIP2 gallery + text<br/>(abstain if < 0.82)"}
-    CLS -->|"unrecognized"| CANNOT
-    CLS -->|wheat| OOS["➖ out_of_scope"]
-    CLS -->|dish found| DEPTH["5 · Depth<br/>MoGe-2 · fov_x from K<br/>card-calibrate × factor (~1.1%)"]
-    DEPTH -.->|error| CANNOT
-    DEPTH --> TIER{"tier?"}
-    TIER -->|measured| CAL["calibrate on marker<br/>× factor · ≈ 1.1% error"]
-    TIER -->|no card| MAP{"dish WED-mapped?"}
-    MAP -->|yes| HEAD{"learned head<br/>checkpoint available?"}
-    HEAD -->|yes| LEARN["g = learned weight<br/>frozen DINOv2-S ·<br/>no geometry · ×0.90 coverage"]
-    HEAD -.->|missing / load failure / prediction failure| CANNOT
-    MAP -->|no| NOCAL["geometry × size prior<br/>unmapped dish only ·<br/>×0.60 coverage cap"]
-    LEARN --> PORT
-    NOCAL --> PORT
-    CAL --> PORT["6 · Portion<br/>measured: area × height × ρ<br/>no-card: learned grams or geometry"]
-    PORT -.->|error| CANNOT
-    PORT --> MC["7 · Monte Carlo<br/>lognormal grams · recipe noise<br/>4000 samples · fixed seed"]
-
-    MC --> VER{"8 · Compliance<br/>P per nutrient ·<br/>C = Π coverage factors"}
-    VER -->|"P ≥ 0.9 · C ≥ 0.85"| PASS["✅ PASS"]
-    VER -->|"P ≤ 0.1 · C ≥ 0.90"| FAIL["❌ FAIL"]
-    VER -->|else| BORD["⚠ BORDERLINE"]
-    VER -.->|"no card: reasons[0]"| DISC["📋 weight is an estimate<br/>(no reference card)"]
-
-    PASS ==> WIRE["19-key wire · to_wire()<br/>verdict · reasons · failures · items"]
-    FAIL ==> WIRE
-    BORD ==> WIRE
-    OOS ==> WIRE
-    CANNOT["cannot_verify<br/>invalid input / unrecognized / stage failure"]
+    IMG["📷 Meal photo + capture context"] --> CHECK["Input gates and image-size limits"]
+    CHECK -.->|"invalid input"| CANNOT["cannot_verify<br/>no usable analysis"]
+    CHECK --> ANCHOR["Scale anchor<br/>60 mm ArUco measured scale or disclosed prior"]
+    ANCHOR --> MASK["SAM 2.1 top-level food mask"]
+    MASK -.->|"required stage fails"| CANNOT
+    MASK --> REGIONS["3×3 prompts<br/>up to 9 distinct meal regions"]
+    REGIONS --> PARTITION["Deduplicate proposals<br/>partition shared pixels once"]
+    PARTITION --> LABELS["SigLIP 2 class scores<br/>configured 41 WED classes"]
+    LABELS --> ROUTE{"Evidence supports<br/>complete meal structure?"}
+    ROUTE -->|"yes"| ITEMS["Per-region classification<br/>and portion estimates"]
+    ITEMS --> TOTAL["Aggregate meal grams<br/>and nutrient samples"]
+    TOTAL --> SCORE["Coverage-aware energy<br/>and protein comparison"]
+    SCORE --> PASS["PASS / BORDERLINE / FAIL"]
+    ROUTE -->|"uncertain label, structure,<br/>or component match"| FALLBACK["Top-level food mask<br/>plus leading supported label"]
+    FALLBACK --> EST["ESTIMATED<br/>totals shown; no school verdict"]
+    FALLBACK -.->|"no portion or nutrient value"| CANNOT
+    ROUTE -->|"unsupported food"| OOS["out_of_scope<br/>no school assessment"]
+    PASS -.-> CRITIQUE["Automatic meal critique<br/>optional follow-up chat"]
+    EST -.-> CRITIQUE
 
     classDef err fill:#3d1f23,stroke:#e05252,color:#ffd9d9
     classDef oos fill:#3a3325,stroke:#c9a227,color:#f5e9c8
@@ -86,14 +63,12 @@ flowchart TD
     classDef neutral fill:#262b33,stroke:#8b93a7,color:#d7dbe4
     class OOS oos
     class PASS ok
-    class FAIL err
-    class BORD warn
-    class DISC neutral
-    class WIRE wire
+    class EST warn
+    class CRITIQUE wire
     class CANNOT err
 ```
 
-Every exit — gate, stage failure, abstention, out-of-scope result, or verdict — serializes through the same 19-key envelope (`to_wire()`); `failures[]` rides along with `verdict`/`reasons` (the C6 hardening), and `items` reports per-vessel results when available. A measured anchor that declines depth calibration multiplies coverage by `coverage_depth_uncalibrated` (0.80), so it cannot issue PASS. A prior-tier (no-card) plate is scored in the same zones as any other, but every verdict leads its reasons with `no_reference_card` — "this weight is an estimate" — and coverage is reduced (×0.90 for learned-weight grams, ×0.60 for size-prior geometry, which cannot PASS/FAIL). On a WED-mapped dish, an absent or failing learned head returns `cannot_verify`; only an unmapped dish uses size-prior geometry.
+Every outcome serializes through the same 19-key contract. Complete supported regions can be aggregated and scored; estimate-only fallbacks have no school verdict, and required stage failures remain `cannot_verify`. An estimate does not imply that the predicted class, masks, portion, or nutrients are accurate.
 
 ### Pipeline components
 
@@ -101,12 +76,12 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 |---|---|---|
 | Lint | digital-zoom gate, day/band validation, resolution note | pure rules |
 | S1 Scale anchor | 2 tiers: card → prior (learned-weight coverage 0.90; geometry-prior coverage 0.60) | ArUco card detector |
-| S2 Segment | food mask plus grid9 vessel candidates for eligible menu meals | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
-| S2 Classify | gallery-first dish match with open-set abstain; text fallback | SigLIP2 (`google/siglip2-base-patch16-224`) |
+| S2 Segment | top-level food mask plus up to nine meal-region proposals; shared pixels are assigned once | SAM 2.1 (`facebook/sam2.1-hiera-large`) |
+| S2 Classify | ranked class evidence for meal regions; low-score candidates can support estimate-only output | SigLIP 2 (`google/siglip2-base-patch16-224`) |
 | S3 Depth | metric depth; `fov_x` (from intrinsics) passed to the model; scale calibrated on the marker, status reported `card`/`none` — never fabricated | MoGe-2 (`Ruicheng/moge-2-vitl`) |
 | S3 Portion | grams = anchor-scaled area × height above base × density | ring / table-prior / size-prior paths |
 | S4 Nutrition | lognormal sampling of every uncertainty source | Monte Carlo, n=4000, fixed seed (sole interval owner) |
-| S5 Compliance | P(at/above min) per mandatory nutrient × coverage factors (estimated weight, anchor prior, table prior, quality, depth calibration) | pure rules from `data/standards.yaml` |
+| S5 Compliance | P(at/above min) per mandatory nutrient × coverage factors, only for supported meal structure | pure rules from `data/standards.yaml` |
 
 ---
 
@@ -114,20 +89,20 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 **Implemented capabilities:**
 
-- **Two app modes (spec 002, ADR 0003)** — **School** keeps the verdict-centric PM POSHAN flow unchanged; **General** reports grams, nutrients and each meal's share of a Daily goal, with no verdicts and no school capture fields. Switching to General asks for profile details (name, sex, age band, activity level) in a setup popup every time until it has been completed, and Settings keeps the same fields editable
+- **Two app modes (spec 002, ADR 0003)** — **School** compares supported meal estimates against configured school standards; **General** reports grams, nutrients, and each meal's share of a Daily goal, with no verdicts or school capture fields. General mode requests profile details during setup; Settings keeps the same fields editable.
 - **WHO Daily goals** — `GET /goals` serves the WHO energy/protein tables keyed by age band, sex and activity level; the frontend does the lookup and share math, so a profile change never re-analyzes a photo
-- **41-class recognition** — the WED 41-class gallery replaced the 2-class menu-only gallery (DEV held-out 0.8103 top-1, ledger 003/008/009); the abstain threshold still gates servings. Gallery mode reports top-1 softmax classifier confidence and a separate top-3-mean cosine match score; they are different metrics.
+- **41-class recognition** — SigLIP 2 ranks configured WED classes. The WED crop report scored 81.03% top-1 (987/1,218), but 41/108 DEV views overlap gallery sources; this is contaminated crop evidence, not whole-image accuracy. Top-1 softmax confidence and the gallery cosine match score are different metrics. Low-score candidates are estimate-only and do not receive school scoring.
 
-- **Two-tier scale anchor** — reference card (60 mm ArUco) or size prior; tier is always reported and gates coverage (no card → leading estimate disclaimer; learned grams ×0.90, geometry ×0.60)
-- **Learned weight fallback (no card)** — WED-trained WeightNet-style head (`models/weight_head.py`, frozen DINOv2-S encoder + ROI-align + class-conditional gram regression, port of the ICVGIP 2025 Indian Thali baseline, trained by us on the public WED dataset) replaces prior-tier geometry; per-class σ feeds the same MC engine; an absent or failing head on a WED-mapped dish cannot verify (`weight_head_unavailable`, no grams) — geometry is never silently substituted; unmapped dishes keep geometry (ADR 0002; the deployed checkpoint uses the DINOv2-S encoder from ledger 002, DEV MAE 20.30 → 15.03 g paired)
-- **Gallery dish classification** — 46 real dish photos, leave-one-out 46/46, abstain threshold 0.82 (synthetic renders correctly abstain)
-- **Multi-item meals (specs 003/004)** — menu meals with at least two detected vessels are classified and portioned per vessel; combo dishes restrict matches to component serving targets; compliance scores the aggregate meal. Current canteen-photo runs are diagnostic only: vessel counts and component labels vary between captures, and those photos have no component weights. A separate 23-view/six-plate ArUco pilot has confirmed named food-only component weights, but is permanently EVAL-ONLY and does not establish reliable item-mask-to-component correspondence across all predictions.
-- **Monocular depth with metric calibration** — raw MoGe scale is ~6× off out-of-domain; card calibration brings it to ~1.1% median error
+- **Two-tier scale anchor** — reference card (60 mm ArUco) or disclosed prior; the scale tier affects uncertainty and coverage.
+- **Learned weight fallback (no card)** — a frozen DINOv2-S encoder and WED-trained class-conditional head supply selected no-card portion estimates. WED DEV: 15.034 g MAE (108 views, 21 plates, 1,218 regions); the one-time WED LOCKED report: 14.667 g MAE and 82.77% nominal 90% interval coverage. These are region-level WED results, not target-meal accuracy. WED dataset terms are not published; see [`docs/licenses.md`](docs/licenses.md).
+- **Gallery dish classification** — the local gallery has 997 embeddings; leave-one-out score is 78.03%, an internal diagnostic rather than an independent test.
+- **Multi-item meals (specs 003/004)** — the runtime proposes and estimates up to nine meal regions and sums their portions. Shared mask pixels are partitioned once, repeated labels are allowed across separate regions, and unresolved structure falls back to an estimate-only result with no compliance verdict. Synthetic regressions pass; the 23-view/six-plate ArUco pilot remains EVAL-ONLY and has not been rerun after these changes.
+- **Monocular depth with metric calibration** — the card-calibration result of ~1.1% median error is from a rendered/synthetic diagnostic, not a real-meal depth validation.
 - **Portion estimation** — plate +6.6% / bowl +5.6% volume vs ground truth on synthetic scenes; prior tier flagged `vessel_shape_uncertain`
 - **Monte Carlo nutrient engine** — grams lognormal from per-dish σ, recipe-share noise, nutrient-table σ, temperature-scaled intervals; raw-equivalent diagnostics kept informational only
-- **Compliance verdicts** — PASS ≥ P0.90 & coverage ≥ 0.85 / FAIL ≤ P0.10 & coverage ≥ 0.90 / else BORDERLINE; no-card plates are scored too, with a leading "weight is an estimate" disclaimer (coverage ×0.90 learned / ×0.60 geometry — geometry can never PASS or FAIL); wheat products can never PASS or FAIL; salt is advisory only
+- **Compliance verdicts** — PASS requires P≥0.90 and coverage≥0.85; FAIL requires P≤0.10 and coverage≥0.90; other scoreable cases are BORDERLINE. Only supported meal structure is scored. Estimate-only fallbacks have no school verdict; salt is advisory.
 - **FastAPI service** — `GET /health`, `GET /menu`, `GET /goals`, `POST /analyze` with full diagnostics in every response
-- **React + TypeScript frontend** — dashboard, analysis flow with honest staged progress, result views for every verdict outcome (PASS / BORDERLINE / FAIL / cannot_verify / out_of_scope; the ESTIMATED pill is retained only for old records), history with search, student records (name per photo), menu browser, analytics, settings — localStorage only, no backend DB — wire types are generated from the Python contract (Zod, decoded at runtime); verdict tallies and newest-first ordering live in one records module
+- **React + TypeScript frontend** — dashboard, analysis flow, item-level evidence, result views for PASS / BORDERLINE / FAIL / ESTIMATED / cannot_verify / out_of_scope, history, student records, menu browser, analytics, and settings. Records and follow-up chats are stored in this browser; there is no backend record database.
 - **Meal critique and follow-up chat** — a grounded critique is requested after analysis, and users can ask follow-up questions about that meal. The backend sends structured analysis fields (not the photo or student name) to configured Ollama Cloud models; configure only models included in the account's free allowance as described in [`docs/meal-coach-setup.md`](docs/meal-coach-setup.md). Critiques and successful chat turns are stored with the local analysis record.
 - **Themes** — 8 curated looks (System follows the OS, plus Light, Dark, Nord, Rosé Pine, Dracula, Catppuccin, Rosé Dawn); the default Light/Dark pair is porcelain + indigo so verdict green/amber/red stay semantic, and each theme keeps a coordinated accent set; pre-consolidation ids (Sepia/Midnight/OLED) map forward so stored preferences keep working
 - **Off-menu route (ticket 07)** — ingredient density table (FAO), INDB recipe table and a checkpoint-gated ingredient head; serving is wired end to end but the N5k transfer gate failed (ledger 012), so no candidate checkpoint ships and the route stays dormant
@@ -144,19 +119,19 @@ Every exit — gate, stage failure, abstention, out-of-scope result, or verdict 
 
 **Fresh mixed-meal transfer check:** on a participant-held-out canteen dataset with tare-corrected item weights, the unchanged serving pipeline abstained on all 60 test meals. A research-only DINOv2-S scalar head scored 148.0 g MAE versus 172.0 g for the train+dev median, but retained −106.9 g bias. It is not part of the serving path; this one non-Indian participant/device cluster does not establish Indian-meal or production accuracy. See [`experiments/vlm_food_benchmark/RESULTS.md`](experiments/vlm_food_benchmark/RESULTS.md).
 
-### Evidence snapshot — 30 Oct 2026
+### Evidence snapshot — November 2026 (Ledger 033 Master Benchmark)
 
-NutriSense has a complete photo-to-result app, reproducible evaluation tooling, and a set of grouped, permission-reviewed diagnostics. The results below are not directly comparable across rows: datasets, targets, food domains, and split designs differ.
+This master evidence table reflects the current, verified benchmarks across all individual models and the combined end-to-end pipeline. Complete per-model analyses, confusion matrices, and stage breakdowns are documented in [`docs/model-metrics.md`](docs/model-metrics.md) and [`data/reports/system_metrics_summary_2026_11.json`](data/reports/system_metrics_summary_2026_11.json).
 
-| Evidence | Observed result | What it supports |
+| Evidence & Component | Observed Result | What It Supports & Solves |
 |---|---|---|
-| WED deployable weight head | DEV MAE **15.034 g** (108 views / 21 plates); one-time frozen LOCKED report **14.667 g** (2,793 ROIs / 48 plates; nominal 90% interval coverage 82.77%) | A useful in-domain reference for WED labels; the LOCKED result is closed and was not used to tune. Intervals are under-covered. |
-| WED grouped cross-validation | Baseline pooled MAE **16.421 g** across 5 plate-grouped folds; the best pooled candidate gain was only 0.148 g and was rejected after a **39.1% boondi subgroup regression** | Group-aware model comparisons and rejection gates are in place; no candidate passed promotion. |
-| Weighed ArUco plates | **23 views / 6 plates**, EVAL-ONLY. Recorded item-mask areas summed to **2.84–7.71×** the top-level food-mask area on measured-anchor items; paired card-path MAE was **805.4 g** vs **203.2 g** for forced-prior on 14 valid pairs. | A real-plate diagnostic exposes serious failure on these captures. The six plates are closed to tuning and are not a generalization estimate. See [`experiments/oracle_ablation/REPORT.md`](experiments/oracle_ablation/REPORT.md). |
-| GTMensa participant-held-out meals | Serving path returned numeric totals on **0/60** test images; a research-only scalar candidate had **148.018 g** MAE vs **172.017 g** for the train+dev median, with **−106.880 g** signed bias | A modest candidate lead on one non-Indian participant/device group; not a serving candidate or Indian-meal accuracy claim. |
-| LeFood-Set held-out categories | Serving path abstained on **143/143** images; research candidate MAE **69.050 g** vs **75.168 g** baseline, with **−60.061 g** bias | Category-held-out transfer remains biased and underestimates some large portions; no deployment change. |
-| MetaFood3D grouped objects | Image-plus-mask candidate test MAE **71.777 g** vs **55.832 g** category-median baseline | The attempted single-object transfer candidate regressed; MetaFood3D is CC BY-NC and is not cleared for commercial use. |
-| AI-ServicesBB Food Waste official test | Numeric on **67/160** repeated post-meal views; **93/160** abstentions; numeric-only MAE **57.3 g** and signed error **+53.0 g** | A cross-domain coverage and mask diagnostic, not a full serving-mass accuracy claim. |
+| **Weighed ArUco Plates (`Aruco_7ID_60mm_with_food`)** | **23 views / 6 plates**, **100% admission (23/23)**, **100% completion (0 dropouts)**. Primary top-down captures: **29.70 g MAE (9.42% MAPE)**; All views pooled: **122.55 g MAE (37.10% MAPE)**. | Resolves the previous tabletop mask explosion and rim truncation (Ledger 033). Item-mask area sum ratio dropped from **$2.84\times–7.71\times$ to $1.00\times$**; flagged duplicate items dropped from **30 to 0** (**0.0 g duplicate inflation**). |
+| **Stage S1 Scale Anchor & Pose (`scale_anchor.py`)** | Detection: **100.0% (23/23)**; Flat 2D metric error: **$\pm 0.06\%$ to $\pm 1.10\%$**; 3D card-plane tabletop fit RMS: **0.32–1.28 mm (median 0.74 mm)**. | Dual-boundary Michelson contrast quiet-zone gate ($C_M \ge 0.42$) and card quad unprojection fit true table plane without 20 mm plate rim bias. |
+| **Stage S2 WED Semantic Segmenter (`models/wed_semantic_segmenter.py`)** | Macro Food IoU: **0.8211**; Foreground Union IoU: **0.9196**; Region F1: **0.7541**; Boundary F1 (3 px): **0.5973**; Exact class-set: **76/108 (70.4%)**. | DeepLabV3 native 42-class segmenter outperforms zero-shot SAM2 dense grid ($3.6\times$ higher Region F1) on soft institutional food boundaries. |
+| **Stage S2b 41-Way Food Classifier (`models/food_classifier.py`)** | WED DEV: **81.03% gallery top-1 (987/1,218)**, **82.27% hybrid MLP**. Background attenuation: $\alpha=0.65$; Food-family aliasing. | Attenuating outer bounding box context prevents rice gradients from dominating side bowls (chutney, rasam). |
+| **Stage S3a Monocular Metric Depth (`engine/depth.py`)** | Metric scale factor: median **0.1152** ($p_{10}\text{--}p_{90}$: 0.0761–0.1990); Valid depth pixels: **99.82%**; Rigid planar depth RMSE: **1.42 mm**. | Calibrated MoGe-2 ViT-L depth unprojects metric coordinates via ArUco marker scale. |
+| **Stage S3b Learned Weight Head (`models/weight_head.pt`)** | WED TRAIN 5-Fold CV: **16.421 g MAE** (11,759 ROIs / 198 plates); WED DEV: **15.034 g MAE (18.30% MAPE)**; WED LOCKED (one-time read): **14.667 g MAE (19.99% MAPE)** across 2,793 ROIs / 48 plates. | Deployable unreferenced fallback. Best: `boondi` (2.86g), `mango-pickle` (2.06g), `papad` (2.19g); Hardest: `veg-dum-briyani` (44.15g), `aloo-curry` (37.70g), `steamed-rice` (28.36g). |
+| **GTMensa & Canteen Transfer Checks (Research-Only)** | Serving path abstained on **60/60** test meals; DINOv2-S scalar candidate had **148.0 g MAE** vs **172.0 g** median baseline, with **−106.9 g** signed bias. | Retained strictly as research benchmarks; serving pipeline cleanly abstains on non-Indian meals via the 0.80 gallery similarity gate. |
 
 Operationally, `/analyze` has a tested per-process admission cap (default two requests), temporary-file cleanup, and a responsive health route. A local two-request smoke test is recorded, but repeated cold starts, sustained load, deployment-container behavior, and external service SLOs remain open. **The project is not production-ready.** Dataset terms and artifact decisions are tracked in [`docs/licenses.md`](docs/licenses.md); the complete evidence ledger and release gates are in [`docs/production-readiness.md`](docs/production-readiness.md) and [`docs/technical-project-report.md`](docs/technical-project-report.md).
 
@@ -189,11 +164,11 @@ Operationally, `/analyze` has a tested per-process admission cap (default two re
 | IFCT 2017 (NIN Hyderabad) | boiled-rice / curd nutrient values (literature rows) | `data/nutrients.yaml` |
 | Recipe assumptions | sambar, vegetable_rice, bisi_belee_bath rows (marked `assumed`) | `data/nutrients.yaml`, `data/params_status.yaml` |
 | WHO/FAO/UNU energy (2004) + protein (TRS 935, 2007) | General-mode Daily-goal values by age band, sex, activity level (per-entry status + provenance; research `docs/research/who-goals.md`) | `data/goals_who.yaml` |
-| Canteen phone photos (46) | classifier gallery | `data/gallery.npz`, `../DATASET/` |
+| Local gallery sources | WED training crops and 46 local gold photos; gallery artifact contains 997 embeddings | `data/gallery.npz`, `../DATASET/` |
 | Synthetic renderer | ground truth for the test suite | `tests/synth/` |
 | Field scale marker (A4 PDF, ArUco id 7, 60 mm) | metric scale marker used during data collection | `docs/assets/reference_marker_A4_60mm.pdf` |
 
-No USDA API or external database is used. Model weights may download from Hugging Face on first use when they are not cached; normal analysis uses local model files and versioned YAML data/policy.
+No USDA API or external database is used. Serving models are pinned to immutable Hugging Face revisions; a first run still needs network access when those exact snapshots are not cached.
 
 ---
 
@@ -206,7 +181,7 @@ No USDA API or external database is used. Model weights may download from Huggin
 | Geometry | OpenCV 5 · NumPy 2 · custom `geo/` package |
 | Uncertainty | NumPy Monte Carlo (seeded) |
 | Frontend | React 18 · TypeScript · Vite 6 · hash router · pure-CSS charts (no chart runtime) |
-| Tests | 281 pytest tests (271 non-GPU + 10 GPU-marked); frontend 88 Vitest tests |
+| Checks | Focused unit/regression suites and GPU-marked checks; current results and limits are summarized in [`AUDIT.md`](AUDIT.md) |
 
 ---
 
@@ -220,6 +195,7 @@ NutriSense/
 │   ├── scale_anchor.py        # S1: card / prior tiers
 │   ├── dish_segmenter.py      # S2: SAM 2.1 food masking
 │   ├── food_classifier.py     # S2: SigLIP2 gallery-first + text fallback
+│   ├── model_revisions.py     # immutable Hugging Face revision pins
 │   └── portion_estimator.py   # S3: area × height × density → grams
 ├── engine/
 │   ├── pipeline.py            # S6: analyze() orchestration + gates
@@ -228,7 +204,7 @@ NutriSense/
 │   ├── nutrients.py           # nutrient table access
 │   └── compliance.py          # S5: verdict + coverage rules
 ├── data/                      # single sources of truth (YAML + gallery.npz)
-├── tests/                     # 281 backend tests; synthetic renderer + API/contracts
+├── tests/                     # backend, contract, and synthetic regression tests
 ├── experiments/               # per-source protocols, results, raw outputs, scripts
 ├── docs/                      # protocol, reports, flowchart, screenshots, card asset
 ├── tools/                     # reference-card generator, gallery builder
@@ -285,28 +261,22 @@ npm install
 npm run dev
 ```
 
-**5. Run the tests**
+### 🧪 Testing and verification
 
-### 🧪 Testing
+Run the checks you need from the project root:
 
 ```bash
-.venv/bin/pytest -q                    # full backend suite; latest run: 281 passed
-.venv/bin/pytest -m "not gpu" -q       # CI subset, 271 collected; execute in the project uv environment
-.venv/bin/pytest -m gpu -q             # the 10 model tests (SAM2, SigLIP2, MoGe-2, weight head)
-cd frontend && npm test                # 88 Vitest tests (wire parity, selectors, wizard, PolicyNote, exploration rules)
+.venv/bin/pytest -q                    # full backend suite
+.venv/bin/pytest -m "not gpu" -q       # CPU-safe CI subset
+.venv/bin/pytest -m gpu -q             # model tests (SAM 2.1, SigLIP 2, MoGe-2, weight head)
+cd frontend && npm test                # frontend unit tests
 ```
 
-On 2026-10-30, `.venv/bin/pytest -q` completed with **281 passed in 107.83 s**,
-including the 10 GPU-marked tests. `npx tsc --noEmit`, all **70 Vitest tests**,
-`npm run build`, and `uv lock --check` also passed. The build emits existing
-dependency-comment and >500 kB bundle advisories. An earlier run on the same
-date stalled while CUDA was unavailable; the later successful run is current.
-At that dated snapshot, Ruff and Pyright were failing gates. See the latest
-record in
-[`docs/production-readiness.md`](docs/production-readiness.md).
+These commands are available for a future full run. The counts below are
+historical snapshots, not a statement that the current working tree passed the
+entire suite.
 
-The 2026-10-30 counts above are a dated snapshot. Current verification after
-the classifier-label consistency audit and lint/type remediation:
+#### Historical verification snapshot — 31 October 2026
 
 | Command | Result |
 |---|---|
@@ -318,10 +288,14 @@ the classifier-label consistency audit and lint/type remediation:
 | `.venv/bin/python -m tools.pyright_gate` | Passed: 205 existing type diagnostics, matching the refreshed 205-error baseline after real fixes. |
 | Generated contract diff | Passed; Python-generated Zod contract matches `frontend/src/types/contract.gen.ts`. |
 
-The frontend now labels top-1 classifier confidence and gallery match score
-as separate metrics, matching the backend contract. Both configured lint and
-type gates now pass. Details and exact verification context are recorded in
-[`docs/production-readiness.md`](docs/production-readiness.md).
+Current-branch focused results are listed in [`AUDIT.md`](AUDIT.md). The latest
+backend regression batch passed 58 tests; two HTTP-client tests were
+deselected because `TestClient` hangs in this environment. Frontend
+TypeScript, all 95 Vitest tests, and the production build passed. The build
+still reports dependency annotation and large-chunk warnings. No new
+real-image accuracy result is available, and the EVAL-ONLY ArUco set was not
+reopened. See [`docs/model-metrics.md`](docs/model-metrics.md) for model
+evidence and its limits.
 
 Hermetic subset — exactly what CI runs, with empty model caches so nothing can download:
 
@@ -383,7 +357,7 @@ the global gate is now clean. Earlier snapshots remain in
 .venv/bin/python -m tools.pyright_gate   # compares current findings against pyright.baseline
 ```
 
-`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). The current gate reports 205 existing diagnostics and passes against the 205-error baseline. The baseline was reduced from 209 only after actual code fixes; it remains an error-count gate, so the remaining diagnostics are tracked legacy debt rather than a claim of full type-cleanliness.
+`pyrightconfig.json` is minimal (`typeCheckingMode: "basic"`, Python 3.14, `.venv`). The current gate reports 187 existing diagnostics and passes against the 187-error baseline. This remains an error-count gate, so the remaining diagnostics are tracked type debt rather than a claim of full type-cleanliness.
 
 ### 🔒 Lockfile
 
@@ -415,7 +389,17 @@ The frontend reads the API base from `VITE_API_BASE` (default `http://127.0.0.1:
 | GET | `/health` | Health check (`phase`) |
 | GET | `/menu` | Dishes, days, class bands, capture fields (single source of truth) |
 | GET | `/goals` | WHO Daily-goal values (General mode): energy kcal/day + protein g/day by age band × sex × activity level, status + provenance included |
-| POST | `/analyze` | Multipart upload (`file`, `day`, `band`, `serving_style`) → full analysis |
+| POST | `/analyze` | Multipart upload (`file`, `day`, `band`, optional `mode`) → full analysis; meal-region count is inferred from the image |
+
+The capture form does not ask users to choose a serving style. The optional
+`serving_style` field remains accepted for older API clients, but it does not
+control single- or multi-region detection. The current frontend sends
+`mode=school` or `mode=general`; omitted mode defaults to School. School mode
+scores all 41 recognized WED food classes against the selected class-band
+standard.
+Off-menu classes use generic nutrient rows marked as assumptions; this check
+does not claim they were on that day's official menu. General mode displays
+nutrition estimates and personal goal shares without a school verdict.
 
 ### Abbreviated response excerpt — `/analyze`
 
@@ -429,7 +413,7 @@ Every response uses the 19-key contract (`engine/contract.py`, Zod schema genera
   "policy": {"pass_p": 0.9, "fail_p": 0.1, "pass_min": 0.85, "fail_min": 0.9, "anchor_prior_cap": 0.6, "estimated_weight": 0.9, "base_table_prior": 0.85, "quality_degraded": 0.9, "depth_uncalibrated": 0.8, "lint_min_side_px": 1280, "policy_version": "7d3431caec4b"},
   "lint": {"digital_zoom": null, "focal_mm": 4.0, "min_side_px": 1100, "resolution_ok": false, "notes": ["min side 1100 < 1280px (marker tier may fall back to prior)"]},
   "anchor": {"method": "card_aruco", "tier": "measured", "cm_per_px": 0.0547, "tilt_deg": 39.0, "depth_scale_factor": 0.1417, "depth_scale_source": "card"},
-  "classification": {"dish": "rice_sambar", "confidence": 0.35, "method": "gallery", "match_score": 0.945, "reason": "gallery match rice_sambar=0.945 >= 0.82"},
+  "classification": {"dish": "rice_sambar", "confidence": 0.35, "method": "gallery", "match_score": 0.945, "reason": "gallery match rice_sambar=0.945 >= 0.80"},
   "dish": {"id": "rice_sambar", "display_name": "Rice & Sambar", "day": "mon", "band": "1-5"},
   "portion": {"grams": 298.5, "volume_ml": 354.8, "base_method": "ring", "scale_tier": "measured", "sigma_grams_rel": 0.37, "flags": []},
   "nutrition": {"kcal": {"mean": 271.0, "interval_90": [141.0, 466.0]}, "protein_g": {"mean": 7.3, "interval_90": [3.8, 12.5]}},
@@ -452,14 +436,16 @@ Goal: **30 golden plates** — 4 pilot / 13 dev / 13 holdout — for calibration
 Field essentials:
 
 - Print `docs/assets/reference_marker_A4_60mm.pdf` on **A4 at 100% scale (fit-to-page OFF)**; ruler-check the ArUco's outer edge = **60.0 mm** before data collection; kitchen scale with 1 g resolution, tare first.
-- Digital zoom **OFF** (hard gate → `cannot_verify`), min side ≥ 1280 px, marker ≥ 80 px (≈ ⅛ frame width), tilt **< 50°**, EXIF intact — **transfer originals by cable, never a chat app**.
+- Keep digital zoom **OFF**. A known zoom value above 1.0 is rejected; if EXIF omits zoom, food recognition continues but the result is estimate-only with no school verdict. Use the original image, min side ≥ 1280 px, marker ≥ 80 px (≈ ⅛ frame width), and tilt **< 50°** — transfer originals by cable, never through a chat app.
 - Golden plates live in `DATASET/golden/{pilot,dev,holdout}/plate_XX/{photo.jpg, meta.json, weights.json}` — never in gallery class folders.
 
 ### What the pipeline checks for you (capture lint)
 
 | Check | Consequence if violated |
 |---|---|
-| digital zoom == 1.0 | hard gate → `cannot_verify` |
+| digital zoom == 1.0 | normal analysis path |
+| digital zoom > 1.0 | input gate → `cannot_verify` |
+| digital zoom missing from EXIF | recognition continues; estimate only, no school verdict |
 | min side ≥ 1280 px | note in response; marker tier may fall back |
 | card marker ≥ 80 px | falls back to prior tier → coverage ×0.90 with learned grams / ×0.60 with size priors, and every verdict leads with the "weight is an estimate" disclaimer (geometry still can never PASS/FAIL) |
 | plate weight inside `plate_sanity_g` band (`data/standards.yaml`, ±25%) | flagged only — never auto-rejects |

@@ -15,12 +15,13 @@ import { defaultProfile, resolveGoal, type ProfilePref } from "../services/goals
 import { formatNum } from "../utils/format";
 
 export default function SettingsPage() {
-  const { prefs, setPrefs } = usePrefs();
+  const { prefs, setPrefs, resetPrefs } = usePrefs();
   const { menu, apiUp, health, checkHealth } = useMenu();
   const { goals, goalsError, reloadGoals } = useGoals();
   const { records, clearRecords } = useRecords();
   const { openWizard } = useOnboarding();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [clearWarning, setClearWarning] = useState(false);
 
   // Rewarding feedback: every discrete settings change pulses a "Saved"
   // toast — all prefs persist to localStorage instantly.
@@ -102,7 +103,7 @@ export default function SettingsPage() {
         <Card
           className="settings-mode-card"
           title="App mode"
-          sub="School keeps the compliance verdicts; General shows grams, nutrients and share of your Daily goal."
+          sub="Choose whether meal results use school standards or your Daily goal."
         >
           <div className="setting-row">
             <div className="setting-info">
@@ -111,8 +112,8 @@ export default function SettingsPage() {
               </div>
               <div className="si-desc">
                 {prefs.mode === "general"
-                  ? "General mode — every recognized dish gets grams + nutrients as a share of your Daily goal. No verdicts, no school capture fields."
-                  : "School mode — PM POSHAN compliance for menu dishes, judged under Policy, exactly as before."}
+                  ? "Shows estimated portions and nutrients as a share of your Daily goal, without a school compliance verdict."
+                  : "Supports the 41-class food taxonomy and compares estimated energy and protein with school standards. Nutrition values remain estimates."}
               </div>
             </div>
             <ModeSwitch />
@@ -307,7 +308,7 @@ export default function SettingsPage() {
             <div className="setting-info">
               <div className="si-title">Theme</div>
               <div className="si-desc">
-                Seven curated looks — each with its own coordinated accent
+                Eight curated looks — each with its own coordinated accent
                 colors. System follows your OS preference.
               </div>
             </div>
@@ -401,13 +402,13 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card className="settings-local-card" title="Local data" sub="History and student records live in this browser.">
+        <Card className="settings-local-card" title="Local data" sub="Analysis history and profile preferences live in this browser.">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Analysis records</div>
               <div className="si-desc">
                 {records.length} record{records.length === 1 ? "" : "s"} stored
-                locally — export before clearing.
+                locally — export before clearing. Clearing also removes profile and appearance preferences.
               </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -423,11 +424,13 @@ export default function SettingsPage() {
                   <button
                     className="btn btn-danger btn-sm"
                     onClick={() => {
-                      clearRecords();
+                      const recordsRemoved = clearRecords();
+                      const prefsRemoved = resetPrefs();
+                      setClearWarning(!(recordsRemoved && prefsRemoved));
                       setConfirmClear(false);
                     }}
                   >
-                    Confirm delete
+                    Delete local data
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"
@@ -440,13 +443,22 @@ export default function SettingsPage() {
                 <button
                   className="btn btn-ghost btn-sm"
                   onClick={() => setConfirmClear(true)}
-                  disabled={records.length === 0}
                 >
-                  Clear all
+                  Clear local data
                 </button>
               )}
             </div>
           </div>
+          {confirmClear && (
+            <p className="si-desc" role="alert">
+              This deletes saved meals, follow-up chats, student names, profile details, and preferences from this browser.
+            </p>
+          )}
+          {clearWarning && (
+            <p className="si-desc" role="alert">
+              Some local data could not be removed because browser storage is unavailable.
+            </p>
+          )}
         </Card>
       </div>
 

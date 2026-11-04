@@ -39,6 +39,7 @@ Run:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import subprocess
@@ -76,9 +77,9 @@ LOADED: list[str] = []            # manifest splits read this process (guard)
 
 
 # ----------------------------------------------------------------- splits --
-def _manifest(split: str) -> list[dict]:
+def _manifest(split: str, *, allow_locked: bool = False) -> list[dict]:
     LOADED.append(split)
-    return load_manifest(split)
+    return load_manifest(split, allow_locked=allow_locked)
 
 
 def train_rows() -> list[dict]:
@@ -258,6 +259,14 @@ def _git_sha() -> str:
         return "unknown"
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _print_block(rep: dict) -> None:
     t = rep["tier"]
     print(f"tier={t} views={rep['n_views']} plates={rep['n_plates']} "
@@ -319,7 +328,9 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--stress is DEV-only (the WED stress suite runs on the "
                  "DEV carve, never on train or locked)")
     t0 = time.time()
-
+    out = Path(args.out) if args.out else (
+        _ROOT / "data" / "reports" / f"run_eval_{args.tier}"
+        f"{'_stress' if args.stress else ''}.json")
     if args.tier == "train":
         rows = train_rows()
         split_note = "WED train split (in-sample: contains the DEV carve)"
@@ -327,7 +338,7 @@ def main(argv: list[str] | None = None) -> int:
         rows = dev_rows()
         split_note = "WED val carve from train plates (seed 42, 10% of plates)"
     else:
-        rows = _manifest("test")
+        rows = _manifest("test", allow_locked=args.i_know_this_is_locked)
         split_note = "WED test split (locked)"
     if "test" in LOADED and args.tier != "locked":
         raise RuntimeError(f"split guard: test read for tier {args.tier}")
@@ -337,10 +348,9 @@ def main(argv: list[str] | None = None) -> int:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if device.type == "cuda":
         torch.cuda.reset_peak_memory_stats()
-    out = Path(args.out) if args.out else (
-        _ROOT / "data" / "reports" / f"run_eval_{args.tier}"
-        f"{'_stress' if args.stress else ''}.json")
-    model = WeightHead.load(_ROOT / "data" / "weight_head.pt", device=device)
+    checkpoint_path = _ROOT / "data" / "weight_head.pt"
+    sigma_path = _ROOT / "data" / "weight_head_sigma.yaml"
+    model = WeightHead.load(checkpoint_path, device=device)
 
     samples = score(model, rows, wed_root(), device, batch=args.batch)
     rep = summarize(samples, tier=args.tier, seed=args.seed, views=len(rows))
@@ -348,6 +358,9 @@ def main(argv: list[str] | None = None) -> int:
                 "split_seed": SPLIT_SEED, "val_frac": VAL_FRAC,
                 "bootstrap_reps": BOOTSTRAP_REPS, "z90": round(Z90, 6),
                 "device": str(device), "checkpoint": "data/weight_head.pt",
+                "checkpoint_sha256": _sha256(checkpoint_path),
+                "sigma_file": "data/weight_head_sigma.yaml",
+                "sigma_file_sha256": _sha256(sigma_path),
                 "limit": args.limit, "stress": None, "dev_real": None})
     _print_block(rep)
 

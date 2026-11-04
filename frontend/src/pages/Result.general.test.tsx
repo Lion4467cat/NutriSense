@@ -114,9 +114,9 @@ function renderGeneral(result: AnalyzeResult) {
 describe("ResultPage in General mode (spec 002)", () => {
   it("renders grams + nutrients + goal shares and NO verdict badge", async () => {
     renderGeneral(fixtureResult);
-    // the meal is shown as a share of the WHO goal (390.8 kcal of 2900 → 13%)
+    // the meal is shown as a share of the WHO goal (355.3 kcal of 2900 → 12%)
     expect(
-      await screen.findByText(/13% of your day/)
+      await screen.findByText(/12% of your day/)
     ).toBeInTheDocument();
     expect(screen.getByText("Share of your Daily goal")).toBeInTheDocument();
     // no compliance verdict anywhere, and no school machinery

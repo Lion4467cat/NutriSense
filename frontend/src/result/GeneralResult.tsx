@@ -7,6 +7,7 @@ import { formatNum, formatPct } from "../utils/format";
 import { explainReason, toReasons } from "../utils/reasons";
 import { reasonTone } from "./verdicts";
 import SummaryCards from "./SummaryCards";
+import MealRegionFigure from "./MealRegionFigure";
 
 /**
  * General-mode result (spec 002, ADR 0003): grams + nutrients + each
@@ -90,11 +91,13 @@ export default function GeneralResult({
   goal,
   summaryAddon,
   photo,
+  demo = false,
 }: {
   result: AnalyzeResult;
   goal: DailyGoal;
   summaryAddon?: ReactNode;
   photo?: string | null;
+  demo?: boolean;
 }) {
   const reasons = toReasons(result.reasons);
   const offMenuReason = reasons.find((reason) => reason.kind === "off_menu_dish");
@@ -133,10 +136,7 @@ export default function GeneralResult({
         <>
           <div className={`general-overview${photo ? " has-photo" : ""}`}>
             {photo && (
-              <figure className="result-photo">
-                <img src={photo} alt="Analyzed meal" />
-                <figcaption>Captured meal</figcaption>
-              </figure>
+              <MealRegionFigure photo={photo} items={result.items ?? []} demo={demo} />
             )}
             <SummaryCards result={result} />
           </div>
@@ -175,10 +175,7 @@ export default function GeneralResult({
       ) : (
         <>
           {photo && (
-            <figure className="result-photo result-photo-general">
-              <img src={photo} alt="Analyzed meal" />
-              <figcaption>Captured meal</figcaption>
-            </figure>
+            <MealRegionFigure photo={photo} items={result.items ?? []} demo={demo} className="result-photo-general" />
           )}
           <Card title="No nutrition estimate">
             <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>

@@ -89,6 +89,16 @@ def test_bad_inputs_raise(plate):
             plate["image_bgr"], np.zeros_like(plate["mask_food"]),
             plate["depth_m"], estimate_anchor(plate["image_bgr"]),
             {"K": plate["camera"]["K"]}, DISH)
+
+
+def test_missing_food_depth_is_not_silently_replaced(plate):
+    depth = plate["depth_m"].copy()
+    selected = np.flatnonzero(plate["mask_food"])
+    depth.reshape(-1)[selected[:int(len(selected) * 0.06)]] = np.nan
+    with pytest.raises(ValueError, match="depth invalid fraction"):
+        estimate_portion(plate["image_bgr"], plate["mask_food"], depth,
+                         estimate_anchor(plate["image_bgr"]),
+                         {"K": plate["camera"]["K"]}, DISH)
     with pytest.raises(ValueError):
         estimate_portion(
             plate["image_bgr"], plate["mask_food"], plate["depth_m"][:500],

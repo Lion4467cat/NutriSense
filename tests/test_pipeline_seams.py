@@ -15,8 +15,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 import engine.pipeline as _pipeline
-import models.dish_segmenter as dish_segmenter
 import models.food_classifier as fc
+import main as main_module
 from engine.pipeline import analyze as pipe_analyze
 from main import app
 from tests.conftest import OK_EXIF
@@ -145,11 +145,50 @@ def test_depth_scale_calibrated_and_recorded(scene):
     assert 0.5 < out["anchor"]["depth_scale_factor"] < 2.0
 
 
+def test_moge_intrinsics_are_shared_by_card_calibration_and_geometry(scene,
+                                                                    monkeypatch):
+    from engine import pipeline as pl
+
+    seen = {}
+    height, width = scene["image_bgr"].shape[:2]
+    normalized_K = np.array([[0.72, 0.0, 0.5],
+                             [0.0, 0.81, 0.5],
+                             [0.0, 0.0, 1.0]])
+
+    def depth_with_intrinsics(img, **_kw):
+        h, w = img.shape[:2]
+        d = cv2.resize(scene["depth_m"], (w, h))
+        return {"depth_m": d, "intrinsics": normalized_K,
+                "model": "moge-test"}
+
+    def calibrate(depth, anchor, K):
+        seen["K"] = np.asarray(K)
+        return depth, 1.0, "card"
+
+    monkeypatch.setattr(pl, "calibrate_depth_scale", calibrate)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=make_deps(scene, depth=depth_with_intrinsics),
+                       exif=OK_EXIF)
+    assert out["anchor"]["depth_scale_source"] == "card"
+    assert np.allclose(seen["K"], [[0.72 * width, 0.0, 0.5 * width],
+                                   [0.0, 0.81 * height, 0.5 * height],
+                                   [0.0, 0.0, 1.0]])
+
+
 def test_depth_scale_none_on_prior_tier(no_card_scene):
-    # STAGE 5: a headless no-card run on a mapped dish cannot verify, so a
-    # working fake head is injected to reach the prior-tier depth wiring.
+    # A no-card WED-mapped dish uses the learned head and never promotes
+    # uncalibrated relative depth into the absolute geometry path.
+    depth_calls = []
+
+    def unexpected_depth(*_args, **_kwargs):
+        depth_calls.append(True)
+        raise AssertionError("uncalibrated depth must not run on the no-card route")
+
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": _FakeHead(310.0)}, exif=OK_EXIF)
+                       deps=make_deps(no_card_scene) | {
+                           "weight_head": _FakeHead(310.0),
+                           "depth": unexpected_depth,
+                       }, exif=OK_EXIF)
     assert out["anchor"]["tier"] == "prior"
     assert out["anchor"]["depth_scale_source"] == "none"
     assert out["anchor"]["depth_scale_factor"] == 1.0
@@ -157,6 +196,23 @@ def test_depth_scale_none_on_prior_tier(no_card_scene):
     # no-card disclaimer leading the reasons
     assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}
     assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
+    assert depth_calls == []
+
+
+def test_no_card_unmapped_geometry_withholds_absolute_mass(no_card_scene,
+                                                            monkeypatch):
+    monkeypatch.setattr(_pipeline, "_wed_slots_for_dish", lambda _dish: None)
+    deps = make_deps(no_card_scene)
+    deps["segment_items"] = lambda _img: {
+        "items": [], "strategy": "no-item-detector"}
+
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=deps, exif=OK_EXIF)
+
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["nutrition"] is None
+    assert out["failures"][0]["stage"] == "portion"
 
 
 # --- seam 5: portion-failure branch ---------------------------------------
@@ -241,11 +297,24 @@ def test_http_missing_required_field_422(jpg_bytes):
 
 
 def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
-    # HTTP does not cross the deps seam: stub segment/depth at the exact
-    # points analyze() resolves them (as test_stage_guards does) so this
-    # non-gpu test never loads SAM2/MoGe weights.
+    # Stub the production dependency provider so this API contract test never
+    # loads the frozen WED/SigLIP/MoGe checkpoints.
     deps = make_deps(scene)
-    monkeypatch.setattr(dish_segmenter, "segment_food", deps["segment"])
+    monkeypatch.setattr(_pipeline, "_get_segment_items",
+                        lambda: lambda image: {
+                            "items": [{
+                                "mask": np.asarray(deps["segment"](image)["mask"],
+                                                    dtype=bool),
+                                "sam_score": 1.0,
+                                "area_frac": 0.2,
+                                "bbox": [0, 0, image.shape[1] - 1,
+                                         image.shape[0] - 1],
+                            }],
+                            "strategy": "test_single_region",
+                            "truncated_count": 0,
+                        })
+    monkeypatch.setattr(main_module, "_production_pipeline_deps",
+                        lambda image: deps)
     monkeypatch.setattr(_pipeline, "_get_depth_provider", lambda: deps["depth"])
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
@@ -261,6 +330,29 @@ def test_http_serving_style_echo(jpg_bytes, monkeypatch, scene):
     assert body["dish"]["serving_style"] == "mixed"
     assert body["dish"]["id"] == "rice_sambar"
     assert body["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+
+
+def test_application_adapter_injects_production_dependencies(monkeypatch):
+    frame = np.zeros((8, 8, 3), dtype=np.uint8)
+    deps = {"segment": lambda _image: {"mask": np.ones((8, 8), dtype=bool)}}
+    observed = {}
+    monkeypatch.setattr(main_module, "_production_pipeline_deps",
+                        lambda image: deps)
+
+    def fake_analyze(image, **kwargs):
+        observed["image"] = image
+        observed.update(kwargs)
+        return {"verdict": "ESTIMATED"}
+
+    monkeypatch.setattr(main_module, "analyze", fake_analyze)
+    result = main_module._run_analysis_pipeline(
+        frame, day="mon", band="1-5", serving_style="mixed", mode="general")
+
+    assert result == {"verdict": "ESTIMATED"}
+    assert observed["image"] is frame
+    assert observed["deps"] is deps
+    assert observed["serving_style"] == "mixed"
+    assert observed["mode"] == "general"
 
 
 # --- seam 8 (added for frontend): compliance data pass-through -------------
@@ -327,9 +419,9 @@ def test_depth_receives_known_fov_x(scene):
     assert 0.0 < seen["fov_x"] < 180.0
 
 
-# --- seam 11: declined calibration caps coverage --------------------------
+# --- seam 11: declined calibration withholds geometry mass ----------------
 
-def test_uncalibrated_measured_depth_cannot_certify(scene, monkeypatch):
+def test_uncalibrated_measured_depth_withholds_geometry(scene, monkeypatch):
     from engine import pipeline as pl
 
     def decline(depth_m, anchor, K):
@@ -339,10 +431,10 @@ def test_uncalibrated_measured_depth_cannot_certify(scene, monkeypatch):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene), exif=OK_EXIF)
     assert out["anchor"]["tier"] == "measured"
-    factors = out["coverage"]["factors"]
-    assert factors["depth_uncalibrated"] == 0.80
-    assert out["coverage"]["score"] == 0.80
-    assert out["verdict"] == "BORDERLINE"  # C < pass_min: no PASS/FAIL
+    assert out["verdict"] == "cannot_verify"
+    assert out["portion"] is None
+    assert out["nutrition"] is None
+    assert out["failures"][0]["stage"] == "depth"
 
 
 # --- seam 12: learned weight head (no reference card, ADR-0002) -----------
@@ -389,6 +481,80 @@ def test_learned_head_replaces_prior_geometry(no_card_scene):
     assert out["failures"] == []
     assert out["path_used"] == "learned_head"   # head produced the grams
     assert out["degradations"] == []            # head present: nothing degraded
+
+
+def test_semantic_region_class_selects_its_own_weight_slot(no_card_scene):
+    head = _FakeHead(120.0)
+    h, w = no_card_scene["image_bgr"].shape[:2]
+    mask = np.zeros((h, w), dtype=bool)
+    mask[h // 4:3 * h // 4, w // 4:3 * w // 4] = True
+    deps = make_deps(no_card_scene) | {
+        "weight_head": head,
+        "segment_items": lambda _image: {
+            "items": [{
+                "mask": mask,
+                "bbox": [w // 4, h // 4, 3 * w // 4 - 1, 3 * h // 4 - 1],
+                "area_frac": float(mask.mean()),
+                "semantic_class_id": 34,
+                "semantic_class_name": "steamed-rice",
+            }],
+            "strategy": "wed_semantic_class_union_components",
+            "candidate_count": 1,
+            "truncated_count": 0,
+        },
+    }
+    base_segment = deps["segment"]
+    deps["segment"] = lambda image: {
+        **base_segment(image),
+        "strategy": "wed_deeplabv3_semantic",
+        "model_id": "deeplabv3_resnet50_imagenet_wed42",
+    }
+
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=deps, exif=OK_EXIF)
+
+    assert out["classification"]["dish"] == "steamed-rice"
+    assert out["classification"]["method"] == "wed_semantic_region"
+    assert head.calls == [[33]]
+    assert out["portion"]["grams"] == 120.0
+
+
+def test_semantic_class_regions_do_not_claim_serving_instances(no_card_scene):
+    h, w = no_card_scene["image_bgr"].shape[:2]
+    rice = np.zeros((h, w), dtype=bool)
+    sambar = np.zeros((h, w), dtype=bool)
+    rice[h // 4:h // 2, w // 4:w // 2] = True
+    sambar[h // 2:3 * h // 4, w // 2:3 * w // 4] = True
+    items = [
+        {"mask": rice, "bbox": [w // 4, h // 4, w // 2 - 1, h // 2 - 1],
+         "area_frac": float(rice.mean()), "semantic_class_name": "steamed-rice"},
+        {"mask": sambar, "bbox": [w // 2, h // 2, 3 * w // 4 - 1,
+                                    3 * h // 4 - 1],
+         "area_frac": float(sambar.mean()), "semantic_class_name": "sambar"},
+    ]
+    deps = make_deps(no_card_scene) | {
+        "weight_head": _FakeHead(100.0),
+        "segment_items": lambda _image: {
+            "items": items,
+            "strategy": "wed_semantic_class_union_components",
+            "candidate_count": 2,
+            "truncated_count": 0,
+        },
+    }
+    base_segment = deps["segment"]
+    deps["segment"] = lambda image: {
+        **base_segment(image),
+        "strategy": "wed_deeplabv3_semantic",
+        "model_id": "deeplabv3_resnet50_imagenet_wed42",
+    }
+
+    out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
+                       deps=deps, exif=OK_EXIF)
+
+    assert out["path_used"] == "multi_item"
+    assert len(out["items"]) == 2
+    assert any("does not verify serving instances" in note
+               for note in out["assumptions"])
 
 
 def test_learned_head_failure_cannot_verify(no_card_scene):
@@ -467,12 +633,7 @@ def test_measured_moge_uses_table_plane_but_gt_depth_keeps_ring(scene):
     assert synthetic["portion"]["base_method"] == "ring"
 
 
-# --- seam 13: recognized off-menu dish (spec 002 decision 3, ledger 003) ---
-#
-# A recognized-but-not-on-menu dish IS recognized: grams + nutrients on the
-# wire, verdict cannot_verify, `off_menu_dish` LEADING the reasons;
-# out_of_scope stays only for unrecognized captures and explicitly-scoped
-# menu dishes (SCOPE gate). Menu-dish paths are untouched above.
+# --- seam 13: recognized off-menu class (41-class School-mode scoring) -----
 
 def _classify_stub(key):
     def cls(img):
@@ -481,16 +642,15 @@ def _classify_stub(key):
     return cls
 
 
-def test_recognized_off_menu_learns_grams_and_cannot_verify(no_card_scene):
+def test_school_scores_recognized_off_menu_class(no_card_scene):
     from config import load_wed_index
 
     head = _FakeHead(220.0)
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(no_card_scene)
                        | {"weight_head": head, "classify": _classify_stub("rajma")}, exif=OK_EXIF)
-    assert out["verdict"] == "cannot_verify"
-    assert out["reasons"][0]["kind"] == "off_menu_dish"       # leads the reasons
-    assert any(r["kind"] == "no_reference_card" for r in out["reasons"][1:])
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+    assert any(r["kind"] == "no_reference_card" for r in out["reasons"])
     assert out["failures"] == []                              # an outcome, not a fault
     assert out["dish"]["id"] == "rajma"
     assert out["dish"]["nutrition_source"] == "generic"       # generic table, not menu
@@ -501,22 +661,23 @@ def test_recognized_off_menu_learns_grams_and_cannot_verify(no_card_scene):
     assert "interval_90" in out["nutrition"]["kcal"]
     assert "interval_90" in out["nutrition"]["protein_g"]
     assert "dal_curry" in out["nutrition"]["assumed_nutrients"]  # assumed, flagged
-    assert out["compliance"] is None                          # no school compliance
+    assert out["compliance"]["day"] == "mon"
+    assert out["compliance"]["band"] == "1-5"
+    assert not any(r["kind"] == "off_menu_dish" for r in out["reasons"])
     assert out["path_used"] == "learned_head"
     assert not any(r["kind"] == "out_of_scope" for r in out["reasons"])
 
 
-def test_recognized_off_menu_geometry_with_measured_card(scene):
+def test_school_scores_off_menu_geometry_with_measured_card(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene) | {"classify": _classify_stub("steamed-rice")}, exif=OK_EXIF)
-    assert out["verdict"] == "cannot_verify"
-    assert out["reasons"][0]["kind"] == "off_menu_dish"
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
     assert not any(r["kind"] == "no_reference_card" for r in out["reasons"])
     assert out["portion"]["grams"] > 0
     assert out["portion"]["base_method"] == "ring"           # measured geometry ran
     assert out["path_used"] == "card_geometry"
     assert "interval_90" in out["nutrition"]["kcal"]
-    assert out["compliance"] is None
+    assert out["compliance"] is not None
     assert out["failures"] == []
 
 
@@ -532,16 +693,16 @@ def test_off_menu_head_unavailable_still_precedes_nothing(no_card_scene):
     assert out["failures"][0]["kind"] == "weight_head_unavailable"
 
 
-def test_menu_equivalent_class_keeps_out_of_scope_verdict(scene):
-    # 'phulka' is a WED class whose serving target is the menu dish
-    # wheat_product (out_of_scope) — that verdict path stays byte-for-byte.
+def test_phulka_is_estimated_and_scored_as_a_recognized_class(scene):
+    # The former out-of-scope phulka mapping now has an assumed roti recipe,
+    # allowing the School flow to estimate and score it like other WED classes.
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=make_deps(scene) | {"classify": _classify_stub("phulka")}, exif=OK_EXIF)
-    assert out["verdict"] == "out_of_scope"
-    assert out["reasons"][0]["kind"] == "out_of_scope"
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
     assert out["dish"]["id"] == "wheat_product"
-    assert out["portion"] is None
-    assert out["failures"][0]["kind"] == "gate_rejected"
+    assert out["portion"]["grams"] > 0
+    assert "wheat_roti" in out["nutrition"]["assumed_nutrients"]
+    assert out["compliance"] is not None
 
 
 def test_unknown_classified_key_fails_the_classify_stage(scene):

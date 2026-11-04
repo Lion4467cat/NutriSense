@@ -9,20 +9,21 @@
     }
   },
   "anchor": {
-    "cm_per_px": 0.05469744627766077,
-    "depth_scale_factor": 1.0115,
+    "cm_per_px": 0.05437289275732317,
+    "depth_scale_factor": 1.0061,
     "depth_scale_source": "card",
     "interval": [
-      0.05411743858338014,
-      0.055277453971941407
+      0.053799747725544966,
+      0.05494603778910137
     ],
     "method": "card_aruco",
     "reason": "ArUco card detected (measured)",
     "tier": "measured",
-    "tilt_deg": 39.03763676653301
+    "tilt_deg": 38.99908416153252
   },
   "assumptions": [
-    "nutrient table row sambar (assumed)"
+    "nutrient table row sambar (assumed)",
+    "geometry mass uses configured class/component density from data/wed_dishes.yaml; density uncertainty follows the declared density_sigma_pct status in data/params_status.yaml"
   ],
   "classification": {
     "confidence": 1.0,
@@ -36,29 +37,29 @@
     "day": "mon",
     "nutrients": {
       "kcal": {
-        "headroom_at_interval_low": -211.92,
+        "headroom_at_interval_low": -233.95,
         "interval_90": [
-          238.08230573111084,
-          599.9716700905137
+          216.04655117799527,
+          546.1750137965561
         ],
-        "mean": 390.84665628768454,
+        "mean": 355.34833387305565,
         "min": 450.0,
-        "p_at_or_above_min": 0.253
+        "p_at_or_above_min": 0.162
       },
       "protein_g": {
-        "headroom_at_interval_low": -5.63,
+        "headroom_at_interval_low": -6.22,
         "interval_90": [
-          6.3661379663323565,
-          16.051738737721017
+          5.7765068024209905,
+          14.613387810033112
         ],
-        "mean": 10.4547240474703,
+        "mean": 9.505180704604069,
         "min": 12.0,
-        "p_at_or_above_min": 0.2542
+        "p_at_or_above_min": 0.167
       }
     },
     "probs": {
-      "kcal": 0.253,
-      "protein_g": 0.2542
+      "kcal": 0.162,
+      "protein_g": 0.167
     }
   },
   "coverage": {
@@ -99,26 +100,26 @@
         "serving_style": null
       },
       "portion": {
-        "area_cm2": 268.9,
+        "area_cm2": 245.8,
         "base_method": "ring",
         "components_g": {
-          "rice": 257.8,
-          "sambar": 171.9
+          "rice": 234.4,
+          "sambar": 156.3
         },
         "density_eff": 0.842,
         "flags": [],
-        "grams": 429.7,
+        "grams": 390.7,
         "grams_source": "geometry",
-        "mean_h_mm": 18.99,
+        "mean_h_mm": 18.89,
         "scale_tier": "measured",
-        "sigma_grams_rel": 0.2799,
+        "sigma_grams_rel": 0.281,
         "sigma_rel": {
           "area": 0.0547,
-          "base": 0.2369,
+          "base": 0.2382,
           "density": 0.08,
           "depth": 0.1131
         },
-        "volume_ml": 510.7
+        "volume_ml": 464.3
       },
       "sam_score": 1.0
     }
@@ -151,31 +152,31 @@
       },
       "raw_basis_note": "raw allocations are per-child/day; plate raw-equivalent is informational only (never verdict input)",
       "raw_equivalent_g": {
-        "rice": 85.94307269198805,
-        "sambar": 68.75445815359045
+        "rice": 78.13790882847832,
+        "sambar": 62.51032706278265
       }
     },
     "grams": {
       "interval_90": [
-        262.1713066223561,
-        656.8628165817755
+        237.89099476127942,
+        598.0658538235364
       ],
-      "mean": 428.624991447492,
-      "p05": 262.1713066223561,
-      "p50": 412.858221287049,
-      "p95": 656.8628165817755,
-      "sd": 121.37677546502485
+      "mean": 389.6955072935614,
+      "p05": 237.89099476127942,
+      "p50": 375.2547905920237,
+      "p95": 598.0658538235364,
+      "sd": 110.7819601409712
     },
     "kcal": {
       "interval_90": [
-        238.08230573111084,
-        599.9716700905137
+        216.04655117799527,
+        546.1750137965561
       ],
-      "mean": 390.84665628768454,
-      "p05": 238.08230573111084,
-      "p50": 376.7161518967314,
-      "p95": 599.9716700905137,
-      "sd": 111.34919624167405
+      "mean": 355.34833387305565,
+      "p05": 216.04655117799527,
+      "p50": 342.41861790405244,
+      "p95": 546.1750137965561,
+      "sd": 101.62451011447732
     },
     "n": 4000,
     "nutrition_provenance": {
@@ -183,38 +184,38 @@
       "components": {
         "rice": {
           "generic_id": "rice_boiled",
-          "grams": 257.829,
-          "kcal_contribution": 288.7687,
+          "grams": 234.414,
+          "kcal_contribution": 262.5434,
           "kcal_per_100g": 112.0,
-          "protein_g_contribution": 6.1879,
+          "protein_g_contribution": 5.6259,
           "protein_g_per_100g": 2.4,
           "source": "IFCT cooked rice (raw 356 / boiled 112 cited in data/conversions.yaml)",
           "status": "literature"
         },
         "sambar": {
           "generic_id": "sambar",
-          "grams": 171.886,
-          "kcal_contribution": 103.1317,
+          "grams": 156.276,
+          "kcal_contribution": 93.7655,
           "kcal_per_100g": 60.0,
-          "protein_g_contribution": 4.2972,
+          "protein_g_contribution": 3.9069,
           "protein_g_per_100g": 2.5,
           "source": "dal-tamarind-vegetable stew estimate; calibrate against recipe (M-gate)",
           "status": "assumed"
         }
       },
       "table": "data/nutrients.yaml",
-      "table_sha256": "5e5d7b7dd57347623d40a43f7ed5a23c55ebf9ad39443c26aa78dfede2d2e826"
+      "table_sha256": "4b47cbc7cd5e0b1a77b67276a2a9c0f495b1acd2d00aeb4b2b480f60f14b39a2"
     },
     "protein_g": {
       "interval_90": [
-        6.3661379663323565,
-        16.051738737721017
+        5.7765068024209905,
+        14.613387810033112
       ],
-      "mean": 10.4547240474703,
-      "p05": 6.3661379663323565,
-      "p50": 10.085928203584965,
-      "p95": 16.051738737721017,
-      "sd": 2.973680493643846
+      "mean": 9.505180704604069,
+      "p05": 5.7765068024209905,
+      "p50": 9.166644553472729,
+      "p95": 14.613387810033112,
+      "sd": 2.714007372768883
     },
     "seed": 1234,
     "wider_ranges": false
@@ -234,42 +235,45 @@
     "quality_degraded": 0.9
   },
   "portion": {
-    "area_cm2": 268.9,
+    "area_cm2": 245.8,
     "base_method": "ring",
     "components_g": {
-      "rice": 257.8,
-      "sambar": 171.9
+      "rice": 234.4,
+      "sambar": 156.3
     },
     "density_eff": 0.842,
     "flags": [],
-    "grams": 429.7,
+    "grams": 390.7,
     "grams_source": "geometry",
-    "mean_h_mm": 18.99,
+    "mean_h_mm": 18.89,
     "scale_tier": "measured",
-    "sigma_grams_rel": 0.2799,
+    "sigma_grams_rel": 0.281,
     "sigma_rel": {
       "area": 0.0547,
-      "base": 0.2369,
+      "base": 0.2382,
       "density": 0.08,
       "depth": 0.1131
     },
-    "volume_ml": 510.7
+    "volume_ml": 464.3
   },
   "reasons": [
     {
       "kind": "below_min",
-      "text": "kcal: P=0.25 < 0.9 pass zone"
+      "text": "kcal: P=0.16 < 0.9 pass zone"
     },
     {
       "kind": "below_min",
-      "text": "protein_g: P=0.25 < 0.9 pass zone"
+      "text": "protein_g: P=0.17 < 0.9 pass zone"
     }
   ],
   "segmentation": {
     "area_frac": 0.2,
+    "item_detection_strategy": "test_single_region",
     "n_candidates": 1,
+    "n_items": 1,
     "sam_score": 1.0,
-    "strategy": "stub"
+    "strategy": "stub",
+    "truncated_item_count": 0
   },
   "verdict": "BORDERLINE"
 }

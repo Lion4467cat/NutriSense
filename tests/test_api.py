@@ -15,6 +15,7 @@ import main as main_module
 import models.food_classifier as fc
 from engine.pipeline import analyze as pipe_analyze
 from main import app
+from tests.test_pipeline_seams import make_deps
 from tests.synth.scene import render_scene
 
 client = TestClient(app)
@@ -60,7 +61,7 @@ def test_menu_endpoint():
     assert r.status_code == 200
     body = r.json()
     assert "rice_sambar" in body["dishes"]
-    assert body["dishes"]["wheat_product"]["status"] == "out_of_scope"
+    assert body["dishes"]["wheat_product"]["status"] == "in_scope"
     assert body["bands"]["1-5"]["kcal"]["value"] == 450
     assert set(body["capture_fields"]["band"]["values"]) == {"1-5", "6-8", "9-10"}
     # wire keys are the contract the frontend menuSchema decodes (C4):
@@ -74,8 +75,23 @@ def test_menu_endpoint():
     assert len(body["policy"]["policy_version"]) == 12
 
 
-@pytest.mark.gpu
 def test_analyze_upload_end_to_end(jpg_exif_ok, monkeypatch):
+    # Keep the API smoke fully mocked; the production WED checkpoint is
+    # exercised by the DEV evaluator, not initialized from this test.
+    scene = render_scene()
+    deps = make_deps(scene)
+    base_segment = deps["segment"]
+
+    def semantic_segment(image):
+        return {
+            **base_segment(image),
+            "strategy": "wed_deeplabv3_semantic",
+            "model_id": "deeplabv3_resnet50_imagenet_wed42",
+        }
+
+    deps["segment"] = semantic_segment
+    monkeypatch.setattr(main_module, "_production_pipeline_deps",
+                        lambda image: deps)
     # classifier stubbed (synthetic renders abstain at 0.67 < 0.82 by design)
     monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
         "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
@@ -93,22 +109,32 @@ def test_analyze_upload_end_to_end(jpg_exif_ok, monkeypatch):
     assert "kcal" in body["nutrition"] and "interval_90" in body["nutrition"]["kcal"]
     assert body["dish"]["id"] == "rice_sambar"
     assert body["classification"]["method"] == "stub"
-    assert body["model_versions"]["segmenter"] == "facebook/sam2.1-hiera-large"
+    assert body["model_versions"]["segmenter"] == "deeplabv3_resnet50_imagenet_wed42"
 
 
-def test_analyze_upload_stripped_exif_rejected(jpg_bytes, monkeypatch):
-    """End-to-end AUDIT P1: no DigitalZoomRatio in the upload → cannot_verify."""
-    monkeypatch.setattr(fc, "classify_dish", lambda img, **kw: {
-        "dish": "rice_sambar", "confidence": 1.0, "method": "stub",
-        "match_score": 0.9, "reason": "test stub"})
+def test_analyze_upload_missing_zoom_keeps_recognition(jpg_bytes, monkeypatch):
+    """An upload with stripped EXIF still reaches classification."""
+    scene = render_scene()
+
+    def fake_analyze(image, day, band, exif=None, serving_style=None,
+                     mode="school", deps=None):
+        return pipe_analyze(
+            image, day=day, band=band, exif=exif, mode=mode,
+            serving_style=serving_style, deps=make_deps(scene),
+        )
+
+    monkeypatch.setattr(main_module, "analyze", fake_analyze)
+    monkeypatch.setattr(main_module, "_production_pipeline_deps",
+                        lambda image: make_deps(scene))
     r = client.post("/analyze", files={"file": ("plate.jpg", jpg_bytes, "image/jpeg")},
                     data={"day": "mon", "band": "1-5", "serving_style": "mixed"})
     assert r.status_code == 200
     body = r.json()
-    assert body["verdict"] == "cannot_verify"
-    assert body["reasons"][0]["kind"] == "zoom"
-    assert body["failures"][0]["stage"] == "input"
-    assert body["failures"][0]["kind"] == "gate_rejected"
+    assert body["verdict"] == "ESTIMATED"
+    assert body["classification"]["dish"] == "rice_sambar"
+    assert body.get("compliance") is None
+    assert any("Digital-zoom metadata is missing" in note
+               for note in body["lint"]["notes"])
 
 
 def test_analyze_bad_band(jpg_exif_ok):
@@ -131,6 +157,63 @@ def test_analyze_rejects_oversize_upload(monkeypatch):
                     data={"day": "mon", "band": "1-5"})
     assert r.status_code == 413
     assert "upload limit" in r.json()["detail"]
+
+
+def test_analyze_body_cap_rejects_chunked_upload_before_multipart_parse():
+    async def exercise():
+        called = False
+        messages = iter([
+            {"type": "http.request", "body": b"1234", "more_body": True},
+            {"type": "http.request", "body": b"56789", "more_body": False},
+        ])
+        sent = []
+
+        async def receive():
+            return next(messages)
+
+        async def send(message):
+            sent.append(message)
+
+        async def inner(scope, receive, send):
+            nonlocal called
+            called = True
+
+        middleware = main_module.AnalyzeBodySizeMiddleware(inner, max_bytes=8)
+        scope = {"type": "http", "method": "POST", "path": "/analyze",
+                 "headers": []}
+        await middleware(scope, receive, send)
+        assert not called
+        assert sent[0]["status"] == 413
+
+    asyncio.run(exercise())
+
+
+def test_analyze_body_timeout_rejects_slow_upload_before_multipart_parse():
+    async def exercise():
+        called = False
+        sent = []
+
+        async def receive():
+            await asyncio.sleep(0.02)
+            return {"type": "http.request", "body": b"part",
+                    "more_body": True}
+
+        async def send(message):
+            sent.append(message)
+
+        async def inner(scope, receive, send):
+            nonlocal called
+            called = True
+
+        middleware = main_module.AnalyzeBodySizeMiddleware(
+            inner, max_bytes=64, max_seconds=0.001)
+        scope = {"type": "http", "method": "POST", "path": "/analyze",
+                 "headers": []}
+        await middleware(scope, receive, send)
+        assert not called
+        assert sent[0]["status"] == 408
+
+    asyncio.run(exercise())
 
 
 def test_inference_is_serialized_without_blocking_health(monkeypatch, tmp_path):
@@ -219,14 +302,17 @@ def test_pipeline_gates(scene, monkeypatch):
     out = pipe_analyze(scene["image_bgr"], day="sunday", band="1-5", deps=deps,
                        exif=dict(_OK_EXIF))
     assert out["verdict"] == "cannot_verify"
-    # out-of-scope dish (deps classify stub must be replaced, not the module attr)
-    deps_oos = dict(deps)
-    deps_oos["classify"] = lambda img: {"dish": "wheat_product", "confidence": 1.0,
-                                        "method": "stub", "match_score": 0.9,
-                                        "reason": "stub"}
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps_oos,
-                       exif=dict(_OK_EXIF))
-    assert out["verdict"] == "out_of_scope"
+    # The former wheat_product scope exception now runs the 41-class School
+    # nutrient estimate and standards assessment.
+    deps_wheat = dict(deps)
+    deps_wheat["classify"] = lambda img: {"dish": "wheat_product", "confidence": 1.0,
+                                          "method": "stub", "match_score": 0.9,
+                                          "reason": "stub"}
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
+                       deps=deps_wheat, exif=dict(_OK_EXIF))
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+    assert out["dish"]["id"] == "wheat_product"
+    assert out["compliance"] is not None
 
 
 def test_pipeline_gt_depth_deterministic(scene, monkeypatch):

@@ -8,30 +8,30 @@
 :root {
   color-scheme: light;
 
-  /* neutral canvas, alpha-black rungs (scandinavian system) */
-  --bg: #ffffff;
-  --bg-subtle: rgb(0 0 0 / 2.5%);
-  --surface: #ffffff;
-  --surface-2: rgb(0 0 0 / 4%);
-  --surface-3: rgb(0 0 0 / 8%);
-  --border: rgb(0 0 0 / 10%);
-  --border-strong: rgb(0 0 0 / 18%);
-  --text: #0e1113;
-  --text-2: rgb(0 0 0 / 64%);
-  --text-3: rgb(0 0 0 / 56%);
+  /* warm mineral canvas, crisp surfaces and evergreen ink */
+  --bg: #f5f4ee;
+  --bg-subtle: #f0efe7;
+  --surface: #fffefa;
+  --surface-2: #f7f6f0;
+  --surface-3: #efeee6;
+  --border: #e3e1d7;
+  --border-strong: #cfcdc1;
+  --text: #202821;
+  --text-2: #626a62;
+  --text-3: #777e76;
 
-  /* terracotta accent over ink */
-  --accent: #d53712;
-  --accent-hover: #b32c0d;
-  --accent-ink: #fbfaf4;
-  --accent-soft: #f8e7dc;
-  --accent-soft-border: #eac9b3;
-  --accent-text: #a82e0e;
+  /* evergreen brand accent; food and verdict colors remain separate */
+  --accent: #3f684b;
+  --accent-hover: #31543c;
+  --accent-ink: #fffefa;
+  --accent-soft: #e8efe7;
+  --accent-soft-border: #cad8c7;
+  --accent-text: #31583d;
 
   /* ink used for primary actions */
-  --ink: #181e1d;
-  --ink-hover: #2c3134;
-  --ink-ink: #fbfaf4;
+  --ink: #24382a;
+  --ink-hover: #304c38;
+  --ink-ink: #fffefa;
 
   /* semantic verdicts (desertant signal palette) */
   --pass: #3c8a52;
@@ -135,12 +135,12 @@
   --text-2: rgb(251 250 244 / 70%);
   --text-3: rgb(251 250 244 / 52%);
 
-  --accent: #e0764e;
-  --accent-hover: #eb8a64;
-  --accent-ink: #181e1d;
-  --accent-soft: #2c1d16;
-  --accent-soft-border: #53372a;
-  --accent-text: #eb9c78;
+  --accent: #8dbb91;
+  --accent-hover: #a4caa6;
+  --accent-ink: #101a12;
+  --accent-soft: #1b2b1e;
+  --accent-soft-border: #344e38;
+  --accent-text: #a2c9a5;
 
   --ink: #fbfaf4;
   --ink-hover: #e6e4da;

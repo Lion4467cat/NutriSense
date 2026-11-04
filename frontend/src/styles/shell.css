@@ -10,6 +10,23 @@
   height: 100%;
 }
 
+.demo-mode-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  width: min(calc(100% - 40px), 1440px);
+  margin: 20px auto 0;
+  padding: 10px 14px;
+  border: 1px solid var(--warn-border);
+  border-radius: var(--r-md);
+  background: var(--warn-soft);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+.demo-mode-banner strong { color: var(--warn); }
+.demo-mode-banner span { color: var(--text-2); }
+
 /* ---------------- sidebar ---------------- */
 .sidebar {
   grid-area: side;

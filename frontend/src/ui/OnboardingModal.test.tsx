@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppProvider } from "../context/AppContext";
 import { OnboardingProvider, useOnboarding } from "../context/onboarding";
@@ -175,5 +175,31 @@ describe("OnboardingWizard", () => {
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
     // editing an existing setup starts on the welcome step, not the form
     expect(screen.getByText("Set up your profile")).toBeInTheDocument();
+  });
+
+  it("traps keyboard focus and restores focus to the opener when closed", async () => {
+    const user = userEvent.setup();
+    renderApp();
+    const opener = screen.getByRole("button", { name: "reopen" });
+    await user.click(opener);
+
+    const dialog = await screen.findByRole("dialog");
+    const buttons = Array.from(dialog.querySelectorAll<HTMLButtonElement>(
+      "button:not([disabled])"
+    ));
+    expect(buttons.length).toBeGreaterThan(1);
+    const lastButton = buttons[buttons.length - 1];
+
+    buttons[0].focus();
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+    expect(lastButton).toHaveFocus();
+
+    lastButton.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(buttons[0]).toHaveFocus();
+
+    await user.click(screen.getByRole("button", { name: "Close setup" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(opener).toHaveFocus();
   });
 });

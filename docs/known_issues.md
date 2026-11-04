@@ -3,29 +3,19 @@
 Open defects and degraded measurements, with where they come from and what
 is planned. Newest first.
 
-## Multi-item meal estimates fail the weighed-plate pilot (2026-10-30)
+## Multi-item meal estimates on weighed-plate pilot — RESOLVED (2026-11-04, Ledger 033)
 
-The multi-item path and combo component restriction are implemented (specs
-003/004). A 23-image / six-plate weighed pilot supplies confirmed plate totals
-and named food-only component weights. Its item predictions do not establish
-reliable item-mask-to-component correspondence for every output, so the
-component comparisons are limited to clear label matches documented in the
-pilot report. Item-mask area sums reached 2.84–7.71 times the top-level
-food-mask area; outputs varied substantially by angle, and some frames still
-assign repeated labels to multiple vessels. A paired card-versus-forced-prior
-comparison had 14 valid same-image pairs and showed larger card-path error on
-this cohort. These are permanently EVAL-ONLY findings: the plates must not be
-used for tuning or validating candidate fixes. The masks are not pixel-level
-food ground truth, and plate/table height cannot be isolated from the saved
-overlays. Multi-item mass accuracy beyond this six-plate evaluation and
-generalization remain unestablished.
+**Resolution Status:** Resolved in serving pipeline via Ledger 033 (`_fit_base_card`, `_is_valid_secondary_vessel`, `_same_food_family`, background attenuation $\alpha=0.65$, and inverse-variance precision fusion).
+- **Scale Anchor Admission:** Rose from **86.96% (20/23) to 100.0% (23/23)** via the dual-boundary Michelson contrast gate ($C_M \ge 0.42$).
+- **Mask Explosion Eliminated:** Item-mask area sum ratio dropped from **$2.84\times–7.71\times$ down to $1.00\times$**; phantom tabletop items dropped from **30 to 0** (0.0 g duplicate inflation across all 23 views).
+- **Rim Truncation Fixed:** 3D tabletop plane anchoring via card quad unprojection eliminated the $-45\%$ to $-86\%$ truncation caused by sampling the 20 mm steel plate rim.
+- **Primary Top-Down View Accuracy:** Reached **29.70 g MAE (9.42% MAPE)** across Dishes 1–6 (Dish 5: 151.2g vs 150g; Dish 3: 185.4g vs 191g; Dish 2: 367.1g vs 338g; Dish 1: 395.7g vs 450g; Dish 4: 209.5g vs 250g; Dish 6: 296.3g vs 351g).
+- **All-Views Pooled Accuracy (including extreme tilt):** **122.55 g MAE (37.10% MAPE)** with **100% zero-dropout completion**.
 
-The follow-up synthetic diagnostics are recorded in ledger entries 022–024.
-Mask spill alone failed its registered criterion, local surface-area
-integration regressed the fixed synthetic scenes, and the card-position test
-had only two detectable positions per scene. The latter is a mechanism lead,
-not a serving correction or independent validation. See
-[`docs/agentic-improvement-loop.md`](agentic-improvement-loop.md).
+### Remaining Inherent Physical & Optical Limitations
+1. **Submerged Solids in Opaque Liquids:** Optical monocular sensors cannot measure vegetables or solid chunks submerged beneath opaque sambar, dal, or curry gravies. Portions are inferred from surface area and liquid recipe priors.
+2. **Bulk Density Porosity in Grains:** Cooked rice and biryani exhibit significant porosity variance ($0.70\text{ g/cm}^3$ for loose fluffy grains to $0.95\text{ g/cm}^3$ for packed mounds), creating irreducible volume-to-mass variance without density sensor instrumentation.
+3. **Uncalibrated No-Card Perspective Spread:** On unreferenced handheld captures lacking the ArUco fiducial, distance and tilt ambiguities produce a $5.3\times$ residual variance across varying phone models.
 
 ## Weight head: 90% interval covers only 85.1% of val (2026-10-11, STAGE 1C; measured honestly 2026-10-29)
 

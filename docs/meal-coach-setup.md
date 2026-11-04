@@ -12,34 +12,39 @@ The backend reads these environment variables:
 | Variable | Purpose |
 | --- | --- |
 | `OLLAMA_API_KEY` | Secret API key for the backend only. Never put it in frontend code or a `VITE_*` variable. |
-| `NUTRISENSE_CHAT_MODELS` | One to three comma-separated model IDs, tried in order. Set only IDs currently included in your account's free allowance. |
+| `NUTRISENSE_CHAT_MODELS` | Optional override: one to three comma-separated model IDs, tried in order. The default is `beam:cloud`. |
 | `OLLAMA_CLOUD_URL` | Optional API base URL; defaults to `https://ollama.com`. |
 
-Ollama changes which models are included in free starter usage. Confirm the
-models in your account before configuring a demo. Gemma 4 Cloud is currently
-listed with per-token pricing, so do not include it if you require a strictly
-free demo. Free allowance limits reset monthly; when every configured model is
-unavailable or out of allowance, the API reports the critique/chat as
-unavailable and does not switch to an unconfigured paid model. The chain only
-tries the IDs you set, so it cannot verify their billing status on your
-behalf.
+The Ollama model catalog currently marks Beam Cloud as free, so `beam:cloud`
+is the default. Confirm its status in your account before a public demo because
+the catalog can change. Gemma 4 Cloud is listed with per-token prices and is
+not configured as a fallback. Ollama's pricing page says monthly resets apply
+to included credits on paid subscriptions; it does not describe a universal
+monthly free allowance. If Beam is unavailable, the app reports the
+critique/chat as unavailable rather than switching to a paid model. Add other
+fallbacks only after confirming they are free for your account.
 
-Example shell configuration (replace the model names with IDs shown as free
-in your account):
+Sources: [Beam model listing](https://ollama.com/library/beam) and
+[Ollama pricing and usage FAQ](https://ollama.com/pricing).
+
+Example shell configuration:
 
 ```sh
 export OLLAMA_API_KEY='your-key'
-export NUTRISENSE_CHAT_MODELS='free-model-one,free-model-two,free-model-three'
+# Optional: override the default with other models confirmed free in your account.
+# export NUTRISENSE_CHAT_MODELS='beam:cloud,another-free-model'
 ```
 
-Restart the FastAPI process after changing these values. If no key or model
-IDs are configured, meal analysis still works and the result page shows that
-the critique service is unavailable.
+Restart the FastAPI process after changing these values. With no API key,
+meal analysis still works and the result page shows that the critique service
+is unavailable. If `NUTRISENSE_CHAT_MODELS` is omitted, the backend tries
+`beam:cloud`.
 
 ## Data sent to Ollama
 
 The backend sends detected food labels, estimated grams, available energy and
-protein estimates, component provenance, assumptions, and the current verdict.
+protein estimates, component provenance, and assumptions. It omits the analysis
+verdict so compliance scores do not influence meal advice.
 It does not send the meal photo, student name, or local chat history beyond the
 last four turns. Model output is advisory, is limited to the analyzed meal,
 and should not be treated as medical advice. Nutrition values may be assumed
@@ -47,5 +52,10 @@ or incomplete, and the system has not been validated as a production nutrition
 advisor.
 
 Critique and chat endpoints use a 35-second timeout per model and try up to
-three configured models in order. A user can retry an unavailable automatic
-critique. Follow-up messages are saved only after a successful model reply.
+three configured models in order. If a model reaches its output limit, the
+backend retries once with twice the token budget. A user can retry an
+unavailable automatic critique. Follow-up messages are saved only after a
+successful model reply.
+Ollama Cloud does not currently support structured outputs, so the critique
+asks for JSON in its prompt and validates the returned fields in the backend
+instead of sending the `format` option ([Ollama structured outputs docs](https://docs.ollama.com/capabilities/structured-outputs)).

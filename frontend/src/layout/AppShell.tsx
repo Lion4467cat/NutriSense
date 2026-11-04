@@ -7,6 +7,7 @@ import DiscoverPanel from "../ui/DiscoverPanel";
 import AchievementToasts from "../ui/AchievementToasts";
 import { useExplore } from "../context/explore";
 import { areaForPath, detectSecret } from "../explore/achievements";
+import { IS_DEMO_MODE } from "../services/mode";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
@@ -95,6 +96,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
       />
       <Topbar drawerOpen={drawer} onToggleDrawer={() => setDrawer((open) => !open)} />
       <main className="main" id="main" ref={mainRef}>
+        {IS_DEMO_MODE && (
+          <div className="demo-mode-banner" role="status">
+            <strong>Demo mode</strong>
+            <span>Fixed sample results are shown. Uploaded pixels are not analyzed and no ML models are loaded.</span>
+          </div>
+        )}
         {children}
       </main>
       <AchievementToasts />

@@ -4,7 +4,7 @@ This is the reproducible execution path for the local accuracy/readiness work. I
 
 ## Current deployment assumptions
 
-- API: FastAPI `POST /analyze` multipart fields `file`, `day`, `band`, and optional `serving_style`; `GET /health`, `/menu`, `/goals` remain separate routes.
+- API: FastAPI `POST /analyze` multipart fields `file`, `day`, `band`, and optional `mode`; the old optional `serving_style` field is accepted for compatibility but does not control automatic meal-region detection. Mode defaults to School, which scores all recognized WED food classes against the selected band standard. General mode omits the school verdict. `GET /health`, `/menu`, and `/goals` remain separate routes.
 - Uploads are streamed to a temporary file and rejected above `NUTRISENSE_MAX_UPLOAD_BYTES` (default 12 MiB). Temporary files are removed in `finally`; inference runs in a worker thread behind a per-process limiter.
 - Local measured profile device: NVIDIA GeForce RTX 4060 Laptop GPU, 8 GB VRAM, Python 3.14.7, torch 2.13.0+cu130. This is a development laptop profile, not a declared deployment target or service-level objective.
 - The current wire contract is generated from `engine/contract.py` by `python -m tools.gen_contract_ts --write`. Nutrition trace is additive and optional for older clients.

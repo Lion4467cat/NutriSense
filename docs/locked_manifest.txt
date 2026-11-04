@@ -8,7 +8,14 @@
 # Verify: .venv/bin/python -m tools.check_locked
 # Regenerate ONLY deliberately, with approval:
 #   .venv/bin/python -m tools.check_locked --write
-# written: 2026-10-15T03:44:10Z  files: 502
+# Add --code-only to refresh code/split pins without opening locked images.
+# written: 2026-11-01T21:02:32Z  files: 502
+f5bad6b32963c7ee2ed0ad3cddd7ca02d2d912c90b36c9b3cde7e82fb989214d  data/wed_manifest.jsonl
+cf95d224781f7cc0fcaafc875ab1738ee09e58b59b8e21c24fb333fbb3815479  tools/build_wed_manifest.py
+437fff72a89cd2f9de86c225f6fe2e913cd201b50d23b06d52e249172ba6878e  tools/check_locked.py
+0ec0dcaf2f1de30f02e82e826fa83e5de59144774215703dd0e6314255caa31c  tools/compare_runs.py
+0f44eb0baffb9a1c01d4e392a610a0905671f1a9b9f52d93bb3ea2e532a8d97d  tools/run_eval.py
+011ec1ecf77b1ab4c8cc5629dc10f91738de7216fd9aa0fe91b8bd553bef6e44  tools/stress_suite.py
 1e3f2666744332d4c16af5ba5bc66d0a27bba729c334e1beb824ca8232d1b53b  data/wed/test/12-may/gtFine/default/set25/20250512_163527_gtFine_labelIds.png
 e386302dd1d6fde9e50b214e6b26a106d30903481989baf6532505033bf7e3d4  data/wed/test/12-may/gtFine/default/set25/20250512_163533_gtFine_labelIds.png
 306089dcda4a7db75a553598d2302e24847d20652eb6ad0ea96ab95e28da914c  data/wed/test/12-may/gtFine/default/set25/20250512_163536_gtFine_labelIds.png
@@ -505,9 +512,3 @@ d2bdc751a0e62b9bd587e6451cac467a09d4422e8fd4d4a3463fef924d26364e  data/wed/test/
 8c5beef6a877f1d42b6866eb108eb301a5226a2ca0d59dcbbf4c422e7433bea8  data/wed/test/26-may/imgsFine/leftImg8bit/default/set9/20250526_151121_leftImg8bit.jpg
 8b65f8b1232838aeb37df88ae7fd0d53f965c6e25048a5b7c19e99f73b6ee9a8  data/wed/test/26-may/imgsFine/leftImg8bit/default/set9/20250526_151130_leftImg8bit.jpg
 986164869a6f0135239d907514127865b0358eb16f8c14f99c5a893b2402b6b2  data/wed/test/26-may/imgsFine/leftImg8bit/default/set9/20250526_151137_leftImg8bit.jpg
-f5bad6b32963c7ee2ed0ad3cddd7ca02d2d912c90b36c9b3cde7e82fb989214d  data/wed_manifest.jsonl
-cf95d224781f7cc0fcaafc875ab1738ee09e58b59b8e21c24fb333fbb3815479  tools/build_wed_manifest.py
-18f5a40e1105c77547e1e9fb4d54de44275d5e67526b98a3b9ee5da897185531  tools/check_locked.py
-0ec0dcaf2f1de30f02e82e826fa83e5de59144774215703dd0e6314255caa31c  tools/compare_runs.py
-bfab09a8212f8e45ed4eb351f2474af5a928f6a98ffef163ec2d361d515d721a  tools/run_eval.py
-011ec1ecf77b1ab4c8cc5629dc10f91738de7216fd9aa0fe91b8bd553bef6e44  tools/stress_suite.py

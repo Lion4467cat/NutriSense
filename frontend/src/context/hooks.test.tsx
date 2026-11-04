@@ -106,6 +106,29 @@ describe("usePrefs", () => {
     expect(window.localStorage.getItem(PREFS_KEY)).toBeNull();
   });
 
+  it("resetPrefs removes profile data and restores defaults", () => {
+    storage.set(PREFS_KEY, JSON.stringify({
+      userName: "Ada",
+      profile: { ageBand: "18-29", sex: "female", activityLevel: "moderate" },
+      mode: "general",
+    }));
+    const { result } = renderHook(() => usePrefs(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <PrefsProvider storage={storage}>{children}</PrefsProvider>
+      ),
+    });
+
+    let removed = false;
+    act(() => {
+      removed = result.current.resetPrefs();
+    });
+    expect(removed).toBe(true);
+    expect(storage.get(PREFS_KEY)).toBeNull();
+    expect(result.current.prefs.userName).toBe("");
+    expect(result.current.prefs.profile).toBeNull();
+    expect(result.current.prefs.mode).toBe("school");
+  });
+
   it("mode, profile and goal override persist and survive a remount", () => {
     storage.set(PREFS_KEY, JSON.stringify({ accent: "teal" }));
     const wrapper =
@@ -171,6 +194,23 @@ describe("useRecords", () => {
     expect(result.current.records.map((r) => r.id)).toEqual(["new-1"]);
     const stored = JSON.parse(storage.get(KEY)!);
     expect(stored.map((r: AnalysisRecord) => r.id)).toEqual(["new-1"]);
+  });
+
+  it("clearRecords removes both current and legacy history", () => {
+    storage.set(KEY, JSON.stringify([makeRecord("current", iso(2))]));
+    storage.set("nutrisense.records.v1", JSON.stringify([makeRecord("legacy", iso(1))]));
+    const { result } = renderHook(() => useRecords(), {
+      wrapper: recordsWrapper(storage),
+    });
+
+    let cleared = false;
+    act(() => {
+      cleared = result.current.clearRecords();
+    });
+    expect(cleared).toBe(true);
+    expect(result.current.records).toEqual([]);
+    expect(JSON.parse(storage.get(KEY)!)).toEqual([]);
+    expect(storage.get("nutrisense.records.v1")).toBeNull();
   });
 
   it("addRecord caps at MAX_RECORDS, evicting the oldest", () => {

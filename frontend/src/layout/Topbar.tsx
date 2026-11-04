@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { EASE } from "../ui/motion";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
@@ -44,6 +44,14 @@ export default function Topbar({
       window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>(() => {
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem("nutrisense.dismissed-alerts") || "[]");
+      return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      return [];
+    }
+  });
   const profileRef = useRef<HTMLDivElement>(null);
   const alertsRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +63,25 @@ export default function Topbar({
         : selectAttention(records).slice(0, 6),
     [records, general]
   );
+  const visibleAttention = useMemo(
+    () => attention.filter((record) => !dismissedAlerts.includes(record.id)),
+    [attention, dismissedAlerts]
+  );
+  const dismissAlerts = (ids: string[]) => {
+    setDismissedAlerts((current) => {
+      const next = [...new Set([...current, ...ids])];
+      try {
+        localStorage.setItem("nutrisense.dismissed-alerts", JSON.stringify(next));
+      } catch {
+        // Keep the in-memory dismissal if browser storage is unavailable.
+      }
+      return next;
+    });
+  };
+  const closeAlerts = () => {
+    dismissAlerts(visibleAttention.map((record) => record.id));
+    setAlertsOpen(false);
+  };
 
   useEffect(() => {
     if (!profileOpen && !alertsOpen) return;
@@ -63,12 +90,12 @@ export default function Topbar({
         setProfileOpen(false);
       }
       if (alertsRef.current && !alertsRef.current.contains(e.target as Node)) {
-        setAlertsOpen(false);
+        closeAlerts();
       }
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
-  }, [profileOpen, alertsOpen]);
+  }, [profileOpen, alertsOpen, visibleAttention]);
 
   return (
     <motion.header
@@ -124,12 +151,12 @@ export default function Topbar({
       <div ref={alertsRef} style={{ position: "relative" }}>
         <button
           className="icon-btn"
-          onClick={() => setAlertsOpen((o) => !o)}
+          onClick={() => alertsOpen ? closeAlerts() : setAlertsOpen(true)}
           aria-label={
-            attention.length
+            visibleAttention.length
               ? general
-                ? `Notifications: ${attention.length} analyses have no nutrition numbers`
-                : `Notifications: ${attention.length} need attention`
+                ? `Notifications: ${visibleAttention.length} analyses have no nutrition numbers`
+                : `Notifications: ${visibleAttention.length} need attention`
               : "Notifications"
           }
           aria-expanded={alertsOpen}
@@ -140,15 +167,16 @@ export default function Topbar({
           {apiUp === false ? (
             <span className="alert-dot" aria-hidden="true" />
           ) : (
-            attention.length > 0 && (
+            visibleAttention.length > 0 && (
               <span className="count-badge" aria-hidden="true">
-                {attention.length}
+                {visibleAttention.length}
               </span>
             )
           )}
         </button>
+        <AnimatePresence>
         {alertsOpen && (
-          <div className="menu-pop notif-pop" role="menu">
+          <motion.div className="menu-pop notif-pop" role="menu" initial={{ opacity: 0, y: -5, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.99 }} transition={{ duration: 0.16, ease: EASE }}>
             <div className="pop-head">
               <div className="workspace-name">Notifications</div>
               <div className="workspace-role">
@@ -169,33 +197,26 @@ export default function Topbar({
                 Backend unreachable — open settings
               </button>
             )}
-            {attention.map((r) => (
-              <button
-                key={r.id}
-                className="pop-item"
-                role="menuitem"
-                onClick={() => {
-                  setAlertsOpen(false);
+            <AnimatePresence initial={false}>
+            {visibleAttention.map((r) => (
+              <motion.div key={r.id} className="pop-item notif-row" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 4 }} transition={{ duration: 0.15, ease: EASE }}>
+                <button className="notif-open" role="menuitem" onClick={() => {
+                  closeAlerts();
                   navigate(`/result/${r.id}`);
-                }}
-              >
-                <span className="pop-item-body">
-                  <span className="pop-item-title">
-                    {r.summary.dish || "Unrecognized dish"}
+                }}>
+                  <span className="pop-item-body">
+                    <span className="pop-item-title">{r.summary.dish || "Unrecognized dish"}</span>
+                    <span className="pop-item-sub">
+                      {formatDate(r.createdAt)}{r.student?.name ? ` · ${r.student.name}` : ""}
+                    </span>
                   </span>
-                  <span className="pop-item-sub">
-                    {formatDate(r.createdAt)}
-                    {r.student?.name ? ` · ${r.student.name}` : ""}
-                  </span>
-                </span>
-                {general ? (
-                  <span className="tag">no numbers</span>
-                ) : (
-                  <VerdictPill verdict={r.summary.verdict} />
-                )}
-              </button>
+                  {general ? <span className="tag">no numbers</span> : <VerdictPill verdict={r.summary.verdict} />}
+                </button>
+                <button className="notif-dismiss" aria-label={`Dismiss ${r.summary.dish || "food analysis"} notification`} title="Dismiss notification" onClick={() => dismissAlerts([r.id])}>×</button>
+              </motion.div>
             ))}
-            {attention.length === 0 && apiUp !== false && (
+            </AnimatePresence>
+            {visibleAttention.length === 0 && apiUp !== false && (
               <div className="pop-empty">
                 {general ? "Every analysis has numbers." : "Nothing needs attention."}
               </div>
@@ -210,8 +231,9 @@ export default function Topbar({
             >
               View all in history →
             </button>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       <div ref={profileRef} style={{ position: "relative" }}>

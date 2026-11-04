@@ -217,15 +217,26 @@
         "chapati",
         "pulka"
       ],
+      "components": {
+        "roti": {
+          "density_g_ml": 0.65,
+          "generic_id": "wheat_roti",
+          "required": true,
+          "share": 1.0,
+          "type": "grain"
+        }
+      },
       "days": [
         "sat"
       ],
-      "decision": "dropped_by_user",
       "display_name": "Wheat Product (Roti/Chapati)",
       "doc_status": "listed",
-      "nutrition_source": "out_of_scope",
+      "mandatory_report_line": "Nutrient values are generic cooked-roti estimates; recipe and hydration vary.",
+      "nutrition_source": "generic",
+      "ranges_wider": true,
       "standard_class": "1-5",
-      "status": "out_of_scope"
+      "status": "in_scope",
+      "subtype": "wheat_product"
     }
   },
   "policy": {

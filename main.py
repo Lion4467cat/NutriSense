@@ -1,10 +1,12 @@
 """NutriSense API (S6): /health, /menu, /goals, /analyze."""
 import logging
+import asyncio
 import os
 import struct
 import tempfile
 import threading
 import json
+import time
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -18,10 +20,33 @@ from typing import Literal
 from starlette.responses import JSONResponse
 
 from config import load_goals, load_menu, load_standards
+from engine.application import AnalysisRequest, AnalysisService
 from engine.contract import load_policy, log_analysis, unreadable_analysis
 from engine.meal_coach import MealCoachUnavailable, chat as meal_chat, critique as meal_critique
 from engine.pipeline import analyze
 from models.scale_anchor import read_exif
+from models.inference_lock import inference_lock
+
+
+def _production_pipeline_deps(image):
+    """Lazy dependency provider; tests can replace it without loading models."""
+    from models.wed_inference import pipeline_deps
+
+    return pipeline_deps(image)
+
+
+def _run_analysis_pipeline(image, *, day, band, exif=None,
+                           serving_style=None, mode="school"):
+    """Late-bound adapter keeps the API replaceable in mocked CPU tests."""
+    return analyze(image, day=day, band=band, exif=exif,
+                   serving_style=serving_style, mode=mode,
+                   deps=_production_pipeline_deps(image))
+
+
+analysis_service = AnalysisService(
+    _run_analysis_pipeline,
+    inference_guard=inference_lock,
+)
 
 class AnalyzeAdmissionMiddleware:
     """Bound admitted /analyze requests before multipart parsing or disk copies."""
@@ -53,6 +78,79 @@ class AnalyzeAdmissionMiddleware:
             self._slots.release()
 
 
+class AnalyzeBodySizeMiddleware:
+    """Cap the request before Starlette parses/spools its multipart body."""
+
+    def __init__(self, app, max_bytes: int, max_seconds: float = 60.0):
+        self.app = app
+        self.max_bytes = max_bytes
+        self.max_seconds = max_seconds
+
+    async def __call__(self, scope, receive, send):
+        if not (scope["type"] == "http" and scope["method"] == "POST"
+                and scope["path"] == "/analyze"):
+            await self.app(scope, receive, send)
+            return
+
+        headers = {key.lower(): value for key, value in scope.get("headers", [])}
+        content_length = headers.get(b"content-length")
+        if content_length is not None:
+            try:
+                if int(content_length) > self.max_bytes:
+                    await JSONResponse(
+                        {"detail": "analysis request exceeds the request-size limit"},
+                        status_code=413,
+                    )(scope, receive, send)
+                    return
+            except ValueError:
+                await JSONResponse(
+                    {"detail": "invalid Content-Length"}, status_code=400,
+                )(scope, receive, send)
+                return
+
+        body = bytearray()
+        deadline = time.monotonic() + self.max_seconds
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                await JSONResponse(
+                    {"detail": "analysis request body timed out"},
+                    status_code=408,
+                )(scope, receive, send)
+                return
+            try:
+                message = await asyncio.wait_for(receive(), timeout=remaining)
+            except TimeoutError:
+                await JSONResponse(
+                    {"detail": "analysis request body timed out"},
+                    status_code=408,
+                )(scope, receive, send)
+                return
+            if message["type"] == "http.disconnect":
+                return
+            body.extend(message.get("body", b""))
+            if len(body) > self.max_bytes:
+                await JSONResponse(
+                    {"detail": "analysis request exceeds the request-size limit"},
+                    status_code=413,
+                )(scope, receive, send)
+                return
+            if not message.get("more_body", False):
+                break
+
+        replayed = False
+
+        async def replay_body():
+            nonlocal replayed
+            if not replayed:
+                replayed = True
+                return {"type": "http.request", "body": bytes(body),
+                        "more_body": False}
+            return await receive()
+
+        await self.app(scope, replay_body, send)
+
+
 class ChatTurn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     role: Literal["user", "assistant"]
@@ -75,6 +173,12 @@ app = FastAPI(title="NutriSense API", version="5.0")
 # threadpool call, so /health and other async endpoints remain responsive.
 INFERENCE_LIMITER = anyio.CapacityLimiter(1)
 MAX_UPLOAD_BYTES = int(os.environ.get("NUTRISENSE_MAX_UPLOAD_BYTES", str(12 * 1024 * 1024)))
+MAX_ANALYZE_BODY_BYTES = MAX_UPLOAD_BYTES + 64 * 1024
+MAX_ANALYZE_BODY_SECONDS = float(
+    os.environ.get("NUTRISENSE_MAX_ANALYZE_BODY_SECONDS", "60")
+)
+if not np.isfinite(MAX_ANALYZE_BODY_SECONDS) or MAX_ANALYZE_BODY_SECONDS <= 0:
+    raise ValueError("NUTRISENSE_MAX_ANALYZE_BODY_SECONDS must be positive")
 MAX_IMAGE_PIXELS = int(os.environ.get("NUTRISENSE_MAX_IMAGE_PIXELS", "40000000"))
 if MAX_IMAGE_PIXELS < 1:
     raise ValueError("NUTRISENSE_MAX_IMAGE_PIXELS must be at least 1")
@@ -90,7 +194,10 @@ CORS_ORIGINS = [
     if origin.strip()
 ]
 
-# CORS stays outside admission so browser clients can read the overload response.
+# CORS stays outside admission/body checks so browser clients can read errors.
+app.add_middleware(AnalyzeBodySizeMiddleware,
+                   max_bytes=MAX_ANALYZE_BODY_BYTES,
+                   max_seconds=MAX_ANALYZE_BODY_SECONDS)
 app.add_middleware(AnalyzeAdmissionMiddleware, max_inflight=MAX_INFLIGHT_ANALYSES)
 app.add_middleware(
     CORSMiddleware,
@@ -116,12 +223,17 @@ def _configure_logging() -> None:
         os.environ.get("NUTRISENSE_LOG_DIR")
         or (Path(__file__).resolve().parent / "logs")
     )
-    log_dir.mkdir(parents=True, exist_ok=True)
-    file_handler = RotatingFileHandler(log_dir / "nutrisense.log",
-                                       maxBytes=5 * 1024 * 1024,
-                                       backupCount=3)
-    file_handler.setFormatter(fmt)
-    log.addHandler(file_handler)
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        file_handler = RotatingFileHandler(log_dir / "nutrisense.log",
+                                           maxBytes=5 * 1024 * 1024,
+                                           backupCount=3)
+    except OSError as exc:
+        log.warning("file logging unavailable; continuing with stderr: %s",
+                    type(exc).__name__)
+    else:
+        file_handler.setFormatter(fmt)
+        log.addHandler(file_handler)
 
 
 _configure_logging()
@@ -186,7 +298,8 @@ def goals():
 
     Shapes the data file's `bands` table as `daily`, with the vocabulary and
     activity-level lists the frontend renders as pickers. Provenance and
-    status travel with each profile; /analyze is untouched (ADR 0003).
+    status travel with each profile; School and General analysis modes share
+    the same portion and nutrient pipeline (ADR 0003).
     """
     g = load_goals()
     return {
@@ -228,7 +341,7 @@ async def meal_chat_endpoint(request: MealChatRequest):
 
 
 def _analyze_path(path: str, day: str, band: str,
-                  serving_style: str | None) -> dict:
+                  serving_style: str | None, mode: str = "school") -> dict:
     """Blocking decode + inference, run in the bounded threadpool."""
     encoded = Path(path).read_bytes()
     dimensions = _encoded_image_dimensions(encoded)
@@ -251,8 +364,12 @@ def _analyze_path(path: str, day: str, band: str,
         log_analysis(str(analysis.verdict), day, band, {})
         return analysis.to_wire()
     exif = read_exif(path)
-    return analyze(image, day=day, band=band, exif=exif,
-                   serving_style=serving_style)
+    return analysis_service.analyze(
+        image,
+        AnalysisRequest(day=day, band=band, mode=mode,
+                        serving_style=serving_style),
+        exif=exif,
+    )
 
 
 def _encoded_image_dimensions(data: bytes) -> tuple[int, int] | None:
@@ -295,8 +412,11 @@ async def analyze_upload(
     file: UploadFile = File(...),
     day: str = Form(...),
     band: str = Form(...),
+    mode: str = Form("school"),
     serving_style: str | None = Form(None),
 ):
+    if mode not in {"school", "general"}:
+        raise HTTPException(status_code=422, detail="invalid analysis mode")
     if serving_style is not None:
         style_config = load_menu().get("capture_fields", {}).get("serving_style", {})
         allowed_styles = set(style_config.get("values") or [])
@@ -316,7 +436,7 @@ async def analyze_upload(
                     )
                 tmp.write(chunk)
         return await anyio.to_thread.run_sync(
-            _analyze_path, path, day, band, serving_style,
+            _analyze_path, path, day, band, serving_style, mode,
             limiter=INFERENCE_LIMITER,
         )
     finally:

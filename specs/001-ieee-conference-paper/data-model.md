@@ -11,28 +11,24 @@ This feature produces a scholarly manuscript, not a software data store. These e
 
 ## Author
 
-- **Purpose**: Identifies a paper contributor and the supplied institutional contact.
-- **Fields**: Name, affiliation, email, email verification state.
-- **Records**:
-  - SS Gokula Swamy — BMS College of Engineering — `gokulaswamyss@gmail.com` — supplied address.
-  - Roshanth V — BMS College of Engineering — `roshanth.v@example.com` — placeholder; confirm before submission.
-  - Somanath S.D — BMS College of Engineering — `somanath.sd@example.com` — placeholder; confirm before submission.
-  - Aryan Kumar — BMS College of Engineering — `aryan.kumar@example.com` — placeholder; confirm before submission.
-- **Rules**: Keep author names and affiliation as supplied. Never present `example.com` placeholders as verified addresses.
+- **Purpose**: Identifies each paper contributor and supplied institutional affiliation.
+- **Fields**: Name, affiliation, verified email when required by the venue.
+- **Records**: SS Gokula Swamy, Roshanth V, Somanath S.D, and Aryan Kumar — BMS College of Engineering.
+- **Rules**: Keep names and affiliation as supplied. Omit contact addresses until verified; do not include temporary or fabricated addresses.
 
 ## Method Component
 
 - **Purpose**: Describes one stage in the NutriSense pipeline.
 - **Fields**: Stage name, input, output, method/model, measurement path, failure behavior, evidence source.
-- **Relationships**: Components form the sequence from meal image through dish recognition and portion estimation to nutrient uncertainty and compliance scoring.
-- **Rules**: Distinguish the 60 mm marker-based measured tier from the prior tier; accurately describe the marker as printed on A4; avoid claiming the legacy A6 fixture was used for field capture.
+- **Relationships**: Components form the sequence from meal image through food regions, recognition, per-region portion estimation, nutrient uncertainty, and conditional meal-level scoring. The optional meal critique follows analysis and cannot affect the score.
+- **Rules**: Distinguish the 60 mm marker-based measured tier from prior tiers; describe the marker as printed on A4; describe overlap partitioning and estimate-only fallback; do not imply validated real-photo multi-item accuracy or use the legacy A6 fixture as the field protocol.
 
 ## Evaluation Result
 
 - **Purpose**: Records a quantitative result without losing its evaluation context.
 - **Fields**: Metric, value, unit, encoder/checkpoint, dataset, split, views/plates/ROIs, confidence interval, evaluation date, source report, evidence category.
 - **Evidence categories**: DEV, TRAIN, LOCKED/test, gallery leave-one-out, synthetic/rendered, or published baseline.
-- **Rules**: Do not merge categories. For the current DINOv2-S head, report WED DEV only (108 views, 21 plates, 1,218 ROIs); do not create a LOCKED/test result. Label historical ResNet-50 results and published baseline results explicitly.
+- **Rules**: Do not merge categories. Report the DINOv2-S WED DEV result and the existing one-time LOCKED report only with their distinct scope, sample counts, interval coverage, and no-retuning caveat. Label gallery diagnostics and the pre-change EVAL-ONLY pilot separately. Do not use any closed split to validate current changes.
 
 ## Reference
 

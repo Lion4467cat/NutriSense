@@ -39,7 +39,7 @@ export const VERDICT_META: Record<Verdict, VerdictMeta> = {
     label: "Estimated",
     icon: IconScale,
     cls: "neutral",
-    blurb: "Legacy verdict (pre-2026-10-11): no reference card, weight was an estimate and never PASS/FAIL. Current no-card plates are scored (PASS/FAIL/BORDERLINE) with a no-reference-card disclaimer and a coverage reduction -- see the Measurement confidence panel on the result page.",
+    blurb: "An estimate is available, but uncertain food labels or item boundaries prevent a reliable school-compliance verdict.",
   },
   cannot_verify: {
     key: "cannot_verify",
@@ -68,6 +68,7 @@ export type Tone = "good" | "bad" | "info";
 const KIND_TONE: Record<string, Tone> = {
   in_zone: "good",
   below_min: "bad",
+  estimate_only: "info",
   stage_failed: "bad",
   unrecognized: "bad",
   zoom: "bad",

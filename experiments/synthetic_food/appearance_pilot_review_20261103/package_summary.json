@@ -1,0 +1,13 @@
+{
+  "pilot_root": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/datasets/processed/synthetic_food_appearance_pilot_20261103",
+  "pairs": 7,
+  "images": 14,
+  "human_review_rows": 7,
+  "human_review_status": "pending",
+  "visual_identity": "REVIEW_REQUIRED",
+  "photorealism": "REVIEW_REQUIRED",
+  "automated_label_checks_recorded_separately": true,
+  "gallery": "index.html",
+  "contact_sheet": "contact_sheet.png",
+  "review_sheet": "human_review.csv"
+}

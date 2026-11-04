@@ -171,21 +171,35 @@ def sample_nutrients(portion, dish, band=None, n=4000, seed=1234,
     }
 
 
+def _comonotonic_sum(item_mcs, key):
+    """Sum marginal draws with ranks aligned to model full positive dependence.
+
+    Items from one photo share capture, scale, and segmentation errors. Their
+    covariance has not been measured, so aligning sorted marginal draws avoids
+    the unjustifiably narrow interval from assuming independence. This is a
+    conservative dependence assumption, not an empirically calibrated model.
+    """
+    arrays = [np.asarray(m[key], dtype=float) for m in item_mcs]
+    if not arrays or any(a.shape != arrays[0].shape for a in arrays):
+        raise ValueError(f"multi-item Monte Carlo arrays do not align for {key}")
+    return np.sum([np.sort(a) for a in arrays], axis=0)
+
+
 def aggregate_meal(item_mcs, params=None):
     """Meal-level MC from per-item results (spec 003).
 
-    Per-item sample arrays are summed elementwise — items are sampled with
-    independent seeds, within-item correlations (shared anchor/pose terms)
-    are preserved by the per-item sampling. Summaries are recomputed from
-    the summed arrays, so this function, not the caller, owns the aggregate
-    intervals. Per-item components_g keys are dish-namespaced, so the
-    aggregate components block is a plain union.
+    Per-item arrays are combined with sorted ranks aligned, a conservative
+    perfect-positive-dependence assumption for shared capture errors. This
+    avoids treating items from one photo as independent when their true
+    covariance is unknown. Summaries are recomputed from the combined arrays.
+    Per-item components_g keys are dish-namespaced, so the aggregate
+    components block is a plain union.
     """
     params = params if params is not None else load_params()
     temperature = float(params.get("temperature_scale", {}).get("value", 1.0))
-    kcal = np.sum([m["kcal_samples"] for m in item_mcs], axis=0)
-    prot = np.sum([m["protein_g_samples"] for m in item_mcs], axis=0)
-    grams = np.sum([m["grams_samples"] for m in item_mcs], axis=0)
+    kcal = _comonotonic_sum(item_mcs, "kcal_samples")
+    prot = _comonotonic_sum(item_mcs, "protein_g_samples")
+    grams = _comonotonic_sum(item_mcs, "grams_samples")
     components_g, raw, assumed, provenance = {}, {}, set(), {}
     wider = False
     for m in item_mcs:
@@ -211,6 +225,7 @@ def aggregate_meal(item_mcs, params=None):
                 "raw_allocation_per_day_g"],
             "raw_basis_note": first["diagnostics"]["raw_basis_note"],
             "multi_item_count": len(item_mcs),
+            "uncertainty_dependence": "conservative_positive_rank_alignment; covariance unmeasured",
         },
         "assumed_nutrients": sorted(assumed),
         "wider_ranges": wider,

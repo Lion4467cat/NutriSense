@@ -36,7 +36,8 @@ export interface AnalysisRecord {
   createdAt: string;
   day: string;
   band: string;
-  serving_style: string;
+  /** Deprecated capture metadata retained only for older browser records. */
+  serving_style?: string | null;
   mode?: "school" | "general";
   student: RecordStudent | null;
   photo: string | null;
@@ -180,11 +181,32 @@ export function dishLabel(
 function isValidRecord(r: unknown): r is AnalysisRecord {
   if (!r || typeof r !== "object") return false;
   const record = r as Partial<AnalysisRecord>;
+  const result = record.result;
+  const summary = record.summary;
+  const validVerdict = (value: unknown): value is Verdict =>
+    value === "PASS" || value === "BORDERLINE" || value === "FAIL"
+      || value === "ESTIMATED" || value === "cannot_verify"
+      || value === "out_of_scope";
+  const nullableNumber = (value: unknown) =>
+    value === null || (typeof value === "number" && Number.isFinite(value));
+
   return typeof record.id === "string"
-    && !!record.result
-    && typeof record.result === "object"
-    && typeof record.result.verdict === "string"
-    && Array.isArray(record.result.reasons);
+    && typeof record.createdAt === "string"
+    && typeof record.day === "string"
+    && typeof record.band === "string"
+    && !!summary
+    && typeof summary === "object"
+    && validVerdict(summary.verdict)
+    && (summary.dish === null || typeof summary.dish === "string")
+    && nullableNumber(summary.grams)
+    && nullableNumber(summary.kcal)
+    && nullableNumber(summary.protein)
+    && nullableNumber(summary.coverage)
+    && nullableNumber(summary.confidence)
+    && !!result
+    && typeof result === "object"
+    && validVerdict(result.verdict)
+    && Array.isArray(result.reasons);
 }
 
 /**
@@ -251,7 +273,7 @@ export function saveRecords(storage: Storage, records: AnalysisRecord[]): boolea
 export function makeRecord(input: {
   day: string;
   band: string;
-  serving_style: string;
+  serving_style?: string | null;
   mode?: "school" | "general";
   student: RecordStudent | null;
   photo: string | null;
@@ -263,7 +285,7 @@ export function makeRecord(input: {
     createdAt: new Date().toISOString(),
     day: input.day,
     band: input.band,
-    serving_style: input.serving_style,
+    serving_style: input.serving_style ?? null,
     mode: input.mode,
     student: input.student,
     photo: input.photo,

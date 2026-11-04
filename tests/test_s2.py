@@ -28,8 +28,8 @@ def _label(c):
 
 def test_menu_dish_keys_exclude_out_of_scope():
     keys = menu_dish_keys()
-    assert "wheat_product" not in keys
-    assert set(keys) <= {"rice_sambar", "vegetable_rice", "bisibelebath"}
+    assert set(keys) == {"rice_sambar", "vegetable_rice", "bisibelebath",
+                         "wheat_product"}
 
 
 def _n_uncovered():

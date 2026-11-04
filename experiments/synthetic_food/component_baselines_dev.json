@@ -1,0 +1,7031 @@
+{
+  "aruco_accessed": false,
+  "candidate_generation_allowed": false,
+  "created_at": "2026-11-02T16:23:21.529839+00:00",
+  "elapsed_s": 504.47,
+  "feature": "009-synthetic-training-data",
+  "frozen": false,
+  "git_revision": "f437cc64554f342c71f7a802fef35308ff4d6dee",
+  "locked_accessed": false,
+  "model_evaluation": "WED DEV only; LOCKED and ArUco inputs not opened",
+  "numpy": "2.5.3",
+  "python": "3.14.7",
+  "reason": "Measured component baselines do not constitute a complete five-stage freeze; depth/geometry and end-to-end remain gated.",
+  "stages": {
+    "classification": {
+      "data_sha256": "3686e21a984669d70ffef8af0c6a7cb0c60c45d82f90f57488a574b1c9ffb9f7",
+      "gallery_data_sha256": "0c174b0533c484390065174373ca0698a7cd8a535f9b0a6a1005d9eab09ef47b",
+      "group_count": 21,
+      "limitation": "Uses isolated ground-truth food crops and a clean TRAIN-only gallery; this is a component baseline, not end-to-end classification.",
+      "metrics": {
+        "macro_f1": 0.6771464647671669,
+        "n_food_regions": 1218,
+        "top1_accuracy": 0.7619047619047619
+      },
+      "model_sha256": "d7909bd2a6303bb4d650e4b76a7e65bf125f51710b8001f5a07f3adc2b42e628",
+      "per_class": {
+        "1": {
+          "f1": 0.0,
+          "n": 0,
+          "name": "Bottle-gourd-curry"
+        },
+        "2": {
+          "f1": 0.7567567567567568,
+          "n": 15,
+          "name": "aloo-capsicum"
+        },
+        "3": {
+          "f1": 0.8888888888888888,
+          "n": 15,
+          "name": "aloo-curry"
+        },
+        "4": {
+          "f1": 0.8235294117647058,
+          "n": 9,
+          "name": "aloo-fry"
+        },
+        "5": {
+          "f1": 0.782608695652174,
+          "n": 35,
+          "name": "beans-curry"
+        },
+        "6": {
+          "f1": 0.75,
+          "n": 23,
+          "name": "beetroot-kobari"
+        },
+        "7": {
+          "f1": 0.96,
+          "n": 13,
+          "name": "beetroot-poriyal"
+        },
+        "8": {
+          "f1": 0.8235294117647058,
+          "n": 10,
+          "name": "bisi-bele-bath"
+        },
+        "9": {
+          "f1": 0.9230769230769231,
+          "n": 7,
+          "name": "boondi"
+        },
+        "10": {
+          "f1": 0.8444444444444444,
+          "n": 23,
+          "name": "cabbage-dry"
+        },
+        "11": {
+          "f1": 0.7727272727272727,
+          "n": 25,
+          "name": "channa-brinjal"
+        },
+        "12": {
+          "f1": 0.5714285714285714,
+          "n": 15,
+          "name": "chicken-dum-biryani"
+        },
+        "13": {
+          "f1": 0.7321428571428571,
+          "n": 54,
+          "name": "chutney"
+        },
+        "14": {
+          "f1": 0.9724770642201835,
+          "n": 106,
+          "name": "curd"
+        },
+        "15": {
+          "f1": 0.5263157894736842,
+          "n": 10,
+          "name": "dondakaya-fry"
+        },
+        "16": {
+          "f1": 0.75,
+          "n": 10,
+          "name": "kakarakaya-fry"
+        },
+        "17": {
+          "f1": 0.6304347826086957,
+          "n": 34,
+          "name": "kofta-curry"
+        },
+        "18": {
+          "f1": 0.23529411764705882,
+          "n": 9,
+          "name": "leaf-dal"
+        },
+        "19": {
+          "f1": 0.6881720430107527,
+          "n": 33,
+          "name": "mango-pickle"
+        },
+        "20": {
+          "f1": 0.0,
+          "n": 0,
+          "name": "masoor-dal"
+        },
+        "21": {
+          "f1": 0.717948717948718,
+          "n": 15,
+          "name": "mirchi-ka-salan"
+        },
+        "22": {
+          "f1": 0.30434782608695654,
+          "n": 10,
+          "name": "muddha-pappu"
+        },
+        "23": {
+          "f1": 0.6779661016949152,
+          "n": 33,
+          "name": "non-spicy-curry"
+        },
+        "24": {
+          "f1": 0.5954198473282443,
+          "n": 75,
+          "name": "non-spicy-dal"
+        },
+        "25": {
+          "f1": 0.7,
+          "n": 35,
+          "name": "pachi-pulusu"
+        },
+        "26": {
+          "f1": 0.8545454545454545,
+          "n": 62,
+          "name": "papad"
+        },
+        "27": {
+          "f1": 0.9473684210526315,
+          "n": 10,
+          "name": "payasam"
+        },
+        "28": {
+          "f1": 0.9219858156028369,
+          "n": 67,
+          "name": "phulka"
+        },
+        "29": {
+          "f1": 0.8461538461538461,
+          "n": 15,
+          "name": "raita"
+        },
+        "30": {
+          "f1": 0.6666666666666666,
+          "n": 23,
+          "name": "rajma"
+        },
+        "31": {
+          "f1": 0.0,
+          "n": 0,
+          "name": "rasam"
+        },
+        "32": {
+          "f1": 0.8314606741573034,
+          "n": 104,
+          "name": "salad"
+        },
+        "33": {
+          "f1": 0.35443037974683544,
+          "n": 48,
+          "name": "sambar"
+        },
+        "34": {
+          "f1": 0.8899521531100478,
+          "n": 108,
+          "name": "steamed-rice"
+        },
+        "35": {
+          "f1": 0.45,
+          "n": 25,
+          "name": "tomato-pappu"
+        },
+        "36": {
+          "f1": 0.34782608695652173,
+          "n": 15,
+          "name": "veg-dum-briyani"
+        },
+        "37": {
+          "f1": 0.7924528301886793,
+          "n": 23,
+          "name": "veg-pulao"
+        },
+        "38": {
+          "f1": 0.927536231884058,
+          "n": 36,
+          "name": "Watermelon"
+        },
+        "39": {
+          "f1": 0.8372093023255814,
+          "n": 20,
+          "name": "Papaya"
+        },
+        "40": {
+          "f1": 0.9620253164556962,
+          "n": 40,
+          "name": "Banana"
+        },
+        "41": {
+          "f1": 0.7058823529411765,
+          "n": 8,
+          "name": "Muskmelon"
+        }
+      },
+      "predictions": [
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 19,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 39,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set14",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 25,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 2,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 6,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 25,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 6,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 7,
+          "target": 7
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 31,
+          "target": 33
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 34,
+          "target": 37
+        },
+        {
+          "group": "20250512_set22",
+          "prediction": 39,
+          "target": 38
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 15,
+          "target": 15
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 18,
+          "target": 18
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 18,
+          "target": 24
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 24,
+          "target": 8
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 19,
+          "target": 15
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 17,
+          "target": 24
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 5,
+          "target": 15
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 5,
+          "target": 16
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 18,
+          "target": 24
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 22,
+          "target": 8
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 5,
+          "target": 15
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 5,
+          "target": 16
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 19,
+          "target": 39
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 15,
+          "target": 15
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 19,
+          "target": 16
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 35,
+          "target": 18
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set11",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 15,
+          "target": 15
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 18,
+          "target": 18
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 18,
+          "target": 24
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 41,
+          "target": 39
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 5,
+          "target": 15
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 9
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 15,
+          "target": 15
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 15,
+          "target": 16
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 22,
+          "target": 27
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 8,
+          "target": 8
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 5,
+          "target": 15
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 22,
+          "target": 8
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 9,
+          "target": 9
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 15,
+          "target": 15
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 16,
+          "target": 16
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 18
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 27,
+          "target": 27
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250515_set20",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 31,
+          "target": 33
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 19,
+          "target": 11
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 18,
+          "target": 24
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 13,
+          "target": 26
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 24,
+          "target": 35
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 35,
+          "target": 6
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 13,
+          "target": 24
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 22,
+          "target": 35
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 39,
+          "target": 38
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 22,
+          "target": 6
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 23,
+          "target": 35
+        },
+        {
+          "group": "20250516_set10",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 26
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 2,
+          "target": 32
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 22,
+          "target": 35
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 39,
+          "target": 32
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 22,
+          "target": 35
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 15,
+          "target": 6
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 26
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 18,
+          "target": 24
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 22,
+          "target": 35
+        },
+        {
+          "group": "20250516_set19",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 6
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 35,
+          "target": 24
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 24,
+          "target": 35
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 6
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 33,
+          "target": 11
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 32
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 6
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 19,
+          "target": 11
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 23,
+          "target": 32
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 18,
+          "target": 35
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 19,
+          "target": 38
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 2,
+          "target": 6
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 26
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 24,
+          "target": 35
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 39,
+          "target": 38
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 13,
+          "target": 26
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 11,
+          "target": 32
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250516_set21",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 13,
+          "target": 32
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 13,
+          "target": 19
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 20,
+          "target": 32
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 35,
+          "target": 17
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set14",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 23
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 25
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 13,
+          "target": 32
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 33,
+          "target": 32
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 5
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 17,
+          "target": 25
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 2,
+          "target": 32
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set16",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 22,
+          "target": 23
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 33,
+          "target": 24
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 33,
+          "target": 32
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 30,
+          "target": 17
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 1,
+          "target": 23
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 15,
+          "target": 5
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 17,
+          "target": 32
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 22,
+          "target": 23
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 13,
+          "target": 32
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set3",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 1,
+          "target": 23
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 10,
+          "target": 5
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 24,
+          "target": 23
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 22,
+          "target": 23
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 32
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 22,
+          "target": 23
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 17,
+          "target": 25
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 2,
+          "target": 32
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set30",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 23,
+          "target": 32
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 30,
+          "target": 17
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 33,
+          "target": 24
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 13,
+          "target": 5
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 35,
+          "target": 24
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 13,
+          "target": 40
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 22,
+          "target": 5
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 30,
+          "target": 17
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 23
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 25
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 32
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 19,
+          "target": 23
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 23,
+          "target": 24
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 17,
+          "target": 25
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 40,
+          "target": 34
+        },
+        {
+          "group": "20250517_set7",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 33,
+          "target": 30
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 30,
+          "target": 33
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 41,
+          "target": 34
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 41,
+          "target": 4
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 5,
+          "target": 10
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 13
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 24,
+          "target": 30
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 30,
+          "target": 33
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 2,
+          "target": 10
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 13
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 19,
+          "target": 30
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 13,
+          "target": 37
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 34,
+          "target": 41
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 30
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 14,
+          "target": 34
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set10",
+          "prediction": 17,
+          "target": 41
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 2,
+          "target": 4
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 30,
+          "target": 33
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 10,
+          "target": 10
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 24,
+          "target": 30
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 19,
+          "target": 32
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 26,
+          "target": 34
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 4,
+          "target": 4
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 4,
+          "target": 10
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 30,
+          "target": 30
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 20,
+          "target": 33
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 37,
+          "target": 37
+        },
+        {
+          "group": "20250519_set6",
+          "prediction": 41,
+          "target": 41
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 32
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 22,
+          "target": 3
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 29
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 33,
+          "target": 3
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 29
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 36,
+          "target": 36
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 36,
+          "target": 12
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 17,
+          "target": 21
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set12",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 13,
+          "target": 32
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 36,
+          "target": 12
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 13,
+          "target": 32
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 36,
+          "target": 36
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 29
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 11,
+          "target": 2
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 24,
+          "target": 12
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 26
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 36,
+          "target": 36
+        },
+        {
+          "group": "20250521_set15",
+          "prediction": 12,
+          "target": 40
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 28
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 36,
+          "target": 34
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 33,
+          "target": 3
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 19,
+          "target": 13
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 29,
+          "target": 29
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 25,
+          "target": 32
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 36,
+          "target": 34
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 36,
+          "target": 36
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 2,
+          "target": 2
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 3,
+          "target": 3
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 12
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 21
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 21,
+          "target": 24
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 28
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 14,
+          "target": 29
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 12,
+          "target": 36
+        },
+        {
+          "group": "20250521_set21",
+          "prediction": 40,
+          "target": 40
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 21,
+          "target": 13
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 24,
+          "target": 33
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 30,
+          "target": 35
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 19,
+          "target": 6
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 25,
+          "target": 11
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 17,
+          "target": 35
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 23,
+          "target": 11
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 17,
+          "target": 24
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 30,
+          "target": 35
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 19,
+          "target": 32
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 30,
+          "target": 33
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 17,
+          "target": 35
+        },
+        {
+          "group": "20250523_set1",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 32
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 33,
+          "target": 11
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 32
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 35,
+          "target": 33
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 35,
+          "target": 35
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 23,
+          "target": 11
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 32
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 30,
+          "target": 33
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 17,
+          "target": 35
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 11,
+          "target": 11
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 22,
+          "target": 24
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 32
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 17,
+          "target": 33
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 17,
+          "target": 35
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 6,
+          "target": 6
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 1,
+          "target": 11
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 13,
+          "target": 13
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 24,
+          "target": 24
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 33,
+          "target": 33
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 17,
+          "target": 35
+        },
+        {
+          "group": "20250523_set9",
+          "prediction": 38,
+          "target": 38
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 30,
+          "target": 17
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 10,
+          "target": 5
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 23
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 38,
+          "target": 32
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 15,
+          "target": 5
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 24,
+          "target": 22
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 17,
+          "target": 25
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 32
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 19,
+          "target": 22
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set12",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 24,
+          "target": 22
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 23,
+          "target": 23
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 33,
+          "target": 25
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 37,
+          "target": 34
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 5,
+          "target": 5
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 22,
+          "target": 23
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 26,
+          "target": 26
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 39,
+          "target": 39
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 10,
+          "target": 5
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 14,
+          "target": 14
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 17,
+          "target": 17
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 19,
+          "target": 19
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 22,
+          "target": 22
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 19,
+          "target": 23
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 25,
+          "target": 25
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 26
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 28,
+          "target": 28
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 32,
+          "target": 32
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 34,
+          "target": 34
+        },
+        {
+          "group": "20250524_set15",
+          "prediction": 39,
+          "target": 39
+        }
+      ],
+      "source_report": "data/reports/classifier_41way_dev.json",
+      "split_sha256": "4b2c581ff5b2ef5dd8050ee3fafbd09297240686dd824756255749f450bca827",
+      "stage": "classification",
+      "status": "measured_reference_not_frozen",
+      "uncertainty": {
+        "group_bootstrap_95ci_top1": [
+          0.7194998557165986,
+          0.7916654549777695
+        ]
+      }
+    },
+    "depth_geometry": {
+      "limitation": "The required synthetic metric-depth baseline and real marker/scale diagnostics have not been frozen together.",
+      "status": "blocked_metrics_not_frozen"
+    },
+    "end_to_end": {
+      "limitation": "No real DEV full-meal critical-failure baseline is recorded for this feature.",
+      "status": "blocked_missing_report"
+    },
+    "segmentation": {
+      "data_sha256": "3686e21a984669d70ffef8af0c6a7cb0c60c45d82f90f57488a574b1c9ffb9f7",
+      "group_count": 21,
+      "limitation": "Uses deployed multi-item masks; label identity is not inferred by SAM2, so item coverage is the fraction of GT dish regions matched at IoU >= 0.5.",
+      "metrics": {
+        "failed_views": 0,
+        "item_coverage_at_iou_0_5": 0.16365039281705943,
+        "mean_dice": 0.3057866384723695,
+        "mean_iou": 0.19198627754117772,
+        "n_views": 108,
+        "view_coverage": 1.0
+      },
+      "model_sha256": "27b6ce508930a848fe0abfb15be8f06478e297e34ff6f297e0c5f26a3ef4b4f0",
+      "per_view": [
+        {
+          "dice": 0.4627263675706582,
+          "group": "20250512_set14",
+          "iou": 0.3010045562541883,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.5995436561287597,
+          "group": "20250512_set14",
+          "iou": 0.4281059232960156,
+          "item_coverage": 0.5
+        },
+        {
+          "dice": 0.4473812139979356,
+          "group": "20250512_set14",
+          "iou": 0.28814620693204773,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.39283561881331164,
+          "group": "20250512_set14",
+          "iou": 0.2444277781487741,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.6842380276302908,
+          "group": "20250512_set14",
+          "iou": 0.5200317701825405,
+          "item_coverage": 0.5833333333333334
+        },
+        {
+          "dice": 0.33797751897325634,
+          "group": "20250512_set14",
+          "iou": 0.2033531572716542,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.34737946507836587,
+          "group": "20250512_set22",
+          "iou": 0.210199170189325,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.1864093897785132,
+          "group": "20250512_set22",
+          "iou": 0.10278471267324643,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.3423788628579848,
+          "group": "20250512_set22",
+          "iou": 0.20654832107673096,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.3599228883347652,
+          "group": "20250512_set22",
+          "iou": 0.21945485719834315,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.1893458617788943,
+          "group": "20250512_set22",
+          "iou": 0.10457318036724503,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.08718661385660025,
+          "group": "20250512_set22",
+          "iou": 0.045580303069911725,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.49645792274686157,
+          "group": "20250512_set22",
+          "iou": 0.3301922375553692,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.528502262204195,
+          "group": "20250515_set11",
+          "iou": 0.3591594119579501,
+          "item_coverage": 0.4166666666666667
+        },
+        {
+          "dice": 0.010513221240209815,
+          "group": "20250515_set11",
+          "iou": 0.0052843885933052375,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.4294585369251744,
+          "group": "20250515_set11",
+          "iou": 0.27344616300952357,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.44935781429733235,
+          "group": "20250515_set11",
+          "iou": 0.2897882041650425,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.3512313421267478,
+          "group": "20250515_set11",
+          "iou": 0.21302645489380018,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.4356729115130294,
+          "group": "20250515_set20",
+          "iou": 0.2785049972729269,
+          "item_coverage": 0.3333333333333333
+        },
+        {
+          "dice": 0.3689831255898374,
+          "group": "20250515_set20",
+          "iou": 0.22622888296191032,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.24740935454726123,
+          "group": "20250515_set20",
+          "iou": 0.14116779362550408,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.28470405695249396,
+          "group": "20250515_set20",
+          "iou": 0.16597955478555512,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.1792800246234984,
+          "group": "20250515_set20",
+          "iou": 0.09846655556488064,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.5476534150703601,
+          "group": "20250516_set10",
+          "iou": 0.37708176598693327,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.21908890907603618,
+          "group": "20250516_set10",
+          "iou": 0.1230206887882143,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.11647952585603624,
+          "group": "20250516_set10",
+          "iou": 0.061841390871514,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.22015846466827896,
+          "group": "20250516_set10",
+          "iou": 0.12369554271990092,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.09284281427359906,
+          "group": "20250516_set10",
+          "iou": 0.04868125971391128,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.4997452842501463,
+          "group": "20250516_set19",
+          "iou": 0.3331069577744102,
+          "item_coverage": 0.36363636363636365
+        },
+        {
+          "dice": 0.2888611189637892,
+          "group": "20250516_set19",
+          "iou": 0.16881219997108834,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.12199696397917346,
+          "group": "20250516_set19",
+          "iou": 0.06496100466251885,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.653371527588064,
+          "group": "20250516_set19",
+          "iou": 0.4851906379328333,
+          "item_coverage": 0.2727272727272727
+        },
+        {
+          "dice": 0.40799411144264014,
+          "group": "20250516_set19",
+          "iou": 0.25627676026522445,
+          "item_coverage": 0.2727272727272727
+        },
+        {
+          "dice": 0.44802704562138107,
+          "group": "20250516_set21",
+          "iou": 0.28868225078107934,
+          "item_coverage": 0.2727272727272727
+        },
+        {
+          "dice": 0.44102152890700624,
+          "group": "20250516_set21",
+          "iou": 0.28289135294973494,
+          "item_coverage": 0.36363636363636365
+        },
+        {
+          "dice": 0.3361768670073059,
+          "group": "20250516_set21",
+          "iou": 0.20205084323033157,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.3052647254974327,
+          "group": "20250516_set21",
+          "iou": 0.18012531519828837,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.07731890279813049,
+          "group": "20250516_set21",
+          "iou": 0.040214106702694895,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.5937301286232428,
+          "group": "20250517_set14",
+          "iou": 0.42220212542986,
+          "item_coverage": 0.2
+        },
+        {
+          "dice": 0.431687722847097,
+          "group": "20250517_set14",
+          "iou": 0.27525622870897765,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.24425542269956974,
+          "group": "20250517_set14",
+          "iou": 0.13911785680986016,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.23712763790044109,
+          "group": "20250517_set14",
+          "iou": 0.1345120855023361,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.25815115988206394,
+          "group": "20250517_set14",
+          "iou": 0.1482052598000325,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.6243773339612504,
+          "group": "20250517_set16",
+          "iou": 0.45388706465502693,
+          "item_coverage": 0.4
+        },
+        {
+          "dice": 0.0,
+          "group": "20250517_set16",
+          "iou": 0.0,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.25286108491101483,
+          "group": "20250517_set16",
+          "iou": 0.14472866623667194,
+          "item_coverage": 0.2
+        },
+        {
+          "dice": 0.06586478047816854,
+          "group": "20250517_set16",
+          "iou": 0.034053865424389526,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.27323389415146804,
+          "group": "20250517_set16",
+          "iou": 0.1582344552780071,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.40791240725927774,
+          "group": "20250517_set3",
+          "iou": 0.25621228952426606,
+          "item_coverage": 0.2
+        },
+        {
+          "dice": 0.35216148624508753,
+          "group": "20250517_set3",
+          "iou": 0.2137111636276912,
+          "item_coverage": 0.2
+        },
+        {
+          "dice": 0.35374066447846797,
+          "group": "20250517_set3",
+          "iou": 0.21487541898518897,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.18334113706351637,
+          "group": "20250517_set3",
+          "iou": 0.10092216034834416,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.1834329979772641,
+          "group": "20250517_set3",
+          "iou": 0.1009778322368581,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.5437981679789401,
+          "group": "20250517_set30",
+          "iou": 0.37343598670261496,
+          "item_coverage": 0.4
+        },
+        {
+          "dice": 0.06532525360741906,
+          "group": "20250517_set30",
+          "iou": 0.033765496618604944,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.16472888545761988,
+          "group": "20250517_set30",
+          "iou": 0.08975724848080256,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.2735471815633759,
+          "group": "20250517_set30",
+          "iou": 0.158444632046814,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.27341643426141354,
+          "group": "20250517_set30",
+          "iou": 0.15835690764521626,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.6406709718461352,
+          "group": "20250517_set7",
+          "iou": 0.47131412526093464,
+          "item_coverage": 0.6
+        },
+        {
+          "dice": 0.08197283716424839,
+          "group": "20250517_set7",
+          "iou": 0.04273810024830605,
+          "item_coverage": 0.1
+        },
+        {
+          "dice": 0.2675205544608276,
+          "group": "20250517_set7",
+          "iou": 0.1544148504327977,
+          "item_coverage": 0.2
+        },
+        {
+          "dice": 0.008686729296038781,
+          "group": "20250517_set7",
+          "iou": 0.004362311758695748,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.24038075099598605,
+          "group": "20250517_set7",
+          "iou": 0.13660952568690485,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.5065113028958282,
+          "group": "20250519_set10",
+          "iou": 0.33914639185280604,
+          "item_coverage": 0.3333333333333333
+        },
+        {
+          "dice": 0.28311878271586544,
+          "group": "20250519_set10",
+          "iou": 0.16490295302066366,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.34680676486286255,
+          "group": "20250519_set10",
+          "iou": 0.20977993224977956,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.3515016068462098,
+          "group": "20250519_set10",
+          "iou": 0.2132253257303708,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.3647972809935593,
+          "group": "20250519_set10",
+          "iou": 0.22308994276575833,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.40152250759984515,
+          "group": "20250519_set6",
+          "iou": 0.2511905919907254,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.37399628862515905,
+          "group": "20250519_set6",
+          "iou": 0.23000949260376077,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.2655450663574364,
+          "group": "20250519_set6",
+          "iou": 0.153100009234463,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.21917692161057337,
+          "group": "20250519_set6",
+          "iou": 0.12307619115583149,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.607245726526654,
+          "group": "20250519_set6",
+          "iou": 0.43600349185234455,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.42908376739817267,
+          "group": "20250521_set12",
+          "iou": 0.2731423601674186,
+          "item_coverage": 0.21428571428571427
+        },
+        {
+          "dice": 0.105148277656112,
+          "group": "20250521_set12",
+          "iou": 0.05549155979658714,
+          "item_coverage": 0.07142857142857142
+        },
+        {
+          "dice": 0.12231234454563016,
+          "group": "20250521_set12",
+          "iou": 0.06513987786538042,
+          "item_coverage": 0.07142857142857142
+        },
+        {
+          "dice": 0.1798354305512114,
+          "group": "20250521_set12",
+          "iou": 0.09880174219942764,
+          "item_coverage": 0.14285714285714285
+        },
+        {
+          "dice": 0.23243893749517722,
+          "group": "20250521_set12",
+          "iou": 0.13150263514279187,
+          "item_coverage": 0.14285714285714285
+        },
+        {
+          "dice": 0.5384818990098296,
+          "group": "20250521_set15",
+          "iou": 0.3684401162359953,
+          "item_coverage": 0.2857142857142857
+        },
+        {
+          "dice": 0.24299657869468347,
+          "group": "20250521_set15",
+          "iou": 0.13830171059892185,
+          "item_coverage": 0.14285714285714285
+        },
+        {
+          "dice": 0.2289273522722721,
+          "group": "20250521_set15",
+          "iou": 0.12925915408720476,
+          "item_coverage": 0.07142857142857142
+        },
+        {
+          "dice": 0.1562484917433723,
+          "group": "20250521_set15",
+          "iou": 0.08474487534988603,
+          "item_coverage": 0.14285714285714285
+        },
+        {
+          "dice": 0.4675118158929281,
+          "group": "20250521_set15",
+          "iou": 0.30506715858649913,
+          "item_coverage": 0.2857142857142857
+        },
+        {
+          "dice": 0.2683029290987954,
+          "group": "20250521_set21",
+          "iou": 0.15493641099662192,
+          "item_coverage": 0.14285714285714285
+        },
+        {
+          "dice": 0.29338055493558124,
+          "group": "20250521_set21",
+          "iou": 0.1719074253982306,
+          "item_coverage": 0.21428571428571427
+        },
+        {
+          "dice": 0.4544871188406751,
+          "group": "20250521_set21",
+          "iou": 0.29406880031938254,
+          "item_coverage": 0.2857142857142857
+        },
+        {
+          "dice": 0.0,
+          "group": "20250521_set21",
+          "iou": 0.0,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.49018796882803073,
+          "group": "20250521_set21",
+          "iou": 0.32466820949064074,
+          "item_coverage": 0.2857142857142857
+        },
+        {
+          "dice": 0.5375358230133919,
+          "group": "20250523_set1",
+          "iou": 0.36755486491366834,
+          "item_coverage": 0.36363636363636365
+        },
+        {
+          "dice": 0.24103750372426075,
+          "group": "20250523_set1",
+          "iou": 0.13703390733720064,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.10758470494618252,
+          "group": "20250523_set1",
+          "iou": 0.05685047316377929,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.06394235634626673,
+          "group": "20250523_set1",
+          "iou": 0.03302709325616697,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.0707085165917946,
+          "group": "20250523_set1",
+          "iou": 0.0366499915642005,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.4672607673981803,
+          "group": "20250523_set9",
+          "iou": 0.30485340066947114,
+          "item_coverage": 0.2727272727272727
+        },
+        {
+          "dice": 0.16451420051428695,
+          "group": "20250523_set9",
+          "iou": 0.08962978659948356,
+          "item_coverage": 0.09090909090909091
+        },
+        {
+          "dice": 0.3106642045826792,
+          "group": "20250523_set9",
+          "iou": 0.18389724850762132,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.04707483663276568,
+          "group": "20250523_set9",
+          "iou": 0.024104782669500367,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.3580321969774769,
+          "group": "20250523_set9",
+          "iou": 0.2180506806031237,
+          "item_coverage": 0.18181818181818182
+        },
+        {
+          "dice": 0.5490982666815731,
+          "group": "20250524_set12",
+          "iou": 0.37845310545305105,
+          "item_coverage": 0.3333333333333333
+        },
+        {
+          "dice": 0.19962163517425296,
+          "group": "20250524_set12",
+          "iou": 0.1108776016610118,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.36423419392101936,
+          "group": "20250524_set12",
+          "iou": 0.2226689129748399,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.19595832459268583,
+          "group": "20250524_set12",
+          "iou": 0.10862183909828059,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.3646048795354872,
+          "group": "20250524_set12",
+          "iou": 0.22294604831150894,
+          "item_coverage": 0.16666666666666666
+        },
+        {
+          "dice": 0.31519867369948046,
+          "group": "20250524_set15",
+          "iou": 0.1870835859273642,
+          "item_coverage": 0.25
+        },
+        {
+          "dice": 0.2793710881398606,
+          "group": "20250524_set15",
+          "iou": 0.16236568281177946,
+          "item_coverage": 0.0
+        },
+        {
+          "dice": 0.14915463509239898,
+          "group": "20250524_set15",
+          "iou": 0.08058730238646662,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.15216327671769064,
+          "group": "20250524_set15",
+          "iou": 0.08234671104890873,
+          "item_coverage": 0.08333333333333333
+        },
+        {
+          "dice": 0.14080826706240232,
+          "group": "20250524_set15",
+          "iou": 0.07573628075460491,
+          "item_coverage": 0.08333333333333333
+        }
+      ],
+      "split_sha256": "4b2c581ff5b2ef5dd8050ee3fafbd09297240686dd824756255749f450bca827",
+      "stage": "segmentation",
+      "status": "measured_reference_not_frozen",
+      "uncertainty": {
+        "group_bootstrap_95ci_dice": [
+          0.27549638508706586,
+          0.3331351585403276
+        ],
+        "group_bootstrap_95ci_iou": [
+          0.17117176814770554,
+          0.21213387947770332
+        ],
+        "group_bootstrap_95ci_item_coverage": [
+          0.1448828334364049,
+          0.18361368789940216
+        ]
+      }
+    },
+    "weight": {
+      "limitation": "Existing DEV reference is available; verify hashes/configuration and freeze it before candidate tuning.",
+      "source_report": "data/reports/run_eval_dev_008_baseline.json",
+      "status": "reference_available_for_baseline_review"
+    }
+  }
+}

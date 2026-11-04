@@ -26,20 +26,15 @@ apply any event-specific page limit, page size, anonymization, and PDF checks.
 The downloaded template version and any event-specific changes should be
 recorded in `IEEE_TEMPLATE_SOURCE.md`.
 
-The paper's pipeline figure uses separated stages and portion-source lanes at
-near-full conference width, including abstention and out-of-scope paths; the IEEE
-double-column float appears in the main body before Results and References. The four
-authors appear in two balanced columns in the supplied visible order, each with an individually paired
-affiliation and contact line. It documents one selected food mask and one dish
-classification per capture. The only current dataset-based mass-estimation result is the WED DEV mass-head
-fallback using ground-truth ROI/class inputs. The existing 46-image dish gallery
-has separate leave-one-out classification evidence. A project-specific real-meal
-capture dataset with portion-mass annotations has not yet been collected. A pending-results subsection and
-table reserve fields for its future sample counts, mass errors, uncertainty
-coverage, and end-to-end measures without inventing values.
-The repository's synthetic SAM IoU point estimate is unresolved (0.97 versus
-0.98 in historical notes), so the paper reports the test's asserted floor and
-does not claim either point value.
+The current pipeline figure shows multi-item region detection, overlap
+partitioning, estimate-only fallbacks, hard failures, and the optional meal
+coach. The manuscript distinguishes the WED DEV and one-time LOCKED mass-head
+reports, the contaminated WED classifier crop score, the local gallery
+leave-one-out diagnostic, and the pre-change 23-view ArUco pilot. The pilot is
+EVAL-ONLY; recent fixes are explicitly unvalidated on it. Conflicting SAM
+synthetic IoU summaries are omitted, and the manuscript makes no real-mask
+IoU/F1, end-to-end accuracy, or nutrient-error claim. The pilot is not a
+sufficient independently annotated real-meal dataset for those metrics.
 
 The source-by-source reference review, citation-key reconciliation, and claim
 scope notes are recorded in
@@ -79,14 +74,13 @@ unless the authors want to version a review copy.
 - Replace each TODO only after checking the supporting source in the repository.
 - The 60 mm ArUco ID 7 marker printed on A4 is the field data-collection asset.
 - Describe national PM POSHAN as covering Bal Vatika through class VIII. The configured 9--10 band represents Karnataka's separately documented state Mid-Day Meal extension, not national PM POSHAN eligibility; see the source-by-source audit.
-- Treat the policy category as applying to the selected captured serving. One selected dish does not establish full-meal compliance when a meal contains multiple dishes.
-- Present project-specific evaluation metrics as author-generated results, state each metric's split, sample basis, and synthetic/gallery/WED DEV scope, and do not cite the NutriSense repository in the bibliography.
-- Scope the DINOv2-S value to WED DEV; do not claim DINOv2-S LOCKED/test results.
+- Treat the school policy category as applying to the detected and aggregated meal regions. The estimate-only fallback has no school-compliance verdict, and the current multi-item regions have not been validated on an independent real-photo set.
+- Present project-specific evaluation metrics as author-generated results, state each metric's split, sample basis, and synthetic/gallery/WED scope, and do not cite the NutriSense repository in the bibliography.
+- Report the one-time DINOv2-S WED LOCKED result only as descriptive evidence; it is closed to tuning and its 82.77% nominal 90% interval coverage is below target.
 - Label synthetic and gallery leave-one-out results by their actual validation
   setting; do not present them as independent real-world test results.
 - Keep each external citation attached only to the claim its source supports;
   use the citation audit when adding or changing references.
-- Placeholder coauthor emails are explicitly marked in the author block and must be replaced
-  before submission.
+- Author email addresses have been omitted rather than invented; add verified contact details if required by the selected conference.
 - Do not include WED images or other restricted dataset material without
   confirming reuse rights.

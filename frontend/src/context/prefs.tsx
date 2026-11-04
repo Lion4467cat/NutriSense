@@ -59,6 +59,7 @@ function loadPrefs(storage: Storage): Prefs {
 interface PrefsState {
   prefs: Prefs;
   setPrefs: (p: Partial<Prefs>) => void;
+  resetPrefs: () => boolean;
 }
 
 const Ctx = createContext<PrefsState | null>(null);
@@ -89,9 +90,30 @@ export function PrefsProvider({
     [storage]
   );
 
+  const resetPrefs = useCallback(() => {
+    let removed = true;
+    try {
+      storage.remove(PREFS_KEY);
+    } catch {
+      removed = false;
+    }
+    setPrefsState({
+      theme: "system",
+      accent: "indigo",
+      userName: "",
+      defaultDay: "",
+      defaultBand: "",
+      mode: "school",
+      profile: null,
+      goalOverride: null,
+      setupComplete: false,
+    });
+    return removed;
+  }, [storage]);
+
   const value = useMemo<PrefsState>(
-    () => ({ prefs, setPrefs }),
-    [prefs, setPrefs]
+    () => ({ prefs, setPrefs, resetPrefs }),
+    [prefs, setPrefs, resetPrefs]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

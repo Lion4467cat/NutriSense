@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { useRecords } from "../context/records";
+import { usePrefs } from "../context/prefs";
 import { Card, EmptyState } from "../ui/primitives";
 import { CountValue } from "../ui/section-fx";
 import { EASE } from "../ui/motion";
@@ -73,10 +74,16 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
 
 export default function AnalyticsPage() {
   const { records } = useRecords();
+  const { prefs } = usePrefs();
+  const general = (prefs.mode ?? "school") === "general";
+  const modeRecords = useMemo(
+    () => records.filter((r) => (r.mode ?? "school") === (general ? "general" : "school")),
+    [records, general]
+  );
 
   const stats = useMemo(() => {
-    const sc = scored(records);
-    const t = tally(records);
+    const sc = general ? modeRecords : scored(modeRecords);
+    const t = general ? { pass: 0, warn: 0, fail: 0, scored: 0 } : tally(modeRecords);
     const { pass, warn, fail } = t;
     const withG = sc.filter((r) => r.summary.grams != null);
     const withK = sc.filter((r) => r.summary.kcal != null);
@@ -100,7 +107,7 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.n - a.n);
 
     return {
-      total: records.length,
+      total: modeRecords.length,
       scored: t.scored,
       pass,
       warn,
@@ -111,31 +118,33 @@ export default function AnalyticsPage() {
       avgProtein: avg(withP.map((r) => r.summary.protein)),
       dishes,
     };
-  }, [records]);
+  }, [general, modeRecords]);
 
-  if (records.length === 0) {
+  if (stats.total === 0) {
     return (
       <div className="page page-insights">
         <div className="page-head">
           <div>
             <h1 className="page-title">Analytics</h1>
             <p className="page-sub">
-              Aggregated insight across your local analysis history.
+              {general
+                ? "Nutrition summaries from your General-mode meal journal."
+                : "Compliance summaries from your School-mode analysis history."}
             </p>
           </div>
         </div>
         <Card>
           <EmptyState
             icon={<IconChart size={20} />}
-            title="No data to analyze yet"
+            title={`No ${general ? "General" : "School"}-mode meals yet`}
             action={
               <Link className="btn btn-primary" to="/analyze" style={{ marginTop: 6 }}>
                 Analyze your first meal
               </Link>
             }
           >
-            Analytics are computed from your real analyses — nothing is
-            simulated.
+            Analytics use saved analyses from this mode only. No sample data is
+            shown.
           </EmptyState>
         </Card>
       </div>
@@ -150,9 +159,8 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="page-title">Analytics</h1>
           <p className="page-sub">
-            Computed from {stats.total} local analysis
-            {stats.total === 1 ? "" : "es"} — real records only, no sample
-            data.
+            Computed from {stats.total} {general ? "General-mode meal" : "School-mode analysis"}
+            {stats.total === 1 ? "" : "s"} — real records only, no sample data.
           </p>
         </div>
       </div>
@@ -168,9 +176,9 @@ export default function AnalyticsPage() {
           <div className="kpi-value">
             <CountValue value={stats.total} format={(v) => String(Math.round(v))} />
           </div>
-          <div className="kpi-foot">{stats.scored} scored</div>
+          <div className="kpi-foot">{general ? "meal estimates" : `${stats.scored} scored`}</div>
         </article>
-        <article className="kpi">
+        {!general && <article className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Compliance rate</span>
             <span className="kpi-ico pass" aria-hidden="true">
@@ -188,7 +196,7 @@ export default function AnalyticsPage() {
             )}
           </div>
           <div className="kpi-foot">Pass divided by scored meals</div>
-        </article>
+        </article>}
         <article className="kpi">
           <div className="kpi-top">
             <span className="kpi-label">Average portion</span>
@@ -203,7 +211,7 @@ export default function AnalyticsPage() {
               "—"
             )}
           </div>
-          <div className="kpi-foot">grams per scored meal</div>
+          <div className="kpi-foot">grams per meal with an estimate</div>
         </article>
         <article className="kpi">
           <div className="kpi-top">
@@ -226,7 +234,7 @@ export default function AnalyticsPage() {
         </article>
       </div>
 
-      <div className="dash-grid">
+      {!general && <div className="dash-grid">
         <Card title="Verdict distribution" sub="Across scored analyses">
           <Donut
             parts={[
@@ -237,15 +245,17 @@ export default function AnalyticsPage() {
           />
         </Card>
 
-      </div>
+      </div>}
 
       <Card
-        title="Dish comparison"
-        sub="Number of scored analyses per dish (avg energy shown on hover)"
+        title={general ? "Meals by dish" : "Dish comparison"}
+        sub={general
+          ? "Number of General-mode meals per dish (average energy shown on hover)"
+          : "Number of scored analyses per dish (average energy shown on hover)"}
       >
         {stats.dishes.length === 0 ? (
           <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-            No scored dishes yet.
+            No dishes with meal estimates yet.
           </p>
         ) : (
           <div className="bar-rows">
@@ -253,7 +263,9 @@ export default function AnalyticsPage() {
               <div
                 className="bar-row"
                 key={d.name}
-                title={`${d.name}: ${d.n} analyses, avg ${formatNum(d.avgKcal, 0)} kcal, ${d.pass} pass`}
+                title={general
+                  ? `${d.name}: ${d.n} meals, average ${formatNum(d.avgKcal, 0)} kcal`
+                  : `${d.name}: ${d.n} analyses, average ${formatNum(d.avgKcal, 0)} kcal, ${d.pass} pass`}
               >
                 <span className="bar-label">{d.name}</span>
                 <div className="bar-track">

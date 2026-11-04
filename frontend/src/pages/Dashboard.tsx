@@ -14,17 +14,17 @@ const STEPS = [
   {
     n: "01",
     title: "Place the card",
-    body: "Lay the 60 mm reference card next to the plate. It gives the camera a real-world scale, so grams come from geometry, not guesswork.",
+    body: "Place the reference card beside the meal when available. It gives the measurement pipeline a physical scale reference.",
   },
   {
     n: "02",
     title: "Snap the meal",
-    body: "One top-down photo. Segmentation finds the dish, the classifier names it, and depth imaging turns plate area into portion weight.",
+    body: "A clear top-down photo gives the pipeline a view of the foods and their portions.",
   },
   {
     n: "03",
     title: "Read the result",
-    body: "Dish, grams and every mandatory nutrient, checked against the standard — with an honest interval and a plain-language verdict.",
+    body: "Review the returned food labels, weight and nutrition estimates, along with their ranges and assumptions.",
   },
 ];
 
@@ -47,13 +47,13 @@ export default function DashboardPage() {
           NutriSense <i /> {general ? "Meal journal" : "School meals"}
         </motion.span>
         <motion.h1 className="page-title" variants={revealItem}>
-          Know what's on the plate, <em>in seconds.</em>
+          A clearer picture of <em>what’s on your plate.</em>
         </motion.h1>
         <motion.p className="page-sub" variants={revealItem}>
-          NutriSense reads a single meal photo — dish, portion, nutrients —
-          and checks it against{" "}
-          {general ? "your daily goal" : "the PM POSHAN standard"}. No kitchen
-          scale, no manual entry, no guessing.
+          Start with a meal photo, then review the food identification and
+          available portion and nutrition estimates. {general
+            ? "Compare the result with your personal daily goals."
+            : "School-mode results include the relevant meal standard and measurement evidence."}
         </motion.p>
         <motion.div className="home-cta" variants={revealItem}>
           <Magnetic strength={6}>
@@ -68,6 +68,11 @@ export default function DashboardPage() {
           )}
         </motion.div>
       </motion.header>
+
+      <motion.figure className="home-plate-photo" variants={scrollReveal}>
+        <img src="/plate.jpg" alt="A meal photographed from above, including several foods on a tray" />
+        <figcaption><span>Photo-first meal review</span><span>Example capture · estimates depend on image quality and available scale evidence</span></figcaption>
+      </motion.figure>
 
       {apiUp === false && (
         <div className="home-service-note" role="status">

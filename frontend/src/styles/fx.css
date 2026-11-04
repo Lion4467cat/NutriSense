@@ -569,58 +569,58 @@
 /* Result page: the four summary cards land one after another in the
    order the pipeline reports them — dish, portion, energy, protein. */
 .page-result .summary-card {
-  animation: card-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: card-in 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
-.page-result .summary-card:nth-child(2) { animation-delay: 70ms; }
-.page-result .summary-card:nth-child(3) { animation-delay: 140ms; }
-.page-result .summary-card:nth-child(4) { animation-delay: 210ms; }
+.page-result .summary-card:nth-child(2) { animation-delay: 45ms; }
+.page-result .summary-card:nth-child(3) { animation-delay: 90ms; }
+.page-result .summary-card:nth-child(4) { animation-delay: 135ms; }
 
 /* The coverage bar grows to its measured width: what you see settle is
    literally the score the pipeline computed. */
 .page-result .cov-fill {
   transform-origin: left center;
-  animation: measure-grow 800ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+  animation: measure-grow 380ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
 }
 
 /* Analyze: a chosen photo arrives as its own event — one small settle —
    rather than a hard swap inside the dropzone. */
 .dropzone.has-image img {
-  animation: photo-settle 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: photo-settle 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Insights: comparison bars grow from the baseline to their real share,
    row by row, so the ranking is read as it is built. */
 .page-insights .bar-seg {
   transform-origin: left center;
-  animation: bar-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: bar-grow 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.page-insights .bar-row:nth-child(2) .bar-seg { animation-delay: 60ms; }
-.page-insights .bar-row:nth-child(3) .bar-seg { animation-delay: 120ms; }
-.page-insights .bar-row:nth-child(4) .bar-seg { animation-delay: 180ms; }
-.page-insights .bar-row:nth-child(5) .bar-seg { animation-delay: 240ms; }
-.page-insights .bar-row:nth-child(n + 6) .bar-seg { animation-delay: 300ms; }
+.page-insights .bar-row:nth-child(2) .bar-seg { animation-delay: 40ms; }
+.page-insights .bar-row:nth-child(3) .bar-seg { animation-delay: 80ms; }
+.page-insights .bar-row:nth-child(4) .bar-seg { animation-delay: 120ms; }
+.page-insights .bar-row:nth-child(5) .bar-seg { animation-delay: 160ms; }
+.page-insights .bar-row:nth-child(n + 6) .bar-seg { animation-delay: 200ms; }
 
 /* Plain grids (menu bands, roster, settings): quiet sequential reveal —
    no rotation, no slide — so the content order is what animates. */
 .page-menu .band-card,
 .student-grid .student-card,
 .page-settings .theme-tile {
-  animation: card-in 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: card-in 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .page-menu .band-card:nth-child(2),
 .student-grid .student-card:nth-child(2),
-.page-settings .theme-tile:nth-child(2) { animation-delay: 80ms; }
+.page-settings .theme-tile:nth-child(2) { animation-delay: 40ms; }
 
 .page-menu .band-card:nth-child(3),
 .student-grid .student-card:nth-child(3),
-.page-settings .theme-tile:nth-child(3) { animation-delay: 160ms; }
+.page-settings .theme-tile:nth-child(3) { animation-delay: 80ms; }
 
 .page-menu .band-card:nth-child(n + 4),
 .student-grid .student-card:nth-child(n + 4),
-.page-settings .theme-tile:nth-child(n + 4) { animation-delay: 240ms; }
+.page-settings .theme-tile:nth-child(n + 4) { animation-delay: 120ms; }
 
 /* ----------------------------- keyframes ---------------------------- */
 

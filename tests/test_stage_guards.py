@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 import engine.pipeline as pipeline
 import models.dish_segmenter as dish_segmenter
 import models.food_classifier as food_classifier
+import main as main_mod
 from engine.contract import WIRE_KEYS
 from main import app
 from tests.test_pipeline_seams import make_deps
@@ -27,6 +28,7 @@ def _stub_stages(scene, monkeypatch, *, classify=None):
     """Wire GT stubs in exactly where analyze() resolves them (no models)."""
     from tests.test_pipeline_seams import _FakeHead
     deps = make_deps(scene, classify=classify)
+    monkeypatch.setattr(main_mod, "_production_pipeline_deps", lambda _image: {})
     monkeypatch.setattr(dish_segmenter, "segment_food", deps["segment"])
     monkeypatch.setattr(food_classifier, "classify_dish", deps["classify"])
     monkeypatch.setattr(pipeline, "_get_depth_provider", lambda: deps["depth"])
