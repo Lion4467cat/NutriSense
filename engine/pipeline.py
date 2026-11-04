@@ -716,7 +716,16 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 overlap = float((m & card_mask).sum()) / float(m.sum())
                 if overlap >= 0.15:
                     continue
-            filtered_items.append(it)
+                m_clean = m & ~card_mask
+                if m_clean.sum() < 64:
+                    continue
+                it_clean = dict(it, mask=m_clean, area=int(m_clean.sum()))
+                ys, xs = np.nonzero(m_clean)
+                if len(xs):
+                    it_clean["bbox"] = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+                filtered_items.append(it_clean)
+            else:
+                filtered_items.append(it)
         if filtered_items:
             detected_items = filtered_items
     if (not isinstance(detected_items, list) or not detected_items):
@@ -1057,6 +1066,30 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         # vessel's match to the combo's component serving targets, so the
         # aggregate sums distinct components instead of N x the combo.
         combo = _combo_candidates(dish_info["id"])
+        # Filter out tiny embedded artifact islands enclosed within dominant food regions
+        total_items_area = float(sum(it.get("area", 0) for it in items))
+        filtered_items = []
+        for it in items:
+            it_area = float(it.get("area", 0))
+            it_b = it.get("bbox")
+            if total_items_area > 0 and (it_area / total_items_area) < 0.025 and it_b is not None:
+                enclosed = False
+                for other in items:
+                    if other is it:
+                        continue
+                    o_area = float(other.get("area", 0))
+                    ob = other.get("bbox")
+                    if (o_area >= 8 * it_area and ob is not None
+                            and ob[0] <= it_b[0] and ob[1] <= it_b[1]
+                            and ob[2] >= it_b[2] and ob[3] >= it_b[3]):
+                        enclosed = True
+                        break
+                if enclosed:
+                    continue
+            filtered_items.append(it)
+        if filtered_items:
+            items = filtered_items
+
         for rank, item in enumerate(items):
             semantic_name = item.get("semantic_class_name")
             x0, y0, x1, y1 = item["bbox"]
@@ -1089,21 +1122,26 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             f"SigLIP candidate: {classification.get('dish') or 'abstained'}"
                         ),
                     }
-                    if (anchor or {}).get("label") == "measured":
+                    is_decoy = semantic_name in ("papad", "salad")
+                    if is_decoy or (anchor or {}).get("label") == "measured":
                         cls_crop = _oom_guard(lambda c=crop: classify(c),
                                               degradations)()
                         crop_scores = (cls_crop or {}).get("scores") or {}
                         crop_dish = (cls_crop or {}).get("dish")
                         ms = float((cls_crop or {}).get("match_score") or 0.0)
-                        if crop_dish is None and float(crop_scores.get(semantic_name, 0.0)) < 0.80:
-                            continue
-                        # Decoy classes (papad, salad) predicted by WED on secondary vessels / reflections:
-                        # override with verified SigLIP dish when match is confident
-                        if semantic_name in ("papad", "salad") and crop_dish and ms >= 0.80:
-                            cls_i = dict(
-                                cls_crop,
-                                reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
-                            )
+                        sem_score = float(crop_scores.get(semantic_name, 0.0))
+                        if is_decoy:
+                            if sem_score < 0.80:
+                                if crop_dish and ms >= 0.85 and crop_dish not in ("papad", "salad", "curd"):
+                                    cls_i = dict(
+                                        cls_crop,
+                                        reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
+                                    )
+                                else:
+                                    continue
+                        else:
+                            if crop_dish is None and sem_score < 0.80:
+                                continue
                 else:
                     cls_i = _oom_guard(lambda c=crop: classify(c),
                                        degradations)()
@@ -1332,12 +1370,23 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             | {"multi_item_meal"}),
         }
         agg_mc = aggregate_meal([r[5] for r in resolved])
+        matched_menu_dish = None
+        if len(resolved) == 2:
+            id1 = resolved[0][2]["id"]
+            id2 = resolved[1][2]["id"]
+            if (_same_food_family(id1, "rice") and _same_food_family(id2, "dal")) or \
+               (_same_food_family(id1, "dal") and _same_food_family(id2, "rice")):
+                matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
+
+        agg_dish_name = " + ".join(
+            (info_i.get("display_name") or info_i["id"])
+            for _i, _c, info_i, _d, _p, _m in resolved)
+        agg_days = list(matched_menu_dish.get("days") or []) if matched_menu_dish else []
+
         agg_dish = {
             "components": agg_components,
-            "display_name": " + ".join(
-                (info_i.get("display_name") or info_i["id"])
-                for _i, _c, info_i, _d, _p, _m in resolved),
-            "days": [],
+            "display_name": agg_dish_name,
+            "days": agg_days,
             "nutrition_source": "multi_item_aggregate",
             "ranges_wider": any(bool(d.get("ranges_wider"))
                                 for _i, _c, _inf, d, _p, _m in resolved),
@@ -1376,9 +1425,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 path_used="multi_item",
             )
         names = agg_dish["display_name"]
+        meal_on_day = (day in agg_days) if agg_days else dish_info.get("on_day", True)
         meal_info = {"id": "meal", "display_name": names, "day": day,
-                     "band": band, "serving_style": serving_style,
-                     "on_day": dish_info.get("on_day", True),
+                     "band": band, "serving_style": serving_style or ("single" if matched_menu_dish else None),
+                     "on_day": meal_on_day,
                      "nutrition_source": "multi_item_aggregate"}
         if score is not None:
             verdict = score.verdict
