@@ -128,3 +128,116 @@ def load_measured_examples(*, manifest: Path = DEFAULT_MANIFEST,
         if example.source_group_id not in excluded:
             examples.append(example)
     return examples
+
+
+DEFAULT_ARUCO_DIR = Path(__file__).resolve().parents[2] / "Aruco_7ID_60mm_with_food"
+
+ARUCO_GROUND_TRUTH: dict[str, dict[str, Any]] = {
+    "Dish 1": {"total_g": 450.0, "components": [
+        {"name": "rice", "grams": 250.0},
+        {"name": "keerai sambar", "grams": 200.0},
+    ]},
+    "Dish 2": {"total_g": 338.0, "components": [
+        {"name": "rice", "grams": 211.0},
+        {"name": "tomato rasam", "grams": 127.0},
+    ]},
+    "Dish 3": {"total_g": 191.0, "components": [
+        {"name": "coconut chutney", "grams": 70.0},
+        {"name": "chapati", "grams": 121.0},
+    ]},
+    "Dish 4": {"total_g": 250.0, "components": [
+        {"name": "dum biryani", "grams": 206.0},
+        {"name": "egg", "grams": 44.0},
+    ]},
+    "Dish 5": {"total_g": 150.0, "components": [
+        {"name": "dum biryani", "grams": 150.0},
+    ]},
+    "Dish 6": {"total_g": 351.0, "components": [
+        {"name": "dum biryani", "grams": 257.0},
+        {"name": "egg", "grams": 94.0},
+    ]},
+}
+
+
+@dataclass(frozen=True)
+class ArucoSupervisedExample:
+    """Supervised real meal capture with ArUco ground truth scale and verified mass."""
+
+    dish_name: str
+    image_path: Path
+    filename: str
+    ground_truth_total_g: float
+    components: tuple[dict[str, Any], ...]
+    cm_per_px: float
+    marker_corners_px: tuple[tuple[float, float], ...]
+    tilt_deg: float | None
+
+
+def mask_out_marker(image_bgr: Any, corners: Any, expansion: float = 2.5) -> Any:
+    """Digitally erase/mask the ArUco marker region using ambient table color."""
+    import cv2
+    import numpy as np
+    masked = image_bgr.copy()
+    c = np.asarray(corners, dtype=np.float32).reshape(4, 2)
+    center = c.mean(axis=0, keepdims=True)
+    expanded = center + expansion * (c - center)
+    poly = np.round(expanded).astype(np.int32)
+
+    h, w = image_bgr.shape[:2]
+    xs = np.clip(poly[:, 0], 0, w - 1)
+    ys = np.clip(poly[:, 1], 0, h - 1)
+    x_min, x_max = max(0, int(xs.min()) - 10), min(w, int(xs.max()) + 10)
+    y_min, y_max = max(0, int(ys.min()) - 10), min(h, int(ys.max()) + 10)
+
+    patch = image_bgr[y_min:y_max, x_min:x_max]
+    fill_color = (
+        tuple(int(x) for x in np.median(patch, axis=(0, 1)))
+        if patch.size > 0
+        else (120, 100, 80)
+    )
+
+    cv2.fillConvexPoly(masked, poly, fill_color)
+    return masked
+
+
+def load_aruco_supervised_examples(
+    dataset_dir: Path | None = None,
+) -> list[ArucoSupervisedExample]:
+    """Parse Aruco_7ID_60mm_with_food dataset and extract gold-standard ground truth scale targets."""
+    import cv2
+    from models.scale_anchor import estimate_anchor, read_exif
+
+    data_dir = dataset_dir or DEFAULT_ARUCO_DIR
+    if not data_dir.is_dir():
+        return []
+
+    examples: list[ArucoSupervisedExample] = []
+    for dish_name, gt in sorted(ARUCO_GROUND_TRUTH.items()):
+        dish_dir = data_dir / dish_name
+        if not dish_dir.is_dir():
+            continue
+        for img_path in sorted(dish_dir.glob("*.jpg")):
+            img = cv2.imread(str(img_path))
+            if img is None:
+                continue
+            exif = read_exif(img_path)
+            anchor = estimate_anchor(img, exif=exif)
+            if anchor.get("label") != "measured" or not anchor.get("cm_per_px"):
+                continue
+            corners = (anchor.get("extras") or {}).get("marker_corners_px")
+            if not corners:
+                continue
+            corners_tuple = tuple((float(pt[0]), float(pt[1])) for pt in corners)
+            examples.append(
+                ArucoSupervisedExample(
+                    dish_name=dish_name,
+                    image_path=img_path,
+                    filename=img_path.name,
+                    ground_truth_total_g=float(gt["total_g"]),
+                    components=tuple(gt["components"]),
+                    cm_per_px=float(anchor["cm_per_px"]),
+                    marker_corners_px=corners_tuple,
+                    tilt_deg=anchor.get("tilt_deg"),
+                )
+            )
+    return examples

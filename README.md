@@ -128,9 +128,11 @@ The web application is designed for both high-contrast kitchen inspection and pe
   - Google SigLIP 2 (`google/siglip2-base-patch16-224`)
   - Microsoft MoGe-2 (`Ruicheng/moge-2-vitl`)
   - Meta DINOv2-S (`dinov2_vits14`)
+  - Meta DINOv2-S Card-Free Implicit Scale Head (`models/implicit_scale.py`)
   - Native Institutional Segmenter (`DeepLabV3 ResNet-50`)
 - **Computer Vision & Geometry:** OpenCV 5 · NumPy 2 · SciPy
 - **Frontend Architecture:** React 18 · TypeScript · Vite 6 · Pure CSS Micro-Interactions (Port 5173)
+- **Containerization & Deployment:** Docker · Docker Compose · Multi-stage Nginx & Python 3.11 Runtime
 - **Advisory LLM Engine:** Ollama Cloud / Local Ollama API
 
 ---
@@ -197,6 +199,23 @@ npm install
 npm run dev
 ```
 Open **`http://localhost:5173`** in your browser to start analyzing meals. The frontend communicates with the backend on port 8731 by default (configurable via `VITE_API_BASE`).
+
+### 5. Production Containerization & Docker Compose
+
+NutriSense includes production multi-stage Docker configurations (`Dockerfile.backend`, `Dockerfile.frontend`, and `docker-compose.yml`) with automated reverse proxying via Nginx:
+
+```bash
+# Build and run containers in detached mode
+docker compose build
+docker compose up -d
+
+# Verify live deployment with the integration smoke test
+./.venv/bin/python tools/smoke_test_api.py
+```
+
+- **Web Dashboard:** `http://localhost:5173`
+- **FastAPI Documentation:** `http://localhost:8000/docs`
+- **Health Endpoint:** `http://localhost:8000/health`
 
 ---
 

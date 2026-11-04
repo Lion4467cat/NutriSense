@@ -15,6 +15,7 @@ import {
   IconChart,
   IconDashboard,
   IconHistory,
+  IconSettings,
   IconUsers,
   LogoMark,
 } from  "../ui/Icon";
@@ -25,7 +26,7 @@ const NAV = [
   { to: "/history", label: "History", icon: IconHistory },
   { to: "/analytics", label: "Insights", icon: IconChart },
   { to: "/students", label: "Students", icon: IconUsers },
-  { to: "/menu", label: "Menu & standards", shortLabel: "Menu", icon: IconBook },
+  { to: "/menu", label: "Menu", fullLabel: "Menu & standards", icon: IconBook },
 ];
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -78,7 +79,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </motion.div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {NAV.map(({ to, label, shortLabel, icon: Icon, end }) => (
+        {NAV.map(({ to, label, fullLabel, icon: Icon, end }) => (
           <motion.div
             key={to}
             variants={introItem}
@@ -90,7 +91,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               end={end}
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
               onClick={onNavigate}
-              title={label === "Menu & standards" ? "Menu & meal standards" : label}
+              title={fullLabel ? "Menu & meal standards" : label}
             >
               {isActive(to, end) && (
                 <motion.span
@@ -101,10 +102,10 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 />
               )}
               <Icon size={17} />
-              {shortLabel ? (
+              {fullLabel ? (
                 <>
-                  <span className="nav-label-long">{label}</span>
-                  <span className="nav-label-short">{shortLabel}</span>
+                  <span className="nav-label-long">{fullLabel}</span>
+                  <span className="nav-label-short">{label}</span>
                 </>
               ) : (
                 <span>{label}</span>
@@ -112,9 +113,31 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               {to === "/history" && records.length > 0 && (
                 <span className="nav-badge num">{records.length}</span>
               )}
+              {to === "/menu" && menu && Object.keys(menu.dishes).length > 0 && (
+                <span className="nav-badge num drawer-only-badge">
+                  {Object.keys(menu.dishes).length}
+                </span>
+              )}
             </NavLink>
           </motion.div>
         ))}
+
+        <motion.div
+          key="/settings"
+          className="drawer-only-item"
+          variants={introItem}
+          whileTap={{ scale: 0.95 }}
+        >
+          <NavLink
+            to="/settings"
+            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+            onClick={onNavigate}
+            title="Settings & preferences"
+          >
+            <IconSettings size={17} />
+            <span>Settings & preferences</span>
+          </NavLink>
+        </motion.div>
       </nav>
 
       <div className="sidebar-foot">

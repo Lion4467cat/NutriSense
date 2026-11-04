@@ -142,6 +142,23 @@ def _get_weight_head():
         return None
 
 
+def _make_implicit_scale_head():
+    from models.implicit_scale import ImplicitScaleHead
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return ImplicitScaleHead.load(device=device)
+
+
+def _get_implicit_scale_head():
+    """Lazy-load the card-free implicit scale head from the registry."""
+    from models import registry
+    try:
+        return registry.get_or_create("implicit_scale_head", _make_implicit_scale_head)
+    except Exception as e:
+        log.warning("implicit scale head failed to load (%s) — continuing with unscaled prior", e)
+        return None
+
+
 def _combo_candidates(dish_id: str) -> list[str] | None:
     """Serving targets of a combo dish's component WED classes (spec 004).
 
@@ -968,8 +985,45 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         (depth_out, depth_m, depth_K, anchor,
          scale_factor, scale_source) = depth_result
     else:
-        depth_out, depth_m, depth_K = None, None, K
-        scale_factor, scale_source = 1.0, "none"
+        # Card-free implicit scale and depth calibration (ADR/Ledger 036)
+        implicit_head = (
+            deps.get("implicit_scale_head")
+            if (deps and "implicit_scale_head" in deps)
+            else (None if deps else _get_implicit_scale_head())
+        )
+        if implicit_head is not None and anchor is not None:
+            try:
+                scale_info = implicit_head.predict(image_bgr)
+                if anchor.get("cm_per_px") is None:
+                    anchor["cm_per_px"] = scale_info["cm_per_px"]
+                    anchor["interval"] = scale_info["cm_per_px_interval"]
+                    anchor["method"] = "implicit_scale"
+                    anchor["extras"] = {
+                        **(anchor.get("extras") or {}),
+                        "implicit_depth_scale": scale_info["depth_scale_factor"],
+                        "implicit_mass_g": scale_info["estimated_mass_g"],
+                    }
+            except Exception as e:
+                log.warning("implicit scale prediction failed (%s)", e)
+
+        if implicit_head is not None and anchor and anchor.get("cm_per_px") is not None:
+            active_depth_fn = depth_fn or _get_depth_provider()
+            try:
+                depth_out = active_depth_fn(image_bgr, fov_x=fov_x)
+                depth_m = np.asarray(depth_out["depth_m"], dtype=np.float64)
+                depth_K = normalized_intrinsics_to_pixel_K(
+                    depth_out.get("intrinsics"), _W, _H)
+                if depth_K is None:
+                    depth_K = K
+                scale_factor = (anchor.get("extras") or {}).get("implicit_depth_scale", 0.1152)
+                scale_source = "implicit_scale"
+                depth_m = depth_m * scale_factor
+            except Exception:
+                depth_out, depth_m, depth_K = None, None, K
+                scale_factor, scale_source = 1.0, "none"
+        else:
+            depth_out, depth_m, depth_K = None, None, K
+            scale_factor, scale_source = 1.0, "none"
     anchor_info = _anchor_summary(anchor)
     depth_model = depth_out.get("model") if depth_out is not None else None
 
@@ -992,6 +1046,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 roi_mask = bbox_mask if bbox_mask is not None else item_mask
                 return _learned_portion(image_bgr, roi_mask, dish_i,
                                         dish_id_i, head)
+            if anchor and anchor.get("cm_per_px") is not None and depth_m is not None:
+                return estimate_portion(image_bgr, item_mask, depth_m, anchor,
+                                        {"K": depth_K}, dish_i,
+                                        cfg={"base_method": "table_prior"})
             raise ValueError(
                 "absolute geometry mass requires a measured marker scale")
         geom_mask = np.asarray(item_mask, dtype=bool)
@@ -1798,6 +1856,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     raise WeightHeadUnavailable(
                         f"learned weight head failed: {type(e).__name__}: {e}"
                     ) from e
+            if anchor and anchor.get("cm_per_px") is not None and depth_m is not None:
+                return estimate_portion(image_bgr, mask, depth_m, anchor,
+                                        {"K": depth_K}, dish,
+                                        cfg={"base_method": "table_prior"})
             raise ValueError(
                 "absolute geometry mass requires a measured marker scale")
         # Real MoGe ring fits follow the food surface on phone captures and
