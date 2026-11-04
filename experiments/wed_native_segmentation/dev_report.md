@@ -22,12 +22,12 @@ For a direct detector comparison, both methods use class-agnostic one-to-one IoU
 
 | Metric | WED model regions | SAM2 dense-grid |
 |---|---:|---:|
-| Precision (95% group CI) | 0.7548 [0.7451, 0.8045] | 0.2164 [0.1929, 0.2515] |
-| Recall (95% group CI) | 0.7534 [0.7372, 0.8077] | 0.1998 [0.1766, 0.2266] |
-| F1 (95% group CI) | 0.7541 [0.7368, 0.7910] | 0.2077 [0.1825, 0.2331] |
-| Duplicate overlapping predictions | 331 | 365 |
-| Spurious non-overlapping predictions | 61 | 794 |
-| Missed semantic regions | 395 | 1282 |
+| Precision (95% group CI) | 0.7548 [0.7451, 0.8045] | 0.2081 [0.1864, 0.2420] |
+| Recall (95% group CI) | 0.7534 [0.7372, 0.8077] | 0.2054 [0.1820, 0.2322] |
+| F1 (95% group CI) | 0.7541 [0.7368, 0.7910] | 0.2067 [0.1822, 0.2325] |
+| Duplicate overlapping predictions | 331 | 395 |
+| Spurious non-overlapping predictions | 61 | 857 |
+| Missed semantic regions | 395 | 1273 |
 | Complete region recovery views | 0/108 | 0/108 |
 
 The WED model also has class-aware region scores:

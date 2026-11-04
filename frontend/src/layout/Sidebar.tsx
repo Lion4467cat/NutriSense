@@ -25,7 +25,7 @@ const NAV = [
   { to: "/history", label: "History", icon: IconHistory },
   { to: "/analytics", label: "Insights", icon: IconChart },
   { to: "/students", label: "Students", icon: IconUsers },
-  { to: "/menu", label: "Menu", icon: IconBook },
+  { to: "/menu", label: "Menu & standards", shortLabel: "Menu", icon: IconBook },
 ];
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -78,7 +78,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </motion.div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+        {NAV.map(({ to, label, shortLabel, icon: Icon, end }) => (
           <motion.div
             key={to}
             variants={introItem}
@@ -90,7 +90,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               end={end}
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
               onClick={onNavigate}
-              title={label === "Menu" ? "Menu & meal standards" : label}
+              title={label === "Menu & standards" ? "Menu & meal standards" : label}
             >
               {isActive(to, end) && (
                 <motion.span
@@ -101,7 +101,14 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 />
               )}
               <Icon size={17} />
-              <span>{label}</span>
+              {shortLabel ? (
+                <>
+                  <span className="nav-label-long">{label}</span>
+                  <span className="nav-label-short">{shortLabel}</span>
+                </>
+              ) : (
+                <span>{label}</span>
+              )}
               {to === "/history" && records.length > 0 && (
                 <span className="nav-badge num">{records.length}</span>
               )}

@@ -206,6 +206,27 @@ flowchart LR
 
 ---
 
+### C. Multi-Item High-Resolution Benchmark & Synthetic Corpus (Ledger 035)
+
+#### Live Multi-Item Pipeline Latency (4000×3000 Captures)
+*Hardware: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 13.0, PyTorch 2.13.0+cu130).*
+
+- **Dish 1 Cold Pipeline Initialization:** 27.00 s (loading SAM 2.1 Hiera Large, SigLIP-2, DINOv2-S, MoGe-2).
+- **Dish 2 Warm Multi-Item Pipeline:** **15.095 s** (resolving Steamed Rice 167.8g + Rasam/Payasam 166.5g with 0 decoy items).
+- **Model Registry Singleton State:** All models warm and persistent in process memory without re-instantiation across pipeline steps.
+
+#### Provenance-Audited Synthetic + CutMix Corpus (`datasets/processed/synthetic_food_v1/`)
+- **Generator Architecture:** `semantic_unet_83ch_mass_conditioned_v2` (42 semantic channels + 41 log-mass channels).
+- **CutMix Augmentation:** Patches harvested exclusively from `WED TRAIN` plates (excluding all 21 `WED DEV` plates).
+- **Corpus Size:** 82 composite plates with exact pixel ground-truth semantic masks and item metadata.
+- **Cryptographic Audit (`tools/audit_synthetic_manifest.py`):**
+  - Match count against WED DEV: **0 / 108 views** (0.0%).
+  - Match count against WED LOCKED: **0 / 502 files** (0.0%).
+  - Match count against ArUco benchmark: **0 / 23 captures** (0.0%).
+  - Audit Outcome: **PASS** (`{"ok": true, "errors": [], "error_count": 0}`).
+
+---
+
 ## 3. Physical Limitations & Future Roadmap
 
 While all algorithmic mask explosions, quiet-zone dropouts, and rim truncation bugs are resolved, the physical limitations inherent to optical monocular imaging remain:

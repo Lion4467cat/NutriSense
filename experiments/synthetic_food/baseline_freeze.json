@@ -60,9 +60,9 @@
       "sha256": "5191a6a7f8c57c7c47d0a4404622f4f195f5450916427bada29f1f270a6e1a2d"
     },
     {
-      "bytes": 106521,
+      "bytes": 106545,
       "path": "engine/pipeline.py",
-      "sha256": "d03c961f48b2bad15d41cf41beb346a4fa9f41b64016eff0a5b04ed4e7e60a5d"
+      "sha256": "b9d114b854710402182db4fba9fd4f61db426de33aafe922325a81c429b72f9d"
     },
     {
       "bytes": 16324,
@@ -110,7 +110,7 @@
       "sha256": "c129d63a31c23d89a2291b484e66cea24136dbc91c60398d38ae76e5fe00d834"
     }
   ],
-  "integrated_configuration_sha256": "7a06fc459452b81f3e7f7fbbc083d7a22698df359c867687573e75914d00b27d",
+  "integrated_configuration_sha256": "50ede023148ca91f3c6504d45d49e82bb6ebd23c3d2c0a4f1ba9924487b2b367",
   "limitations": [
     "The independent SigLIP crop report is contaminated by WED DEV gallery overlap; it is not frozen as independent classification accuracy.",
     "Depth and geometry accuracy evidence is renderer-controlled only.",

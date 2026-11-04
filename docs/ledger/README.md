@@ -67,6 +67,8 @@ Each iteration **must** run the kill switch first:
 | [031 — mass-conditioned GAN](031-mass-conditioned-gan.md) | Feasibility of conditioning generative appearance models on class-level gram targets. | Architecture verified; flagged domain shift risks for raw generation. |
 | [032 — reject stylized renderer pilot](032-reject-stylized-renderer-pilot.md) | Can an 88-image stylized procedural renderer pilot be used for appearance training? | Rejected for appearance training; retained strictly for geometry and invariance tests. |
 | [033 — ArUco card plane & vessel fusion](033-aruco-card-plane-and-vessel-fusion.md) | Fix multi-item mask explosion, quiet-zone dropouts, and rim-plane truncation on real captures. | Approved and deployed: 23/23 admission (100%), 0 tabletop items, 29.7g primary MAE (9.42% MAPE). |
+| [034 — stage promotion evaluation](034-stage-promotion-evaluation.md) | Stage-wise synthetic and augmentation promotion evaluation across all pipeline stages. | Baseline frozen; candidate weight head promotion rejected per protocol guardrails. |
+| [035 — synthetic augmentation & plate study](035-synthetic-augmentation-and-plate-rel-study.md) | Provenance-audited synthetic & CutMix corpus generation, stage-wise audits, and strict two-column IEEE paper overhaul. | Corpus audited (zero leakage); paper compiled with 0 errors/warnings; production weights preserved. |
 
 These are synthetic mechanism diagnostics only. The weighed ArUco plates are
 permanently EVAL-ONLY and are not eligible for tuning or candidate selection.

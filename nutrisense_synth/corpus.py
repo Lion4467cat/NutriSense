@@ -100,7 +100,7 @@ def _appearance_pair(scenes: tuple[dict[str, Any], ...], method: AppearanceMetho
                                            for c in no_card["cfg"]["food"]["components"]),
                   "scene_config": no_card["cfg"],
                   "mass_by_class_g": {
-                      int(component["class_id"]): float(component["share_g"])
+                      int(component["class_id"]): float(component.get("share_g", component.get("grams", 0.0)))
                       for component in components
                   }},
     )
@@ -143,7 +143,7 @@ def generate_renderer_corpus(rows: list[dict[str, Any]], dataset_root: Path,
     rows_by_class: dict[str, list[tuple[dict[str, Any], dict[str, Any]]]] = {}
     for row in eligible_wed_train_rows(rows):
         for dish in row.get("dishes", []):
-            if dish["name"] in portions:
+            if dish["name"] in portions and float(dish.get("weight_g", 0)) > 0:
                 rows_by_class.setdefault(str(dish["name"]), []).append((row, dish))
 
     output_root.mkdir(parents=True, exist_ok=True)
@@ -181,7 +181,7 @@ def generate_renderer_corpus(rows: list[dict[str, Any]], dataset_root: Path,
                 base_cfg["anchor"]["card"] = False
                 scenes = (render_scene(base_cfg),)
             scenes = _appearance_pair(scenes, appearance_method,
-                                      [{"class_id": class_id, "name": params.class_name}])
+                                      [{"class_id": class_id, "name": params.class_name, "share_g": grams, "grams": grams}])
             pair_id = stable_id(source.source_group_id, class_id, scene_seed, prefix="pair-") if include_card_pairs else None
             pending: list[dict[str, Any]] = []
             for scene in scenes:

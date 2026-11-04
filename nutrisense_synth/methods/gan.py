@@ -53,7 +53,8 @@ class GANMethod:
         }
         condition = build_condition(mask, mass_by_class)
         tensor = torch.from_numpy(condition.transpose(2, 0, 1)[None]).to(self.device)
-        with torch.random.fork_rng(devices=[self.device.index] if self.device.type == "cuda" else []):
+        dev_idx = self.device.index if self.device.index is not None else (torch.cuda.current_device() if torch.cuda.is_available() else 0)
+        with torch.random.fork_rng(devices=[dev_idx] if self.device.type == "cuda" else []):
             torch.manual_seed(context.seed)
             with torch.inference_mode():
                 output = self.model(tensor)
