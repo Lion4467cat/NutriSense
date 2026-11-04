@@ -27,7 +27,7 @@ body { background: var(--bg); }
 .nav-link { min-height: 42px; border-radius: var(--r-md); }
 .nav-link.active { color: var(--accent-text); background: var(--accent-soft); }
 .nav-glider { display: none; }
-.topbar { background: color-mix(in srgb, var(--surface) 95%, transparent); backdrop-filter: blur(14px); }
+.topbar { background: transparent; backdrop-filter: none; }
 .scroll-rail { background: var(--accent); }
 
 .main { min-width: 0; }
@@ -210,12 +210,20 @@ body { background: var(--bg); }
 
 @media (min-width: 1121px) {
   .topbar {
-    right: clamp(22px, 3.5vw, 50px);
-    width: min(620px, calc(100vw - 280px));
+    right: clamp(16px, 2.5vw, 42px);
+    width: auto;
     padding-inline: 0;
-    gap: 8px;
+    gap: clamp(4px, 0.6vw, 8px);
+    background: transparent;
+    backdrop-filter: none;
+    border: 0;
+    pointer-events: none;
+    z-index: 70;
   }
-  .topbar-spacer { flex: 1 1 auto; min-width: 10px; }
+  .topbar > * {
+    pointer-events: auto;
+  }
+  .topbar-spacer { display: none; }
 }
 
 @media (max-width: 1120px) {

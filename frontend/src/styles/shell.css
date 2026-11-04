@@ -712,14 +712,14 @@
 }
 .sidebar-brand { width: 184px; height: auto; padding: 0; border: 0; }
 .sidebar-nav {
-  flex: 1;
+  display: flex;
+  flex: 0 0 auto;
   min-width: 0;
-  margin: 0 clamp(6px, 1vw, 16px);
-  margin-right: clamp(350px, 29vw, 450px);
+  margin: 0 0 0 clamp(6px, 1vw, 18px);
   padding: 0;
   flex-direction: row;
   align-items: center;
-  gap: clamp(1px, 0.4vw, 5px);
+  gap: clamp(2px, 0.35vw, 6px);
   overflow: visible;
 }
 .sidebar-nav::-webkit-scrollbar { display: none; }
@@ -727,8 +727,8 @@
 .nav-link {
   flex: 0 0 auto;
   gap: 0;
-  padding: 10px clamp(6px, 0.7vw, 11px) 12px;
-  border-radius: 0;
+  padding: 8px clamp(8px, 0.75vw, 12px) 9px;
+  border-radius: var(--r-md);
   color: var(--text-2);
   font-size: 13px;
   font-weight: 550;
@@ -736,15 +736,9 @@
   white-space: nowrap;
 }
 .nav-link svg { display: none; }
-.nav-link.active { color: var(--text); background: transparent; }
-.nav-link:hover { background: transparent; color: var(--text); }
-.nav-glider {
-  inset: auto 8px 2px;
-  width: auto;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
-}
+.nav-link.active { color: var(--accent-text); background: var(--accent-soft); }
+.nav-link:hover { background: var(--surface-2); color: var(--text); }
+.nav-glider { display: none; }
 .explorer-nav-btn {
   background: transparent;
   border: 0;
@@ -770,12 +764,16 @@
   background: transparent;
   border: 0;
   z-index: 70;
-  pointer-events: auto;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: clamp(4px, 0.5vw, 7px);
 }
+.topbar > * {
+  pointer-events: auto;
+}
+.topbar-spacer { display: none; }
 .topbar .search-box { display: none; }
 .topbar .profile-btn { gap: 4px; padding: 4px 6px; }
 @media (max-width: 1440px) {

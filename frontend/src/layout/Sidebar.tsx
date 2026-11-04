@@ -105,9 +105,6 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               {to === "/history" && records.length > 0 && (
                 <span className="nav-badge num">{records.length}</span>
               )}
-              {to === "/menu" && menu && Object.keys(menu.dishes).length > 0 && (
-                <span className="nav-badge num">{Object.keys(menu.dishes).length}</span>
-              )}
             </NavLink>
           </motion.div>
         ))}
