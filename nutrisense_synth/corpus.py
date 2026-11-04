@@ -4,12 +4,21 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+import cv2
 import numpy as np
 from PIL import Image
 
-from nutrisense_synth.manifest import AnnotationBundle, SourceGroup, SyntheticSample, sha256_file, stable_id, write_jsonl
+from nutrisense_synth.manifest import (
+    AnnotationBundle,
+    Method,
+    SourceGroup,
+    SyntheticSample,
+    sha256_file,
+    stable_id,
+    write_jsonl,
+)
 from nutrisense_synth.measured import MeasuredExample
 from nutrisense_synth.methods.base import AppearanceMethod, GenerationContext
 from nutrisense_synth.parameters import (eligible_wed_train_rows, load_class_registry,
@@ -87,7 +96,7 @@ def _appearance_pair(scenes: tuple[dict[str, Any], ...], method: AppearanceMetho
         condition_rgb=no_card["image_rgb"], semantic_mask=semantic,
         depth_m=no_card["depth_m"], marker_mask=(no_card["obj_ids"] == 2),
         food_mask=no_card["mask_food"],
-        metadata={"class_name": ", ".join(id_by_name.get(c.get("name", ""), "food")
+        metadata={"class_name": ", ".join(str(id_by_name.get(c.get("name", ""), "food"))
                                            for c in no_card["cfg"]["food"]["components"]),
                   "scene_config": no_card["cfg"],
                   "mass_by_class_g": {
@@ -216,7 +225,7 @@ def generate_renderer_corpus(rows: list[dict[str, Any]], dataset_root: Path,
                 samples.append(SyntheticSample(
                     sample_id=item["sample_id"], scene_id=item["scene_id"],
                     source=source,
-                    method="renderer" if appearance_method is None else appearance_method.name,
+                    method=cast(Method, "renderer" if appearance_method is None else appearance_method.name),
                     method_revision="analytic-heightfield-v1" if appearance_method is None else appearance_method.revision,
                     seed=scene_seed, config_sha256=hashlib.sha256(
                         json.dumps(scene["cfg"], sort_keys=True, default=str).encode()).hexdigest(),
@@ -322,7 +331,7 @@ def _generate_thali_corpus(rows: list[dict[str, Any]], dataset_root: Path,
             scene = item["scene"]
             samples.append(SyntheticSample(
                 sample_id=item["sample_id"], scene_id=item["scene_id"], source=source,
-                method="renderer" if appearance_method is None else appearance_method.name,
+                method=cast(Method, "renderer" if appearance_method is None else appearance_method.name),
                 method_revision="analytic-heightfield-v1" if appearance_method is None else appearance_method.revision,
                 seed=scene_seed,
                 config_sha256=hashlib.sha256(json.dumps(scene["cfg"], sort_keys=True,
@@ -472,3 +481,175 @@ def audit_manifest(manifest_path: Path, data_root: Path,
             if first.get("source", {}).get("source_group_id") != second.get("source", {}).get("source_group_id"):
                 errors.append(f"{pair_id}: pair source groups differ")
     return errors
+
+
+def auditable_cutmix(
+    row_a: dict[str, Any],
+    row_b: dict[str, Any],
+    dataset_root: Path,
+    output_dir: Path | None = None,
+    *,
+    all_train_rows: list[dict[str, Any]] | None = None,
+    seed: int = 42,
+    blend_boundary: bool = True,
+) -> dict[str, Any]:
+    """Paste food patch from row_b into row_a with strict WED TRAIN audit and exact provenance."""
+    if row_a.get("split") != "train" or row_b.get("split") != "train":
+        raise ValueError("auditable_cutmix accepts WED TRAIN rows only; non-train rows are strictly forbidden")
+
+    if all_train_rows is not None:
+        eligible = eligible_wed_train_rows(all_train_rows)
+        eligible_groups = {wed_group_id(r) for r in eligible}
+        if wed_group_id(row_a) not in eligible_groups or wed_group_id(row_b) not in eligible_groups:
+            raise ValueError("auditable_cutmix rows must belong to eligible WED TRAIN groups (excluding DEV carve)")
+
+    img_path_a = dataset_root / row_a["image"]
+    mask_path_a = dataset_root / row_a["mask"] if row_a.get("mask") else None
+    img_path_b = dataset_root / row_b["image"]
+    mask_path_b = dataset_root / row_b["mask"] if row_b.get("mask") else None
+
+    if not img_path_a.is_file() or not img_path_b.is_file():
+        raise FileNotFoundError(f"Source image missing: {img_path_a} or {img_path_b}")
+
+    img_a = cv2.imread(str(img_path_a), cv2.IMREAD_COLOR)
+    img_b = cv2.imread(str(img_path_b), cv2.IMREAD_COLOR)
+    if img_a is None or img_b is None:
+        raise ValueError("Failed to load source image(s)")
+
+    h_a, w_a = img_a.shape[:2]
+    mask_a = cv2.imread(str(mask_path_a), cv2.IMREAD_UNCHANGED) if mask_path_a and mask_path_a.is_file() else None
+    if mask_a is None:
+        mask_a = np.zeros((h_a, w_a), dtype=np.uint8)
+    elif mask_a.ndim == 3:
+        mask_a = mask_a[:, :, 0]
+    if mask_a.shape[:2] != (h_a, w_a):
+        mask_a = cv2.resize(mask_a, (w_a, h_a), interpolation=cv2.INTER_NEAREST)
+
+    h_b, w_b = img_b.shape[:2]
+    mask_b = cv2.imread(str(mask_path_b), cv2.IMREAD_UNCHANGED) if mask_path_b and mask_path_b.is_file() else None
+    if mask_b is None:
+        mask_b = np.zeros((h_b, w_b), dtype=np.uint8)
+    elif mask_b.ndim == 3:
+        mask_b = mask_b[:, :, 0]
+    if mask_b.shape[:2] != (h_b, w_b):
+        mask_b = cv2.resize(mask_b, (w_b, h_b), interpolation=cv2.INTER_NEAREST)
+
+    dishes_b = row_b.get("dishes", [])
+    classes_b = [int(d["class_id"]) for d in dishes_b if int(d.get("class_id", 0)) > 0]
+    unique_b = [int(cid) for cid in np.unique(mask_b) if cid > 0]
+    cand_classes = [cid for cid in classes_b if cid in unique_b] or unique_b
+
+    rng = np.random.RandomState(seed)
+    if cand_classes:
+        paste_class = cand_classes[int(rng.randint(0, len(cand_classes)))]
+        src_patch_mask = (mask_b == paste_class)
+    else:
+        paste_class = 1
+        src_patch_mask = np.zeros((h_b, w_b), dtype=bool)
+        src_patch_mask[h_b // 4 : 3 * h_b // 4, w_b // 4 : 3 * w_b // 4] = True
+
+    y_idx, x_idx = np.where(src_patch_mask)
+    if len(y_idx) == 0:
+        y1, y2, x1, x2 = h_b // 4, 3 * h_b // 4, w_b // 4, 3 * w_b // 4
+    else:
+        y1, y2 = int(y_idx.min()), int(y_idx.max()) + 1
+        x1, x2 = int(x_idx.min()), int(x_idx.max()) + 1
+
+    patch_rgb = img_b[y1:y2, x1:x2]
+    patch_mask = src_patch_mask[y1:y2, x1:x2]
+
+    target_scale = float(rng.uniform(0.6, 1.1))
+    th = max(4, int(round((y2 - y1) * target_scale * (h_a / max(1, h_b)))))
+    tw = max(4, int(round((x2 - x1) * target_scale * (w_a / max(1, w_b)))))
+    th = min(th, h_a - 2)
+    tw = min(tw, w_a - 2)
+
+    patch_rgb_resized = cv2.resize(patch_rgb, (tw, th), interpolation=cv2.INTER_LINEAR)
+    patch_mask_resized = cv2.resize(patch_mask.astype(np.uint8), (tw, th), interpolation=cv2.INTER_NEAREST) > 0
+
+    max_ty = max(0, h_a - th)
+    max_tx = max(0, w_a - tw)
+    pos_y = int(rng.randint(0, max_ty + 1)) if max_ty > 0 else 0
+    pos_x = int(rng.randint(0, max_tx + 1)) if max_tx > 0 else 0
+
+    composite_img = img_a.copy()
+    composite_mask = mask_a.copy()
+
+    region_a = composite_img[pos_y : pos_y + th, pos_x : pos_x + tw]
+    if blend_boundary:
+        alpha_mask = cv2.GaussianBlur(patch_mask_resized.astype(np.float32), (5, 5), 1.0)[:, :, None]
+    else:
+        alpha_mask = patch_mask_resized.astype(np.float32)[:, :, None]
+
+    blended_region = (region_a.astype(np.float32) * (1.0 - alpha_mask) +
+                      patch_rgb_resized.astype(np.float32) * alpha_mask).astype(np.uint8)
+    composite_img[pos_y : pos_y + th, pos_x : pos_x + tw] = blended_region
+    composite_mask[pos_y : pos_y + th, pos_x : pos_x + tw][patch_mask_resized] = paste_class
+
+    composite_dishes = []
+    for dish in row_a.get("dishes", []):
+        cid = int(dish.get("class_id", 0))
+        rem_px = int(np.count_nonzero(composite_mask == cid))
+        orig_px = int(np.count_nonzero(mask_a == cid))
+        frac = rem_px / max(1, orig_px) if orig_px > 0 else 1.0
+        composite_dishes.append({
+            "class_id": cid,
+            "name": dish.get("name"),
+            "weight_g": round(float(dish.get("weight_g", 0.0)) * frac, 1),
+            "source": "source_a",
+            "pixel_retention": round(frac, 3),
+        })
+
+    dish_b_match = next((d for d in dishes_b if int(d.get("class_id", 0)) == paste_class), None)
+    b_weight = float(dish_b_match.get("weight_g", 50.0)) if dish_b_match else 50.0
+    pasted_px = int(np.count_nonzero(patch_mask_resized))
+    total_px_b = int(np.count_nonzero(mask_b == paste_class))
+    b_frac = pasted_px / max(1, total_px_b) if total_px_b > 0 else 1.0
+    composite_dishes.append({
+        "class_id": paste_class,
+        "name": dish_b_match.get("name", f"class_{paste_class}") if dish_b_match else f"class_{paste_class}",
+        "weight_g": round(b_weight * b_frac, 1),
+        "source": "source_b",
+        "pixel_retention": round(b_frac, 3),
+    })
+
+    source_a_sha = sha256_file(img_path_a)
+    source_b_sha = sha256_file(img_path_b)
+    mask_a_sha = sha256_file(mask_path_a) if mask_path_a and mask_path_a.is_file() else None
+    mask_b_sha = sha256_file(mask_path_b) if mask_path_b and mask_path_b.is_file() else None
+
+    result = {
+        "source_a": {
+            "source_group_id": wed_group_id(row_a),
+            "source_record_id": str(row_a["image"]),
+            "source_split": "train",
+            "source_image_sha256": source_a_sha,
+            "source_mask_sha256": mask_a_sha,
+        },
+        "source_b": {
+            "source_group_id": wed_group_id(row_b),
+            "source_record_id": str(row_b["image"]),
+            "source_split": "train",
+            "source_image_sha256": source_b_sha,
+            "source_mask_sha256": mask_b_sha,
+        },
+        "pasted_class_id": paste_class,
+        "composite_dishes": composite_dishes,
+        "seed": seed,
+    }
+
+    if output_dir is not None:
+        out_p = Path(output_dir)
+        out_p.mkdir(parents=True, exist_ok=True)
+        stem = f"cutmix_{seed}_{wed_group_id(row_a)}_{wed_group_id(row_b)}"
+        img_out = out_p / f"{stem}.png"
+        mask_out = out_p / f"{stem}.mask.png"
+        cv2.imwrite(str(img_out), composite_img)
+        cv2.imwrite(str(mask_out), composite_mask)
+        result["output_image_path"] = str(img_out)
+        result["output_mask_path"] = str(mask_out)
+        result["output_image_sha256"] = sha256_file(img_out)
+        result["output_mask_sha256"] = sha256_file(mask_out)
+
+    return result
+

@@ -1,6 +1,6 @@
 {
   "aruco_evaluation_accessed": false,
-  "created_at_utc": "2026-11-03T12:31:52Z",
+  "created_at_utc": "2026-11-03T19:15:05Z",
   "feature": "synthetic-food-corpus",
   "frozen": true,
   "frozen_artifacts": [
@@ -25,14 +25,14 @@
       "sha256": "406104452ccc05554b105afee112485269e09b9ab029db3a9576075a671d13fe"
     },
     {
-      "bytes": 11352,
+      "bytes": 14744,
       "path": "models/food_classifier.py",
-      "sha256": "e4e50935a4d388e521c0c9f9a52a96fd92b5920476b04bbe57ddfda791f5b274"
+      "sha256": "d1602afb4d3220d74ad42e840e5218938135e5ba96a3ea25e5c46273a6cc4b69"
     },
     {
-      "bytes": 6915,
+      "bytes": 17879,
       "path": "models/wed_inference.py",
-      "sha256": "4f3c9693399e47387a5169d5adac8e1af2cf2531bc777d6d2b3f7e93d97ba93b"
+      "sha256": "7b8a8c0526832686cdb4ec87d77c01cdf4b17127683caddcd12dbf13c3f1c2f0"
     },
     {
       "bytes": 3328,
@@ -40,19 +40,19 @@
       "sha256": "bed7648069bb8f1a8446106e38a73c9c1f21691ee2b4b868f17e050911f2ae78"
     },
     {
-      "bytes": 11146,
+      "bytes": 15137,
       "path": "models/portion_estimator.py",
-      "sha256": "be9acf7d05d01f4b8756c89159776fc7790a2ae0efe6d502347aa7560bc4e79f"
+      "sha256": "ce1ad87cd2b9e71a27ed187572a8a8972bac2a5a49a82a0b76afec98100ae159"
     },
     {
-      "bytes": 11359,
+      "bytes": 14882,
       "path": "models/scale_anchor.py",
-      "sha256": "5c71f45ffd6eb9279e2a23ced481f308ee22af2ed6f04fbb660a93342e3c508a"
+      "sha256": "1b9069b27627b9b5d479b41f86bc79afa6f26072ab61144099128e583df1e9e3"
     },
     {
-      "bytes": 8886,
+      "bytes": 9243,
       "path": "models/weight_head.py",
-      "sha256": "4a6b4433e956272b98ae6a1999fd94897f78aecc6013a2f7b584b28be65d1f98"
+      "sha256": "fc63f561c1ee35bc966f291f0833101660a30fef5083944ce4dc94f16b2c3703"
     },
     {
       "bytes": 5479,
@@ -60,9 +60,9 @@
       "sha256": "5191a6a7f8c57c7c47d0a4404622f4f195f5450916427bada29f1f270a6e1a2d"
     },
     {
-      "bytes": 70868,
+      "bytes": 106521,
       "path": "engine/pipeline.py",
-      "sha256": "afa815e8292ff34cdc147d5e3b08d8b713d04e7b6cdf5730c73a069be726d9d6"
+      "sha256": "d03c961f48b2bad15d41cf41beb346a4fa9f41b64016eff0a5b04ed4e7e60a5d"
     },
     {
       "bytes": 16324,
@@ -85,9 +85,9 @@
       "sha256": "e3c67953e367ceba61c6e4cdbfdcc33611f9ed03a91b141ee482845fedd63608"
     },
     {
-      "bytes": 202587,
+      "bytes": 202108,
       "path": "experiments/real_pipeline_baseline/dev_report.json",
-      "sha256": "19c0d84aa3984a5f16d8b558e82527732feaf34799593b7eed9793074b4a07b2"
+      "sha256": "bc8c3d991b0d3d285a0abac38c50546bf3fcbde07a9dcf51778edcbb2f1084e8"
     },
     {
       "bytes": 12411,
@@ -110,7 +110,7 @@
       "sha256": "c129d63a31c23d89a2291b484e66cea24136dbc91c60398d38ae76e5fe00d834"
     }
   ],
-  "integrated_configuration_sha256": "78c4a7802cc512e270280d91589235bfcc46da8c397953e05144a1648a8e354e",
+  "integrated_configuration_sha256": "7a06fc459452b81f3e7f7fbbc083d7a22698df359c867687573e75914d00b27d",
   "limitations": [
     "The independent SigLIP crop report is contaminated by WED DEV gallery overlap; it is not frozen as independent classification accuracy.",
     "Depth and geometry accuracy evidence is renderer-controlled only.",
@@ -123,8 +123,8 @@
       "data_sha256": "8025a5b7c53ad3f5dedb749adc4e99b19840f16751d3912f62072d9ca154be71",
       "group_count": 21,
       "metrics": {
-        "exact_semantic_class_set_rate": 0.7037037037037037,
-        "integrated_food_pixel_class_accuracy": 0.9322477978393834,
+        "exact_semantic_class_set_rate": 0.7222222222222222,
+        "integrated_food_pixel_class_accuracy": 0.9325949882859503,
         "scope": "Integrated labels are produced by DeepLabV3; the separate SigLIP DEV crop result has gallery overlap and is excluded as an independent classifier score."
       },
       "model_sha256": "b0fdcd74039be79e19f7a60ba0736a3b29f9e18c3bf5890a7868d7f7f52b59f7",
@@ -142,7 +142,7 @@
         "real_depth_accuracy_claim": false,
         "renderer_geometry_mass_mae_g": 5.670649279167972
       },
-      "model_sha256": "c648c8de4fb36a84041ad649b8d82a4245a3247ce22bca2bbf823d87079cf1fe",
+      "model_sha256": "bcfe2e0478e65683154d8f6c84a54c4a1322fa74f7191d2ba82e38ffaa4f01d0",
       "split_sha256": "287ad5753c07ab7b6366ac511da1c6708e0621ae5aadce5848862d14b9d6cba0",
       "uncertainty": {
         "source": "renderer-only controlled diagnostics; not a real-camera interval"
@@ -152,16 +152,16 @@
       "data_sha256": "8025a5b7c53ad3f5dedb749adc4e99b19840f16751d3912f62072d9ca154be71",
       "group_count": 21,
       "metrics": {
-        "complete_weighted_class_coverage_meals": 77,
-        "meal_total_bias_g": -13.89074074074074,
-        "meal_total_mae_g": 80.23703703703703,
+        "complete_weighted_class_coverage_meals": 78,
+        "meal_total_bias_g": -17.788888888888884,
+        "meal_total_mae_g": 79.37592592592593,
         "view_count": 108
       },
-      "model_sha256": "afa815e8292ff34cdc147d5e3b08d8b713d04e7b6cdf5730c73a069be726d9d6",
+      "model_sha256": "2fa63058b25bc1cf131a2f9cbf4d7a240b8922f59908f4e8f8abdfc43645d52a",
       "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
       "uncertainty": {
-        "mean_90_interval_width_g": 245.61996585633824,
-        "nominal_90_interval_coverage": 0.8148148148148148
+        "mean_90_interval_width_g": 402.1339298568498,
+        "nominal_90_interval_coverage": 0.9351851851851852
       }
     },
     "segmentation": {
@@ -170,7 +170,7 @@
       "metrics": {
         "foreground_iou": 0.9196031725570949,
         "macro_food_iou": 0.8210799945241419,
-        "region_f1": 0.73625
+        "region_f1": 0.8009510869565217
       },
       "model_sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963",
       "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
@@ -197,15 +197,15 @@
       "data_sha256": "8f38b8fb6953dc448518144e94d86062088af6f4917c8f1e4f519e4df910d83c",
       "group_count": 21,
       "metrics": {
-        "individual_class_total_mae_g": 16.945279307631786,
-        "meal_total_bias_g": -13.89074074074074,
-        "meal_total_mae_g": 80.23703703703703
+        "individual_class_total_mae_g": 16.438222748815168,
+        "meal_total_bias_g": -17.788888888888884,
+        "meal_total_mae_g": 79.37592592592593
       },
       "model_sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1",
       "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
       "uncertainty": {
-        "mean_90_interval_width_g": 245.61996585633824,
-        "nominal_90_interval_coverage": 0.8148148148148148
+        "mean_90_interval_width_g": 402.1339298568498,
+        "nominal_90_interval_coverage": 0.9351851851851852
       }
     }
   },

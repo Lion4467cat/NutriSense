@@ -242,7 +242,7 @@ curl -X POST http://127.0.0.1:8731/analyze \
 While NutriSense eliminates software mask explosions and table rim truncation, optical dietary assessment has inherent physical boundaries:
 1. **Submerged Solids in Opaque Liquids:** Monocular cameras cannot see chunks of potato or vegetables submerged beneath opaque sambar or curry gravies. Portions are inferred from surface area and recipe density priors.
 2. **Grain Packing Porosity:** Cooked rice and biryani exhibit natural density variance ($0.70\text{ g/cm}^3$ for fluffy grains to $0.95\text{ g/cm}^3$ for compacted mounds), introducing a $\sim 10\%$ physical mass uncertainty.
-3. **Phase 2 Expansion:** The next phase of development integrates **Physics-Informed Synthetic Generation** (Blender rigid-body/fluid simulation, depth-locked ControlNet appearance synthesis, and 10,000-pose ArUco domain randomization). Details in [`docs/synthetic-augmentation-roadmap.md`](docs/synthetic-augmentation-roadmap.md).
+3. **Phase 2 Execution:** All-stage baseline freeze completed across Models 1–5 ([`docs/model-metrics.md`](docs/model-metrics.md), [`data/reports/all_stage_baseline_freeze.json`](data/reports/all_stage_baseline_freeze.json)), provenance-preserving synthetic pipeline implemented (`nutrisense_synth/` with ISP domain randomization, CLAHE, metallic glare, vessel geometry, and auditable CutMix), and 10,000-replicate bootstrap promotion evaluated ([`docs/ledger/034-stage-promotion-evaluation.md`](docs/ledger/034-stage-promotion-evaluation.md)). Details in [`docs/synthetic-augmentation-roadmap.md`](docs/synthetic-augmentation-roadmap.md).
 
 ---
 

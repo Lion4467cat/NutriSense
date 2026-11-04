@@ -13,6 +13,36 @@ from engine.contract import Failure, Reason, ReasonKind, Stage, gate_reject
 
 _BANDS = ("1-5", "6-8", "9-10")
 
+DAY_MAP = {
+    "monday": "mon", "mon": "mon",
+    "tuesday": "tue", "tue": "tue",
+    "wednesday": "wed", "wed": "wed",
+    "thursday": "thu", "thu": "thu",
+    "friday": "fri", "fri": "fri",
+    "saturday": "sat", "sat": "sat",
+    "sunday": "sun", "sun": "sun",
+}
+
+BAND_MAP = {
+    "1-5": "1-5", "band_1_5": "1-5", "1_5": "1-5", "1 to 5": "1-5",
+    "6-8": "6-8", "band_6_8": "6-8", "6_8": "6-8", "6 to 8": "6-8",
+    "9-10": "9-10", "band_9_10": "9-10", "9_10": "9-10", "9 to 10": "9-10",
+}
+
+
+def normalize_day(day: str | None) -> str | None:
+    if not isinstance(day, str):
+        return day
+    d = day.strip().lower()
+    return DAY_MAP.get(d, d[:3] if len(d) >= 3 else d)
+
+
+def normalize_band(band: str | None) -> str | None:
+    if not isinstance(band, str):
+        return band
+    b = band.strip().lower()
+    return BAND_MAP.get(b, b)
+
 
 class GateOutcome(NamedTuple):
     admitted: bool
@@ -40,19 +70,21 @@ def _zoom(ctx: dict) -> str | None:
 
 
 def _day(ctx: dict) -> str | None:
-    day = ctx.get("day")
-    if isinstance(day, str) and day.strip().lower() in ctx["menu"]["days"]:
+    raw_day = ctx.get("day")
+    day = normalize_day(raw_day)
+    if isinstance(day, str) and day in ctx["menu"]["days"]:
         return None
-    if day in ctx["menu"]["days"]:
+    if raw_day in ctx["menu"]["days"]:
         return None
-    return f"unknown day {day!r}"
+    return f"unknown day {raw_day!r}"
 
 
 def _band(ctx: dict) -> str | None:
-    band = ctx.get("band")
+    raw_band = ctx.get("band")
+    band = normalize_band(raw_band)
     if band in _BANDS:
         return None
-    return f"unknown class band {band!r}"
+    return f"unknown class band {raw_band!r}"
 
 
 def _scope(ctx: dict) -> str | None:

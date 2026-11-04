@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0.0",
+  "created_at_utc": "2026-11-04T17:26:56.638609+00:00",
+  "ledger_gate": "ledger/028",
+  "status": "FROZEN",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "vram_mb": 8188,
+    "cuda": "13.0",
+    "pytorch": "2.13.0+cu130"
+  },
+  "stages": {
+    "model_1_scale_anchor": {
+      "module": "models/scale_anchor.py + geo/pose.py",
+      "card_photos_audit_rate": 1.0,
+      "card_photos_detected": "60/60",
+      "aruco_food_detection_rate": 1.0,
+      "aruco_food_detected": "23/23",
+      "linear_2d_scale_error_min_pct": 0.06,
+      "linear_2d_scale_error_max_pct": 1.1,
+      "card_plane_fit_rms_min_mm": 0.32,
+      "card_plane_fit_rms_max_mm": 1.28,
+      "card_plane_fit_rms_median_mm": 0.74,
+      "quiet_zone_gate_threshold": 0.42
+    },
+    "model_2_food_vessel_segmenter": {
+      "models": [
+        "DeepLabV3 ResNet-50 (WED semantic)",
+        "SAM 2.1 Hiera Large (instance proposals)"
+      ],
+      "wed_dev_macro_food_iou": 0.8211,
+      "wed_dev_macro_food_dice": 0.8976,
+      "wed_dev_foreground_iou": 0.9196,
+      "wed_dev_foreground_dice": 0.9581,
+      "wed_dev_boundary_f1": 0.5973,
+      "wed_dev_region_f1": 0.7541,
+      "wed_dev_exact_class_set_rate": 0.7037,
+      "aruco_sum_over_top_area_ratio": 1.0,
+      "aruco_duplicate_flags_count": 0
+    },
+    "model_3_dish_classifier": {
+      "model": "google/siglip2-base-patch16-224 + WED gallery",
+      "wed_dev_41way_exact_match_acc": 0.7217,
+      "wed_dev_41way_gallery_acc": 0.8103,
+      "wed_dev_41way_macro_recall": 0.8212,
+      "decoy_side_classes": [
+        "chutney",
+        "curd",
+        "raita",
+        "papad",
+        "salad",
+        "mango-pickle",
+        "boondi"
+      ],
+      "decoy_rejection_rate": 1.0,
+      "dish_1_to_6_phantom_decoys": 0
+    },
+    "model_4_monocular_depth": {
+      "model": "Ruicheng/moge-2-vitl",
+      "metric_scale_factor_median": 0.1152,
+      "metric_scale_factor_p10": 0.0761,
+      "metric_scale_factor_p90": 0.199,
+      "valid_depth_pixel_fraction": 0.9982,
+      "planar_depth_rmse_mm": 1.42
+    },
+    "model_5_learned_weight_head": {
+      "model": "facebook/dinov2-small + 3-layer MLP",
+      "wed_train_5fold_cv_mae_g": 16.421,
+      "wed_train_5fold_cv_mape_pct": 19.45,
+      "wed_train_rois": 11759,
+      "wed_train_plates": 198,
+      "wed_dev_mae_g": 15.034,
+      "wed_dev_mape_pct": 18.3,
+      "wed_dev_within_25g_pct": 91.0,
+      "wed_locked_test_mae_g": 14.667,
+      "wed_locked_test_mape_pct": 19.99,
+      "aruco_paired_geometry_mae_g": 31.3,
+      "aruco_paired_geometry_pearson_r": 0.941,
+      "aruco_benchmark_records": 46,
+      "aruco_captures": 23
+    }
+  },
+  "combined_e2e_pipeline": {
+    "total_latency_sequential_s": 6.827,
+    "warm_requery_latency_p50_ms": 716.0,
+    "warm_requery_latency_p95_ms": 735.0,
+    "latency_breakdown_s": {
+      "input_and_lint": 0.003,
+      "scale_anchor": 0.087,
+      "segmentation_sam2": 2.244,
+      "classification_siglip2": 1.179,
+      "depth_moge2": 3.293,
+      "portion_geometry_fusion": 0.015,
+      "nutrition_mc": 0.005,
+      "compliance_verdict": 0.001
+    },
+    "vram_peak_allocated_mib": 2904,
+    "vram_peak_reserved_mib": 4170,
+    "http_success_rate": 1.0,
+    "wire_contract_keys": 19,
+    "wire_contract_sync": true,
+    "lint_warnings_count": 0,
+    "wed_dev_e2e_evaluation": {
+      "report": "experiments/synthetic_food/e2e_dev_baseline.json",
+      "n_views": 108,
+      "n_groups": 21,
+      "mass_return_rate": 1.0,
+      "meal_mass_mae_g_returned": 904.435,
+      "meal_mass_mae_g_bootstrap_95ci": [815.922, 995.888],
+      "critical_failure_rate": 1.0,
+      "locked_accessed": false,
+      "aruco_accessed": false
+    }
+  }
+}

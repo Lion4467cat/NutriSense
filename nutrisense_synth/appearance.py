@@ -101,3 +101,143 @@ def build_train_appearance_profiles(manifest: Path, dataset_root: Path,
         profile["profile_sha256"] = hashlib.sha256(payload.encode()).hexdigest()
         profiles[class_id] = profile
     return profiles
+
+
+def _kelvin_to_rgb_gains(temp_k: float) -> tuple[float, float, float]:
+    """Approximate Planckian color temperature gains normalized to D65 (6500K)."""
+    t = float(np.clip(temp_k, 2000.0, 10000.0)) / 100.0
+    # Red
+    if t <= 66.0:
+        r = 255.0
+    else:
+        r = 329.698727446 * ((t - 60.0) ** -0.1332047592)
+    # Green
+    if t <= 66.0:
+        g = 99.4708025861 * np.log(t) - 161.1195681661
+    else:
+        g = 288.1221695283 * ((t - 60.0) ** -0.0755148492)
+    # Blue
+    if t >= 66.0:
+        b = 255.0
+    elif t <= 19.0:
+        b = 0.0
+    else:
+        b = 138.5177312231 * np.log(t - 10.0) - 305.0447927307
+    r = float(np.clip(r, 0.0, 255.0))
+    g = float(np.clip(g, 0.0, 255.0))
+    b = float(np.clip(b, 0.0, 255.0))
+    # Reference D65 (~6500K)
+    r65, g65, b65 = 255.0, 254.3, 250.0
+    gain_r = float(np.clip(r / r65, 0.6, 1.4))
+    gain_g = float(np.clip(g / g65, 0.8, 1.2))
+    gain_b = float(np.clip(b / b65, 0.5, 1.3))
+    return gain_r, gain_g, gain_b
+
+
+def randomize_isp_lighting(
+    image_bgr: np.ndarray,
+    *,
+    temperature_k: float | None = None,
+    clahe_clip_limit: float | None = None,
+    specular_strength: float | None = None,
+    seed: int | None = None,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    """Apply ISP domain randomization: color temperature (2800K-6500K), CLAHE, and specular highlights."""
+    if image_bgr.ndim != 3 or image_bgr.shape[2] != 3:
+        raise ValueError(f"Expected BGR image with shape (H, W, 3), got {image_bgr.shape}")
+    rng = np.random.RandomState(seed) if seed is not None else np.random.RandomState()
+    temp_k = float(rng.uniform(2800.0, 6500.0) if temperature_k is None else temperature_k)
+    clip_lim = float(rng.uniform(1.0, 3.0) if clahe_clip_limit is None else clahe_clip_limit)
+    spec_str = float(rng.uniform(0.0, 0.35) if specular_strength is None else specular_strength)
+
+    # 1. White-balance color temperature shift
+    gain_r, gain_g, gain_b = _kelvin_to_rgb_gains(temp_k)
+    bgr_gains = np.array([gain_b, gain_g, gain_r], dtype=np.float32)
+    img_wb = np.clip(image_bgr.astype(np.float32) * bgr_gains, 0.0, 255.0).astype(np.uint8)
+
+    # 2. CLAHE on L-channel in LAB
+    lab = cv2.cvtColor(img_wb, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=clip_lim, tileGridSize=(8, 8))
+    l_clahe = clahe.apply(l)
+    lab_clahe = cv2.merge([l_clahe, a, b])
+    img_clahe = cv2.cvtColor(lab_clahe, cv2.COLOR_LAB2BGR)
+
+    # 3. Metallic specular reflection simulation
+    h, w = image_bgr.shape[:2]
+    if spec_str > 0.02 and h > 8 and w > 8:
+        cx = float(rng.uniform(0.2 * w, 0.8 * w))
+        cy = float(rng.uniform(0.2 * h, 0.8 * h))
+        sx = float(rng.uniform(0.10 * w, 0.30 * w))
+        sy = float(rng.uniform(0.10 * h, 0.30 * h))
+        y_grid, x_grid = np.ogrid[:h, :w]
+        dist_sq = ((x_grid - cx) / max(1.0, sx)) ** 2 + ((y_grid - cy) / max(1.0, sy)) ** 2
+        specular_blob = np.exp(-0.5 * dist_sq).astype(np.float32)
+        specular_addition = (specular_blob[:, :, None] * (spec_str * 255.0)).astype(np.float32)
+        out_bgr = np.clip(img_clahe.astype(np.float32) + specular_addition, 0.0, 255.0).astype(np.uint8)
+    else:
+        out_bgr = img_clahe
+
+    metadata = {
+        "temperature_k": round(temp_k, 1),
+        "clahe_clip_limit": round(clip_lim, 3),
+        "specular_strength": round(spec_str, 3),
+        "wb_gains_rgb": [round(gain_r, 4), round(gain_g, 4), round(gain_b, 4)],
+    }
+    return out_bgr, metadata
+
+
+def compute_plate_relative_geometry(
+    item_mask: np.ndarray,
+    plate_mask: np.ndarray | None = None,
+) -> dict[str, float]:
+    """Compute vessel-relative geometry conditioning for WeightHead: area share, hull fill, aspect ratio."""
+    item_bool = item_mask > 0
+    item_area = int(np.count_nonzero(item_bool))
+    if plate_mask is not None:
+        plate_area = max(1, int(np.count_nonzero(plate_mask > 0)))
+        area_share = float(item_area / plate_area)
+    else:
+        total_px = max(1, item_mask.shape[0] * item_mask.shape[1])
+        plate_area = total_px
+        area_share = float(item_area / total_px)
+
+    if item_area == 0:
+        return {
+            "area_share_of_plate": 0.0,
+            "hull_fill_ratio": 1.0,
+            "aspect_ratio": 1.0,
+            "item_area_px": 0.0,
+            "plate_area_px": float(plate_area),
+        }
+
+    contours, _ = cv2.findContours(item_bool.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        all_pts = np.vstack(contours)
+        hull = cv2.convexHull(all_pts)
+        hull_area = float(cv2.contourArea(hull))
+        hull_fill = float(item_area / max(float(item_area), hull_area)) if hull_area > 0 else 1.0
+
+        if len(all_pts) >= 5:
+            rect = cv2.minAreaRect(all_pts)
+            w_box, h_box = rect[1]
+            maj = max(w_box, h_box)
+            min_dim = min(w_box, h_box)
+            aspect = float(maj / max(1e-2, min_dim))
+        else:
+            x, y, w_box, h_box = cv2.boundingRect(all_pts)
+            maj = max(w_box, h_box)
+            min_dim = min(w_box, h_box)
+            aspect = float(maj / max(1.0, min_dim))
+    else:
+        hull_fill = 1.0
+        aspect = 1.0
+
+    return {
+        "area_share_of_plate": float(np.clip(area_share, 0.0, 1.0)),
+        "hull_fill_ratio": float(np.clip(hull_fill, 0.0, 1.0)),
+        "aspect_ratio": float(max(1.0, aspect)),
+        "item_area_px": float(item_area),
+        "plate_area_px": float(plate_area),
+    }
+

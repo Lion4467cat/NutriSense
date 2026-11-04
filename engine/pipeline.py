@@ -310,7 +310,7 @@ def _is_valid_secondary_vessel(
     parent_area = float(parent_mask.sum())
     area_frac = item_area / img_area
     # a. Bounded Area: A secondary vessel is compact relative to the meal and frame
-    if not (item_area <= 0.50 * parent_area and 0.01 <= area_frac <= 0.12):
+    if not (item_area <= 0.50 * parent_area and 0.012 <= area_frac <= 0.075):
         return False
     # b. Not the Reference Card:
     if card_mask is not None:
@@ -335,7 +335,7 @@ def _is_valid_secondary_vessel(
     if y2 >= H - 6: touches += 1
     if x1 <= 5: touches += 1
     if x2 >= W - 6: touches += 1
-    return aspect >= 0.50 and solidity >= 0.60 and touches == 0
+    return aspect >= 0.48 and solidity >= 0.55 and touches == 0
 
 
 DECOY_SIDE_CLASSES: frozenset[str] = frozenset({
@@ -460,9 +460,9 @@ def _reconcile_dense_grid_items(
                 secondary_cands.append(item_copy)
 
     # Spatial NMS on secondary candidates so multiple overlapping proposals for the same bowl do not multiply
+    kept_sec: list[dict] = []
     if secondary_cands:
         secondary_cands.sort(key=lambda it: float(it.get("sam_score") or 0.0), reverse=True)
-        kept_sec: list[dict] = []
         for cand in secondary_cands:
             cm = np.asarray(cand["mask"], dtype=bool)
             overlap = False
@@ -475,9 +475,23 @@ def _reconcile_dense_grid_items(
             if not overlap:
                 kept_sec.append(cand)
                 bounded_vessel_count += 1
-                valid_items.append(cand)
                 if len(kept_sec) >= 2:
                     break
+
+    if kept_sec:
+        # Check connected components of top_bool (the main plate food)
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(top_bool.astype(np.uint8), connectivity=8)
+        main_components = [i for i in range(1, num_labels) if stats[i, cv2.CC_STAT_AREA] >= 2000]
+        if len(main_components) <= 1:
+            ys, xs = np.nonzero(top_bool)
+            top_bbox = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1] if len(xs) else None
+            return [{
+                "mask": top_bool,
+                "sam_score": seg_info.get("sam_score"),
+                "area_frac": float(top_bool.mean()),
+                "bbox": top_bbox,
+            }] + kept_sec
+        valid_items.extend(kept_sec)
 
     if len(valid_items) <= 1 or bounded_vessel_count < 2:
         return [{
@@ -494,11 +508,13 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     """Run the full pipeline on one capture. Always returns the 19-key wire
     dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | ESTIMATED |
     cannot_verify | out_of_scope)."""
+    from engine.gates import normalize_band, normalize_day
     from models.dish_segmenter import segment_food
     from models.food_classifier import classify_dish
 
     deps = deps or {}
-    day = day.strip().lower() if isinstance(day, str) else day
+    day = normalize_day(day)
+    band = normalize_band(band)
     if mode not in {"school", "general"}:
         raise ValueError("mode must be 'school' or 'general'")
     segment = deps.get("segment") or segment_food
@@ -1231,7 +1247,37 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 if chroma["mean_s"] < 35 and chroma["specular_frac"] > 0.18 and ms < 0.84:
                     continue
 
-                if crop_dish in ("chutney", "curd", "raita"):
+                if item.get("is_secondary_vessel"):
+                    is_liquid_chroma = (
+                        chroma["mean_s"] >= 40
+                        and (
+                            chroma["mean_h"] <= 50
+                            or chroma["mean_h"] >= 155
+                            or (35 <= chroma["mean_h"] <= 85)
+                        )
+                        and chroma["specular_frac"] < 0.25
+                    )
+                    liq_cand = {k: float(v) for k, v in (cls_i.get("scores") or {}).items()
+                                if k in LIQUID_BOWL_CLASSES and v is not None and np.isfinite(float(v))}
+                    if is_liquid_chroma and liq_cand:
+                        best_liq = max(liq_cand, key=lambda k: liq_cand[k])
+                        if "sambar" in liq_cand and liq_cand["sambar"] >= liq_cand[best_liq] - 0.02 and (
+                            day == "mon" or "rice_sambar" in (menu.get("dishes") or {})
+                        ):
+                            best_liq = "sambar"
+                        if liq_cand[best_liq] >= 0.82:
+                            cls_i = dict(
+                                cls_i,
+                                dish=best_liq,
+                                match_score=liq_cand[best_liq],
+                                reason=f"liquid secondary bowl ({best_liq}={liq_cand[best_liq]:.3f}, H={chroma['mean_h']:.1f}, S={chroma['mean_s']:.1f})",
+                            )
+                            crop_dish = best_liq
+                            ms = liq_cand[best_liq]
+                    elif crop_dish in ("chutney", "curd", "raita"):
+                        if chroma["mean_s"] > 50 and not (35 <= chroma["mean_h"] <= 85):
+                            continue
+                elif crop_dish in ("chutney", "curd", "raita"):
                     if chroma["mean_s"] >= 55 and (chroma["mean_h"] <= 45 or chroma["mean_h"] >= 160):
                         liq_cand = {k: float(v) for k, v in (cls_i.get("scores") or {}).items()
                                     if k in LIQUID_BOWL_CLASSES and v is not None and np.isfinite(float(v))}
@@ -1248,6 +1294,16 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     chroma["mean_s"] < 40 or chroma["specular_frac"] > 0.12 or ms < 0.85
                 ):
                     continue
+
+                if item.get("is_secondary_vessel") and crop_dish == "rice_sambar":
+                    liq_cand = {k: float(v) for k, v in (cls_i.get("scores") or {}).items()
+                                if k in LIQUID_BOWL_CLASSES and v is not None and np.isfinite(float(v))}
+                    if liq_cand:
+                        best_liq = max(liq_cand, key=lambda k: liq_cand[k])
+                        cls_i = dict(cls_i, dish=best_liq, match_score=liq_cand[best_liq],
+                                     reason=f"katori bowl re-ranked from rice_sambar to {best_liq}")
+                        crop_dish = best_liq
+                        ms = liq_cand[best_liq]
 
                 if combo and not semantic_name and cls_i.get("scores"):
                     from models.food_classifier import gallery_match_threshold
@@ -1302,7 +1358,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         cls_i = dict(cls_i, dish=best, reason=note)
                 if item.get("is_secondary_vessel") and not combo:
                     ms = float(cls_i.get("match_score") or 0.0)
-                    if ms < 0.80 or cls_i.get("dish") in ("papad", "salad"):
+                    if ms < 0.82 or cls_i.get("dish") in DECOY_SIDE_CLASSES:
                         continue
                 if semantic_name and "classify" in deps:
                     classifier_candidate = cls_i.get("dish")
@@ -1343,7 +1399,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         for item, cls_info, info_i, dish_i in classified_items:
             merged = False
             for idx, (c_item, c_cls, c_info, c_dish) in enumerate(coalesced_items):
-                if _same_food_family(c_info["id"], info_i["id"]):
+                same_family = _same_food_family(c_info["id"], info_i["id"])
+                both_main = (not item.get("is_secondary_vessel")) and (not c_item.get("is_secondary_vessel"))
+                both_sec = bool(item.get("is_secondary_vessel")) and bool(c_item.get("is_secondary_vessel"))
+                if same_family and (both_main or both_sec):
                     m1, m2 = item.get("mask"), c_item.get("mask")
                     b1, b2 = item.get("bbox"), c_item.get("bbox")
                     overlap = False
@@ -1356,7 +1415,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         inter_area = inter_w * inter_h
                         min_area = min((b1[2] - b1[0]) * (b1[3] - b1[1]),
                                        (b2[2] - b2[0]) * (b2[3] - b2[1]))
-                        if min_area > 0 and (inter_area / min_area) > 0.25:
+                        if min_area > 0 and (inter_area / min_area) > 0.40:
                             overlap = True
                     if overlap:
                         m_merged = (m1 | m2) if (m1 is not None and m2 is not None) else (m1 or m2)
@@ -1376,7 +1435,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             bbox=b_merged,
                             sam_score=max(score_1, score_2),
                             area_frac=float(m_merged.mean()) if m_merged is not None else c_item.get("area_frac"),
-                            is_secondary_vessel=c_item.get("is_secondary_vessel", False) or item.get("is_secondary_vessel", False),
+                            is_secondary_vessel=bool(c_item.get("is_secondary_vessel", False) or item.get("is_secondary_vessel", False)),
                         )
                         m_score_1 = float(cls_info.get("match_score") or 0.0)
                         m_score_2 = float(c_cls.get("match_score") or 0.0)
