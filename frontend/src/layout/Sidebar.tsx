@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -41,6 +41,27 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const taps = useRef<number[]>([]);
   const TAP_WINDOW_MS = 2600;
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMoreOpen(false);
+    }
+    if (moreOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [moreOpen]);
+
   const schoolToolsActive = pathname.startsWith("/students") || pathname.startsWith("/menu");
   const isActive = (to: string, end?: boolean) =>
     end ? pathname === to : pathname.startsWith(to);
@@ -110,7 +131,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </motion.div>
         ))}
 
-        <div className="sidebar-more">
+        <div className="sidebar-more" ref={moreRef}>
           <button
             className={`nav-link sidebar-more-button${schoolToolsActive ? " active" : ""}`}
             type="button"
@@ -118,15 +139,34 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             aria-haspopup="menu"
             onClick={() => setMoreOpen((open) => !open)}
           >
-            <span>More</span><IconChevronDown size={14} />
+            <span>More</span>
+            <IconChevronDown size={14} className={moreOpen ? "rotate-180" : ""} />
           </button>
           {moreOpen && (
             <div className="sidebar-more-menu" role="menu" aria-label="More sections">
-              <NavLink to="/students" role="menuitem" className="more-link" onClick={() => { setMoreOpen(false); onNavigate?.(); }}>
-                <IconUsers size={16} /><span>Student records</span>
+              <NavLink
+                to="/students"
+                role="menuitem"
+                className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
+                onClick={() => {
+                  setMoreOpen(false);
+                  onNavigate?.();
+                }}
+              >
+                <IconUsers size={16} />
+                <span>Student records</span>
               </NavLink>
-              <NavLink to="/menu" role="menuitem" className="more-link" onClick={() => { setMoreOpen(false); onNavigate?.(); }}>
-                <IconBook size={16} /><span>Menu & standards</span>
+              <NavLink
+                to="/menu"
+                role="menuitem"
+                className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
+                onClick={() => {
+                  setMoreOpen(false);
+                  onNavigate?.();
+                }}
+              >
+                <IconBook size={16} />
+                <span>Menu & standards</span>
               </NavLink>
             </div>
           )}

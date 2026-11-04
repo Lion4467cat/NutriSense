@@ -5,6 +5,21 @@ import { formatPct } from  "../utils/format";
 import { firstReasonText } from  "../utils/reasons";
 import { EASE, popIn, revealContainer, revealItem } from "../ui/motion";
 
+function formatDishBadge(displayName: string | null | undefined, dishId: string | undefined): { label: string; full: string } {
+  const raw = displayName || dishId || "Meal";
+  if (!raw.includes(" + ")) {
+    return { label: raw, full: raw };
+  }
+  const parts = raw.split(" + ").map((s) => s.trim()).filter(Boolean);
+  if (parts.length <= 2) {
+    return { label: raw, full: raw };
+  }
+  return {
+    label: `${parts.length} items (${parts[0]} + ${parts.length - 1} more)`,
+    full: raw,
+  };
+}
+
 /**
  * Wave-1 verdict reveal: staggered fade-up on first paint with a spring pop
  * on the glyph. Reduced-motion users (MotionConfig in App) get opacity-only
@@ -16,6 +31,7 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const cov = result.coverage;
   const dish = result.dish;
   const conf = result.classification?.confidence;
+  const dishBadge = formatDishBadge(dish?.display_name, dish?.id);
 
   return (
     <motion.section
@@ -38,8 +54,8 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
           variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.35, ease: EASE } } }}
         >
           {dish && (
-            <span className="tag">
-              {dish.display_name || dish.id}
+            <span className="tag" title={dishBadge.full}>
+              {dishBadge.label}
               {dish.on_day === false ? " · off-menu" : ""}
             </span>
           )}

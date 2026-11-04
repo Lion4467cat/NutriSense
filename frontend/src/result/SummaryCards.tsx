@@ -34,12 +34,33 @@ function Card({
 
 export default function SummaryCards({ result }: { result: AnalyzeResult }) {
   const dish = result.dish || result.classification;
-  const dishName = dishLabel(result);
+  const rawDishName = dishLabel(result);
   const conf = result.classification?.confidence;
   const p = result.portion;
   const mealWeight = mealWeightView(result);
   const kcal = result.nutrition?.kcal;
   const prot = result.nutrition?.protein_g;
+
+  const dishParts = rawDishName.includes(" + ")
+    ? rawDishName.split(" + ").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const isMultiThali = dishParts.length > 2;
+  const dishDisplayValue = isMultiThali
+    ? `${dishParts.length}-Item Meal`
+    : rawDishName;
+
+  const dishSub = isMultiThali ? (
+    <span className="interval" title={rawDishName}>
+      {dishParts.slice(0, 2).join(", ")} +{dishParts.length - 2} more · see Item Evidence below
+    </span>
+  ) : dish ? (
+    <>
+      {conf != null ? `Classifier confidence ${formatPct(conf, 0)}` : "Unrecognized"}
+      {result.classification?.method ? (
+        <span className="interval"> · {result.classification.method}</span>
+      ) : null}
+    </>
+  ) : undefined;
 
   return (
     <div className="summary-grid">
@@ -73,18 +94,9 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
       <Card
         label="Dish"
         icon={<IconMeal size={14} />}
-        value={dishName}
+        value={<span title={rawDishName}>{dishDisplayValue}</span>}
         text
-        sub={
-          dish ? (
-            <>
-              {conf != null ? `Classifier confidence ${formatPct(conf, 0)}` : "Unrecognized"}
-              {result.classification?.method ? (
-                <span className="interval"> · {result.classification.method}</span>
-              ) : null}
-            </>
-          ) : undefined
-        }
+        sub={dishSub}
       />
       <Card
         label="Energy"

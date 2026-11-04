@@ -1117,10 +1117,20 @@
 .verdict-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
   margin-top: 14px;
   padding-top: var(--sp-3);
   border-top: 1px solid var(--border);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.verdict-meta .tag {
+  max-width: min(100%, 360px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .verdict-coverage {

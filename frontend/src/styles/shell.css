@@ -632,19 +632,7 @@
   }
 }
 
-.sidebar-more { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
-.sidebar-more-button { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; font: inherit; cursor: pointer; }
-.sidebar-more-button svg { display: block; opacity: .7; }
-.sidebar-more-menu { display: flex; align-items: center; gap: 2px; }
-.more-link { display: inline-flex; align-items: center; gap: 8px; padding: 9px 11px; color: var(--text-2); font-size: 13px; white-space: nowrap; }
-.more-link:hover,.more-link.active { color: var(--text); background: var(--surface-2); }
-.more-link svg { display: block; }
-@media (max-width: 1120px) {
-  .sidebar-more { width: 100%; display: block; }
-  .sidebar-more-button { width: 100%; justify-content: space-between; }
-  .sidebar-more-menu { display: grid; padding: 4px 0 4px 18px; }
-  .more-link { border-radius: var(--r-sm); }
-}
+
 
 /* mode switch lives between the spacer and the search box; the search box
  * already disappears ≤900px, so the switch keeps the room until phones */
@@ -715,6 +703,8 @@
   border-right: 0;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
+  z-index: 50;
+  overflow: visible;
 }
 .sidebar-brand { width: 184px; height: auto; padding: 0; border: 0; }
 .sidebar-nav {
@@ -725,8 +715,7 @@
   flex-direction: row;
   align-items: center;
   gap: 1px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: visible;
 }
 .sidebar-nav::-webkit-scrollbar { display: none; }
 .nav-section { display: none; }
@@ -817,16 +806,114 @@
   .page { padding: var(--sp-6) var(--sp-5) var(--sp-10); }
 }
 
-.sidebar-more { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
-.sidebar-more-button { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; font: inherit; cursor: pointer; }
-.sidebar-more-button svg { display: block; opacity: .7; }
-.sidebar-more-menu { display: flex; align-items: center; gap: 2px; }
-.more-link { display: inline-flex; align-items: center; gap: 8px; padding: 9px 11px; color: var(--text-2); font-size: 13px; white-space: nowrap; }
-.more-link:hover,.more-link.active { color: var(--text); background: var(--surface-2); }
-.more-link svg { display: block; }
-@media (max-width: 1120px) {
-  .sidebar-more { width: 100%; display: block; }
-  .sidebar-more-button { width: 100%; justify-content: space-between; }
-  .sidebar-more-menu { display: grid; padding: 4px 0 4px 18px; }
-  .more-link { border-radius: var(--r-sm); }
+/* Sidebar More Dropdown */
+.sidebar-more {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
+
+.sidebar-more-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--text-2);
+  padding: 10px 12px 12px;
+  font-size: 13.5px;
+  font-weight: 550;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition: color var(--t-fast);
+}
+
+.sidebar-more-button:hover,
+.sidebar-more-button.active {
+  color: var(--text);
+}
+
+.sidebar-more-button svg {
+  display: block !important;
+  opacity: 0.7;
+  transition: transform var(--t-fast);
+}
+
+.sidebar-more-button svg.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.sidebar-more-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 210px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 1000;
+}
+
+.more-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.more-link:hover,
+.more-link.active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.more-link svg {
+  display: block !important;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1120px) {
+  .sidebar-more {
+    width: 100%;
+    display: block;
+  }
+  .sidebar-more-button {
+    width: 100%;
+    justify-content: space-between;
+    padding: 9px 10px;
+    border-radius: var(--r-sm);
+    font-size: var(--fs-base);
+  }
+  .sidebar-more-menu {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0 4px 18px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    min-width: 0;
+  }
+  .more-link {
+    border-radius: var(--r-sm);
+  }
+}
+
+
+
