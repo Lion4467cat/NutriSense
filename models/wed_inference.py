@@ -33,7 +33,10 @@ _SMALL_CONDIMENT_CLASSES = frozenset({2, 3, 7, 13, 19, 32, 33, 35, 39})
 _CANONICAL_WED_PIXELS = float(1280 * 960)
 
 
-def _clean_semantic_labels(labels: np.ndarray) -> np.ndarray:
+def _clean_semantic_labels(
+    labels: np.ndarray,
+    max_probs: np.ndarray | None = None,
+) -> np.ndarray:
     """Suppress isolated false-positive speckles and boundary bleeds while
     preserving genuine small condiments and multi-compartment bowls."""
     if labels.size < 4096 or not np.any(labels > 0):
@@ -83,6 +86,18 @@ def _clean_semantic_labels(labels: np.ndarray) -> np.ndarray:
         if food_vals.size > 0:
             vals, counts = np.unique(food_vals, return_counts=True)
             maj_food = int(vals[int(np.argmax(counts))])
+
+        if max_probs is not None:
+            full_comp = cc == comp_id
+            p_mean = float(max_probs[full_comp].mean())
+            p_med = float(np.median(max_probs[full_comp]))
+            if food_vals.size == 0:
+                if p_med < 0.80 or p_mean < 0.75:
+                    sub_out[sub_cc] = 0
+                    continue
+            elif (p_mean < 0.65 or p_med < 0.65) and max_area_by_id.get(maj_food, 0) >= 4 * area:
+                sub_out[sub_cc] = maj_food
+                continue
 
         if max_same.get(class_id, 0) >= 10 * area and area < sec_cap:
             sub_out[sub_cc] = maj_food if food_vals.size > 0 else 0
@@ -201,21 +216,19 @@ class WEDInference:
         if not np.any(fg):
             return raw_labels
         # Mask out any physical ArUco reference card before evaluating food regions
-        # if confidence is borderline or white-card decoy classes (curd=13, papad=29)
-        # are present.
+        card_mask = _aruco_card_mask(image_bgr)
+        if card_mask is not None:
+            raw_labels = raw_labels.copy()
+            kernel_card = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31))
+            card_mask_dil = cv2.dilate(card_mask.astype(np.uint8), kernel_card) > 0
+            raw_labels[card_mask_dil] = 0
+            fg = raw_labels > 0
+            if not np.any(fg):
+                return raw_labels
         mean_prob = float(max_probs[fg].mean())
-        if mean_prob < 0.94 or np.any((raw_labels == 13) | (raw_labels == 29)):
-            card_mask = _aruco_card_mask(image_bgr)
-            if card_mask is not None:
-                raw_labels = raw_labels.copy()
-                raw_labels[card_mask] = 0
-                fg = raw_labels > 0
-                if not np.any(fg):
-                    return raw_labels
-                mean_prob = float(max_probs[fg].mean())
         if mean_prob < _WED_DOMAIN_MIN_FG_PROB:
             return np.zeros_like(raw_labels)
-        return _clean_semantic_labels(raw_labels)
+        return _clean_semantic_labels(raw_labels, max_probs)
 
     def segment(self, image_bgr: np.ndarray) -> dict[str, Any]:
         labels = self.predict(image_bgr)
@@ -254,6 +267,10 @@ class WEDInference:
             # stray fragments cannot stretch roi_align across the plate.
             ys, xs = np.nonzero(class_mask)
             if not xs.size:
+                continue
+            class_area = int(class_mask.sum())
+            min_class_area = max(1, int(round(0.0002 * float(labels.size))))
+            if class_area < min_class_area:
                 continue
             max_comp_area = max((c["area"] for c in class_components), default=0)
             dom_comps = [

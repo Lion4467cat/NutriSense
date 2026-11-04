@@ -708,6 +708,17 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             and (seg_info or {}).get("strategy") != "wed_deeplabv3_semantic"):
         detected_items = _reconcile_dense_grid_items(
             detected_items, mask, card_mask, seg_info)
+    if card_mask is not None and isinstance(detected_items, list):
+        filtered_items = []
+        for it in detected_items:
+            m = np.asarray(it.get("mask"), dtype=bool)
+            if m.any():
+                overlap = float((m & card_mask).sum()) / float(m.sum())
+                if overlap >= 0.15:
+                    continue
+            filtered_items.append(it)
+        if filtered_items:
+            detected_items = filtered_items
     if (not isinstance(detected_items, list) or not detected_items):
         if "multi_item_detection_failed" not in degradations:
             degradations.append("multi_item_detection_failed")
@@ -1078,6 +1089,21 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             f"SigLIP candidate: {classification.get('dish') or 'abstained'}"
                         ),
                     }
+                    if (anchor or {}).get("label") == "measured":
+                        cls_crop = _oom_guard(lambda c=crop: classify(c),
+                                              degradations)()
+                        crop_scores = (cls_crop or {}).get("scores") or {}
+                        crop_dish = (cls_crop or {}).get("dish")
+                        ms = float((cls_crop or {}).get("match_score") or 0.0)
+                        if crop_dish is None and float(crop_scores.get(semantic_name, 0.0)) < 0.80:
+                            continue
+                        # Decoy classes (papad, salad) predicted by WED on secondary vessels / reflections:
+                        # override with verified SigLIP dish when match is confident
+                        if semantic_name in ("papad", "salad") and crop_dish and ms >= 0.80:
+                            cls_i = dict(
+                                cls_crop,
+                                reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
+                            )
                 else:
                     cls_i = _oom_guard(lambda c=crop: classify(c),
                                        degradations)()
