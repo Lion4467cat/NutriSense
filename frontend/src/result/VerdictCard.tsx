@@ -6,13 +6,14 @@ import { firstReasonText } from  "../utils/reasons";
 import { EASE, popIn, revealContainer, revealItem } from "../ui/motion";
 
 function formatDishBadge(displayName: string | null | undefined, dishId: string | undefined): { label: string; full: string } {
-  const raw = displayName || dishId || "Meal";
+  const clean = (s: string) => s.replace(/\s*\(standalone(?: bowl)?\)/gi, "").trim();
+  const raw = clean(displayName || dishId || "Meal");
   if (!raw.includes(" + ")) {
     return { label: raw, full: raw };
   }
-  const parts = raw.split(" + ").map((s) => s.trim()).filter(Boolean);
+  const parts = raw.split(" + ").map((s) => clean(s)).filter(Boolean);
   if (parts.length <= 2) {
-    return { label: raw, full: raw };
+    return { label: parts.join(" + "), full: raw };
   }
   return {
     label: `${parts.length} items (${parts[0]} + ${parts.length - 1} more)`,

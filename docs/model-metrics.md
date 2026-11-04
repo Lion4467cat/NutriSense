@@ -170,21 +170,20 @@ Evaluates the no-card / uncalibrated fallback path predicting mass directly from
 *Source: `data/reports/api_benchmark_rtx4060_final.json` (Sequential HTTP `/analyze` loopback on NVIDIA RTX 4060 Laptop GPU).*
 
 ```mermaid
-gantt
-    title NutriSense Stage Latency Breakdown (Total: 6.82s)
-    dateFormat X
-    axisFormat %s s
-    section Input & Pose
-    Input & Lint           :0, 3
-    ArUco Scale Anchor     :3, 90
-    section Vision
-    SAM2 Segmentation      :90, 2334
-    SigLIP2 Classification :2334, 3513
-    MoGe-2 Metric Depth    :3513, 6806
-    section Portion & Analysis
-    Portion & Fusion       :6806, 6821
-    Nutrition MC (4000 it) :6821, 6826
-    Compliance Gate        :6826, 6827
+flowchart LR
+    subgraph S1["1. Input & Pose (90 ms)"]
+        A["Input & Lint (3 ms)"] --> B["ArUco Anchor (87 ms)"]
+    end
+    subgraph S2["2. Vision & Geometry (6.72 s)"]
+        C["SAM2 Segmentation (2.24 s)"] --> D["SigLIP2 Classify (1.18 s)"]
+        D --> E["MoGe-2 Depth (3.29 s)"]
+    end
+    subgraph S3["3. Portion & Decision (21 ms)"]
+        F["Portion & Fusion (15 ms)"] --> G["Nutrition MC (5 ms)"]
+        G --> H["Compliance Gate (1 ms)"]
+    end
+    B --> C
+    E --> F
 ```
 
 | Pipeline Stage | Implementation | Wall Time (s) | Peak Allocated VRAM | Peak Reserved VRAM |

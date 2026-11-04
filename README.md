@@ -6,14 +6,14 @@
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite-61DAFB.svg)](https://react.dev)
 [![CUDA](https://img.shields.io/badge/PyTorch-2.13%20%C2%B7%20CUDA%2013.0-EE4C2C.svg)](https://pytorch.org)
 [![Foundation Models](https://img.shields.io/badge/Models-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2%20%C2%B7%20DINOv2-FF6F00.svg)](https://huggingface.co)
-[![Tests](https://img.shields.io/badge/Tests-470%2B%20Passing-brightgreen.svg)](#2-system-verification--testing)
+[![Tests](https://img.shields.io/badge/Tests-495%2B%20Passing-brightgreen.svg)](#2-system-verification--testing)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 ---
 
 ## 📌 What is NutriSense?
 
-**NutriSense** is an autonomous 3D computer vision and artificial intelligence system that turns a **single handheld smartphone photo of a meal** into milligram-accurate food portions, macronutrient breakdowns, and nutritional compliance verdicts—in **under 1 second**.
+**NutriSense** is an autonomous 3D computer vision and artificial intelligence system that turns a **single handheld smartphone photo of a meal** into gram-accurate food portions, macronutrient breakdowns, and nutritional compliance verdicts—with **716 ms p50 warm query latency**.
 
 ### The Real-World Challenge
 Nutritional assessment in institutional kitchens and personal dietary tracking has long been broken:
@@ -172,7 +172,7 @@ NutriSense includes strict locked-manifest verification and comprehensive qualit
 # 4. Run the Python unit & regression test suite (381 tests)
 ./.venv/bin/pytest -o cache_dir=/tmp/.pytest_cache -q
 
-# 5. Run the frontend typecheck and Vitest suite (95 tests)
+# 5. Run the frontend typecheck and Vitest suite (115 tests)
 cd frontend
 npx tsc --noEmit
 npm test

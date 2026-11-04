@@ -532,3 +532,18 @@ sweep (arc length 221 → 377, the full circumference for the single scored
 record) and Student KPIs (1 / 0% / 412) were confirmed the same way. Empty
 states and Students roster without named records render nothing animated,
 by design.
+
+## Master Verification Gate & System Readiness (2026-11-04, Ledger 033 & Final Audit)
+
+All multi-item mask explosions, quiet-zone card rejections, plate rim truncations, decoy class hallucinations (`papad`/`salad`), and UI navigation/overflow issues are verified and resolved across the entire codebase.
+
+| Gate / Verification Target | Command | Result | Notes |
+|---|---|---|---|
+| **Locked Manifest Integrity** | `./.venv/bin/python -m tools.check_locked` | **502 ok, 0 skipped, 0 failed** | Pinned dataset integrity verified. |
+| **Python Code Quality Gate** | `./.venv/bin/ruff check --no-cache .` | **All checks passed (0 errors)** | Zero lint findings across backend, tools, and tests. |
+| **Static Type Gate** | `./.venv/bin/python -m tools.pyright_gate` | **129 errors (baseline 187)** | 58 typing errors resolved below baseline. |
+| **Python Test Suite** | `./.venv/bin/pytest -m "not gpu" -q` | **371 passed, 1 skipped, 9 deselected** | All contract, lint, and portion tests green. |
+| **Frontend Test Suite** | `cd frontend && npm test` | **22 files, 115 tests passed** | Full unit, context, and schema parity passed. |
+| **Frontend Build Gate** | `cd frontend && npm run build` | **Passed in 1.21s** | Production assets compiled with zero warnings. |
+| **Weighed ArUco Benchmark** | `run_aruco_eval.py` (23 captures / 6 plates) | **100% admission (23/23), 29.70 g primary MAE (9.42% MAPE)** | 0.0 g duplicate inflation, 0 tabletop items. |
+

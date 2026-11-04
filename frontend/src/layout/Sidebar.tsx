@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -16,7 +16,6 @@ import {
   IconDashboard,
   IconHistory,
   IconUsers,
-  IconChevronDown,
   LogoMark,
 } from  "../ui/Icon";
 
@@ -25,10 +24,12 @@ const NAV = [
   { to: "/analyze", label: "Analyze", icon: IconCamera },
   { to: "/history", label: "History", icon: IconHistory },
   { to: "/analytics", label: "Insights", icon: IconChart },
+  { to: "/students", label: "Students", icon: IconUsers },
+  { to: "/menu", label: "Menu", icon: IconBook },
 ];
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { apiUp } = useMenu();
+  const { apiUp, menu } = useMenu();
   const { records } = useRecords();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -40,29 +41,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   // The window is deliberately generous — the point is curiosity, not speed.
   const taps = useRef<number[]>([]);
   const TAP_WINDOW_MS = 2600;
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
-        setMoreOpen(false);
-      }
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setMoreOpen(false);
-    }
-    if (moreOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleKeyDown);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [moreOpen]);
-
-  const schoolToolsActive = pathname.startsWith("/students") || pathname.startsWith("/menu");
   const isActive = (to: string, end?: boolean) =>
     end ? pathname === to : pathname.startsWith(to);
   const statusLabel =
@@ -127,50 +106,12 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             {to === "/history" && records.length > 0 && (
               <span className="nav-badge num">{records.length}</span>
             )}
+            {to === "/menu" && menu && Object.keys(menu.dishes).length > 0 && (
+              <span className="nav-badge num">{Object.keys(menu.dishes).length}</span>
+            )}
           </NavLink>
           </motion.div>
         ))}
-
-        <div className="sidebar-more" ref={moreRef}>
-          <button
-            className={`nav-link sidebar-more-button${schoolToolsActive ? " active" : ""}`}
-            type="button"
-            aria-expanded={moreOpen}
-            aria-haspopup="menu"
-            onClick={() => setMoreOpen((open) => !open)}
-          >
-            <span>More</span>
-            <IconChevronDown size={14} className={moreOpen ? "rotate-180" : ""} />
-          </button>
-          {moreOpen && (
-            <div className="sidebar-more-menu" role="menu" aria-label="More sections">
-              <NavLink
-                to="/students"
-                role="menuitem"
-                className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
-                onClick={() => {
-                  setMoreOpen(false);
-                  onNavigate?.();
-                }}
-              >
-                <IconUsers size={16} />
-                <span>Student records</span>
-              </NavLink>
-              <NavLink
-                to="/menu"
-                role="menuitem"
-                className={({ isActive }) => `more-link${isActive ? " active" : ""}`}
-                onClick={() => {
-                  setMoreOpen(false);
-                  onNavigate?.();
-                }}
-              >
-                <IconBook size={16} />
-                <span>Menu & standards</span>
-              </NavLink>
-            </div>
-          )}
-        </div>
       </nav>
 
       <div className="sidebar-foot">

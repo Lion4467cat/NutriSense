@@ -41,13 +41,14 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
   const kcal = result.nutrition?.kcal;
   const prot = result.nutrition?.protein_g;
 
+  const cleanLabel = (s: string) => s.replace(/\s*\(standalone(?: bowl)?\)/gi, "").trim();
   const dishParts = rawDishName.includes(" + ")
-    ? rawDishName.split(" + ").map((s) => s.trim()).filter(Boolean)
-    : [];
+    ? rawDishName.split(" + ").map((s) => cleanLabel(s)).filter(Boolean)
+    : [cleanLabel(rawDishName)].filter(Boolean);
   const isMultiThali = dishParts.length > 2;
   const dishDisplayValue = isMultiThali
     ? `${dishParts.length}-Item Meal`
-    : rawDishName;
+    : (dishParts.join(" + ") || rawDishName);
 
   const dishSub = isMultiThali ? (
     <span className="interval" title={rawDishName}>
