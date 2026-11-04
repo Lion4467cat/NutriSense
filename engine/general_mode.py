@@ -12,7 +12,8 @@ module — spec 002 decision 1), try the ingredient-compositional route of
      carrier grams feed `distribute_invisible` (oil/spices/water ride their
      carriers), MC rides the recipe's per-100 g nutrients via a synthetic
      dish + nutrients override (`status: recipe` -> the ID shows up in
-     `assumed_nutrients`, never silently trusted).
+     `assumed_nutrients`, never silently trusted). Unmatched predicted mass is
+     excluded from both the displayed recognized-food total and its nutrition.
   4. Uncertainty routing: a matched plate still carries inferred composition
      (`composition_inferred` flag); <50% of the resolved recipe mass covered
      by predicted slots, or predicted mass the recipe cannot resolve, marks
@@ -117,13 +118,12 @@ def serve_with_head(image_bgr, head, dish: dict, dish_info: dict,
         return None
     inflated = distribute_invisible(visible, entry)
     total_visible = float(sum(inflated.values()))
-    total = total_visible + unexplained
 
     coverage = total_visible / max(float(ref.get("__total__", 0.0))
                                    or sum(ref.values()), 1e-9)
     confident = bool(cos >= MATCH_THRESHOLD
                      and coverage >= CONFIDENT_COVERAGE
-                     and unexplained / total <= 1.0 - CONFIDENT_COVERAGE)
+                     and unexplained <= 1e-6)
     sigma = SIGMA_REL_MATCHED if confident else SIGMA_REL_UNKNOWN
 
     names = list(inflated)
@@ -146,8 +146,8 @@ def serve_with_head(image_bgr, head, dish: dict, dish_info: dict,
         "nutrition_source": f"indb:{code}",
     }
     portion = {
-        "grams": total,
-        "volume_ml": total / 1.0,      # recipe-weighted; no depth involved
+        "grams": total_visible,
+        "volume_ml": total_visible / 1.0,  # recipe-weighted; no depth involved
         "density_eff": 1.0,
         "components_g": {n: round(inflated[n], 1) for n in names},
         "base_method": "ingredient_compositional",
@@ -178,7 +178,7 @@ def serve_with_head(image_bgr, head, dish: dict, dish_info: dict,
         "wider_ranges": mc["wider_ranges"],
     }
     return {"portion": portion, "nutrition": nutrition_block,
-            "confident": confident}
+            "confident": confident, "unexplained_g": unexplained}
 
 
 def ingredient_route(image_bgr, head, dish: dict, dish_info: dict,
@@ -188,4 +188,4 @@ def ingredient_route(image_bgr, head, dish: dict, dish_info: dict,
     out = serve_with_head(image_bgr, head, dish, dish_info, predict=predict)
     if out is None:
         return None
-    return {k: out[k] for k in ("portion", "nutrition")}
+    return {k: out[k] for k in ("portion", "nutrition", "unexplained_g")}

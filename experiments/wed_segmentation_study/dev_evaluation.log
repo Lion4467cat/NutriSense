@@ -1,0 +1,36 @@
+frozen_deeplabv3_reference: 36/108 DEV views
+frozen_deeplabv3_reference: 72/108 DEV views
+frozen_deeplabv3_reference: 108/108 DEV views
+completed DEV evaluation: frozen_deeplabv3_reference
+dlv3_control: 36/108 DEV views
+dlv3_control: 72/108 DEV views
+dlv3_control: 108/108 DEV views
+completed DEV evaluation: dlv3_control
+dlv3_highres: 36/108 DEV views
+dlv3_highres: 72/108 DEV views
+dlv3_highres: 108/108 DEV views
+completed DEV evaluation: dlv3_highres
+dlv3_class_balanced: 36/108 DEV views
+dlv3_class_balanced: 72/108 DEV views
+dlv3_class_balanced: 108/108 DEV views
+completed DEV evaluation: dlv3_class_balanced
+dlv3_food_augmentation: 36/108 DEV views
+dlv3_food_augmentation: 72/108 DEV views
+dlv3_food_augmentation: 108/108 DEV views
+completed DEV evaluation: dlv3_food_augmentation
+dlv3_boundary_loss: 36/108 DEV views
+dlv3_boundary_loss: 72/108 DEV views
+dlv3_boundary_loss: 108/108 DEV views
+completed DEV evaluation: dlv3_boundary_loss
+architecture_deeplabv3plus: 36/108 DEV views
+architecture_deeplabv3plus: 72/108 DEV views
+architecture_deeplabv3plus: 108/108 DEV views
+completed DEV evaluation: architecture_deeplabv3plus
+architecture_segformer_b0: 36/108 DEV views
+architecture_segformer_b0: 72/108 DEV views
+architecture_segformer_b0: 108/108 DEV views
+completed DEV evaluation: architecture_segformer_b0
+{
+  "recommendation": null,
+  "report": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_segmentation_study/dev_comparison/comparison_report.md"
+}

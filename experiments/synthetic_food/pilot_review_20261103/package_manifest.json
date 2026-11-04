@@ -1,0 +1,20 @@
+{
+  "automated_pair_pass_count": 44,
+  "composed_thali_pair_count": 3,
+  "gallery": "index.html",
+  "gan_diffusion_started": false,
+  "human_review_status": "REVIEW_REQUIRED",
+  "isolated_class_count": 41,
+  "new_synthetic_scenes_generated": false,
+  "package_version": 1,
+  "pair_count": 44,
+  "pair_verification": "pair_verification.json",
+  "pilot_manifest_sha256": "cda0d8c4ecde7ab9a4bbc43cb9cd34a033e4ad88d8f3135b4b972c226f943314",
+  "pilot_root": "datasets/processed/synthetic_food_pilot_20261103",
+  "pilot_validation_sha256": "f5a30f497bcd0d1e68eca84c3839ad69bdc5b0ce231476d2f3eb40ea671724a7",
+  "production_model_training_started": false,
+  "protected_data_accessed": false,
+  "review_sheet": "review_sheet.csv",
+  "scene_count": 88,
+  "source_pilot_modified": false
+}

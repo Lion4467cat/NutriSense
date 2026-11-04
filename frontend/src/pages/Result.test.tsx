@@ -66,9 +66,9 @@ const fixtureRecord: AnalysisRecord = {
   result: fixtureResult,
 };
 
-function renderResult() {
+function renderResult(record = fixtureRecord) {
   const storage = createMemoryStorage({
-    [KEY]: JSON.stringify([fixtureRecord]),
+    [KEY]: JSON.stringify([record]),
   });
   return render(
     <AppProvider storage={storage} client={stubClient}>
@@ -85,14 +85,51 @@ describe("ResultPage from a fixture record", () => {
   it("renders the stored analysis (happy-path wire fixture)", async () => {
     renderResult();
     expect(await screen.findAllByText("Rice & Sambar")).not.toHaveLength(0);
-    expect(screen.getAllByText("BORDERLINE").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Borderline").length).toBeGreaterThan(0);
+    expect(screen.getByText(/1 food region detected/)).toBeInTheDocument();
+  });
+
+  it("shows the automatically detected multi-region count", async () => {
+    const record: AnalysisRecord = {
+      ...fixtureRecord,
+      result: {
+        ...fixtureResult,
+        path_used: "multi_item",
+        segmentation: {
+          strategy: fixtureResult.segmentation?.strategy ?? null,
+          sam_score: fixtureResult.segmentation?.sam_score ?? null,
+          area_frac: fixtureResult.segmentation?.area_frac ?? null,
+          n_candidates: fixtureResult.segmentation?.n_candidates ?? null,
+          n_items: 2,
+        },
+      },
+    };
+    renderResult(record);
+    expect(await screen.findByText(/2 food regions detected/)).toBeInTheDocument();
+  });
+
+  it("shows one-serving fallback when region count is omitted", async () => {
+    const record: AnalysisRecord = {
+      ...fixtureRecord,
+      result: {
+        ...fixtureResult,
+        segmentation: {
+          strategy: fixtureResult.segmentation?.strategy ?? null,
+          sam_score: fixtureResult.segmentation?.sam_score ?? null,
+          area_frac: fixtureResult.segmentation?.area_frac ?? null,
+          n_candidates: fixtureResult.segmentation?.n_candidates ?? null,
+        },
+      },
+    };
+    renderResult(record);
+    expect(await screen.findByText(/Analyzed as one serving/)).toBeInTheDocument();
   });
 
   it("maps a reason kind to its icon (below_min → bad ✕)", async () => {
     renderResult();
     // the first reason text also appears in VerdictCard — take the list row
     const matches = await screen.findAllByText(
-      "kcal: P=0.25 < 0.9 pass zone"
+      "kcal: P=0.16 < 0.9 pass zone"
     );
     const text = matches.find((el) => el.closest(".reason-item"));
     expect(text).toBeDefined();

@@ -1,11 +1,10 @@
 """Data-level serving coverage (spec 002 decision 3, ticket 02, ledger 003).
 
-Every non-background WED class in data/wed/index_map.json must resolve:
-into a menu-dish `wed_slots` entry (3 menu-equivalent classes keep their
-current verdict path, incl. wheat_product's out_of_scope gate) or an
-`off_menu` entry with its own slot, resolvable in the index, and one
-component whose generic_id exists in data/nutrients.yaml. `background` is
-not a dish. Pure data test — no models, no GPU.
+Every non-background WED class in data/wed/index_map.json must resolve to a
+menu serving target or an `off_menu` entry with an indexed WED slot and a
+component whose generic_id exists in data/nutrients.yaml. `wheat_product` has
+an assumed generic roti row. `background` is not a dish. Pure data test — no
+models, no GPU.
 """
 import pytest
 
@@ -28,11 +27,18 @@ def test_every_wed_class_resolves(wed):
     serving = wed["serving"]
     off_menu = wed["off_menu"]
     menu = load_menu()["dishes"]
+    nutrients = load_nutrients()
     for name in index:
         assert name in serving, f"WED class {name!r} not in serving map"
         target = serving[name]["dish"]
         assert target in menu or target in off_menu, \
             f"WED class {name!r} -> unknown serving target {target!r}"
+        dish = menu.get(target) or off_menu.get(target)
+        assert dish.get("status") != "out_of_scope", name
+        assert dish.get("nutrition_source") != "out_of_scope", name
+        assert dish.get("components"), f"WED class {name!r} has no nutrient recipe"
+        for component in dish["components"].values():
+            assert component.get("generic_id") in nutrients, name
     assert "background" not in serving and "background" not in off_menu
 
 
@@ -74,8 +80,8 @@ def test_off_menu_entries_are_serveable(wed):
 
 
 def test_the_three_menu_routed_classes_have_no_off_menu_entry(wed):
-    """veg-pulao / bisi-bele-bath / phulka already live as menu dish slots —
-    their serving goes through the menu path; no duplicate off_menu entry."""
+    """veg-pulao / bisi-bele-bath / phulka route through menu serving keys;
+    no duplicate off_menu entries are needed."""
     for cls in ("veg-pulao", "bisi-bele-bath", "phulka"):
         assert cls not in wed["off_menu"]
 

@@ -108,6 +108,22 @@ def test_exif_tags_read_from_exif_ifd(tmp_path):
     assert out["focal_length_35mm"] == 26.0
 
 
+def test_exif_samsung_nan_digital_zoom(tmp_path):
+    """Samsung writes DigitalZoomRatio 0/0 (= digital zoom not used); PIL
+    surfaces that as NaN, which must read back as 1.0 — not None (absent)."""
+    from PIL import Image
+    p = tmp_path / "galaxy.jpg"
+    im = Image.new("RGB", (64, 64), 128)
+    ex = im.getexif()
+    ifd = ex.get_ifd(0x8769)
+    ifd[41988] = float("nan")
+    ex[0x8769] = ifd
+    im.save(p, exif=ex)
+
+    out = read_exif(p)
+    assert out["digital_zoom"] == 1.0
+
+
 def test_real_photos_exif_focal_length():
     """Assert focal length equals exif_dump.csv values for vivo, moto, and Galaxy."""
     import os

@@ -18,7 +18,7 @@ below for exactly what was and was not found.
 | IFCT 2017 nutrient tables | © NIN / Govt. of India, cite | nin.res.in/ebooks/IFCT2017.pdf | confirmed | **cited**; values transcribed into derived tables with attribution |
 | Indian Thali (ICVGIP 2025) data+code | code: MIT asserted in README text (badged), **no LICENSE file exists**; paper: CC BY 4.0 (ACM); dataset: **no terms stated anywhere** | project page + paper PDF + authors' GitHub (per-source URLs below) | **dataset terms verified absent** 2026-10-28 — see [WED/ITD](#wed--itd-cvit-iiit-h) | **used**: WeightNet architecture port (`models/weight_head.py`, `tools/train_weight_head.py`); cite the paper |
 | ITD / WED (CVIT) | dataset: **none stated** — `WED.tar.gz`/`ITD.tar.gz` ship only images (0 non-image files); page silent on license | cvit.iiit.ac.in | **no terms published** (verified 2026-10-28 — see [WED/ITD](#wed--itd-cvit-iiit-h)) | **used for local training only**: WED images live at `data/wed/{train,test}` but are **git-ignored** (never committed; `data/wed/.gitignore`); committed derived assets are the manifest (weights from the MIT metadata JSON), the slot mapping, the head-only checkpoint, and the σ yaml; cite; no redistribution of images |
-| Nutrition5k (Google) | CC BY 4.0 (all data) | GitHub README "License & Contact" | confirmed (2026-10-28) | **planned**: weight-head cross-check + capture-protocol reference; attribution shipped with any use; images still kept out of the repo per house rule |
+| Nutrition5k (Google) | CC BY 4.0 (all data) | GitHub README "License & Contact" | confirmed (2026-10-28) | **used in local research/evaluation only**; the candidate was rejected and is not part of serving; raw images remain outside the repo |
 | FPB (Food Portion Benchmark, ISSAI) — dataset | CC BY-NC 4.0 | HF dataset card metadata | confirmed (2026-10-28) | **eval-only preferred** (NC): portion-geometry teacher; no redistribution; images never committed |
 | AI-ServicesBB Food Waste Dataset | CC BY 4.0 (author repository and dataset card) | [author repository](https://github.com/aihpi/pilotproject-food-waste); [dataset card](https://huggingface.co/datasets/AI-ServicesBB/food-waste-dataset) | confirmed (2026-10-30) | Local research/training with attribution; raw images remain git-ignored; reconfirm rights before commercial release |
 | LeFood-Set V1 | CC BY 4.0 | [Mendeley Data record](https://data.mendeley.com/datasets/cchsk79jkt/1) | confirmed from dataset record (2026-10-30) | Local research and derived analysis with attribution; raw archive remains git-ignored; food-only/tare semantics need clarification before commercial claims |
@@ -112,10 +112,11 @@ than merely checking the page again.
   (https://storage.cloud.google.com/nutrition5k_dataset/nutrition5k_dataset.tar.gz)
   remains on the public GCS bucket.
 
-**Verdict.** Training, eval and protocol study all permitted; redistribution would even
-be allowed (with attribution + license link) — but house policy keeps its images out of
-the repo anyway (cite-only default). ADR/research assumption (CC BY 4.0) **holds**; no
-correction.
+**Verdict.** Training, evaluation, and protocol study are permitted; redistribution
+would be allowed with attribution and a license link, but house policy keeps the
+images out of the repository. Existing local research/evaluation produced a
+candidate that was rejected; Nutrition5k is not used by the current serving
+pipeline. The CC BY 4.0 status is confirmed.
 
 ### FPB (Food Portion Benchmark, ISSAI / Nazarbayev University)
 
@@ -240,3 +241,20 @@ Retain the citation and license with any derived report or model release.
   verified rather than assumed.
 - Nutrition5k: CC BY 4.0 confirmed → both training and eval permissible; keep the
   house cite-only posture regardless.
+
+### Synthetic food corpus and generator checkpoints
+
+- The analytic scene renderer and GAN training code are project-authored. Keep
+  generated images, trained weights, optimizer state, and caches under ignored
+  `datasets/processed/` paths; do not commit them.
+- The GAN uses WED TRAIN image/label pairs only and records its WED source split,
+  manifest hash, checkpoint hash, training recipe, and license note in a sidecar.
+  The existing WED release restriction still applies to any public distribution
+  of trained NutriSense artifacts.
+- Diffusion models are local-only. Each candidate must record its base and
+  control revisions, checkpoint-tree hash, license, training-data disclosure,
+  and WED-overlap review in `PROVENANCE.json`. A checkpoint without this evidence
+  cannot be loaded; an unreviewed overlap record cannot be promoted.
+- Do not infer that a model card or checkpoint license proves disjoint training
+  data. Record the evidence reviewed and keep unresolved provenance candidates
+  research-only.

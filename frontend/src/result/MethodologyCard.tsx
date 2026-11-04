@@ -23,15 +23,20 @@ function stageRows(r: AnalyzeResult): Row[] {
 
   // 1 — capture
   const zoom = r.lint?.digital_zoom;
+  const captureReady = !!r.lint?.resolution_ok && zoom === 1.0;
   rows.push({
     label: "1 · Capture check",
-    ok: !!r.lint?.resolution_ok,
+    ok: captureReady,
     plain:
       r.lint == null
         ? "The photo was not linted for this capture."
-        : r.lint.resolution_ok
-          ? "Photo passed the basics: big enough and, if reported, free of digital zoom — so the pixel scale is trustworthy."
-          : "Photo is below the recommended size for reliable measuring.",
+        : !r.lint.resolution_ok
+          ? "Photo is below the recommended size for reliable measuring."
+          : zoom == null
+            ? "Photo is large enough, but zoom metadata is missing. Food identification can continue; the school-standard verdict is withheld."
+            : zoom !== 1.0
+              ? `The photo reports digital zoom (${zoom}×), so its scale is not verified.`
+              : "Photo is large enough, and its metadata reports no digital zoom.",
     detail: `digital_zoom=${zoom ?? "n/a"} · min_side_px=${r.lint?.min_side_px ?? "n/a"} · resolution_ok=${String(r.lint?.resolution_ok ?? "n/a")}${r.lint?.notes?.length ? ` · note: ${r.lint.notes.join("; ")}` : ""}`,
   });
 
@@ -51,14 +56,19 @@ function stageRows(r: AnalyzeResult): Row[] {
 
   // 3 — food pixels
   const seg = r.segmentation;
+  const semanticRegions = seg?.strategy === "wed_deeplabv3_semantic";
   rows.push({
     label: "3 · Finding the food",
     ok: !!seg?.strategy || r.portion != null,
     plain:
       seg?.strategy
-        ? "The food pixels were separated from the plate automatically, so only the meal is measured — not the tray or the table."
+        ? semanticRegions
+          ? "The frozen WED model labels food pixels by class. Connected regions are provisional class proposals, not verified serving instances."
+          : "The food pixels were separated from the plate automatically, so only the meal is measured — not the tray or the table."
         : "Segmentation details were not returned for this capture.",
-    detail: `strategy=${seg?.strategy ?? "n/a"} · sam_score=${seg?.sam_score != null ? seg.sam_score.toFixed(3) : "n/a"} · area_frac=${seg?.area_frac != null ? seg.area_frac.toFixed(3) : "n/a"} · candidates=${seg?.n_candidates ?? "n/a"}`,
+    detail: semanticRegions
+      ? `strategy=${seg?.strategy} · semantic class regions=${seg?.n_items ?? "n/a"} · proposals=${seg?.n_candidates ?? "n/a"}`
+      : `strategy=${seg?.strategy ?? "n/a"} · sam_score=${seg?.sam_score != null ? seg.sam_score.toFixed(3) : "n/a"} · area_frac=${seg?.area_frac != null ? seg.area_frac.toFixed(3) : "n/a"} · candidates=${seg?.n_candidates ?? "n/a"}`,
   });
 
   // 4 — dish identity
@@ -112,7 +122,7 @@ function stageRows(r: AnalyzeResult): Row[] {
     label: "7 · The verdict gate",
     ok: true,
     plain: c
-      ? `The verdict compares the sampled nutrition against the scheme's thresholds, discounted by how confident the system is overall (coverage ${formatPct(c.score, 0)}; PASS needs at least ${formatPct(c.pass_min, 0)}).`
+      ? `The verdict compares the sampled nutrition against the scheme's thresholds, discounted by how confident the system is overall (coverage ${formatPct(c.score, 0)}; Pass needs at least ${formatPct(c.pass_min, 0)}).`
       : "No coverage was computed for this capture.",
     detail: `verdict=${r.verdict} · coverage=${c?.score ?? "n/a"} · factors=${JSON.stringify(c?.factors ?? {})} · pass_min=${c?.pass_min ?? "n/a"}`,
   });

@@ -34,6 +34,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 from torchvision.ops import roi_align
+from models.model_revisions import DINOV2_REVISION
 
 WED_NUM_CLASSES = 41          # index_map.json minus background
 RESIZE = (224, 224)
@@ -76,7 +77,7 @@ class WeightHead(nn.Module):
         # Local import keeps CI/hermetic paths transformer-free; only the
         # dinov2 checkpoint path (training or its eval) ever needs it.
         from transformers import AutoModel
-        m = AutoModel.from_pretrained(DINOV2_ID)
+        m = AutoModel.from_pretrained(DINOV2_ID, revision=DINOV2_REVISION)
         self.encoder = m
         self.cls_token = None  # patch tokens only feed the ROI map
         for p in self.encoder.parameters():
@@ -168,16 +169,23 @@ class WeightHead(nn.Module):
             raise ValueError("empty mask")
         device = device if device is not None else self.device
         x1, y1, x2, y2 = box
-        rgb = Image.fromarray(image_bgr[:, :, ::-1])  # BGR -> RGB
-        tf = transforms.Compose([
-            transforms.Resize(RESIZE),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406],
-                                 [0.229, 0.224, 0.225]),
-        ])
-        img_t = tf(rgb).unsqueeze(0).to(device)
         H, W = image_bgr.shape[:2]
-        feats = self.encode(img_t)
+        cache_key = (id(self.encoder), str(device), image_bgr.shape,
+                     hash(image_bgr.tobytes()))
+        cached = getattr(self, "_feat_cache", None)
+        if cached is not None and cached[0] == cache_key:
+            feats = cached[1]
+        else:
+            rgb = Image.fromarray(image_bgr[:, :, ::-1])  # BGR -> RGB
+            tf = transforms.Compose([
+                transforms.Resize(RESIZE),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406],
+                                     [0.229, 0.224, 0.225]),
+            ])
+            img_t = tf(rgb).unsqueeze(0).to(device)
+            feats = self.encode(img_t)
+            self._feat_cache = (cache_key, feats)
         fh, fw = feats.shape[2:]
         roi = torch.tensor([[0.0, x1 / W * fw, y1 / H * fh,
                              x2 / W * fw, y2 / H * fh]],

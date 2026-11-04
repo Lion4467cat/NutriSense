@@ -30,7 +30,11 @@ class Gate(NamedTuple):
 
 def _zoom(ctx: dict) -> str | None:
     zoom = (ctx.get("lint") or {}).get("digital_zoom")
-    if zoom is None or float(zoom) == 1.0:
+    if zoom is None:
+        # Stripped EXIF should not prevent food identification. The pipeline
+        # marks the result estimate-only and withholds a school verdict.
+        return None
+    if float(zoom) == 1.0:
         return None
     return f"digital zoom {zoom} != 1.0 (protocol requires zoom==1)"
 

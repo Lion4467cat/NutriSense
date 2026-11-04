@@ -1,0 +1,215 @@
+{
+  "aruco_evaluation_accessed": false,
+  "created_at_utc": "2026-11-03T12:31:52Z",
+  "feature": "synthetic-food-corpus",
+  "frozen": true,
+  "frozen_artifacts": [
+    {
+      "bytes": 2857064,
+      "path": "data/gallery.npz",
+      "sha256": "f21c77e3117adeaa01f2e3b19e872693a4abc668d9b8593c94fe491bcccdd40d"
+    },
+    {
+      "bytes": 875589,
+      "path": "data/weight_head.pt",
+      "sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1"
+    },
+    {
+      "bytes": 2098,
+      "path": "data/weight_head_sigma.yaml",
+      "sha256": "23248efd70b545f58c3a0edf2d6b4ed8acf722c39cd6a671cdc8854e2555a7f9"
+    },
+    {
+      "bytes": 517,
+      "path": "models/model_revisions.py",
+      "sha256": "406104452ccc05554b105afee112485269e09b9ab029db3a9576075a671d13fe"
+    },
+    {
+      "bytes": 11352,
+      "path": "models/food_classifier.py",
+      "sha256": "e4e50935a4d388e521c0c9f9a52a96fd92b5920476b04bbe57ddfda791f5b274"
+    },
+    {
+      "bytes": 6915,
+      "path": "models/wed_inference.py",
+      "sha256": "4f3c9693399e47387a5169d5adac8e1af2cf2531bc777d6d2b3f7e93d97ba93b"
+    },
+    {
+      "bytes": 3328,
+      "path": "models/wed_semantic_segmenter.py",
+      "sha256": "bed7648069bb8f1a8446106e38a73c9c1f21691ee2b4b868f17e050911f2ae78"
+    },
+    {
+      "bytes": 11146,
+      "path": "models/portion_estimator.py",
+      "sha256": "be9acf7d05d01f4b8756c89159776fc7790a2ae0efe6d502347aa7560bc4e79f"
+    },
+    {
+      "bytes": 11359,
+      "path": "models/scale_anchor.py",
+      "sha256": "5c71f45ffd6eb9279e2a23ced481f308ee22af2ed6f04fbb660a93342e3c508a"
+    },
+    {
+      "bytes": 8886,
+      "path": "models/weight_head.py",
+      "sha256": "4a6b4433e956272b98ae6a1999fd94897f78aecc6013a2f7b584b28be65d1f98"
+    },
+    {
+      "bytes": 5479,
+      "path": "engine/depth.py",
+      "sha256": "5191a6a7f8c57c7c47d0a4404622f4f195f5450916427bada29f1f270a6e1a2d"
+    },
+    {
+      "bytes": 70868,
+      "path": "engine/pipeline.py",
+      "sha256": "afa815e8292ff34cdc147d5e3b08d8b713d04e7b6cdf5730c73a069be726d9d6"
+    },
+    {
+      "bytes": 16324,
+      "path": "main.py",
+      "sha256": "e192e10acf4077f48ca2101a38964026ec9435c71e01c0326cf466e1423118a8"
+    },
+    {
+      "bytes": 158935099,
+      "path": "experiments/wed_native_segmentation/model_wed_semantic_baseline.pt",
+      "sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963"
+    },
+    {
+      "bytes": 1433,
+      "path": "experiments/wed_native_segmentation/baseline_manifest.json",
+      "sha256": "410b5f8e8fa307840883818764d1b9c161817d6aecb420b0b458874b608e78fb"
+    },
+    {
+      "bytes": 341901,
+      "path": "experiments/wed_native_segmentation/dev_report.json",
+      "sha256": "e3c67953e367ceba61c6e4cdbfdcc33611f9ed03a91b141ee482845fedd63608"
+    },
+    {
+      "bytes": 202587,
+      "path": "experiments/real_pipeline_baseline/dev_report.json",
+      "sha256": "19c0d84aa3984a5f16d8b558e82527732feaf34799593b7eed9793074b4a07b2"
+    },
+    {
+      "bytes": 12411,
+      "path": "experiments/real_pipeline_baseline/renderer_metric_depth.json",
+      "sha256": "018b4a9ae477abb8b78e51d2607a1e1205552a4d31d06bce9c29931859b20be9"
+    },
+    {
+      "bytes": 101816,
+      "path": "experiments/real_pipeline_baseline/renderer_geometry.json",
+      "sha256": "dfd44bd7d5d62f7a744c076de1499fdb8718ea0a0df127e65eb398eb11e168f9"
+    },
+    {
+      "bytes": 2411,
+      "path": "experiments/real_pipeline_baseline/renderer_depth_geometry_report.md",
+      "sha256": "4044812c9e0e00d2695f3365575672260b6fef3fde6aeeff46067617a0e6822b"
+    },
+    {
+      "bytes": 6934,
+      "path": "docs/integrated-real-pipeline.md",
+      "sha256": "c129d63a31c23d89a2291b484e66cea24136dbc91c60398d38ae76e5fe00d834"
+    }
+  ],
+  "integrated_configuration_sha256": "78c4a7802cc512e270280d91589235bfcc46da8c397953e05144a1648a8e354e",
+  "limitations": [
+    "The independent SigLIP crop report is contaminated by WED DEV gallery overlap; it is not frozen as independent classification accuracy.",
+    "Depth and geometry accuracy evidence is renderer-controlled only.",
+    "Weight uncertainty intervals cover 81.5% against a nominal 90% target on DEV.",
+    "WED semantic labels do not provide serving-level instance identities."
+  ],
+  "locked_accessed": false,
+  "stages": {
+    "classification": {
+      "data_sha256": "8025a5b7c53ad3f5dedb749adc4e99b19840f16751d3912f62072d9ca154be71",
+      "group_count": 21,
+      "metrics": {
+        "exact_semantic_class_set_rate": 0.7037037037037037,
+        "integrated_food_pixel_class_accuracy": 0.9322477978393834,
+        "scope": "Integrated labels are produced by DeepLabV3; the separate SigLIP DEV crop result has gallery overlap and is excluded as an independent classifier score."
+      },
+      "model_sha256": "b0fdcd74039be79e19f7a60ba0736a3b29f9e18c3bf5890a7868d7f7f52b59f7",
+      "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
+      "uncertainty": {
+        "source": "fixed DEV point estimate; class-level confidence intervals not available"
+      }
+    },
+    "depth_geometry": {
+      "data_sha256": "777aa6a95fbd549e97ab111c6408f2c2a5399cf1b43216931aca173056a80330",
+      "group_count": 41,
+      "metrics": {
+        "calibrated_card_abs_rel": 0.0304,
+        "calibrated_card_mae_m": 0.0183,
+        "real_depth_accuracy_claim": false,
+        "renderer_geometry_mass_mae_g": 5.670649279167972
+      },
+      "model_sha256": "c648c8de4fb36a84041ad649b8d82a4245a3247ce22bca2bbf823d87079cf1fe",
+      "split_sha256": "287ad5753c07ab7b6366ac511da1c6708e0621ae5aadce5848862d14b9d6cba0",
+      "uncertainty": {
+        "source": "renderer-only controlled diagnostics; not a real-camera interval"
+      }
+    },
+    "end_to_end": {
+      "data_sha256": "8025a5b7c53ad3f5dedb749adc4e99b19840f16751d3912f62072d9ca154be71",
+      "group_count": 21,
+      "metrics": {
+        "complete_weighted_class_coverage_meals": 77,
+        "meal_total_bias_g": -13.89074074074074,
+        "meal_total_mae_g": 80.23703703703703,
+        "view_count": 108
+      },
+      "model_sha256": "afa815e8292ff34cdc147d5e3b08d8b713d04e7b6cdf5730c73a069be726d9d6",
+      "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
+      "uncertainty": {
+        "mean_90_interval_width_g": 245.61996585633824,
+        "nominal_90_interval_coverage": 0.8148148148148148
+      }
+    },
+    "segmentation": {
+      "data_sha256": "3686e21a984669d70ffef8af0c6a7cb0c60c45d82f90f57488a574b1c9ffb9f7",
+      "group_count": 21,
+      "metrics": {
+        "foreground_iou": 0.9196031725570949,
+        "macro_food_iou": 0.8210799945241419,
+        "region_f1": 0.73625
+      },
+      "model_sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963",
+      "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
+      "uncertainty": {
+        "foreground_pixel_precision": [
+          0.9411780868451503,
+          0.949898287262197
+        ],
+        "foreground_pixel_recall": [
+          0.9617041629159389,
+          0.9735190316210689
+        ],
+        "foreground_union_dice": [
+          0.9519766222586197,
+          0.9606586038735254
+        ],
+        "foreground_union_iou": [
+          0.9087507087586627,
+          0.9245080949405441
+        ]
+      }
+    },
+    "weight": {
+      "data_sha256": "8f38b8fb6953dc448518144e94d86062088af6f4917c8f1e4f519e4df910d83c",
+      "group_count": 21,
+      "metrics": {
+        "individual_class_total_mae_g": 16.945279307631786,
+        "meal_total_bias_g": -13.89074074074074,
+        "meal_total_mae_g": 80.23703703703703
+      },
+      "model_sha256": "4ae02ef39de2610d5dede9b95f84c66bfd1c797c5cff7f5d7125e56c40bae1a1",
+      "split_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
+      "uncertainty": {
+        "mean_90_interval_width_g": 245.61996585633824,
+        "nominal_90_interval_coverage": 0.8148148148148148
+      }
+    }
+  },
+  "synthetic_generation_used_in_baseline": false,
+  "version": 1,
+  "wed_test_accessed": false
+}

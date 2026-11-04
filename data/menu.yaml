@@ -62,11 +62,20 @@ dishes:
     display_name: "Wheat Product (Roti/Chapati)"
     days: [sat]
     aliases: [roti, chapati, pulka]
-    nutrition_source: out_of_scope
+    subtype: wheat_product
+    nutrition_source: generic
     standard_class: 1-5
-    status: out_of_scope
+    status: in_scope
     doc_status: listed            # listed in the official menu document
-    decision: dropped_by_user     # not implemented; kept only for menu completeness
+    components:
+      roti:
+        type: grain
+        required: true
+        generic_id: wheat_roti
+        share: 1.0
+        density_g_ml: 0.65       # cooked flatbread, assumed
+    ranges_wider: true
+    mandatory_report_line: "Nutrient values are generic cooked-roti estimates; recipe and hydration vary."
 
 # Daily vegetable lists (informational — used for component/alias matching context)
 days:

@@ -17,14 +17,15 @@ Methodology (keeps the test split clean):
                MAE / residuals are always re-measured after a save->load
                round-trip through WeightHead (deployable path), never from
                the in-process training model.
-  test       — final MAE report only (P5 graduation evidence); skipped
-               entirely (not even loaded) with --skip-test.
+  test       — final MAE report only (P5 graduation evidence); not loaded by
+               default. Access requires --include-test plus
+               --i-know-this-is-locked and is logged before the read.
   merge check— steamed-rice + sambar slots read on the UNION mask vs summed
                GT (validates the composite rice_sambar fallback); if poor,
                the pipeline keeps the geometry prior for composites.
 
 Run:  .venv/bin/python -m tools.train_weight_head [--epochs 100] [--batch 4]
-      [--seed 42] [--workers 1] [--skip-test]
+      [--seed 42] [--workers 1]  # train/val only
 
 Ledger 001 (branch loop-aug-run1): train-only photometric augmentation
 (brightness/contrast/saturation jitter, Gaussian blur, JPEG re-compression)
@@ -57,6 +58,7 @@ import hashlib
 import io
 import json
 import random
+import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -155,14 +157,55 @@ AUG_RECIPES = ("ledger001", "strong", "none")
 ROTATION_P, ROTATION_DEG = 0.7, 20.0  # ledger 006 strong recipe constants
 
 
-def load_manifest(split: str) -> list[dict]:
+def load_manifest(split: str, *, allow_locked: bool = False) -> list[dict]:
+    if split == "test" and not allow_locked:
+        raise PermissionError(
+            "WED test data is locked; pass the explicit evaluation guard "
+            "only after recording approval"
+        )
+    if split == "test":
+        _append_locked_manifest_access()
     rows = []
     with (_ROOT / "data" / "wed_manifest.jsonl").open() as fh:
         for line in fh:
             r = json.loads(line)
             if r["split"] == split:
                 rows.append(r)
+    if split == "train":
+        from nutrisense_synth.measured import MeasuredExample
+
+        for row in rows:
+            MeasuredExample.from_row(
+                row, dataset_root=_ROOT / "data" / "wed", require_files=True)
     return rows
+
+
+def _git_sha() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=_ROOT, text=True, timeout=10,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def _append_locked_manifest_access() -> None:
+    from datetime import UTC, datetime
+
+    line = (f"{datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
+            f" | git={_git_sha()} | tool={Path(sys.argv[0]).name}"
+            " | split=test | authorization=allow_locked | status=before-read\n")
+    with (_ROOT / "docs" / "locked_access_log.txt").open("a") as fh:
+        fh.write(line)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def plate_key(row: dict) -> str:
@@ -411,8 +454,8 @@ def prepare_features(args: argparse.Namespace, rows: list[dict],
     cache info dict).
 
     "train"/"val" cover the train-manifest rows in manifest order (the val
-    carve indexes into them); "test" exists only when the test split is
-    loaded (--skip-test never touches it). With a cache directory the blob
+    carve indexes into them); "test" exists only when the protected split is
+    explicitly loaded. With a cache directory the blob
     is reused when it matches encoder + recipe + dataset fingerprint, the
     encoder weight fingerprint, and covers every split this run needs;
     otherwise it is built in one piece and written once. Tensors travel
@@ -603,7 +646,13 @@ def run_training(args: argparse.Namespace) -> dict:
                    "excluded_dev_plates": sorted(excluded_dev),
                    "source_split": "WED train only"}
     else:
-        test_rows = [] if args.skip_test else load_manifest("test")
+        include_test = bool(getattr(args, "include_test", False))
+        if include_test and not getattr(args, "i_know_this_is_locked", False):
+            raise PermissionError(
+                "including the WED test split requires --i-know-this-is-locked"
+            )
+        test_rows = (load_manifest("test", allow_locked=True)
+                     if include_test else [])
     plates = sorted({plate_key(r) for r in rows})
     random.Random(args.seed).shuffle(plates)
     n_val = max(1, int(len(plates) * args.val_frac))
@@ -734,6 +783,12 @@ def run_training(args: argparse.Namespace) -> dict:
     }
     Path(args.sigma_out).write_text(yaml.safe_dump(sigma_doc, sort_keys=False))
 
+    report["artifacts"] = {
+        "checkpoint": {"path": str(args.out), "sha256": _sha256(Path(args.out))},
+        "sigma": {"path": str(args.sigma_out),
+                  "sha256": _sha256(Path(args.sigma_out))},
+    }
+
     out = Path(args.report_out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n")
@@ -773,10 +828,13 @@ def main() -> None:
                     help="directory for the git-ignored encoder feature "
                          "cache (default data/cache; 'none' prepares "
                          "features in memory every run)")
-    ap.add_argument("--skip-test", action="store_true",
-                    help="never load or evaluate the WED test split "
-                         "(no test MAE, no merge_check) — rebuild the "
-                         "deployable artifact from train+val only")
+    ap.add_argument("--include-test", action="store_true",
+                    help="explicitly include the protected WED test split; "
+                         "requires --i-know-this-is-locked and is logged")
+    ap.add_argument("--i-know-this-is-locked", action="store_true",
+                    help="required together with --include-test; records the "
+                         "protected-split access in docs/locked_access_log.txt")
+    ap.add_argument("--skip-test", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--cv-folds", type=int, default=None,
                     help="outer plate-grouped CV folds over WED TRAIN only; "
                          "does not load WED test/LOCKED")
@@ -786,6 +844,10 @@ def main() -> None:
     ap.add_argument("--sigma-out", default=str(_ROOT / "data" / "weight_head_sigma.yaml"))
     ap.add_argument("--report-out", default=str(_ROOT / "data" / "reports" / "weight_head_train.json"))
     args = ap.parse_args()
+    if args.include_test and args.skip_test:
+        ap.error("--include-test and --skip-test cannot be combined")
+    if args.include_test and not args.i_know_this_is_locked:
+        ap.error("--include-test requires --i-know-this-is-locked")
     run_training(args)
 
 

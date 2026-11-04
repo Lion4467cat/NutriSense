@@ -14,9 +14,9 @@ Date: 2026-10-26
 
 **Decision**: Organize around motivation, prior work, system method, evaluation protocol, results, limitations, and conclusion. Trace every numerical claim to a repository report or primary source. Treat current DEV, TRAIN, historical test, and synthetic/rendered results as distinct evidence categories.
 
-**Rationale**: The project has a detailed experiment ledger and fixed WED split protocol. The current DINOv2-S result is a DEV carve and its comparison is paired on DEV plates. The final report's ResNet-50 test score is historical and was read once; it cannot support a claim about the DINOv2-S checkpoint.
+**Rationale**: The project has a detailed experiment ledger and fixed WED split protocol. The DINOv2-S mass head has a DEV carve and one-time LOCKED report; both must retain their split and scope. The 23-view ArUco pilot is EVAL-ONLY and predates the current overlap and estimate-only fallbacks.
 
-**Alternatives considered**: Re-run the LOCKED split for the paper, or use the older test score as if it described the current model. Neither is acceptable for this planning pass: the repo's policy protects the locked set, no DINOv2-S locked result is documented, and the paper can be planned using the current DEV evidence with an explicit limitation.
+**Alternatives considered**: Re-run WED LOCKED or the 23-view ArUco pilot to validate recent fixes. Neither is acceptable: those results are consumed or explicitly EVAL-ONLY. The paper reports their existing results as historical evidence and states that new post-fix validation is pending.
 
 ### Repository evidence map
 
@@ -25,8 +25,11 @@ Date: 2026-10-26
 | Current learned-weight DEV MAE 15.034 g, 95% CI [12.227, 18.889] | `docs/ledger/001-current-state.md` | WED DEV carve: 108 views, 21 plates, 1,218 samples; do not label as test performance |
 | Paired DEV change 20.298 → 15.034 g; Δ −5.264 g, 95% CI [−6.232, −4.227] | `docs/ledger/002-dinov2-encoder.md` | Paired evaluation on same DEV plates; not a comparison against a test-set score |
 | DEV coverage_90 0.8522 [0.792, 0.899] | `docs/ledger/001-current-state.md`, `docs/eval_protocol.md` | Coverage uses per-class residual sigma; describe its evaluation definition |
-| SAM2.1 IoU 0.98 | README and project model notes | Synthetic validation only |
-| SigLIP2 gallery 46/46 | `data/gallery.npz` and evaluation records | Leave-one-out over the current 46-image gallery (two dish classes), not independent test accuracy; runtime returns one predicted dish label per capture |
+| SAM 2.1 segmentation | Runtime configuration and project model notes | No real-mask IoU, Dice, precision, recall, or F1 is established; conflicting synthetic IoU records are omitted |
+| SigLIP2 gallery leave-one-out | `data/gallery.npz` and `docs/ledger/003-serve-all-41-classes.md` | 78.03% over 997 embeddings; internal diagnostic, not independent accuracy |
+| SigLIP2 41-way WED crop DEV | `data/reports/classifier_41way_dev.json` and `docs/model-metrics.md` | 81.03% top-1, but 41 of 108 DEV images overlap gallery sources; not end-to-end and likely optimistic |
+| ArUco real-plate pilot | `AUDIT.md` and `docs/model-metrics.md` | 23 images across six plates; 20 cannot verify, 2 out of scope, 1 borderline, one emitted grams, 0/23 exact labels; EVAL-ONLY and pre-current-fixes |
+| Multi-item overlap and estimate-only fixes | `engine/pipeline.py`, focused tests, and `AUDIT.md` | 22 synthetic focused tests pass; no real-photo validation or accuracy improvement is claimed |
 | MoGe-2 calibrated depth error about 1.1% | README and project diagnostics | Rendered/synthetic card-calibration result; raw out-of-domain monocular scale is not reliable without calibration |
 | Geometry volume error (+6.6% plate, +5.6% bowl) | `docs/final-report.md` | Synthetic ground-truth renderer, not a real-meal field study |
 | Project metric provenance | `docs/ledger/001-current-state.md`, `docs/ledger/002-dinov2-encoder.md`, `docs/final-report.md`, `docs/diagnostic_report.md` | Cite these project artifacts for numerical claims, preserving each artifact's validation scope |
@@ -57,8 +60,8 @@ Use primary papers and official project/government sources in the bibliography. 
 
 ## Data rights and authorship
 
-**Decision**: Cite the WED paper and dataset, but do not include WED photographs or masks in manuscript figures unless their reuse permission is confirmed. Use author metadata exactly as supplied and mark three emails as unverified placeholders.
+**Decision**: Cite the WED paper and dataset, but do not include WED photographs or masks in manuscript figures unless their reuse permission is confirmed. Use the supplied author names and affiliation; omit unverified author email addresses.
 
-**Rationale**: `docs/licenses.md` records that WED dataset archive terms are unconfirmed and the raw images are local/git-ignored. The user supplied four names, one known address, and requested dummy emails for the others.
+**Rationale**: `docs/licenses.md` records that WED dataset archive terms are unconfirmed and the raw images are local/git-ignored. Contact details must not be fabricated or presented without author verification.
 
-**Alternatives considered**: Copy WED images into the paper directory, or use example.com email addresses without a marker. Both risk presenting restricted material or temporary contact details as final. Use author-created diagrams and project-derived aggregate results; visibly label the three addresses as placeholders pending confirmation.
+**Alternatives considered**: Copy WED images into the paper directory or add temporary email addresses. Both risk presenting restricted material or unverified metadata as final. Use author-created diagrams and project-derived aggregate results, and omit email addresses until verified.

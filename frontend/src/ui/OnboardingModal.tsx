@@ -82,6 +82,7 @@ export default function OnboardingModal({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState<Step>("welcome");
   const [dir, setDir] = useState(1);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   const [name, setName] = useState(prefs.userName || "");
   const [sex, setSex] = useState(prefs.profile?.sex || goals?.sexes[0] || "male");
@@ -145,14 +146,48 @@ export default function OnboardingModal({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  // Escape closes (and counts as a skip), focus starts inside the dialog.
+  // Keep keyboard focus inside the dialog and return it to the opener on close.
   useEffect(() => {
+    returnFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )).filter((element) => !element.hasAttribute("hidden") && element.tabIndex >= 0);
+      if (focusable.length === 0) {
+        e.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === dialog || !dialog.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !dialog.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     dialogRef.current?.focus();
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      const returnFocus = returnFocusRef.current;
+      if (returnFocus?.isConnected) returnFocus.focus();
+    };
   }, [onClose]);
 
   const previewGoal = resolveGoal(

@@ -131,6 +131,11 @@ def test_coverage_function_factors():
     assert f == {"estimated_weight": 0.90}
     assert s == pytest.approx(0.90)
 
+    # A global height-sign correction is a material geometry warning too.
+    s, f = coverage(_portion(flags=["base_sign_flip"]), "measured")
+    assert f == {"quality_degraded": 0.90}
+    assert s == pytest.approx(0.90)
+
 
 def test_coverage_depth_uncalibrated_factor():
     # reported "none" on a measured anchor = calibration declined

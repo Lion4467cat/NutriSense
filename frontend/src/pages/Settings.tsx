@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { EASE, popIn } from "../ui/motion";
+import { IconCheck } from "../ui/Icon";
 import { useGoals } from "../context/goals";
 import { useMenu } from "../context/menu";
 import { THEME_OPTS } from "../hooks/useTheme";
@@ -12,19 +15,33 @@ import { defaultProfile, resolveGoal, type ProfilePref } from "../services/goals
 import { formatNum } from "../utils/format";
 
 export default function SettingsPage() {
-  const { prefs, setPrefs } = usePrefs();
+  const { prefs, setPrefs, resetPrefs } = usePrefs();
   const { menu, apiUp, health, checkHealth } = useMenu();
   const { goals, goalsError, reloadGoals } = useGoals();
   const { records, clearRecords } = useRecords();
   const { openWizard } = useOnboarding();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [clearWarning, setClearWarning] = useState(false);
+
+  // Rewarding feedback: every discrete settings change pulses a "Saved"
+  // toast — all prefs persist to localStorage instantly.
+  const [toastKey, setToastKey] = useState<number | null>(null);
+  const update = (p: Parameters<typeof setPrefs>[0]) => {
+    setPrefs(p);
+    setToastKey(Date.now());
+  };
+  useEffect(() => {
+    if (toastKey == null) return;
+    const t = setTimeout(() => setToastKey(null), 1600);
+    return () => clearTimeout(t);
+  }, [toastKey]);
 
   const goal = resolveGoal(goals, prefs.profile, prefs.goalOverride);
   const served = defaultProfile(goals);
   const profile = prefs.profile ?? served;
   const setProfileField = (patch: Partial<ProfilePref>) => {
     if (!profile) return;
-    setPrefs({
+    update({
       profile: {
         ageBand: profile.ageBand || "",
         sex: profile.sex || "",
@@ -46,7 +63,7 @@ export default function SettingsPage() {
     const k = Number(goalDraft.kcal);
     const p = Number(goalDraft.proteinG);
     if (Number.isFinite(k) && k > 0 && Number.isFinite(p) && p > 0) {
-      setPrefs({ goalOverride: { kcal: k, proteinG: p } });
+      update({ goalOverride: { kcal: k, proteinG: p } });
     }
     setGoalDraft(null);
   };
@@ -73,9 +90,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="page">
+    <div className="page page-settings">
       <div className="page-head">
         <div>
+          <span className="eyebrow">Workspace — preferences</span>
           <h1 className="page-title">Settings</h1>
           <p className="page-sub">Appearance, app mode, Daily goal and local preferences.</p>
         </div>
@@ -83,8 +101,9 @@ export default function SettingsPage() {
 
       <div className="settings-stack">
         <Card
+          className="settings-mode-card"
           title="App mode"
-          sub="School keeps the compliance verdicts; General shows grams, nutrients and share of your Daily goal."
+          sub="Choose whether meal results use school standards or your Daily goal."
         >
           <div className="setting-row">
             <div className="setting-info">
@@ -93,8 +112,8 @@ export default function SettingsPage() {
               </div>
               <div className="si-desc">
                 {prefs.mode === "general"
-                  ? "General mode — every recognized dish gets grams + nutrients as a share of your Daily goal. No verdicts, no school capture fields."
-                  : "School mode — PM POSHAN compliance for menu dishes, judged under Policy, exactly as before."}
+                  ? "Shows estimated portions and nutrients as a share of your Daily goal, without a school compliance verdict."
+                  : "Supports the 41-class food taxonomy and compares estimated energy and protein with school standards. Nutrition values remain estimates."}
               </div>
             </div>
             <ModeSwitch />
@@ -102,6 +121,7 @@ export default function SettingsPage() {
         </Card>
 
         <Card
+          className="settings-profile-card"
           title="Your profile"
           sub="Name, sex, age band and activity level feed the WHO Daily goal lookup; your own goal always wins."
           action={
@@ -245,7 +265,7 @@ export default function SettingsPage() {
                 {prefs.goalOverride && (
                   <button
                     className="btn btn-ghost btn-sm"
-                    onClick={() => setPrefs({ goalOverride: null })}
+                    onClick={() => update({ goalOverride: null })}
                   >
                     Reset to WHO default
                   </button>
@@ -283,18 +303,18 @@ export default function SettingsPage() {
           )}
         </Card>
 
-        <Card title="Appearance">
+        <Card className="settings-appearance-card" title="Appearance">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Theme</div>
               <div className="si-desc">
-                Seven curated looks — each with its own coordinated accent
+                Eight curated looks — each with its own coordinated accent
                 colors. System follows your OS preference.
               </div>
             </div>
             <div className="theme-grid" role="radiogroup" aria-label="Theme">
               {THEME_OPTS.map((t) => (
-                <button
+                <motion.button
                   key={t.id}
                   role="radio"
                   aria-checked={prefs.theme === t.id}
@@ -303,8 +323,28 @@ export default function SettingsPage() {
                   className={
                     prefs.theme === t.id ? "theme-tile active" : "theme-tile"
                   }
-                  onClick={() => setPrefs({ theme: t.id })}
+                  onClick={() => update({ theme: t.id })}
+                  whileTap={{ scale: 0.96 }}
                 >
+                  {prefs.theme === t.id && (
+                    <>
+                      <motion.span
+                        className="theme-ring"
+                        layoutId="theme-ring"
+                        transition={{ type: "spring", stiffness: 480, damping: 38 }}
+                        aria-hidden="true"
+                      />
+                      <motion.span
+                        className="theme-check"
+                        variants={popIn}
+                        initial="hidden"
+                        animate="show"
+                        aria-hidden="true"
+                      >
+                        <IconCheck size={10} />
+                      </motion.span>
+                    </>
+                  )}
                   <span
                     className="theme-mini"
                     style={{
@@ -325,13 +365,13 @@ export default function SettingsPage() {
                     </span>
                   </span>
                   <span className="theme-tile-name">{t.label}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
         </Card>
 
-        <Card title="API">
+        <Card className="settings-api-card" title="API">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Connection status</div>
@@ -362,13 +402,13 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card title="Local data" sub="History and student records live in this browser.">
+        <Card className="settings-local-card" title="Local data" sub="Analysis history and profile preferences live in this browser.">
           <div className="setting-row">
             <div className="setting-info">
               <div className="si-title">Analysis records</div>
               <div className="si-desc">
                 {records.length} record{records.length === 1 ? "" : "s"} stored
-                locally — export before clearing.
+                locally — export before clearing. Clearing also removes profile and appearance preferences.
               </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -384,11 +424,13 @@ export default function SettingsPage() {
                   <button
                     className="btn btn-danger btn-sm"
                     onClick={() => {
-                      clearRecords();
+                      const recordsRemoved = clearRecords();
+                      const prefsRemoved = resetPrefs();
+                      setClearWarning(!(recordsRemoved && prefsRemoved));
                       setConfirmClear(false);
                     }}
                   >
-                    Confirm delete
+                    Delete local data
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"
@@ -401,15 +443,40 @@ export default function SettingsPage() {
                 <button
                   className="btn btn-ghost btn-sm"
                   onClick={() => setConfirmClear(true)}
-                  disabled={records.length === 0}
                 >
-                  Clear all
+                  Clear local data
                 </button>
               )}
             </div>
           </div>
+          {confirmClear && (
+            <p className="si-desc" role="alert">
+              This deletes saved meals, follow-up chats, student names, profile details, and preferences from this browser.
+            </p>
+          )}
+          {clearWarning && (
+            <p className="si-desc" role="alert">
+              Some local data could not be removed because browser storage is unavailable.
+            </p>
+          )}
         </Card>
       </div>
+
+      <AnimatePresence>
+        {toastKey != null && (
+          <motion.div
+            className="save-toast"
+            role="status"
+            key={toastKey}
+            initial={{ opacity: 0, y: 14, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
+            transition={{ duration: 0.28, ease: EASE }}
+          >
+            <IconCheck size={14} /> Saved on this device
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -20,6 +20,7 @@ No test here loads a model or touches the GPU.
 from __future__ import annotations
 
 import sys
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -89,6 +90,34 @@ def test_check_locked_fails_on_an_unpinned_new_eval_file(tmp_path):
     assert check_locked.check(manifest, ROOT, quiet=True) == 1
 
 
+def test_code_only_repin_preserves_locked_image_pins_without_opening_images(
+    tmp_path, monkeypatch,
+):
+    root = tmp_path / "repo"
+    manifest = root / "docs" / "locked_manifest.txt"
+    locked_image = "data/wed/test/held-out.jpg"
+    for rel in (*check_locked.CODE, *check_locked.DATA):
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"fixture for {rel}".encode())
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(f"{'a' * 64}  {locked_image}\n")
+
+    original_sha256 = check_locked.sha256
+
+    def reject_locked_image_read(path):
+        assert not str(path).replace("\\", "/").endswith(locked_image)
+        return original_sha256(path)
+
+    monkeypatch.setattr(check_locked, "sha256", reject_locked_image_read)
+    count = check_locked.write_manifest(manifest, root, code_only=True)
+
+    entries = check_locked.read_manifest(manifest)
+    assert entries[locked_image] == "a" * 64
+    assert not (root / locked_image).exists()
+    assert count == len(check_locked.CODE) + len(check_locked.DATA) + 1
+
+
 def test_check_locked_skips_absent_locked_images(tmp_path):
     """CI has no dataset: an absent data/wed/test/ file is SKIP, not a failure."""
     entries = check_locked.read_manifest(MANIFEST)
@@ -113,6 +142,34 @@ def test_run_eval_refuses_stress_outside_dev(capsys):
         run_eval.main(["--tier", "train", "--stress"])
     assert exc.value.code == 2
     assert "DEV-only" in capsys.readouterr().err
+
+
+def test_shared_training_manifest_reader_refuses_locked_split_by_default():
+    from tools.train_weight_head import load_manifest
+
+    with pytest.raises(PermissionError, match="test data is locked"):
+        load_manifest("test")
+
+
+def test_prior_tier_reader_refuses_locked_split_by_default():
+    from tools.eval_prior_tier_on_wed import _rows_for
+
+    with pytest.raises(PermissionError, match="test data is locked"):
+        _rows_for("test", limit=1)
+
+
+def test_eval_manifest_reader_requires_explicit_locked_access():
+    with pytest.raises(PermissionError, match="test data is locked"):
+        run_eval._manifest("test")
+
+
+def test_eval_report_hashes_exact_artifact_bytes(tmp_path):
+    artifact = tmp_path / "weights.bin"
+    artifact.write_bytes(b"known checkpoint bytes")
+
+    assert run_eval._sha256(artifact) == hashlib.sha256(
+        b"known checkpoint bytes"
+    ).hexdigest()
 
 
 def test_dev_tier_never_reads_the_test_split():
@@ -264,7 +321,7 @@ def _prepare_fake_locked(tmp_path, monkeypatch):
     monkeypatch.setattr(run_eval, "sigma_map", lambda: {"steamed-rice": 20.0})
     monkeypatch.setattr(run_eval, "LOCKED_LOG", log)
     monkeypatch.setattr(run_eval, "load_manifest",
-                        lambda split: [dict(r) for r in rows])
+                        lambda split, **_: [dict(r) for r in rows])
     run_eval.LOADED.clear()
     return log
 

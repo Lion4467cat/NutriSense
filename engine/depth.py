@@ -10,8 +10,32 @@ Known gotchas:
 """
 import numpy as np
 from config import load_anchor_config
+from models.model_revisions import MOGE2_REVISION
 
 MODEL_ID = "Ruicheng/moge-2-vitl"
+
+
+def normalized_intrinsics_to_pixel_K(intrinsics, width, height):
+    """Convert MoGe's normalized 3x3 intrinsics to pixel-coordinate K.
+
+    MoGe intrinsics use normalized image coordinates. Returning ``None`` for
+    malformed matrices lets callers retain their known camera matrix while
+    making the fallback explicit.
+    """
+    if intrinsics is None or width < 1 or height < 1:
+        return None
+    if hasattr(intrinsics, "detach"):
+        intrinsics = intrinsics.detach().float().cpu().numpy()
+    K_norm = np.asarray(intrinsics, dtype=np.float64)
+    if K_norm.shape != (3, 3) or not np.isfinite(K_norm).all():
+        return None
+    fx, fy = float(K_norm[0, 0]), float(K_norm[1, 1])
+    cx, cy = float(K_norm[0, 2]), float(K_norm[1, 2])
+    if fx <= 0 or fy <= 0 or not (-0.25 <= cx <= 1.25) or not (-0.25 <= cy <= 1.25):
+        return None
+    return np.array([[fx * width, 0.0, cx * width],
+                     [0.0, fy * height, cy * height],
+                     [0.0, 0.0, 1.0]], dtype=np.float64)
 
 
 def calibrate_depth_scale(depth_m, anchor, K):
@@ -76,7 +100,8 @@ class MonocularDepth:
 
         def _make():
             from moge.model.v2 import MoGeModel
-            model = MoGeModel.from_pretrained(self.model_id)
+            model = MoGeModel.from_pretrained(
+                self.model_id, revision=MOGE2_REVISION)
             return {"model": model.to(device).eval(), "device": device}
 
         return registry.get_or_create(key, _make)["model"]
@@ -90,7 +115,8 @@ class MonocularDepth:
         tensor = tensor.permute(2, 0, 1).to(next(model.parameters()).device)
         with torch.inference_mode():
             out = model.infer(tensor, apply_mask=False,
-                              resolution_level=self.resolution_level, fov_x=fov_x)
+                              resolution_level=self.resolution_level, fov_x=fov_x,
+                              use_fp16=tensor.device.type == "cuda")
         depth = out["depth"]
         if isinstance(depth, torch.Tensor):
             depth = depth.float().cpu().numpy()
@@ -98,10 +124,10 @@ class MonocularDepth:
         finite = np.isfinite(depth) & (depth > 0)
         if finite.mean() < 0.5:
             raise ValueError("monocular depth mostly invalid")
-        depth[~finite] = np.median(depth[finite])
         return {
             "depth_m": depth,
             "model": self.model_id,
             "relative": False,
+            "valid_fraction": float(finite.mean()),
             "intrinsics": None if "intrinsics" not in out else out["intrinsics"],
         }

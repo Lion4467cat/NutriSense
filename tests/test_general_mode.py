@@ -16,6 +16,7 @@ import models.recipe_table as recipe_table
 from engine.general_mode import (match_recipe, recipe_profile,
                                  serve_with_head)
 from engine.pipeline import analyze as pipe_analyze
+from tests.conftest import OK_EXIF
 from tests.synth.scene import render_scene
 
 
@@ -80,7 +81,21 @@ def _make_deps(scene, classify=None):
             d = cv2.resize(d, (w, h))
         return {"depth_m": d, "model": "gt"}
 
+    mask = scene["mask_food"]
+    ys, xs = np.nonzero(mask)
+    one_item = {
+        "mask": mask,
+        "sam_score": 0.9,
+        "area_frac": float(mask.mean()),
+        "bbox": [int(xs.min()), int(ys.min()),
+                 int(xs.max()) + 1, int(ys.max()) + 1],
+    }
+
     return {"segment": seg, "depth": dep,
+            "segment_items": lambda img: {
+                "items": [one_item], "strategy": "stub",
+                "truncated_count": 0,
+            },
             "classify": classify or (lambda img: {
                 "dish": "rajma", "confidence": 0.8, "method": "stub",
                 "match_score": 0.91, "reason": "stub"})}
@@ -111,18 +126,20 @@ def test_serve_with_head_composition_and_uncertainty(mini_tables):
                           {"components": {}}, {"id": "rajma"})
     assert out is not None
     portion = out["portion"]
-    # visible 90 -> invisible inflation 1.10 -> 99; unexplained banana 5
-    assert portion["grams"] == pytest.approx(104.0)
+    # visible 90 -> invisible inflation 1.10 -> 99; unknown banana mass is
+    # excluded rather than assigned the recipe's nutrient profile.
+    assert portion["grams"] == pytest.approx(99.0)
+    assert out["unexplained_g"] == pytest.approx(5.0)
     assert portion["components_g"]["white rice"] == pytest.approx(99.0, abs=0.1)
     assert portion["base_method"] == "ingredient_compositional"
     assert "composition_inferred" in portion["flags"]
-    assert "unknown_state_widening" not in portion["flags"]   # confident route
-    assert portion["sigma_grams_rel"] == pytest.approx(0.35)
+    assert "unknown_state_widening" in portion["flags"]
+    assert portion["sigma_grams_rel"] == pytest.approx(0.45)
     assert portion["recipe_match"]["code"] == "R001"
-    assert portion["recipe_match"]["confident"] is True
+    assert portion["recipe_match"]["confident"] is False
     # recipe per-100 g nutrients ride the synthetic generic id
     assert out["nutrition"]["assumed_nutrients"] == ["indb_R001"]
-    assert out["nutrition"]["kcal"]["mean"] == pytest.approx(104 * 1.2, rel=0.05)
+    assert out["nutrition"]["kcal"]["mean"] == pytest.approx(99 * 1.2, rel=0.05)
 
 
 def test_serve_with_head_widens_band_when_coverage_weak(mini_tables):
@@ -153,7 +170,8 @@ def test_pipeline_ingredient_route_fires():
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(recipe_table, "_CACHE", {"recipes": dict(MINI_RECIPES)})
         out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                           deps=_make_deps(scene) | {"ingredient_head": head})
+                           deps=_make_deps(scene) | {"ingredient_head": head},
+                           exif=OK_EXIF, mode="general")
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "off_menu_dish"
     assert out["path_used"] == "ingredient_head"
@@ -162,8 +180,62 @@ def test_pipeline_ingredient_route_fires():
     assert "composition_inferred" in p["flags"]
     assert "recipe_match" in p
     assert out["nutrition"]["assumed_nutrients"] == ["indb_R001"]
+    assert out["segmentation"]["n_items"] == 1
     assert head.calls, "the route must have consulted the head"
     assert out["compliance"] is None
+
+
+def test_off_menu_multi_item_detection_aggregates_without_school_verdict():
+    scene = render_scene({"anchor": {"card": False}})
+    mask = scene["mask_food"]
+    _, xs = np.nonzero(mask)
+    midpoint = int(np.median(xs))
+
+    def make_item(item_mask):
+        ys, xs = np.nonzero(item_mask)
+        return {
+            "mask": item_mask,
+            "sam_score": 0.9,
+            "area_frac": float(item_mask.mean()),
+            "bbox": [int(xs.min()), int(ys.min()),
+                     int(xs.max()) + 1, int(ys.max()) + 1],
+        }
+
+    left, right = mask.copy(), mask.copy()
+    left[:, midpoint:] = False
+    right[:, :midpoint] = False
+
+    class _WedHead:
+        meta = {"recipe": "fake-test-head", "test_mae_g": 14.51}
+
+        def predict(self, image_bgr, mask, slot_ids, device=None):
+            grams = 200.0
+            return {"grams": grams,
+                    "slots": {slot: grams / len(slot_ids)
+                              for slot in slot_ids}}
+
+    def classify(img):
+        return {"dish": "rajma", "confidence": 0.8, "method": "stub",
+                "match_score": 0.91, "reason": "stub"}
+
+    detector = lambda img: {
+        "items": [make_item(left), make_item(right)],
+        "strategy": "stub", "truncated_count": 0,
+    }
+    out = pipe_analyze(
+        scene["image_bgr"], day="mon", band="1-5",
+        deps=_make_deps(scene, classify=classify)
+        | {"segment_items": detector, "weight_head": _WedHead()},
+        exif=OK_EXIF, mode="general",
+    )
+
+    assert out["path_used"] == "multi_item"
+    assert out["segmentation"]["n_items"] == 2
+    assert len(out["items"]) == 2
+    assert out["portion"]["grams"] == pytest.approx(400.0)
+    assert out["verdict"] == "cannot_verify"
+    assert out["compliance"] is None
+    assert out["reasons"][0]["kind"] == "off_menu_dish"
 
 
 def test_pipeline_unmatched_profile_falls_back():
@@ -179,7 +251,8 @@ def test_pipeline_unmatched_profile_falls_back():
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=_make_deps(scene)
-                       | {"weight_head": _WedHead(), "ingredient_head": ing})
+                       | {"weight_head": _WedHead(), "ingredient_head": ing},
+                       exif=OK_EXIF, mode="general")
     # existing off-menu path, byte-for-byte: learned dish-slot head
     assert out["path_used"] == "learned_head"
     assert out["portion"]["base_method"] == "learned_weight"
@@ -187,6 +260,64 @@ def test_pipeline_unmatched_profile_falls_back():
     assert all("composition_inferred" not in f
                for f in out["portion"]["flags"])
     assert out["degradations"] == []      # silent fallback, no spam
+
+
+def test_school_mode_scores_recognized_off_menu_class_against_standards():
+    scene = render_scene({"anchor": {"card": False}})
+
+    class _WedHead:
+        meta = {"recipe": "fake-test-head", "test_mae_g": 14.51}
+
+        def predict(self, image_bgr, mask, slot_ids, device=None):
+            grams = 300.0
+            return {"grams": grams,
+                    "slots": {slot: grams / len(slot_ids)
+                              for slot in slot_ids}}
+
+    out = pipe_analyze(
+        scene["image_bgr"], day="mon", band="1-5",
+        deps=_make_deps(scene) | {"weight_head": _WedHead()},
+        exif=OK_EXIF, mode="school",
+    )
+
+    assert out["dish"]["id"] == "rajma"
+    assert out["dish"]["on_day"] is False
+    assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
+    assert out["compliance"]["day"] == "mon"
+    assert out["compliance"]["band"] == "1-5"
+    assert "dal_curry" in out["nutrition"]["assumed_nutrients"]
+    assert not any(reason["kind"] == "off_menu_dish"
+                   for reason in out["reasons"])
+
+
+def test_general_mode_menu_dish_keeps_goal_tracking_without_school_verdict():
+    scene = render_scene({"anchor": {"card": False}})
+
+    class _WedHead:
+        meta = {"recipe": "fake-test-head", "test_mae_g": 14.51}
+
+        def predict(self, image_bgr, mask, slot_ids, device=None):
+            grams = 310.0
+            return {"grams": grams,
+                    "slots": {slot: grams / len(slot_ids)
+                              for slot in slot_ids}}
+
+    def classify(img):
+        return {"dish": "rice_sambar", "confidence": 1.0, "method": "stub",
+                "match_score": 0.9, "reason": "stub"}
+
+    out = pipe_analyze(
+        scene["image_bgr"], day="mon", band="1-5",
+        deps=_make_deps(scene, classify=classify)
+        | {"weight_head": _WedHead()},
+        exif=OK_EXIF, mode="general",
+    )
+
+    assert out["portion"] is not None and out["nutrition"] is not None
+    assert out["verdict"] == "cannot_verify"
+    assert out["compliance"] is None
+    assert not any(reason["kind"] == "off_menu_dish"
+                   for reason in out["reasons"])
 
 
 def test_pipeline_school_dish_never_takes_ingredient_route():
@@ -206,7 +337,7 @@ def test_pipeline_school_dish_never_takes_ingredient_route():
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
                        deps=_make_deps(scene, classify=cls)
-                       | {"weight_head": _WedHead(), "ingredient_head": ing})
+                       | {"weight_head": _WedHead(), "ingredient_head": ing}, exif=OK_EXIF)
     assert ing.calls == []                       # route never consulted
     assert out["path_used"] == "learned_head"
     assert out["verdict"] in {"PASS", "BORDERLINE", "FAIL"}

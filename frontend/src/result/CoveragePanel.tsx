@@ -1,5 +1,6 @@
 import type { AnalyzeResult } from  "../types/api";
 import { Card } from  "../ui/primitives";
+import { CountValue } from  "../ui/section-fx";
 import { formatPct } from  "../utils/format";
 
 const FACTOR_LABELS: Record<string, string> = {
@@ -27,7 +28,11 @@ export default function CoveragePanel({ result }: { result: AnalyzeResult }) {
       ) : (
         <>
           <div className="cov-score-row">
-            <span className="cov-big">{formatPct(cov.score, 0)}</span>
+            {/* The coverage score is a measured number; it settles onto its
+                value the way the other measurements on this page do. */}
+            <span className="cov-big">
+              <CountValue value={cov.score} format={(v) => formatPct(v, 0)} />
+            </span>
             <span className="muted" style={{ fontSize: "var(--fs-sm)" }}>
               overall coverage
             </span>

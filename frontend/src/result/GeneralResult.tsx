@@ -1,11 +1,13 @@
+import type { ReactNode } from "react";
 import type { AnalyzeResult } from "../types/api";
 import type { DailyGoal } from "../services/goals";
 import { dishLabel } from "../services/records";
 import { Card } from "../ui/primitives";
 import { formatNum, formatPct } from "../utils/format";
-import { toReasons } from "../utils/reasons";
+import { explainReason, toReasons } from "../utils/reasons";
 import { reasonTone } from "./verdicts";
 import SummaryCards from "./SummaryCards";
+import MealRegionFigure from "./MealRegionFigure";
 
 /**
  * General-mode result (spec 002, ADR 0003): grams + nutrients + each
@@ -87,14 +89,24 @@ function ShareRow({
 export default function GeneralResult({
   result,
   goal,
+  summaryAddon,
+  photo,
+  demo = false,
 }: {
   result: AnalyzeResult;
   goal: DailyGoal;
+  summaryAddon?: ReactNode;
+  photo?: string | null;
+  demo?: boolean;
 }) {
   const reasons = toReasons(result.reasons);
-  const lead = reasons[0];
-  const offMenu = lead?.kind === "off_menu_dish";
-  const noCard = lead?.kind === "no_reference_card";
+  const offMenuReason = reasons.find((reason) => reason.kind === "off_menu_dish");
+  const noCardReason = reasons.find((reason) => reason.kind === "no_reference_card");
+  const offMenu = !!offMenuReason;
+  const noCard = !!noCardReason;
+  const detailReasons = reasons.filter((reason) =>
+    ["zoom", "unrecognized", "unreadable", "weight_head_unavailable", "stage_failed"].includes(reason.kind)
+  );
   const hasEstimates = !!result.portion && !!result.nutrition;
   const kcal = result.nutrition?.kcal;
   const prot = result.nutrition?.protein_g;
@@ -106,7 +118,7 @@ export default function GeneralResult({
           <span aria-hidden="true">i</span>
           <div>
             <strong>Not a school-menu dish — no compliance verdict</strong>
-            {lead?.text}
+            {offMenuReason ? explainReason(offMenuReason) : "This meal is outside the school menu."}
           </div>
         </div>
       )}
@@ -115,14 +127,20 @@ export default function GeneralResult({
           <span aria-hidden="true">!</span>
           <div>
             <strong>Estimated weight — no reference card</strong>
-            {lead?.text}
+            {noCardReason ? explainReason(noCardReason) : "No reference card was detected, so portion weight is estimated from the photo."}
           </div>
         </div>
       )}
 
       {hasEstimates ? (
         <>
-          <SummaryCards result={result} />
+          <div className={`general-overview${photo ? " has-photo" : ""}`}>
+            {photo && (
+              <MealRegionFigure photo={photo} items={result.items ?? []} demo={demo} />
+            )}
+            <SummaryCards result={result} />
+          </div>
+          {summaryAddon}
 
           <Card
             title="Share of your Daily goal"
@@ -155,30 +173,36 @@ export default function GeneralResult({
           </Card>
         </>
       ) : (
-        <Card title="No nutrition estimate">
-          <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-            {result.dish
-              ? "This capture produced no grams or nutrients."
-              : "We could not recognize a dish in this photo — try again with the whole vessel in frame."}
-          </p>
-        </Card>
+        <>
+          {photo && (
+            <MealRegionFigure photo={photo} items={result.items ?? []} demo={demo} className="result-photo-general" />
+          )}
+          <Card title="No nutrition estimate">
+            <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
+              {result.dish
+                ? "This capture produced no grams or nutrients."
+                : "We could not recognize a dish in this photo — try again with the whole vessel in frame."}
+            </p>
+          </Card>
+          {summaryAddon}
+        </>
       )}
 
-      <Card title="About this estimate" sub="Straight from the analysis pipeline.">
-        {reasons.length === 0 ? (
+      <Card title="About this estimate" sub="What influenced the result.">
+        {detailReasons.length === 0 ? (
           <p className="muted" style={{ fontSize: "var(--fs-sm)" }}>
-            No notes were returned for this analysis.
+            No additional measurement notes were returned for this estimate.
           </p>
         ) : (
           <ul className="list-clean reason-list">
-            {reasons.map((r, i) => {
+            {detailReasons.map((r, i) => {
               const ico = reasonTone(r, result.verdict);
               return (
                 <li className="reason-item" key={i}>
                   <span className={`r-ico ${ico}`} aria-hidden="true">
                     {ico === "good" ? "✓" : ico === "bad" ? "✕" : "i"}
                   </span>
-                  <span>{r.text}</span>
+                  <span>{explainReason(r)}</span>
                 </li>
               );
             })}

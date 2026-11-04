@@ -1,48 +1,65 @@
-# ADR 0003: Two app modes — School compliance and General goal-tracking
+# ADR 0003: School standards and General goal tracking
 
-- **Status:** Accepted
-- **Date:** 2026-10-28
+- **Status:** Accepted; updated 2026-11-02
+- **Original date:** 2026-10-28
 
 ## Context
 
-The pipeline is built around the school menu: dishes come from the menu
-(single source of dish truth), captures carry `day` + `band`, and the
-analysis ends in a **Verdict** (PASS/BORDERLINE/FAIL/`cannot_verify`/
-`out_of_scope`) judged under **Policy**. The user wants the app to serve
-any meal, not only the school menu: the WED-trained head already covers
-41 dish classes, but 38 of them have no menu entry, no standards, and no
-compliance basis — a Verdict for them would be meaningless (PASS/FAIL
-needs standards that do not exist for an off-menu dish).
+The WED classifier recognizes 41 food classes, but the official school menu
+contains only a few matching recipes. The remaining classes have generic
+nutrient mappings, and some rows are assumptions rather than verified recipe
+data. The project now needs both a School-mode check against its existing
+per-meal standards and a General-mode comparison with personal daily goals.
 
 ## Decision
 
-Two user-switchable modes of the app (decided 2026-10-28, grilling session):
+1. **School mode** — automatically detect one or several food regions, resolve
+   recognized WED classes, estimate portions and nutrients, aggregate the meal,
+   and score its estimated energy and protein against the existing standard for
+   the selected class band. The selected day remains menu context; it does not
+   change the energy/protein threshold. This applies to all 41 WED food classes,
+   including classes outside the published school menu. Generic nutrient rows
+   remain marked as assumed. A result for an outside-menu food is a nutrient
+   standards estimate; it does not claim that the food was served or appears on
+   that day's official menu. Phulka (`wheat_product`) is included with an
+   assumed cooked-roti nutrient row.
+2. **General mode** — use the same portion and nutrient estimates for any
+   recognized WED class, but do not produce a school standards verdict. Show
+   each nutrient's share of the user's Daily goal. Daily goal defaults come
+   from WHO tables by age band, sex, and activity level
+   (`docs/research/who-goals.md`); the user may enter a personal goal.
 
-1. **School mode** — unchanged behaviour: menu dishes only, `day` + `band`
-   capture fields, Verdict under Policy, PM POSHAN compliance scoring.
-   Non-menu dishes stay `out_of_scope` here.
-2. **General mode** — all 41 WED classes are recognizable and get grams +
-   nutrients, but there is **no compliance Verdict**: the result shows
-   each nutrient's **share of a Daily goal**. Daily goal defaults come
-   from WHO tables by age, gender, and physical activity level
-   (`docs/research/who-goals.md`); the user may enter their own goal.
-   The profile (age/gender/activity) is a one-time Settings entry, not a
-   per-capture field.
+Both modes use the same automatic meal-region detector. If regions cannot be
+separated or a detected item cannot be resolved safely, the pipeline abstains
+from the whole-meal total. It does not ask the user to declare `single` or
+`mixed`.
 
-## Why not reuse the Verdict machinery in General mode
+## Why the two modes have different verdicts
 
-A single meal is never PASS/FAIL against a *daily* target — stamping a
-Verdict there would bend the word. Shares-of-goal answer the real
-question ("how much of my day is this meal?"). The Verdict vocabulary
-stays single-meaning: a compliance concept owned by School mode.
+School mode checks the configured school-meal energy/protein benchmark for the
+selected class band. General mode tracks progress toward a daily target, so it
+must not label one meal PASS or FAIL against a full day's goal. School-mode results that
+use generic food rows still show their assumptions; a standards result is
+therefore an estimate, not a claim that the recipe is known exactly.
 
 ## Consequences
 
-- Policy stays School-mode machinery; General mode does not mint a second
-  Policy with new P-zones.
-- WHO goal tables live in `data/` (backend serves goal values); the
-  frontend computes meal-vs-goal shares from results it already holds, so
-  `/analyze` stays mode-agnostic and goal edits need no re-capture.
-- Serving expansion to 41 classes (gallery from WED train images) is a
-  prerequisite; see the ticket plan (T-A…T-D, `docs/research/
-  indian-food-datasets.md` for dataset options beyond WED).
+- The API accepts a `mode` field. Older clients that omit it default to
+  `school`; the current frontend sends the user's selected mode explicitly.
+- School standards are evaluated from the aggregate nutrient estimate for all
+  recognized classes. Official menu availability remains a separate item of
+  context and does not block that check.
+- The WED serving map covers all 41 classes. Wheat-product data uses an
+  assumed cooked-roti nutrient profile because the existing mapping had been
+  marked out of scope.
+- General mode has no compliance verdict and continues to use personal goal
+  shares plus the meal critique.
+- Food recognition, item separation, portion accuracy, and generic nutrient
+  quality still need evaluation on fresh, manually measured development data.
+  The 23-image ArUco set remains evaluation-only and was not used to tune this
+  change.
+
+The historical decision to withhold school verdicts for all off-menu foods is
+recorded in [ledger 003](../ledger/003-serve-all-41-classes.md); this ADR
+supersedes that behavior for School mode while preserving the General-mode
+no-verdict rule.

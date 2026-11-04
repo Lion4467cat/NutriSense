@@ -57,7 +57,7 @@ def coverage(portion, anchor_label, params=None, depth_scale_source=None):
     if portion.get("base_method") == "table_prior":
         factors["base_table_prior"] = params["coverage_base_table_prior"]["value"]
     flags = set(portion.get("flags") or [])
-    if flags & {"depth_partial", "thin_layer"}:
+    if flags & {"depth_partial", "thin_layer", "base_sign_flip"}:
         factors["quality_degraded"] = params["coverage_quality_degraded"]["value"]
     if anchor_label == "measured" and depth_scale_source == "none":
         factors["depth_uncalibrated"] = params["coverage_depth_uncalibrated"]["value"]
@@ -67,16 +67,17 @@ def coverage(portion, anchor_label, params=None, depth_scale_source=None):
 
 def no_card_reason(portion) -> Reason:
     """The no-card estimate disclaimer: leads the reasons on every prior-tier
-    plate (menu dishes via the ordered insert in assess(); off-menu dishes via
-    spec 002, where it follows the leading off_menu_dish reason). One text,
-    one owner, so the wording can never drift between the two call sites."""
+    School-mode plate via the ordered insert in assess(); General-mode
+    off-menu plates append it after their no-verdict explanation. One text,
+    one owner, so the wording cannot drift between call sites."""
     source = portion.get("grams_source", "geometry_prior")
     detail = ("learned model (WED-trained, unvalidated on MDM plates)"
               if source == "learned_weight" else "size-prior geometry")
     return Reason(
         ReasonKind.NO_REFERENCE_CARD,
         f"No reference card — this photo has no measured scale, so its weight "
-        f"is an estimate ({detail}); the verdict is computed from estimated grams")
+        f"is an estimate ({detail}); portion and nutrient estimates use "
+        "estimated grams")
 
 
 def _p_ge(samples, threshold):

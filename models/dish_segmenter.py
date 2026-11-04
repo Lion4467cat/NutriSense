@@ -21,15 +21,18 @@ Model: facebook/sam2.1-hiera-large (Apache-2.0, docs/licenses.md).
 Weights download on first use (HF_HUB_DISABLE_XET=1 is recommended —
 the xet backend stalls in this environment).
 """
+import logging
 from typing import Any, cast
 
 import cv2
 import numpy as np
+from models.model_revisions import SAM2_REVISION
 
 MODEL_ID = "facebook/sam2.1-hiera-large"
 SOLIDITY_MIN = 0.85
 AREA_MIN, AREA_MAX = 0.005, 0.7
 PARENT_FRAC = 0.90          # area(i ∩ j) / area(i) >= this => i ⊂ j
+log = logging.getLogger(__name__)
 
 
 def _device():
@@ -40,10 +43,11 @@ def _device():
 def _make_state():
     from transformers import Sam2Model, Sam2Processor
     dev = _device()
-    proc = Sam2Processor.from_pretrained(MODEL_ID)
+    proc = Sam2Processor.from_pretrained(MODEL_ID, revision=SAM2_REVISION)
     # Transformers' current Sam2Model stub mis-types Module.to's first
     # positional argument as `self`; keep the runtime device move unchanged.
-    model = cast(Any, Sam2Model.from_pretrained(MODEL_ID)).to(dev).eval()
+    model = cast(Any, Sam2Model.from_pretrained(
+        MODEL_ID, revision=SAM2_REVISION)).to(dev).eval()
     return {"proc": proc, "model": model, "device": dev}
 
 
@@ -85,6 +89,60 @@ def _query(rgb, pt, box=None):
     return res
 
 
+def _query_batch(crops):
+    """Run independent centered point+box prompts for equal-sized crops."""
+    import torch
+    st = _state()
+    proc, model, dev = st["proc"], st["model"], st["device"]
+    if not crops:
+        return []
+    height, width = crops[0].shape[:2]
+    if any(crop.shape[:2] != (height, width) for crop in crops):
+        raise ValueError("batched SAM2 crops must have equal dimensions")
+    count = len(crops)
+    if dev == "cuda" and count > 1 and torch.cuda.is_available():
+        free_bytes, _ = torch.cuda.mem_get_info()
+        if free_bytes < 2_800_000_000:
+            midpoint = count // 2
+            return (_query_batch(crops[:midpoint])
+                    + _query_batch(crops[midpoint:]))
+    points = np.tile(np.array([[[[width / 2.0, height / 2.0]]]],
+                              dtype=np.float32), (count, 1, 1, 1))
+    labels = np.ones((count, 1, 1), dtype=np.int32)
+    boxes = np.tile(np.array([[[width * 0.08, height * 0.08,
+                               width * 0.92, height * 0.92]]],
+                             dtype=np.float32), (count, 1, 1))
+    inputs = proc(images=crops, input_points=points, input_labels=labels,
+                  input_boxes=boxes, return_tensors="pt")
+    inputs = {key: (value.to(dev) if hasattr(value, "to") else value)
+              for key, value in inputs.items()}
+    try:
+        with torch.no_grad():
+            output = model(**inputs)
+    except torch.cuda.OutOfMemoryError:
+        if count == 1:
+            raise
+        del inputs
+        torch.cuda.empty_cache()
+        midpoint = count // 2
+        return (_query_batch(crops[:midpoint])
+                + _query_batch(crops[midpoint:]))
+    results = []
+    for batch_index in range(count):
+        masks = output.pred_masks[batch_index][0]
+        scores = output.iou_scores[batch_index][0].float().cpu().numpy()
+        candidates = []
+        for candidate_index in range(masks.shape[0]):
+            logits = masks[candidate_index]
+            while logits.dim() > 2:
+                logits = logits[0]
+            logits = logits.float().cpu().numpy().astype(np.float32)
+            candidates.append((logits > 0.0, logits,
+                               float(scores[candidate_index])))
+        results.append(candidates)
+    return results
+
+
 def _solidity(small):
     m = small.astype(np.uint8)
     contours, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -97,8 +155,13 @@ def _solidity(small):
     return float(cv2.contourArea(max(contours, key=cv2.contourArea))) / ha
 
 
-def _select(cands):
-    """cands: [(small, logits, score)] -> index of winner."""
+def _select(cands, *, require_solid=False):
+    """cands: [(small, logits, score)] -> index of winner.
+
+    The single-serving path may fall back to SAM's top-scoring candidate when
+    every proposal is irregular. Multi-item detection cannot safely promote
+    that fallback to an extra serving, so it can require a solid candidate.
+    """
     n = len(cands)
     if n == 0:
         return None
@@ -112,6 +175,8 @@ def _select(cands):
         return int(idx[np.argmax(score[idx])]) if len(idx) else None
 
     if not solid.any():
+        if require_solid:
+            return None
         return int(np.argmax(score))
 
     # strict-parent relation among solid candidates
@@ -179,13 +244,30 @@ def segment_food(image_bgr):
 
 # --- multi-vessel detection (spec 003) --------------------------------------
 
-IOU_DEDUPE = 0.70       # masks closer than this are the same vessel
-MAX_ITEMS = 4           # per-frame item cap (spec 003 decision 4)
+IOU_DEDUPE = 0.45       # masks closer than this are the same vessel
+CONTAIN_DEDUPE = 0.65   # ...or this much of the smaller mask is covered
+ITEM_CROP_FRAC = 0.34   # preserve context while adding denser seed coverage
+ITEM_GRID = (0.16, 0.33, 0.50, 0.67, 0.84)
+ITEM_PROMPT_BATCH = 4   # dense prompts without one GPU pass per point
+ITEM_AREA_MIN = 0.001   # retain small semantic portions on a shared plate
 
 
 def _iou(a, b):
     union = float((a | b).sum())
     return float((a & b).sum()) / union if union else 0.0
+
+
+def _same_vessel(a, b):
+    """Same bowl seen at different mask tightness: full IoU dedupe misses a
+    food-only mask inside a bowl-and-plate mask (IoU ~0.5 but containment ~1),
+    which double-counted vessels and inflates truncated_count."""
+    inter = float((a & b).sum())
+    if inter == 0:
+        return False
+    if inter / float((a | b).sum()) >= IOU_DEDUPE:
+        return True
+    smaller = min(float(a.sum()), float(b.sum()))
+    return smaller > 0 and inter / smaller >= CONTAIN_DEDUPE
 
 
 def _bbox(mask):
@@ -195,46 +277,88 @@ def _bbox(mask):
     return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
 
 
+def _crop_bounds(length, center_frac, crop_frac=ITEM_CROP_FRAC):
+    """Return a fixed-size crop around a normalized point, clamped to image."""
+    size = min(length, max(1, round(length * crop_frac)))
+    start = max(0, min(length - size,
+                        round(length * center_frac - size / 2)))
+    return start, start + size
+
+
 def segment_items(image_bgr):
-    """Detect distinct food vessels on a (possibly multi-item) capture.
+    """Detect distinct food regions using a dense, batched local point grid.
 
-    3x3 point grid inside a coarse centre box (the grid9_box diagnostic
-    strategy of ledger 014, promoted to a serving primitive). Candidates are
-    selected with the same _select() logic as the single-mask path, deduped
-    by IoU >= IOU_DEDUPE (largest mask wins), area-gated to
-    [AREA_MIN, AREA_MAX], and capped at MAX_ITEMS, largest first.
-
-    Returns {"items": [{"mask": bool (H,W), "sam_score", "area_frac",
-    "bbox"}], "strategy": "grid9_box"}. Raises RuntimeError when no usable
-    mask exists, so the stage degrades honestly like the single-mask path.
+    Each point is evaluated in its own crop so adjacent food regions can be
+    proposed independently. Candidates are deduplicated and area-gated; no
+    fixed maximum silently truncates a meal.
     """
     H, W = image_bgr.shape[:2]
     _load()
     rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-    box = [W * 0.1, H * 0.1, W * 0.9, H * 0.9]
+    prompts = []
+    for gy in ITEM_GRID:
+        y1, y2 = _crop_bounds(H, gy)
+        for gx in ITEM_GRID:
+            x1, x2 = _crop_bounds(W, gx)
+            prompts.append(((gx, gy), (x1, y1, x2, y2), rgb[y1:y2, x1:x2]))
 
-    kept = []  # (small_mask, score), largest first
-    for gy in (0.3, 0.5, 0.7):
-        for gx in (0.3, 0.5, 0.7):
-            cands = _query(rgb, (W * gx, H * gy), box=box)
-            k = _select(cands)
+    kept = []  # (full-frame projected mask, score), largest first
+    rejected = []
+    for offset in range(0, len(prompts), ITEM_PROMPT_BATCH):
+        batch = prompts[offset:offset + ITEM_PROMPT_BATCH]
+        batch_candidates = _query_batch([entry[2] for entry in batch])
+        for ((gx, gy), (x1, y1, x2, y2), _crop_rgb), cands in zip(
+                batch, batch_candidates):
+            crop_rgb = _crop_rgb
+            crop_h, crop_w = crop_rgb.shape[:2]
+            k = _select(cands, require_solid=True)
             if k is None:
+                rejected.append({
+                    "point": (gx, gy),
+                    "crop": (x1, y1, x2, y2),
+                    "candidates": [
+                        (round(float(mask.mean()), 4),
+                         round(_solidity(mask), 3), round(score, 3))
+                        for mask, _logits, score in cands
+                    ],
+                })
                 continue
             small, _logits, score = cands[k]
-            a = float(small.mean())
-            if not (AREA_MIN <= a <= AREA_MAX):
+            local_mask = cv2.resize(
+                _logits, (crop_w, crop_h),
+                interpolation=cv2.INTER_LINEAR) > 0.0
+            full = np.zeros((H, W), dtype=bool)
+            full[y1:y2, x1:x2] = local_mask
+            area_frac = float(full.mean())
+            if not (ITEM_AREA_MIN <= area_frac <= AREA_MAX):
+                rejected.append({
+                    "point": (gx, gy),
+                    "crop": (x1, y1, x2, y2),
+                    "selected": k,
+                    "area": round(area_frac, 4),
+                    "solidity": round(_solidity(small), 3),
+                    "score": round(score, 3),
+                    "reason": "area",
+                })
                 continue
-            if all(_iou(small, m) < IOU_DEDUPE for m, _ in kept):
-                kept.append((small, score))
+            if all(not _same_vessel(full, m) for m, _ in kept):
+                kept.append((full, score))
     kept.sort(key=lambda m: float(m[0].sum()), reverse=True)
-    kept = kept[:MAX_ITEMS]
+    candidate_count = len(kept)
     if not kept:
+        log.warning(
+            "SAM2 dense-grid detector found no usable region; prompt proposals "
+            "(area fraction, solidity, SAM score): %s", rejected)
         raise RuntimeError("SAM2 produced no usable food mask")
 
     items = []
-    for small, score in kept:
-        full = cv2.resize(small.astype(np.uint8), (W, H),
-                          interpolation=cv2.INTER_NEAREST).astype(bool)
+    for full, score in kept:
         items.append({"mask": full, "sam_score": score,
                       "area_frac": float(full.mean()), "bbox": _bbox(full)})
-    return {"items": items, "strategy": "grid9_box"}
+    return {
+        "items": items,
+        "strategy": "dense_grid_box",
+        "candidate_count": candidate_count,
+        "truncated_count": 0,
+        "seed_prompt_count": len(prompts),
+    }

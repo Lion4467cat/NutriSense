@@ -49,9 +49,9 @@ dataset:
 # ADR 0003 + spec decision 2). `background` is not a dish and never serves.
 #
 # serving: WED class name -> {dish: <serving key>}. Serving keys are either a
-#   data/menu.yaml dish (3 classes that ARE that menu dish's embodiment and
-#   keep its exact current verdict path, wheat_product's out_of_scope gate
-#   included) or an off_menu entry keyed by the WED class name itself.
+#   data/menu.yaml dish or an off_menu entry keyed by the WED class name itself.
+#   School mode assesses every recognized in-scope class against its band
+#   standard; generic nutrient rows are marked as assumptions.
 #
 # off_menu: per-class serving entries for the 38 remaining classes. Each has
 #   its own wed_slots slot, nutrition_source: generic (the generic per-100 g

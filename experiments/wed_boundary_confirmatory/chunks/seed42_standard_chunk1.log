@@ -1,0 +1,67 @@
+[W1103 09:54:41.747705699 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 12582912 bytes (free: 10944512, total: 8272019456).
+[W1103 09:54:41.747797298 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 12582912 bytes (free: 10944512, total: 8272019456).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_boundary_confirmatory.py", line 524, in <module>
+    main()
+    ~~~~^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_boundary_confirmatory.py", line 505, in main
+    result = run_chunk(
+        manifest=args.manifest, wed_root=args.wed_root,
+        output=args.output, seed=args.seed, loss_kind=args.loss_kind,
+        epoch_chunk=args.epoch_chunk, workers=args.workers,
+        device_name=args.device)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_boundary_confirmatory.py", line 434, in run_chunk
+    return _train_run(
+        seed=seed, loss_kind=loss_kind, initialization=initialization,
+    ...<2 lines>...
+        output=output, device=device, workers=workers,
+        max_new_epochs=epoch_chunk)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_boundary_confirmatory.py", line 194, in _train_run
+    logits = model(images)["out"]
+             ~~~~~^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/segmentation/_utils.py", line 23, in forward
+    features = self.backbone(x)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/_utils.py", line 69, in forward
+    x = module(x)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/container.py", line 253, in forward
+    input = module(input)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/resnet.py", line 150, in forward
+    out = self.conv2(out)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/conv.py", line 565, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/conv.py", line 560, in _conv_forward
+    return F.conv2d(
+           ~~~~~~~~^
+        input, weight, bias, self.stride, self.padding, self.dilation, self.groups
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 12.00 MiB. GPU 0 has a total capacity of 7.70 GiB of which 10.44 MiB is free. Process 1646 has 7.30 MiB memory in use. Process 36167 has 5.84 GiB memory in use. Including non-PyTorch memory, this process has 1.80 GiB memory in use. Of the allocated memory 1.66 GiB is allocated by PyTorch, and 26.44 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

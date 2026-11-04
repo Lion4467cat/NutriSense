@@ -36,6 +36,8 @@ def _fill_depth(z):
     bad = ~np.isfinite(z) | (z <= 0)
     if bad.all():
         raise ValueError("no valid depth under region")
+    if float(bad.mean()) > 0.05:
+        raise ValueError("more than 5% of geometry samples have invalid depth")
     if bad.any():
         z = z.copy()
         z[bad] = np.median(z[~bad])
@@ -83,6 +85,11 @@ def _fit_base_table(depth, mask, K, params, cfg):
     k_far = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * far + 1, 2 * far + 1))
     band = (cv2.dilate(mask.astype(np.uint8), k_far) > 0) & \
            ~(cv2.dilate(mask.astype(np.uint8), k_near) > 0)
+    exclude_mask = cfg.get("exclude_mask")
+    if exclude_mask is not None:
+        filtered = band & ~np.asarray(exclude_mask, dtype=bool)
+        if int(filtered.sum()) >= 300:
+            band = filtered
     if int(band.sum()) < 300:
         return None, 0.0, "background band too thin"
     bv, bu = np.nonzero(band)
@@ -100,6 +107,45 @@ def _fit_base_table(depth, mask, K, params, cfg):
     c = float(c) - delta_m * nrm  # food base sits ABOVE the table -> closer to camera
     sigma_mm = float(_p(params, "base_prior_sigma_mm"))
     return (float(a), float(b), float(c)), sigma_mm, f"table_prior (rms {rms * 1000:.1f}mm)"
+
+
+def _fit_base_card(depth, anchor, K, params):
+    """Fit base plane directly to the measured ArUco card on the table."""
+    if (anchor or {}).get("label") != "measured":
+        return None, 0.0, "anchor not measured"
+    corners = (anchor.get("extras") or {}).get("marker_corners_px")
+    if corners is None or len(corners) < 4:
+        return None, 0.0, "no marker corners"
+    corners_arr = np.asarray(corners, dtype=np.float64).reshape(4, 2)
+    H, W = depth.shape[:2]
+    centroid = np.mean(corners_arr, axis=0)
+    expanded_corners = centroid + 1.15 * (corners_arr - centroid)
+    poly = np.zeros((H, W), dtype=np.uint8)
+    cv2.fillConvexPoly(poly, np.round(expanded_corners).astype(np.int32), 1)
+    v, u = np.nonzero(poly)
+    if len(u) < 30:
+        poly = np.zeros((H, W), dtype=np.uint8)
+        cv2.fillConvexPoly(poly, np.round(corners_arr).astype(np.int32), 1)
+        v, u = np.nonzero(poly)
+    if len(u) < 30:
+        return None, 0.0, "marker mask too small"
+    step = max(1, len(u) // 5000)
+    v, u = v[::step], u[::step]
+    z = depth[v, u]
+    valid = np.isfinite(z) & (z > 0.05) & (z < 3.0)
+    if int(valid.sum()) < 20:
+        return None, 0.0, "marker depth points invalid"
+    v, u, z = v[valid], u[valid], z[valid]
+    cpts = _unproject(u, v, z, K)
+    a, b, c, rms = fit_plane(cpts)
+    rms_mm = rms * 1000.0
+    if rms_mm > 20.0:
+        return None, rms_mm, f"marker plane rms {rms_mm:.1f}mm too high"
+    nrm = float(np.sqrt(a * a + b * b + 1.0))
+    delta_m = _p(params, "base_prior_height_mm") / 1000.0
+    c = float(c) - delta_m * nrm
+    sigma_mm = max(float(rms_mm), float(_p(params, "base_prior_sigma_mm")))
+    return (float(a), float(b), float(c)), sigma_mm, f"table_card (rms {rms_mm:.1f}mm)"
 
 
 def _footprint_scale(mask, anchor, params):
@@ -138,6 +184,28 @@ def _footprint_scale(mask, anchor, params):
     cm_px = (diam_mm / 10.0) * np.cos(np.radians(tilt_deg)) / diam_px
     rel = (hi - lo) / 2.0 / np.sqrt(3.0) / diam_mm  # uniform interval sigma
     return cm_px, rel, tilt_deg, 8.66, tier
+
+
+def _homography_footprint_area_cm2(mask, H, fallback_area):
+    """Integrate local planar area under H^-1 (mm^2 -> cm^2) across mask pixels."""
+    try:
+        H_arr = np.asarray(H, dtype=np.float64)
+        if H_arr.shape != (3, 3):
+            return fallback_area
+        inv_H = np.linalg.inv(H_arr)
+        det = abs(float(np.linalg.det(inv_H)))
+    except np.linalg.LinAlgError:
+        return fallback_area
+    if not np.isfinite(det) or det <= 0.0:
+        return fallback_area
+    vs, us = np.nonzero(mask)
+    w = inv_H[2, 0] * us + inv_H[2, 1] * vs + inv_H[2, 2]
+    if np.any(w <= 1e-4):
+        return fallback_area
+    area_cm2 = float(np.sum(det / (w ** 3))) / 100.0
+    if not np.isfinite(area_cm2) or not (0.25 * fallback_area <= area_cm2 <= 4.0 * fallback_area):
+        return fallback_area
+    return area_cm2
 
 
 def _components(dish):
@@ -181,18 +249,27 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
     z_all = depth[vs, us]
     invalid_frac = float(np.mean(~np.isfinite(z_all) | (z_all <= 0)))
     if invalid_frac > 0.05:
+        raise ValueError(
+            f"food-region depth invalid fraction {invalid_frac:.1%} exceeds 5%")
+    if invalid_frac > 0:
         flags.append("depth_partial")
     z = _fill_depth(z_all)
     pts = _unproject(us, vs, z, K)
 
     # --- base plane -------------------------------------------------------
     base, sigma_base_mm, method = None, 0.0, "table_prior"
+    card_fitted = False
     if cfg.get("base_method", "auto") in ("auto", "ring"):
         base, sigma_base_mm, method = _fit_base_ring(depth, mask, K, params, cfg)
     if base is None and cfg.get("base_method", "auto") in ("auto", "table_prior"):
-        base, sigma_base_mm, why = _fit_base_table(depth, mask, K, params, cfg)
+        if (anchor or {}).get("label") == "measured" and (anchor.get("extras") or {}).get("marker_corners_px"):
+            base, sigma_base_mm, _ = _fit_base_card(depth, anchor, K, params)
+            if base is not None:
+                card_fitted = True
         if base is None:
-            raise ValueError(f"base plane fit failed: {why}")
+            base, sigma_base_mm, why = _fit_base_table(depth, mask, K, params, cfg)
+            if base is None:
+                raise ValueError(f"base plane fit failed: {why}")
         method = "table_prior"
         flags.append("vessel_shape_uncertain")
     elif method == "ring":
@@ -203,9 +280,25 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
     a, b, c = base
     nrm = float(np.sqrt(a * a + b * b + 1.0))
     h_cam = (a * pts[:, 0] + b * pts[:, 1] + c) - pts[:, 2]  # base minus food (camera looks down)
+    if method == "table_prior":
+        delta_m = _p(params, "base_prior_height_mm") / 1000.0
+        h_raw = h_cam + delta_m * nrm
+        raw_med = float(np.median(h_raw))
+        if card_fitted:
+            # Table plane anchored to ArUco card on table; deduct steel-plate floor thickness
+            # Clamped so at least 65% of the food mound's median height above tabletop is preserved
+            deduct = min(delta_m * nrm, 0.35 * max(raw_med, 0.0))
+            if raw_med > 0.0:
+                h_cam = h_raw - deduct
+            else:
+                h_cam = np.maximum(h_cam, 0.002 * nrm)
+        else:
+            if raw_med > 0.0:
+                h_cam = h_raw - min(delta_m * nrm, 0.4 * raw_med)
+            else:
+                h_cam = np.maximum(h_cam, 0.002 * nrm)
     if float(np.median(h_cam)) < 0:
-        h_cam = -h_cam
-        flags.append("base_sign_flip")
+        h_cam = np.maximum(h_cam, 0.002 * nrm)
     h_mm = np.clip(h_cam, 0.0, None) / nrm * 1000.0
     mean_h_mm = float(h_mm.mean())
     if mean_h_mm < 3.0:
@@ -220,6 +313,8 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
     # mean-side cm/px under-foreshortens: p = L(1+cos)/(2M); A_tab = A_img/p^2/cos
     de_foreshorten = ((1.0 + np.cos(tilt_rad)) / 2.0) ** 2 / np.cos(tilt_rad)
     area_cm2 = float(mask.sum()) * cm_px * cm_px * de_foreshorten
+    if tier == "measured" and anchor.get("H") is not None:
+        area_cm2 = _homography_footprint_area_cm2(mask, anchor["H"], area_cm2)
     if tier == "prior":
         flags.append("size_prior_scale")
 
@@ -236,6 +331,7 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
         "base": min(1.0, sigma_base_mm / max(mean_h_mm, 1.0)),
         "density": _p(params, "density_sigma_pct") / 100.0,
     }
+    sigma_rel["depth"] = float(np.hypot(sigma_rel["depth"], invalid_frac))
     sigma_grams_rel = float(np.sqrt(sum(v * v for v in sigma_rel.values())))
 
     return {

@@ -9,6 +9,7 @@ import torch
 from engine.contract import WIRE_KEYS
 from engine.pipeline import analyze as pipe_analyze
 from models import registry
+from tests.conftest import OK_EXIF
 from tests.test_pipeline_seams import make_deps, no_card_scene, scene
 
 
@@ -56,7 +57,7 @@ def test_oom_retries_once_then_succeeds(scene, monkeypatch):
         return deps["segment"](img)
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene, segment=flaky_segment))
+                       deps=make_deps(scene, segment=flaky_segment), exif=OK_EXIF)
     assert calls["n"] == 2                      # exactly one retry
     assert recovered["unload"] >= 1             # registry model offload ran
     assert recovered["clear_cache"] >= 1        # cache clear ran
@@ -72,12 +73,14 @@ def test_oom_twice_is_structured_failure_never_crash(scene):
         raise _fake_oom()
 
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene, segment=always_oom))
+                       deps=make_deps(scene, segment=always_oom), exif=OK_EXIF)
     assert set(out) == set(WIRE_KEYS)           # full shape, never a 500
     assert out["verdict"] == "cannot_verify"
     assert out["failures"][0]["kind"] == "stage_failed"
     assert out["failures"][0]["stage"] == "segment"
-    assert "OutOfMemoryError" in out["failures"][0]["error"]
+    # raw exception text is redacted for clients (AUDIT P1); the structured
+    # kind + stage in failures[] still identify the failure
+    assert out["failures"][0]["error"].startswith("analysis stage failed")
     assert out["reasons"][0]["kind"] == "stage_failed"
     assert out["degradations"] == ["gpu_oom_retried"]  # retry was attempted
     assert out["portion"] is None
@@ -87,7 +90,7 @@ def test_oom_twice_is_structured_failure_never_crash(scene):
 def test_oom_inside_head_retries_to_learned_grams(no_card_scene):
     head = _OomOnceHead(250.0)
     out = pipe_analyze(no_card_scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(no_card_scene) | {"weight_head": head})
+                       deps=make_deps(no_card_scene) | {"weight_head": head}, exif=OK_EXIF)
     assert head.calls == 2                      # OOM, then the successful retry
     assert out["failures"] == []
     assert out["degradations"] == ["gpu_oom_retried"]
@@ -98,7 +101,7 @@ def test_oom_inside_head_retries_to_learned_grams(no_card_scene):
 
 def test_clean_run_records_no_degradations(scene):
     out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5",
-                       deps=make_deps(scene))
+                       deps=make_deps(scene), exif=OK_EXIF)
     assert out["degradations"] == []
     assert out["failures"] == []
     assert out["path_used"] == "card_geometry"

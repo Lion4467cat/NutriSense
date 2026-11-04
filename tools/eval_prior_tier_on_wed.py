@@ -35,8 +35,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -66,6 +68,7 @@ DEFAULT_DENSITY = 1.0
 DEPTH_CACHE = Path("/tmp/wed_depth")
 SPLIT_SEED = 42
 VAL_FRAC = 0.10
+LOCKED_LOG = _ROOT / "docs" / "locked_access_log.txt"
 
 
 def _pseudo_dish(density: float) -> dict:
@@ -100,11 +103,20 @@ def _plate_key(row: dict) -> str:
     return f"{row['date_key']}_{row['set']}"
 
 
-def _rows_for(split: str, limit: int | None) -> list[dict]:
+def _rows_for(split: str, limit: int | None, *,
+              allow_locked: bool = False,
+              access_log_out: Path | None = None) -> list[dict]:
     if split == "dev":
         from tools.run_eval import dev_rows
         rows = dev_rows()
     else:
+        if split == "test" and not allow_locked:
+            raise PermissionError(
+                "WED test data is locked; --i-know-this-is-locked is required"
+            )
+        if split == "test":
+            _append_locked_access(access_log_out or Path("programmatic-run"),
+                                  limit)
         rows = []
         with (_ROOT / "data" / "wed_manifest.jsonl").open() as fh:
             for line in fh:
@@ -117,8 +129,11 @@ def _rows_for(split: str, limit: int | None) -> list[dict]:
 
 
 def evaluate(split: str, limit: int | None, intrinsics: str,
-             depth_scale: float = 1.0) -> dict:
-    rows = _rows_for(split, limit)
+             depth_scale: float = 1.0, *,
+             allow_locked: bool = False,
+             access_log_out: Path | None = None) -> dict:
+    rows = _rows_for(split, limit, allow_locked=allow_locked,
+                     access_log_out=access_log_out)
 
     cfg = load_anchor_config()
     params = load_params()
@@ -281,11 +296,33 @@ def compare(path_a: str, path_b: str, n_boot: int = 2000,
     }
 
 
+def _append_locked_access(out: Path, limit: int | None) -> None:
+    try:
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=_ROOT, text=True, timeout=10,
+        ).strip()
+    except Exception:
+        sha = "unknown"
+    try:
+        output = str(out.relative_to(_ROOT))
+    except ValueError:
+        output = str(out)
+    line = (f"{datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}"
+            f" | git={sha} | tool=eval_prior_tier_on_wed | tier=locked"
+            f" | flag=--i-know-this-is-locked"
+            f" | limit={limit} | out={output}\n")
+    with LOCKED_LOG.open("a") as fh:
+        fh.write(line)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--split", default="test", choices=["train", "test", "dev"])
+    ap.add_argument("--split", default="dev", choices=["train", "test", "dev"])
+    ap.add_argument("--i-know-this-is-locked", action="store_true",
+                    help="required for --split test; logs protected-split access")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--intrinsics", default="fallback",
                     choices=["fallback", "moge"])
@@ -309,9 +346,14 @@ def main() -> None:
         print(f"wrote {out}")
         return
 
-    report = evaluate(args.split, args.limit, args.intrinsics,
-                      depth_scale=args.depth_scale)
+    if args.split == "test" and not args.i_know_this_is_locked:
+        ap.error("--split test requires --i-know-this-is-locked")
+
     out = Path(args.out)
+    report = evaluate(args.split, args.limit, args.intrinsics,
+                      depth_scale=args.depth_scale,
+                      allow_locked=args.i_know_this_is_locked,
+                      access_log_out=out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({k: v for k, v in report.items()

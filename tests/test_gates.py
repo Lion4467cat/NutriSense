@@ -6,6 +6,7 @@ with stage attribution zoom/day/band -> input and scope -> classify.
 import pytest
 
 from engine.pipeline import analyze as pipe_analyze
+from engine.gates import SCOPE_GATE, admit
 from tests.test_pipeline_seams import make_deps
 
 
@@ -28,6 +29,11 @@ def _zoom_gate(scene):
                         exif=exif, deps=deps)
 
 
+#: known unzoomed metadata; unknown metadata is handled as estimate-only.
+_OK_EXIF = {"focal_mm": None, "subject_distance_cm": None,
+            "digital_zoom": 1.0, "camera": None}
+
+
 def test_zoom_gate_abstains_with_kind_membership(scene):
     out = _zoom_gate(scene)
     assert out["verdict"] == "cannot_verify"
@@ -37,9 +43,23 @@ def test_zoom_gate_abstains_with_kind_membership(scene):
     assert out["failures"][0]["error"] == out["reasons"][0]["text"]
 
 
+def test_unknown_zoom_metadata_keeps_food_identification(scene):
+    """Missing EXIF should preserve recognition while withholding scoring."""
+    deps = _admitted_plate(scene)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps,
+                       exif={"focal_mm": None, "subject_distance_cm": None,
+                             "digital_zoom": None, "camera": None})
+    assert out["verdict"] == "ESTIMATED"
+    assert out["classification"]["dish"] == "rice_sambar"
+    assert out.get("compliance") is None
+    assert any("Digital-zoom metadata is missing" in reason["text"]
+               for reason in out["reasons"])
+
+
 def test_unknown_day_gate(scene):
     deps = _admitted_plate(scene)
-    out = pipe_analyze(scene["image_bgr"], day="sunday", band="1-5", deps=deps)
+    out = pipe_analyze(scene["image_bgr"], day="sunday", band="1-5", deps=deps,
+                       exif=dict(_OK_EXIF))
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "unknown_day"
     assert out["failures"][0]["stage"] == "input"
@@ -47,26 +67,27 @@ def test_unknown_day_gate(scene):
 
 def test_unknown_band_gate(scene):
     deps = _admitted_plate(scene)
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="99-100", deps=deps)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="99-100", deps=deps,
+                       exif=dict(_OK_EXIF))
     assert out["verdict"] == "cannot_verify"
     assert out["reasons"][0]["kind"] == "unknown_band"
     assert out["failures"][0]["stage"] == "input"
 
 
-def test_scope_gate_abstains_at_classify(scene):
-    deps = _admitted_plate(scene, classify=lambda img: {
-        "dish": "wheat_product", "confidence": 1.0, "method": "stub",
-        "match_score": 0.9, "reason": "stub"})
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps)
-    assert out["verdict"] == "out_of_scope"
-    assert out["reasons"][0]["kind"] == "out_of_scope"
-    assert out["failures"][0]["kind"] == "gate_rejected"
-    assert out["failures"][0]["stage"] == "classify"
+def test_scope_gate_still_rejects_explicitly_scoped_dishes():
+    out = admit(SCOPE_GATE, dish={"status": "out_of_scope"})
+    assert not out.admitted
+    assert out.reason is not None
+    assert out.failure is not None
+    assert out.reason.kind == "out_of_scope"
+    assert out.failure.kind == "gate_rejected"
+    assert out.failure.stage == "classify"
 
 
 def test_admitted_plate_carries_no_gate_abstentions(scene):
     deps = _admitted_plate(scene)
-    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps)
+    out = pipe_analyze(scene["image_bgr"], day="mon", band="1-5", deps=deps,
+                       exif=dict(_OK_EXIF))
     assert out["verdict"] in {"PASS", "FAIL", "BORDERLINE"}
     assert out["failures"] == []
     gate_kinds = {"zoom", "unknown_day", "unknown_band", "out_of_scope"}

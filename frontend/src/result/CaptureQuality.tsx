@@ -54,19 +54,9 @@ export default function CaptureQuality({ result }: { result: AnalyzeResult }) {
   });
 
   rows.push({
-    name: "Capture validity",
-    level:
-      result.verdict === "cannot_verify"
-        ? "bad"
-        : lint?.notes?.length
-          ? "warn"
-          : "good",
-    value:
-      result.verdict === "cannot_verify"
-        ? "capture not verifiable"
-        : lint?.notes?.length
-          ? `${lint.notes.length} note${lint.notes.length > 1 ? "s" : ""}`
-          : "clean",
+    name: "Photo decoding",
+    level: lint ? "good" : "idle",
+    value: lint ? "readable" : "not assessed",
   });
 
   return (

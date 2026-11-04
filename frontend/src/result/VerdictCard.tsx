@@ -4,7 +4,6 @@ import { verdictMeta } from  "./verdicts";
 import { formatPct } from  "../utils/format";
 import { firstReasonText } from  "../utils/reasons";
 import { EASE, popIn, revealContainer, revealItem } from "../ui/motion";
-import Celebrate from "../ui/Celebrate";
 
 /**
  * Wave-1 verdict reveal: staggered fade-up on first paint with a spring pop
@@ -13,6 +12,7 @@ import Celebrate from "../ui/Celebrate";
  */
 export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const meta = verdictMeta(result.verdict);
+  const VerdictIcon = meta.icon;
   const cov = result.coverage;
   const dish = result.dish;
   const conf = result.classification?.confidence;
@@ -26,9 +26,8 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
       animate="show"
     >
       <motion.span className="verdict-ico" aria-hidden="true" variants={popIn}>
-        {meta.icon}
+        <VerdictIcon size={20} />
       </motion.span>
-      {meta.key === "PASS" && <Celebrate />}
       <motion.div style={{ minWidth: 0 }} variants={revealItem}>
         <h2 className="verdict-label" id="verdict-label">
           {meta.label}

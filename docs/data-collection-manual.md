@@ -42,7 +42,7 @@ The Karnataka MDM menu rotates like this (from `data/menu.yaml`):
 | Wed | Rice & Sambar | `rice_sambar` | ✅ |
 | Thu | Rice & Sambar | `rice_sambar` | ✅ |
 | Fri | Bisi Bele Bath | `bisibelebath` | ✅ (needs ≥ 2 **dev** plates — M7 rule) |
-| Sat | Wheat product (roti/chapati) | `wheat_product` | ❌ out of scope — never capture |
+| Sat | Wheat product (roti/chapati) | `wheat_product` | Generic estimate is supported with assumed cooked-roti nutrients; excluded from this menu-weight collection plan |
 | any | Vegetable Rice | `vegetable_rice` | not on the current schedule (days: []) |
 
 **Splits (30 plates total):** pilot 4 · dev 13 · holdout 13.
@@ -227,7 +227,7 @@ The pipeline reports what it achieved: after upload, check the result's
 | `day` | `mon, tue, wed, thu, fri, sat` | must match the school day |
 | `band` | `1-5`, `6-8`, `9-10` | the band the tray was served to |
 | `dish` | menu.yaml id or its alias (`pepper_rasam_rice` → `rice_sambar`) | must be served **that day** or the API rejects it |
-| `serving_style` | `mixed` = components stirred together; `single` = served separate | affects composition rules |
+| `serving_style` | `mixed` = components stirred together; `single` = served separate | optional dataset annotation only; current meal-region detection is inferred from the photo |
 | `anchor` | which markers were actually in the photo | drives tier expectations |
 | `notes` | free text | substitutions, odd lighting, etc. |
 

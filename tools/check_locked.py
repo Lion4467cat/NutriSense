@@ -31,7 +31,7 @@ Regenerating the manifest re-pins what the evaluation is allowed to be:
 That is a deliberate, approved act (docs/eval_protocol.md "Changing the
 evaluation"), not an ordinary fix.
 
-Run:  .venv/bin/python -m tools.check_locked [--write] [--quiet]
+Run:  .venv/bin/python -m tools.check_locked [--write [--code-only]] [--quiet]
 Exit: 0 = pinned files match · 1 = changed / missing / unreadable
 """
 from __future__ import annotations
@@ -76,13 +76,14 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def locked_paths(root: Path) -> list[str]:
+def locked_paths(root: Path, *, include_locked_images: bool = True) -> list[str]:
     """Deterministic file list: (a) + (b) + (c), sorted, repo-relative."""
     paths = [p for p in [*CODE, *DATA] if (root / p).is_file()]
-    test_dir = root / LOCAL_ONLY
-    if test_dir.is_dir():
-        paths += sorted(str(p.relative_to(root))
-                        for p in test_dir.rglob("*") if p.is_file())
+    if include_locked_images:
+        test_dir = root / LOCAL_ONLY
+        if test_dir.is_dir():
+            paths += sorted(str(p.relative_to(root))
+                            for p in test_dir.rglob("*") if p.is_file())
     return sorted(paths)
 
 
@@ -99,9 +100,22 @@ def read_manifest(path: Path) -> dict[str, str]:
     return entries
 
 
-def write_manifest(path: Path = MANIFEST, root: Path = _ROOT) -> int:
+def write_manifest(path: Path = MANIFEST, root: Path = _ROOT, *,
+                   code_only: bool = False) -> int:
     from datetime import UTC, datetime
-    rows = locked_paths(root)
+    preserved_images: dict[str, str] = {}
+    if code_only:
+        if not path.is_file():
+            raise ValueError("code-only re-pin requires an existing manifest")
+        preserved_images = {
+            rel: digest for rel, digest in read_manifest(path).items()
+            if rel.startswith(LOCAL_ONLY)
+        }
+        if not preserved_images:
+            raise ValueError("code-only re-pin requires existing locked-image pins")
+        rows = locked_paths(root, include_locked_images=False)
+    else:
+        rows = locked_paths(root)
     lines = [
         "# docs/locked_manifest.txt — SHA-256 pins for the WED evaluation.",
         "# Scope: eval code (tools/run_eval, tools/stress_suite,",
@@ -113,11 +127,13 @@ def write_manifest(path: Path = MANIFEST, root: Path = _ROOT) -> int:
         "# Verify: .venv/bin/python -m tools.check_locked",
         "# Regenerate ONLY deliberately, with approval:",
         "#   .venv/bin/python -m tools.check_locked --write",
-        f"# written: {datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}  files: {len(rows)}",
+        "# Add --code-only to refresh code/split pins without opening locked images.",
+        f"# written: {datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}  files: {len(rows) + len(preserved_images)}",
     ]
     lines += [f"{sha256(root / rel)}  {rel}" for rel in rows]
+    lines += [f"{digest}  {rel}" for rel, digest in sorted(preserved_images.items())]
     path.write_text("\n".join(lines) + "\n")
-    return len(rows)
+    return len(rows) + len(preserved_images)
 
 
 def check(path: Path = MANIFEST, root: Path = _ROOT, *, quiet: bool = False) -> int:
@@ -167,12 +183,16 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true",
                     help="regenerate docs/locked_manifest.txt (approved changes only)")
+    ap.add_argument("--code-only", action="store_true",
+                    help="with --write, refresh code/split hashes and preserve locked-image hashes without opening images")
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--manifest", type=Path, default=MANIFEST)
     ap.add_argument("--root", type=Path, default=_ROOT)
     args = ap.parse_args(argv)
+    if args.code_only and not args.write:
+        ap.error("--code-only requires --write")
     if args.write:
-        n = write_manifest(args.manifest, args.root)
+        n = write_manifest(args.manifest, args.root, code_only=args.code_only)
         print(f"wrote {args.manifest} ({n} files)")
         return 0
     return check(args.manifest, args.root, quiet=args.quiet)

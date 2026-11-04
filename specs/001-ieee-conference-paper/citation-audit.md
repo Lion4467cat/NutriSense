@@ -1,6 +1,6 @@
 # Citation and Source Audit
 
-**Audited**: 2026-10-27  
+**Sources last checked**: 2026-10-27; manuscript claims rechecked against current source on 2026-11-02
 **Scope**: All in-text citations in `paper/main.tex`, every entry in `paper/references.bib`, the metadata shown by the compiled IEEE bibliography, and whether each cited source supports its nearby claim. Sources were checked at the publisher, official project, author/institution, or government source that owns them. The NutriSense repository is not cited as an external reference; project metrics are identified as author-generated results with their evaluation scope stated in the manuscript.
 
 ## Citation-by-citation findings
@@ -38,4 +38,4 @@ All eleven bibliography keys are cited in `paper/main.tex`; each citation resolv
 - Synthetic geometry/depth values, gallery leave-one-out counts, and WED DEV figures are author-generated results and retain their evaluation scope in the manuscript.
 - WED evidence supports its dataset/annotation description, not the still-pending NutriSense real-meal field dataset.
 - National PM POSHAN coverage ends at class VIII. Karnataka separately documents IX–X extension; the 9–10 calorie/protein cutoff is explicitly labeled an application mapping from upper-primary quantities, not an official Karnataka grade-specific norm.
-- The classifier returns one selected dish per capture, so the policy category is not a whole-meal compliance decision for a multi-dish plate.
+- The current pipeline can aggregate estimates from multiple detected food regions, but estimate-only fallbacks suppress the school-compliance verdict. The pilot has not been rerun after this integration, so real-photo multi-item accuracy is unknown.

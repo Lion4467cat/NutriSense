@@ -30,6 +30,12 @@ foods:
     status: assumed
     source: "rice+pulses+vegetable one-pot estimate; calibrate against recipe (M-gate)"
 
+  wheat_roti:
+    kcal_per_100g: 300
+    protein_g_per_100g: 9.5
+    status: assumed
+    source: "assumed cooked-roti value based on ICMR-NIN IFCT 2017 A019 raw atta composition (1340 kJ, 10.57 g protein/100 g) plus assumed cooking yield; recipe, size, and added fat vary"
+
   curd:
     kcal_per_100g: 60
     protein_g_per_100g: 3.1

@@ -1,643 +1,188 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useGoals } from "../context/goals";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
-import { resolveGoal, shareOfGoal, type DailyGoal } from "../services/goals";
-import { Card, EmptyState } from "../ui/primitives";
 import { VerdictPill } from "../result/VerdictPill";
-import {
-  IconCamera,
-  IconChart,
-  IconHistory,
-} from "../ui/Icon";
-import { formatDate, formatNum, formatPct, localDateKey } from "../utils/format";
-import {
-  SCORED_VERDICTS,
-  dayTotals,
-  sharesOfGoal,
-  tally,
-  type AnalysisRecord,
-} from "../services/records";
-import { revealContainer, revealItem, useCountUp } from "../ui/motion";
+import { Card, EmptyState } from "../ui/primitives";
+import { Magnetic, TiltPanel } from "../ui/fx";
+import { IconCamera, IconHistory } from "../ui/Icon";
+import { revealContainer, revealItem, scrollReveal } from "../ui/motion";
+import { formatDate, formatNum } from "../utils/format";
 
-function daysAgo(n: number): number {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.getTime();
-}
-
-/** Wave-2: animated numeric KPI — counts 0→to on mount, formatted by `fmt`.
- *  The settled value is fmt(to) exactly, so steady-state UI is unchanged. */
-function CountText({ to, fmt }: { to: number; fmt: (v: number) => string }) {
-  return <>{useCountUp(to, fmt)}</>;
-}
-
-function Kpi({
-  label,
-  value,
-  foot,
-  trend,
-  icon,
-  cls,
-  count,
-}: {
-  label: string;
-  value: string;
-  foot: string;
-  trend?: { dir: "up" | "down" | "flat"; text: string };
-  icon: React.ReactNode;
-  cls: "pass" | "warn" | "fail" | "info";
-  count?: { to: number; fmt: (v: number) => string };
-}) {
-  return (
-    <motion.article
-      className="kpi"
-      variants={revealItem} // staggered by the kpi-grid motion container
-    >
-      <div className="kpi-top">
-        <span className="kpi-label">{label}</span>
-        <span className={`kpi-ico ${cls}`} aria-hidden="true">
-          {icon}
-        </span>
-      </div>
-      <div className="kpi-value">
-        {count ? <CountText to={count.to} fmt={count.fmt} /> : value}
-      </div>
-      <div className="kpi-foot">
-        <span>{foot}</span>
-        {trend && <span className={`kpi-trend ${trend.dir}`}>{trend.text}</span>}
-      </div>
-    </motion.article>
-  );
-}
-
-function ComplianceOverview({ records }: { records: AnalysisRecord[] }) {
-  const byDay = new Map<string, Record<string, number>>();
-  for (const r of records.slice(0, 60)) {
-    const key = localDateKey(r.createdAt);
-    const bucket = byDay.get(key) || { PASS: 0, BORDERLINE: 0, FAIL: 0, other: 0 };
-    if (SCORED_VERDICTS.includes(r.summary.verdict)) bucket[r.summary.verdict] += 1;
-    else bucket.other += 1;
-    byDay.set(key, bucket);
-  }
-  const days = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-14);
-  const max = Math.max(1, ...days.map(([, v]) => v.PASS + v.BORDERLINE + v.FAIL + v.other));
-
-  if (days.length === 0) return null;
-
-  return (
-    <div className="compliance-chart">
-      <div className="chart-legend">
-        <span><span className="legend-dot" style={{ background: "var(--pass)" }} />Pass</span>
-        <span><span className="legend-dot" style={{ background: "var(--warn)" }} />Borderline</span>
-        <span><span className="legend-dot" style={{ background: "var(--fail)" }} />Fail</span>
-        <span><span className="legend-dot" style={{ background: "var(--text-3)" }} />Unscored</span>
-      </div>
-      <div className="day-chart" role="img" aria-label="Compliance verdicts per day">
-        {days.map(([day, v]) => {
-          const total = v.PASS + v.BORDERLINE + v.FAIL + v.other;
-          const h = (total / max) * 100;
-          return (
-            <div className="day-col" key={day} title={`${day}: ${total} analyses`}>
-              <div className="day-stack" style={{ height: `${h}%` }}>
-                {v.PASS > 0 && (
-                  <div className="seg-pass" style={{ flex: v.PASS }} />
-                )}
-                {v.BORDERLINE > 0 && (
-                  <div className="seg-warn" style={{ flex: v.BORDERLINE }} />
-                )}
-                {v.FAIL > 0 && <div className="seg-fail" style={{ flex: v.FAIL }} />}
-                {v.other > 0 && (
-                  <div className="seg-neutral" style={{ flex: v.other }} />
-                )}
-              </div>
-              <div className="day-label">{day.slice(5)}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/**
- * General mode (spec 002): each day's stored energy as a share of the Daily
- * goal — computed from records the app already holds, never re-analyzed.
- * Bars saturate at 100% of the goal; without a goal they scale to the
- * biggest day and say so.
- */
-function GoalOverview({ records, goal }: { records: AnalysisRecord[]; goal: DailyGoal }) {
-  const totals = dayTotals(records);
-  const recent = totals.slice(0, 14);
-  const days = [...recent].reverse();
-  const scale =
-    goal.kcal && goal.kcal > 0
-      ? goal.kcal
-      : Math.max(1, ...days.map((d) => d.kcal));
-  const capped = goal.kcal != null && goal.kcal > 0;
-
-  if (days.length === 0) return null;
-
-  return (
-    <div className="compliance-chart">
-      <div className="chart-legend">
-        <span>
-          <span className="legend-dot" style={{ background: "var(--accent)" }} />
-          {capped ? "energy as % of the Daily goal (capped at 100%)" : "relative energy per day"}
-        </span>
-      </div>
-      <div className="day-chart" role="img" aria-label="Energy share of the daily goal per day">
-        {days.map((d) => {
-          const share = shareOfGoal(d.kcal, capped ? scale : null);
-          const h =
-            share == null
-              ? (d.kcal / scale) * 100
-              : Math.min(100, share * 100);
-          const label = share == null
-            ? `${Math.round(d.kcal)} kcal`
-            : `${Math.round(d.kcal)} kcal · ${Math.round(share * 100)}% of goal`;
-          return (
-            <div className="day-col" key={d.date} title={`${d.date}: ${label}`}>
-              <div className="day-stack" style={{ height: `${h}%` }}>
-                <div className="seg-accent" style={{ flex: 1 }} />
-              </div>
-              <div className="day-label">{d.date.slice(5)}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+const STEPS = [
+  {
+    n: "01",
+    title: "Place the card",
+    body: "Place the reference card beside the meal when available. It gives the measurement pipeline a physical scale reference.",
+  },
+  {
+    n: "02",
+    title: "Snap the meal",
+    body: "A clear top-down photo gives the pipeline a view of the foods and their portions.",
+  },
+  {
+    n: "03",
+    title: "Read the result",
+    body: "Review the returned food labels, weight and nutrition estimates, along with their ranges and assumptions.",
+  },
+];
 
 export default function DashboardPage() {
   const { records } = useRecords();
-  const { menuError, apiUp } = useMenu();
-  const { goals } = useGoals();
-  const { prefs, setPrefs } = usePrefs();
+  const { apiUp } = useMenu();
+  const { prefs } = usePrefs();
   const navigate = useNavigate();
-
-  // General mode (spec 002): goal-share context instead of compliance rates.
   const general = (prefs.mode ?? "school") === "general";
-  const goal = resolveGoal(goals, prefs.profile, prefs.goalOverride);
-
-  const t = tally(records);
-
-  const now = Date.now();
-  const recent = records.filter((r) => Date.parse(r.createdAt) >= daysAgo(7)).length;
-  const prev = records.filter(
-    (r) => Date.parse(r.createdAt) >= daysAgo(14) && Date.parse(r.createdAt) < daysAgo(7)
-  ).length;
-  const delta = recent - prev;
-  const trend =
-    records.length === 0
-      ? undefined
-      : {
-          dir: delta > 0 ? ("up" as const) : delta < 0 ? ("down" as const) : ("flat" as const),
-          text: delta > 0 ? `+${delta} this week` : delta < 0 ? `${delta} this week` : "steady",
-        };
-
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const storedName = prefs.userName.trim();
-  const first = storedName ? storedName.split(/\s+/)[0] : "";
-  const [nameDraft, setNameDraft] = useState(storedName);
-  const [editingName, setEditingName] = useState(false);
-  const saveName = () => {
-    setPrefs({ userName: nameDraft.trim() });
-    setEditingName(false);
-  };
-
-  const rate = (n: number) => (t.scored ? formatPct(n / t.scored, 0) : "—");
-
-  const headBlock = (sub: string) => (
-    <div className="page-head">
-      <div>
-        <h1 className="page-title">
-          {greeting}
-          {first ? `, ${first}` : ", NutriSense"}
-          {editingName ? (
-            <input
-              className="input name-input"
-              type="text"
-              autoFocus
-              maxLength={40}
-              placeholder="Your name"
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              onBlur={saveName}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") saveName();
-              }}
-            />
-          ) : (
-            <button
-              className={storedName ? "name-tag named" : "name-tag"}
-              title="Edit display name"
-              aria-label={storedName ? "Edit display name" : "Add your display name"}
-              onClick={() => {
-                setNameDraft(storedName);
-                setEditingName(true);
-              }}
-            >
-              {storedName || "+ Add your name"}
-            </button>
-          )}
-        </h1>
-        <p className="page-sub">{sub}</p>
-      </div>
-      <button className="btn btn-primary" onClick={() => navigate("/analyze")}>
-        <IconCamera size={16} /> Analyze New Meal
-      </button>
-    </div>
-  );
-
-  const bannersBlock = (
-    <>
-      {apiUp === false && (
-        <div className="banner error" style={{ marginBottom: 16 }}>
-          <span aria-hidden="true">✕</span>
-          <div>
-            <strong>Backend unreachable</strong>
-            Local history is still available — new analyses need the API.
-          </div>
-        </div>
-      )}
-      {menuError && apiUp !== false && (
-        <div className="banner warn" style={{ marginBottom: 16 }}>
-          <span aria-hidden="true">!</span>
-          <div>Menu could not be loaded — some fields may be unavailable.</div>
-        </div>
-      )}
-    </>
-  );
-
-  const emptyBlock = (body: string) => (
-    <Card>
-      <EmptyState
-        icon={<IconCamera size={20} />}
-        title="No analyses yet"
-        action={
-          <Link className="btn btn-primary" to="/analyze" style={{ marginTop: 6 }}>
-            Analyze your first meal
-          </Link>
-        }
-      >
-        {body}
-      </EmptyState>
-    </Card>
-  );
-
-  if (general) {
-    const todayKey = localDateKey(new Date().toISOString());
-    const today = dayTotals(records).find((d) => d.date === todayKey);
-    const kcalShare = shareOfGoal(today?.kcal ?? null, goal.kcal);
-    const protShare = shareOfGoal(today?.protein ?? null, goal.proteinG);
-    const goalFoot = (share: number | null, unitGoal: number | null, unit: string) =>
-      share == null
-        ? unitGoal == null
-          ? `no daily goal set — choose one in Settings`
-          : `of your ${formatNum(unitGoal, 0)} ${unit} goal`
-        : `${Math.round(share * 100)}% of your ${formatNum(unitGoal ?? 0, 0)} ${unit} goal`;
-
-    return (
-      <div className="page">
-        {headBlock(
-          "Meals as a share of your Daily goal — grams and nutrients, no compliance verdicts in this mode."
-        )}
-        {bannersBlock}
-
-        {records.length === 0 ? (
-          emptyBlock(
-            "Your meals will appear here with grams, nutrients and their share of your Daily goal."
-          )
-        ) : (
-          <>
-            <motion.div
-              className="kpi-grid"
-              variants={revealContainer}
-              initial="hidden"
-              animate="show"
-            >
-              <Kpi
-                label="Meals analyzed"
-                value={String(records.length)}
-                count={{ to: records.length, fmt: (v) => String(Math.round(v)) }}
-                foot="stored in this browser"
-                trend={trend}
-                icon={<IconHistory size={14} />}
-                cls="info"
-              />
-              <Kpi
-                label="Energy today"
-                value={`${formatNum(today?.kcal ?? 0, 0)} kcal`}
-                count={{
-                  to: today?.kcal ?? 0,
-                  fmt: (v) => `${formatNum(v, 0)} kcal`,
-                }}
-                foot={goalFoot(kcalShare, goal.kcal, "kcal")}
-                icon="🔥"
-                cls="pass"
-              />
-              <Kpi
-                label="Protein today"
-                value={`${formatNum(today?.protein ?? 0, 1)} g`}
-                count={{
-                  to: today?.protein ?? 0,
-                  fmt: (v) => `${formatNum(v, 1)} g`,
-                }}
-                foot={goalFoot(protShare, goal.proteinG, "g")}
-                icon="🧬"
-                cls="info"
-              />
-              <Kpi
-                label="Meals today"
-                value={String(today?.meals ?? 0)}
-                count={{ to: today?.meals ?? 0, fmt: (v) => String(Math.round(v)) }}
-                foot={today ? "captured today" : "nothing captured today"}
-                icon={<IconCamera size={14} />}
-                cls="warn"
-              />
-            </motion.div>
-
-            <div className="dash-grid">
-              <Card
-                title="Daily goal overview"
-                sub="Energy totals per capture day — recomputed from your stored meals whenever your goal changes"
-                action={
-                  <Link className="btn btn-ghost btn-sm" to="/analytics">
-                    <IconChart size={14} /> Analytics
-                  </Link>
-                }
-              >
-                <GoalOverview records={records} goal={goal} />
-              </Card>
-
-              <Card title="Recent analyses" sub="Newest first">
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {records.slice(0, 6).map((r) => {
-                    const s = sharesOfGoal(r, goal);
-                    return (
-                      <button
-                        key={r.id}
-                        className="student-card"
-                        style={{ padding: "10px 12px", boxShadow: "none" }}
-                        onClick={() => navigate(`/result/${r.id}`)}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div style={{ minWidth: 0 }}>
-                            <div className="cell-main" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {r.summary.dish || "Unrecognized dish"}
-                            </div>
-                            <div className="cell-sub">
-                              {formatDate(r.createdAt)}
-                              {r.summary.kcal != null ? ` · ${formatNum(r.summary.kcal, 0)} kcal` : ""}
-                            </div>
-                          </div>
-                          <span className="tag">
-                            {s.kcal == null ? "no goal" : `${Math.round(s.kcal * 100)}% of day`}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </Card>
-            </div>
-
-            <Card
-              title="Recent analyses"
-              sub="Full list with nutrition and goal shares"
-              pad={false}
-              action={
-                <Link className="btn btn-ghost btn-sm" to="/history">
-                  View all
-                </Link>
-              }
-            >
-              <div className="table-wrap" style={{ border: 0 }}>
-                <table className="data">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Dish</th>
-                      <th>Portion</th>
-                      <th>Energy</th>
-                      <th>Protein</th>
-                      <th>Of your day</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.slice(0, 6).map((r) => {
-                      const s = sharesOfGoal(r, goal);
-                      return (
-                        <tr
-                          key={r.id}
-                          className="clickable"
-                          onClick={() => navigate(`/result/${r.id}`)}
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") navigate(`/result/${r.id}`);
-                          }}
-                        >
-                          <td>{formatDate(r.createdAt)}</td>
-                          <td>
-                            <div className="cell-main">{r.summary.dish || "—"}</div>
-                            <div className="cell-sub">{formatNum(r.summary.grams, 0)} g</div>
-                          </td>
-                          <td className="num">{r.summary.grams != null ? `${formatNum(r.summary.grams, 0)} g` : "—"}</td>
-                          <td className="num">{r.summary.kcal != null ? `${formatNum(r.summary.kcal, 0)} kcal` : "—"}</td>
-                          <td className="num">{r.summary.protein != null ? `${formatNum(r.summary.protein, 1)} g` : "—"}</td>
-                          <td className="num">
-                            {s.kcal == null ? "—" : `${Math.round(s.kcal * 100)}%`}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </>
-        )}
-      </div>
-    );
-  }
 
   return (
-    <div className="page">
-      {headBlock(
-        "Monitor meal quality, nutrition coverage, and PM POSHAN compliance."
+    <div className="page page-dashboard">
+      <motion.header
+        className="home-hero"
+        variants={revealContainer}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.span className="eyebrow" variants={revealItem}>
+          NutriSense <i /> {general ? "Meal journal" : "School meals"}
+        </motion.span>
+        <motion.h1 className="page-title" variants={revealItem}>
+          A clearer picture of <em>what’s on your plate.</em>
+        </motion.h1>
+        <motion.p className="page-sub" variants={revealItem}>
+          Start with a meal photo, then review the food identification and
+          available portion and nutrition estimates. {general
+            ? "Compare the result with your personal daily goals."
+            : "School-mode results include the relevant meal standard and measurement evidence."}
+        </motion.p>
+        <motion.div className="home-cta" variants={revealItem}>
+          <Magnetic strength={6}>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate("/analyze")}>
+              <IconCamera size={16} /> Analyze a meal
+            </button>
+          </Magnetic>
+          {records.length > 0 && (
+            <Link className="btn btn-ghost btn-lg" to="/history">
+              <IconHistory size={16} /> View history
+            </Link>
+          )}
+        </motion.div>
+      </motion.header>
+
+      <motion.figure className="home-plate-photo" variants={scrollReveal}>
+        <img src="/plate.jpg" alt="A meal photographed from above, including several foods on a tray" />
+        <figcaption><span>Photo-first meal review</span><span>Example capture · estimates depend on image quality and available scale evidence</span></figcaption>
+      </motion.figure>
+
+      {apiUp === false && (
+        <div className="home-service-note" role="status">
+          <span aria-hidden="true" /> New analyses are paused while the service
+          is offline. Your saved meals are still available.
+        </div>
       )}
-      {bannersBlock}
 
-      {records.length === 0 ? (
-        emptyBlock(
-          "Your meal analyses will appear here with verdicts, coverage and uncertainty for every capture."
-        )
-      ) : (
-        <>
-          <motion.div
-            className="kpi-grid"
-            variants={revealContainer}
-            initial="hidden"
-            animate="show"
-          >
-            <Kpi
-              label="Meals analyzed"
-              value={String(records.length)}
-              count={{ to: records.length, fmt: (v) => String(Math.round(v)) }}
-              foot="stored in this browser"
-              trend={trend}
-              icon={<IconHistory size={14} />}
-              cls="info"
-            />
-            <Kpi
-              label="PASS rate"
-              value={rate(t.pass)}
-              count={{
-                to: t.scored ? t.pass / t.scored : 0,
-                fmt: (v) => formatPct(v, 0),
-              }}
-              foot={`${t.pass} of ${t.scored} scored`}
-              icon="✓"
-              cls="pass"
-            />
-            <Kpi
-              label="BORDERLINE rate"
-              value={rate(t.warn)}
-              count={{
-                to: t.scored ? t.warn / t.scored : 0,
-                fmt: (v) => formatPct(v, 0),
-              }}
-              foot={`${t.warn} of ${t.scored} scored`}
-              icon="!"
-              cls="warn"
-            />
-            <Kpi
-              label="FAIL rate"
-              value={rate(t.fail)}
-              count={{
-                to: t.scored ? t.fail / t.scored : 0,
-                fmt: (v) => formatPct(v, 0),
-              }}
-              foot={`${t.fail} of ${t.scored} scored`}
-              icon="✕"
-              cls="fail"
-            />
-          </motion.div>
-
-          <div className="dash-grid">
-            <Card
-              title="Compliance overview"
-              sub="Verdicts per capture day — from your local analysis history"
-              action={
-                <Link className="btn btn-ghost btn-sm" to="/analytics">
-                  <IconChart size={14} /> Analytics
-                </Link>
-              }
+      <motion.section
+        className="home-how"
+        aria-label="How it works"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
+        <motion.h2 className="home-how-title" variants={scrollReveal}>
+          How it works
+        </motion.h2>
+        <div className="home-steps">
+          {STEPS.map((step) => (
+            <motion.article
+              className="home-step"
+              key={step.n}
+              variants={scrollReveal}
             >
-              <ComplianceOverview records={records} />
-            </Card>
+              <span className="home-step-n num">{step.n}</span>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </motion.article>
+          ))}
+        </div>
+      </motion.section>
 
-            <Card title="Recent analyses" sub="Newest first">
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {records.slice(0, 6).map((r) => (
-                  <button
-                    key={r.id}
-                    className="student-card"
-                    style={{ padding: "10px 12px", boxShadow: "none" }}
-                    onClick={() => navigate(`/result/${r.id}`)}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <div style={{ minWidth: 0 }}>
-                        <div className="cell-main" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {r.summary.dish || "Unrecognized dish"}
-                        </div>
-                        <div className="cell-sub">
-                          {formatDate(r.createdAt)}
-                          {r.student ? ` · ${r.student.name}` : ""}
-                        </div>
-                      </div>
-                      <VerdictPill verdict={r.summary.verdict} />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <Card
-            title="Recent analyses"
-            sub="Full list with nutrition and coverage"
-            pad={false}
-            action={
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-40px" }}
+        variants={scrollReveal}
+      >
+        <TiltPanel className="tilt-card" max={2.5}>
+        <Card
+          className="home-meals-card"
+          title="Recent meals"
+          sub={`${records.length} saved ${records.length === 1 ? "meal" : "meals"} on this device`}
+          action={
+            records.length > 0 ? (
               <Link className="btn btn-ghost btn-sm" to="/history">
-                View all
+                View history <span aria-hidden="true">↗</span>
               </Link>
-            }
-          >
-            <div className="table-wrap" style={{ border: 0 }}>
-              <table className="data">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Dish</th>
-                    <th>Portion</th>
-                    <th>Energy</th>
-                    <th>Coverage</th>
-                    <th>Verdict</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {records.slice(0, 6).map((r) => (
-                    <tr
-                      key={r.id}
-                      className="clickable"
-                      onClick={() => navigate(`/result/${r.id}`)}
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") navigate(`/result/${r.id}`);
-                      }}
-                    >
-                      <td>{formatDate(r.createdAt)}</td>
-                      <td>
-                        <div className="cell-main">{r.summary.dish || "—"}</div>
-                        <div className="cell-sub">
-                          {r.student ? r.student.name : r.day.toUpperCase()}
-                        </div>
-                      </td>
-                      <td className="num">{r.summary.grams != null ? `${formatNum(r.summary.grams, 0)} g` : "—"}</td>
-                      <td className="num">{r.summary.kcal != null ? `${formatNum(r.summary.kcal, 0)} kcal` : "—"}</td>
-                      <td className="num">{r.summary.coverage != null ? formatPct(r.summary.coverage, 0) : "—"}</td>
-                      <td>
-                        <VerdictPill verdict={r.summary.verdict} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            ) : undefined
+          }
+        >
+          {records.length === 0 ? (
+            <EmptyState
+              icon={<IconCamera size={20} />}
+              title="Your meal journal starts here"
+            >
+              Add a meal photo to get an estimate and practical ideas for what
+              to add or ease back on.
+            </EmptyState>
+          ) : (
+            <div className="home-meal-list">
+              {records.slice(0, 5).map((record) => (
+                <Link
+                  className="home-meal-row"
+                  key={record.id}
+                  to={`/result/${record.id}`}
+                >
+                  {record.photo ? (
+                    <img src={record.photo} alt="" />
+                  ) : (
+                    <span className="home-meal-placeholder" aria-hidden="true">
+                      <IconCamera size={18} />
+                    </span>
+                  )}
+                  <span className="home-meal-main">
+                    <strong>{record.summary.dish || "Unrecognized meal"}</strong>
+                    <small>
+                      {formatDate(record.createdAt)}
+                      {record.student?.name ? ` · ${record.student.name}` : ""}
+                    </small>
+                  </span>
+                  <span className="home-meal-result">
+                    {general ? (
+                      <>
+                        <strong>
+                          {record.summary.kcal == null
+                            ? "—"
+                            : `${formatNum(record.summary.kcal, 0)} kcal`}
+                        </strong>
+                        <small>
+                          {record.summary.protein == null
+                            ? "Nutrition estimate"
+                            : `${formatNum(record.summary.protein, 1)} g protein`}
+                        </small>
+                      </>
+                    ) : (
+                      <VerdictPill verdict={record.summary.verdict} />
+                    )}
+                  </span>
+                  <span className="home-meal-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </Link>
+              ))}
             </div>
-          </Card>
-        </>
-      )}
+          )}
+        </Card>
+        </TiltPanel>
+      </motion.div>
     </div>
   );
 }

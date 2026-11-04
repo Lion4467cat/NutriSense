@@ -41,22 +41,32 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
 }
 
 h1 {
-  font-size: var(--fs-display);
-  letter-spacing: -0.03em;
+  font-size: clamp(32px, 4vw, var(--fs-display));
+  letter-spacing: -0.045em;
 }
 
 h2 {
   font-size: var(--fs-xl);
+  letter-spacing: -0.035em;
 }
 
 h3 {
   font-size: var(--fs-lg);
+}
+
+/* italic accent word inside display headings (desertant signature) */
+h1 em,
+h2 em,
+h3 em {
+  font-style: italic;
+  font-weight: 480;
+  color: var(--accent);
 }
 
 button,

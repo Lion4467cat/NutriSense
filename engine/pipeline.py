@@ -4,7 +4,7 @@
 Every stage runs through engine.contract.stage(): fatal stages convert their
 exceptions into a Failure (log ERROR, cannot_verify — never a 500), the anchor
 stage degrades to the prior tier (log WARNING, continues). Every exit returns
-the 18-key wire shape via Analysis.to_wire(), with policy thresholds attached.
+the 19-key wire shape via Analysis.to_wire(), with policy thresholds attached.
 Model stages additionally run through _oom_guard(): a CUDA OOM clears the
 model registry (unload + cache clear) and retries once, recording the
 degradations[] tag gpu_oom_retried; a second OOM becomes a structured Failure.
@@ -21,17 +21,18 @@ the head for grams (WED-trained, class-conditional) instead of size-prior
 geometry. A head that fails — or is absent (checkpoint missing or failed to
 load) — on a WED-mapped dish raises WeightHeadUnavailable -> cannot_verify
 with the weight_head_unavailable reason and no grams; geometry is never
-silently substituted. Dishes with no WED mapping never consult the head and
-keep the geometry path. No-card plates are scored like any other, leading
-their reasons with the no_reference_card estimate disclaimer.
+silently substituted. A no-card dish with no WED mapping has no valid physical
+scale source and is withheld rather than sent through size-prior geometry.
+Mapped no-card plates retain the no_reference_card estimate disclaimer.
 """
 import logging
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from config import (load_anchor_config, load_menu, load_wed_dishes,
-                    load_wed_index, load_wed_sigma)
+                    load_standards, load_wed_index, load_wed_sigma)
 from engine.compliance import assess, no_card_reason
 from engine.contract import (Analysis, Reason, ReasonKind, Stage,
                              WeightHeadUnavailable, load_policy, log_analysis,
@@ -39,10 +40,12 @@ from engine.contract import (Analysis, Reason, ReasonKind, Stage,
 from engine.gates import INPUT_GATES, SCOPE_GATE, admit
 from engine.mc import aggregate_meal, sample_nutrients
 from engine.depth import MODEL_ID as MOGE_MODEL_ID
-from engine.depth import MonocularDepth, calibrate_depth_scale
+from engine.depth import (MonocularDepth, calibrate_depth_scale,
+                          normalized_intrinsics_to_pixel_K)
 from geo.pose import camera_matrix
 from models.portion_estimator import _components, estimate_portion
-from models.scale_anchor import estimate_anchor, prior_anchor
+from models.scale_anchor import (estimate_anchor, prior_anchor,
+                                 refine_anchor_pose)
 
 log = logging.getLogger("nutrisense")
 
@@ -55,6 +58,21 @@ CAPTURE_TILT_MAX_DEG = 60.0
 # Assumed relative sigma when the head exists but no per-class val sigma is
 # on disk yet (pre-training / unmapped class).
 LEARNED_SIGMA_REL_FALLBACK = 0.30
+
+def _append_plate_sanity_note(lint, grams, band):
+    """Add the configured, non-blocking cooked-plate plausibility lint."""
+    if lint is None or not np.isfinite(grams):
+        return
+    bounds = (load_standards().get("plate_sanity_g") or {}).get(str(band))
+    if not isinstance(bounds, (list, tuple)) or len(bounds) != 2:
+        return
+    low, high = map(float, bounds)
+    lower, upper = low * 0.75, high * 1.25
+    if grams < lower or grams > upper:
+        lint.setdefault("notes", []).append(
+            f"estimated plate weight {grams:.0f}g is outside the loose "
+            f"{band} band check ({lower:.0f}–{upper:.0f}g)"
+        )
 
 
 def _is_oom(exc: BaseException) -> bool:
@@ -243,22 +261,210 @@ def _make_prior_anchor():
 register_fallback("prior_anchor", _make_prior_anchor)
 
 
+def _card_exclusion_mask(shape: tuple[int, int], anchor: dict | None) -> np.ndarray | None:
+    """Return a boolean mask covering the physical ArUco reference card, or None."""
+    if not isinstance(anchor, dict) or anchor.get("label") != "measured":
+        return None
+    import cv2
+
+    h, w = shape
+    card_mask = np.zeros((h, w), dtype=np.uint8)
+    H = anchor.get("H")
+    if H is not None:
+        try:
+            H_arr = np.asarray(H, dtype=np.float64)
+            # ISO 216 A6 card half-extents (52.5mm x 74.0mm) + 1 ArUco module margin.
+            card_mm = np.array(
+                [[[-58.0, -80.0]], [[58.0, -80.0]],
+                 [[58.0, 80.0]], [[-58.0, 80.0]]],
+                dtype=np.float64,
+            )
+            pts = cv2.perspectiveTransform(card_mm, H_arr).reshape(4, 2)
+            if np.all(np.isfinite(pts)):
+                cv2.fillConvexPoly(card_mask, np.round(pts).astype(np.int32), 1)
+        except Exception:
+            pass
+    corners = (anchor.get("extras") or {}).get("marker_corners_px")
+    if corners is not None:
+        c = np.asarray(corners, dtype=np.float64).reshape(4, 2)
+        center = c.mean(axis=0, keepdims=True)
+        # Ratio of A6 card length (148 mm) to 60 mm ArUco marker side (~2.47).
+        expanded = center + 2.5 * (c - center)
+        cv2.fillConvexPoly(card_mask, np.round(expanded).astype(np.int32), 1)
+    return card_mask > 0 if np.any(card_mask > 0) else None
+
+
+def _is_valid_secondary_vessel(
+    item_mask: np.ndarray,
+    parent_mask: np.ndarray,
+    card_mask: np.ndarray | None,
+    image_shape: tuple[int, int],
+) -> bool:
+    """Distinguish between a huge tabletop/plate proposal and a compact secondary vessel (katori/bowl/egg)."""
+    item_mask = np.asarray(item_mask, dtype=bool)
+    item_area = float(item_mask.sum())
+    if item_area <= 0:
+        return False
+    H, W = image_shape[:2]
+    img_area = float(H * W)
+    parent_area = float(parent_mask.sum())
+    area_frac = item_area / img_area
+    # a. Bounded Area: A secondary vessel is compact relative to the meal and frame
+    if not (item_area <= 0.50 * parent_area and 0.01 <= area_frac <= 0.12):
+        return False
+    # b. Not the Reference Card:
+    if card_mask is not None:
+        card_overlap = float((item_mask & card_mask).sum()) / item_area
+        if card_overlap >= 0.08:
+            return False
+    # c. Compact Aspect & Solidity:
+    v_idx, u_idx = np.nonzero(item_mask)
+    if len(u_idx) == 0:
+        return False
+    y1, y2 = int(v_idx.min()), int(v_idx.max()) + 1
+    x1, x2 = int(u_idx.min()), int(u_idx.max()) + 1
+    bw = max(1, x2 - x1)
+    bh = max(1, y2 - y1)
+    aspect = min(bw, bh) / max(bw, bh)
+    pts = np.column_stack([u_idx, v_idx])
+    hull = cv2.convexHull(pts)
+    ha = cv2.contourArea(hull)
+    solidity = item_area / max(ha, 1.0)
+    touches = 0
+    if y1 <= 5: touches += 1
+    if y2 >= H - 6: touches += 1
+    if x1 <= 5: touches += 1
+    if x2 >= W - 6: touches += 1
+    if aspect < 0.50 or solidity < 0.60 or touches > 0:
+        return False
+    return True
+
+
+def _same_food_family(id1: str | None, id2: str | None) -> bool:
+    """True if two food IDs represent the same broad dish family."""
+    if not id1 or not id2:
+        return False
+    if id1 == id2:
+        return True
+    n1 = id1.replace("-", "_").replace(" ", "_").lower()
+    n2 = id2.replace("-", "_").replace(" ", "_").lower()
+    if n1 == n2:
+        return True
+    if any(k in n1 for k in ("rice", "biryani", "briyani")) and any(k in n2 for k in ("rice", "biryani", "briyani")):
+        return True
+    if any(k in n1 for k in ("dal", "sambar", "rasam", "curd", "raita")) and any(k in n2 for k in ("dal", "sambar", "rasam", "curd", "raita")):
+        return True
+    if any(k in n1 for k in ("wheat", "chapati", "roti", "phulka")) and any(k in n2 for k in ("wheat", "chapati", "roti", "phulka")):
+        return True
+    return False
+
+
+def _reconcile_dense_grid_items(
+    detected_items: list[dict],
+    top_mask: np.ndarray,
+    card_mask: np.ndarray | None,
+    seg_info: dict,
+) -> list[dict]:
+    """Filter background/card proposals and sliding-window crop echoes from dense_grid_box,
+    while preserving compact secondary vessels (katoris, eggs, chutney bowls)."""
+    from models.dish_segmenter import ITEM_CROP_FRAC
+
+    top_bool = np.asarray(top_mask, dtype=bool)
+    h, w = top_bool.shape[:2]
+    crop_w = max(1.0, float(ITEM_CROP_FRAC) * float(w))
+    crop_h = max(1.0, float(ITEM_CROP_FRAC) * float(h))
+    # SAM2 _query_batch prompts each crop with box [0.08, 0.92] (span 0.84);
+    # subtracting one 1/16 mask-decoder stride cell gives 0.78 for box-clipped echoes.
+    prompt_box_clip_frac = (0.92 - 0.08) - (1.0 / 16.0)
+    valid_items: list[dict] = []
+    secondary_cands: list[dict] = []
+    bounded_vessel_count = 0
+    for item in detected_items:
+        item_mask = np.asarray(item.get("mask"), dtype=bool)
+        if item_mask.shape != top_bool.shape:
+            continue
+        item_area = float(item_mask.sum())
+        if item_area <= 0.0:
+            continue
+        if card_mask is not None and float((item_mask & card_mask).sum()) / item_area >= 0.08:
+            continue
+        in_top = float((item_mask & top_bool).sum()) / item_area
+        if in_top >= 0.50:
+            bbox = item.get("bbox")
+            if isinstance(bbox, (list, tuple)) and len(bbox) == 4:
+                bw_frac = float(bbox[2] - bbox[0]) / crop_w
+                bh_frac = float(bbox[3] - bbox[1]) / crop_h
+            else:
+                bw_frac, bh_frac = 0.0, 0.0
+            if not (bw_frac >= prompt_box_clip_frac and bh_frac >= prompt_box_clip_frac):
+                bounded_vessel_count += 1
+            valid_items.append(item)
+        elif _is_valid_secondary_vessel(item_mask, top_bool, card_mask, (h, w)):
+            c_mask = card_mask if card_mask is not None else np.zeros_like(top_bool)
+            clean_mask = item_mask & ~top_bool & ~c_mask
+            if int(clean_mask.sum()) >= 64:
+                item_copy = dict(item)
+                item_copy["mask"] = clean_mask
+                item_copy["is_secondary_vessel"] = True
+                v_idx, u_idx = np.nonzero(clean_mask)
+                item_copy["bbox"] = [int(u_idx.min()), int(v_idx.min()), int(u_idx.max()) + 1, int(v_idx.max()) + 1]
+                item_copy["area_frac"] = float(clean_mask.sum()) / float(h * w)
+                secondary_cands.append(item_copy)
+
+    # Spatial NMS on secondary candidates so multiple overlapping proposals for the same bowl do not multiply
+    if secondary_cands:
+        secondary_cands.sort(key=lambda it: float(it.get("sam_score") or 0.0), reverse=True)
+        kept_sec: list[dict] = []
+        for cand in secondary_cands:
+            cm = np.asarray(cand["mask"], dtype=bool)
+            overlap = False
+            for prev in kept_sec:
+                pm = np.asarray(prev["mask"], dtype=bool)
+                iou = float((cm & pm).sum()) / max(float((cm | pm).sum()), 1.0)
+                if iou > 0.20:
+                    overlap = True
+                    break
+            if not overlap:
+                kept_sec.append(cand)
+                bounded_vessel_count += 1
+                valid_items.append(cand)
+                if len(kept_sec) >= 2:
+                    break
+
+    if len(valid_items) <= 1 or bounded_vessel_count < 2:
+        return [{
+            "mask": top_bool,
+            "sam_score": seg_info.get("sam_score"),
+            "area_frac": seg_info.get("area_frac", float(top_bool.mean())),
+            "bbox": None,
+        }]
+    return valid_items
+
+
 def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
-            serving_style=None):
-    """Run the full pipeline on one capture. Always returns the 17-key wire
+            serving_style=None, mode="school"):
+    """Run the full pipeline on one capture. Always returns the 19-key wire
     dict with a top-level `verdict` (PASS | FAIL | BORDERLINE | ESTIMATED |
     cannot_verify | out_of_scope)."""
     from models.dish_segmenter import segment_food
     from models.food_classifier import classify_dish
 
     deps = deps or {}
+    if mode not in {"school", "general"}:
+        raise ValueError("mode must be 'school' or 'general'")
     segment = deps.get("segment") or segment_food
     classify = deps.get("classify") or classify_dish
-    depth_fn = deps.get("depth") or _get_depth_provider()
+    # MoGe's relative prediction is useful as geometry only after a measured
+    # marker calibration. For no-card WED-mapped food, the existing learned
+    # weight head is the valid route; avoid loading/running raw relative depth.
+    depth_fn = deps.get("depth")
     exif = exif or {"focal_mm": None, "subject_distance_cm": None,
                     "digital_zoom": None, "camera": None}
     timings: dict[str, float] = {}
     degradations: list[str] = []
+    estimate_only_notes: list[str] = []
+    primary_item_bbox = None
+    active_segmenter_model = None
     policy = load_policy()
 
     def finish(analysis: Analysis) -> dict:
@@ -280,12 +486,15 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 "dish": analysis.dish,
                 "classification": analysis.classification,
                 "portion": analysis.portion,
-                "bbox": None,
+                "bbox": primary_item_bbox,
                 "area_frac": seg.get("area_frac"),
                 "sam_score": seg.get("sam_score"),
             }]
         log_analysis(str(analysis.verdict), day, band, timings)
-        return analysis.to_wire()
+        wire = analysis.to_wire()
+        if active_segmenter_model and wire.get("model_versions") is not None:
+            wire["model_versions"]["segmenter"] = active_segmenter_model
+        return wire
 
     def fail(failure, **blocks) -> dict:
         analysis = Analysis(verdict="cannot_verify",
@@ -297,6 +506,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     menu, failure = stage(Stage.INPUT, load_menu, timings=timings)
     if failure:
         return fail(failure)
+    assert menu is not None  # successful input stage always returns the menu
 
     H, W = image_bgr.shape[:2]
     lint = {
@@ -306,6 +516,13 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         "resolution_ok": bool(min(H, W) >= policy.lint_min_side_px),
         "notes": [],
     }
+    if lint["digital_zoom"] is None:
+        zoom_note = (
+            "Digital-zoom metadata is missing. Food identification and an "
+            "estimate can continue, but the school-standard verdict is withheld."
+        )
+        lint["notes"].append(zoom_note)
+        estimate_only_notes.append(zoom_note)
     if not lint["resolution_ok"]:
         lint["notes"].append(f"min side {min(H, W)} < {policy.lint_min_side_px}px "
                              "(marker tier may fall back to prior)")
@@ -323,6 +540,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                             exif=exif, timings=timings)
     if failure:
         return fail(failure, lint=lint)
+    anchor = anchor or {}  # a successful anchor stage always has a fallback
     anchor_info = _anchor_summary(anchor)
 
     # --- capture-angle lint (spec 005): informational, non-blocking --------
@@ -330,10 +548,17 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         tilt = anchor.get("tilt_deg")
         if tilt is not None and not (CAPTURE_TILT_MIN_DEG
                                      <= float(tilt) <= CAPTURE_TILT_MAX_DEG):
+            tilt_deg = float(tilt)
             lint["notes"].append(
-                f"capture angle {float(tilt):.0f}° outside the recommended "
+                f"capture angle {tilt_deg:.0f}° outside the recommended "
                 f"{CAPTURE_TILT_MIN_DEG:.0f}–{CAPTURE_TILT_MAX_DEG:.0f}° band "
                 "(depth/base-plane evidence degrades)")
+            if tilt_deg > CAPTURE_TILT_MAX_DEG:
+                estimate_only_notes.append(
+                    "The measured card is outside the recommended camera-angle "
+                    "range. Food and nutrition can still be estimated, but the "
+                    "school-standard verdict is withheld because the footprint "
+                    "correction is not validated at this angle.")
 
     # --- input stage: camera intrinsics -----------------------------------
     def _intrinsics():
@@ -345,6 +570,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     K, failure = stage(Stage.INPUT, _intrinsics, timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info)
+    assert K is not None  # successful intrinsics stage returns a camera matrix
     # horizontal FoV in degrees for the depth model (MoGe expects degrees)
     _H, _W = image_bgr.shape[:2]
     fov_x = float(np.degrees(2.0 * np.arctan(_W / (2.0 * K[0, 0]))))
@@ -358,8 +584,19 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                              timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info)
+    assert seg_out is not None  # segment stage returns metadata and a mask
     seg, mask = seg_out
-    seg_info = _seg_summary(seg)
+    card_mask = _card_exclusion_mask(np.asarray(mask).shape[:2], anchor)
+    mask_clipped_by_card = False
+    if card_mask is not None:
+        mask_bool = np.asarray(mask, dtype=bool)
+        if bool((mask_bool & card_mask).any()) and int((mask_bool & ~card_mask).sum()) >= 64:
+            mask = mask_bool & ~card_mask
+            mask_clipped_by_card = True
+    active_segmenter_model = seg.get("model_id")
+    seg_info = _seg_summary(seg) or {}
+    if mask_clipped_by_card and "area_frac" in seg_info:
+        seg_info["area_frac"] = float(np.asarray(mask, dtype=bool).mean())
 
     # --- classify stage (classification + serving lookup) ------------------
     # Serving keys: menu dish keys via menu["dishes"], off-menu keys via
@@ -392,23 +629,51 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         dish = menu["dishes"].get(target) or off_menu.get(target)
         if dish is None:
             raise KeyError(f"classified dish {dish_key!r} has no serving entry")
+        menu_dish = target in menu["dishes"]
         dish_info = {"id": target, "display_name": dish.get("display_name"),
                      "day": day, "band": band, "serving_style": serving_style,
-                     "on_day": (not dish.get("days")) or day in dish.get("days", []),
+                     "on_day": menu_dish and
+                     ((not dish.get("days")) or day in dish.get("days", [])),
                      "nutrition_source": dish.get("nutrition_source")}
         return classification, dish_info, dish, None
 
     def _classify_step():
-        return _resolve_serving(classify(image_bgr))
+        raw = classify(image_bgr)
+        return _resolve_serving(raw), raw
 
     cls_out, failure = stage(Stage.CLASSIFY, _oom_guard(_classify_step, degradations),
                              timings=timings)
     if failure:
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info)
-    classification, dish_info, dish, cls_reason = cls_out
+    assert cls_out is not None  # successful classify stage returns both blocks
+    (classification, dish_info, dish, cls_reason), raw_classification = cls_out
     if dish_info is None:
-        # open-set abstain is an outcome, not a hard failure
+        scores = raw_classification.get("scores") or {}
+        candidates = {key: float(value) for key, value in scores.items()
+                      if value is not None and np.isfinite(float(value))}
+        if candidates:
+            candidate = max(candidates, key=lambda key: candidates[key])
+            note = (
+                "The classifier's best food label was below its acceptance "
+                f"threshold; {candidate} is used only for a tentative meal "
+                "estimate. No compliance verdict will be produced.")
+            raw_classification = dict(raw_classification, dish=candidate,
+                                      reason=note)
+            classification, dish_info, dish, cls_reason = _resolve_serving(
+                raw_classification)
+            estimate_only_notes.append(note)
+        else:
+            return finish(Analysis(
+                verdict="cannot_verify",
+                reasons=[Reason(ReasonKind.UNRECOGNIZED,
+                                f"dish unrecognized: {cls_reason}")],
+                lint=lint, anchor=anchor_info, segmentation=seg_info,
+                classification=classification))
+
+    # A tentative label must still resolve to a serving and nutrition row.
+    # Do not let an inconsistent classifier payload reach portioning.
+    if dish_info is None or dish is None:
         return finish(Analysis(
             verdict="cannot_verify",
             reasons=[Reason(ReasonKind.UNRECOGNIZED,
@@ -424,6 +689,85 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                                anchor=anchor_info, segmentation=seg_info,
                                classification=classification, dish=dish_info))
 
+    # Detect meal structure before mode-specific serving paths. In particular,
+    # the off-menu ingredient route must not return a whole plate as one
+    # serving before checking whether the photo contains several vessels.
+    segment_items_fn = (deps["segment_items"] if "segment_items" in deps
+                        else _get_segment_items())
+    try:
+        items_det = _oom_guard(lambda: segment_items_fn(image_bgr),
+                               degradations)()
+    except Exception as e:
+        log.warning("multi-item detection failed (%s) — withholding meal "
+                    "totals", e)
+        if "multi_item_detection_failed" not in degradations:
+            degradations.append("multi_item_detection_failed")
+        items_det = None
+    detected_items = (items_det.get("items")
+                      if isinstance(items_det, dict) else None)
+    if (isinstance(items_det, dict)
+            and isinstance(detected_items, list)
+            and detected_items
+            and items_det.get("strategy") in {"grid9_box", "dense_grid_box"}
+            and (seg_info or {}).get("strategy") != "wed_deeplabv3_semantic"):
+        detected_items = _reconcile_dense_grid_items(
+            detected_items, mask, card_mask, seg_info)
+    if (not isinstance(detected_items, list) or not detected_items):
+        if "multi_item_detection_failed" not in degradations:
+            degradations.append("multi_item_detection_failed")
+        note = (
+            "The multi-item detector did not return usable regions. The "
+            "top-level food mask is used as one tentative meal estimate; "
+            "item separation and school compliance are not verified.")
+        estimate_only_notes.append(note)
+        detected_items = [{
+            "mask": mask,
+            "sam_score": seg_info.get("sam_score"),
+            "area_frac": seg_info.get("area_frac", float(mask.mean())),
+            "bbox": None,
+        }]
+        items_det = {"items": detected_items,
+                     "strategy": "top-level-food-mask-fallback",
+                     "candidate_count": 0,
+                     "truncated_count": 0}
+        seg_info = {**(seg_info or {}),
+                    "multi_item_status": "whole-mask-estimate"}
+    assert isinstance(items_det, dict) and isinstance(detected_items, list)
+    if (len(detected_items) == 1
+            and (seg_info or {}).get("strategy") == "wed_deeplabv3_semantic"):
+        primary_item_bbox = detected_items[0].get("bbox")
+    seg_info = dict(seg_info or {})
+    seg_info["item_detection_strategy"] = items_det.get("strategy")
+    if items_det.get("candidate_count") is not None:
+        seg_info["item_candidate_count"] = int(items_det["candidate_count"])
+    if items_det.get("truncated_count") is not None:
+        seg_info["truncated_item_count"] = int(items_det["truncated_count"])
+    if len(detected_items) == 1:
+        seg_info = {**(seg_info or {}), "n_items": 1}
+        semantic_name = detected_items[0].get("semantic_class_name")
+        if semantic_name:
+            classifier_candidate = classification.get("dish")
+            semantic_cls = {
+                "dish": semantic_name,
+                "method": "wed_semantic_region",
+                "confidence": None,
+                "match_score": None,
+                "reason": (
+                    "single-region class from frozen WED semantic mask; "
+                    f"full-image SigLIP candidate: {classifier_candidate or 'abstained'}"
+                ),
+            }
+            classification, dish_info, dish, cls_reason = _resolve_serving(
+                semantic_cls)
+    elif (mode == "school" and len(detected_items) > 1
+          and items_det.get("strategy") in {"grid9_box", "dense_grid_box"}):
+        note = (
+            "The automatic multi-item detector has no validated measure of "
+            "whole-meal coverage. Item-level grams and nutrients are "
+            "provisional, so a School compliance verdict is withheld.")
+        estimate_only_notes.append(note)
+        seg_info["multi_item_status"] = "coverage-unverified"
+
     # --- general-mode ingredient route (ledger 013, ticket 07e) -----------
     # OFF-MENU dishes only. Head checkpoint absent/failed -> None and the
     # flow below runs byte-for-byte unchanged (fallback criterion); a route
@@ -431,7 +775,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     # also falls through, with a machine-readable degradation tag.
     ing_head = (deps["ingredient_head"] if "ingredient_head" in deps
                 else _get_ingredient_head())
-    if (ing_head is not None
+    if (mode == "general"
+            and len(detected_items) < 2
+            and ing_head is not None
             and (anchor or {}).get("label") != "measured"
             and dish_info["id"] not in ((menu or {}).get("dishes") or {})):
         def _ingredient_step():
@@ -443,6 +789,13 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                                    timings=timings)
         if route is not None and ing_failure is None:
             portion = route["portion"]
+            unexplained_g = float(route.get("unexplained_g") or 0.0)
+            assumptions = []
+            if unexplained_g > 1e-6:
+                assumptions.append(
+                    f"{unexplained_g:.1f} g of predicted ingredient mass "
+                    "could not be matched to the recipe and was excluded "
+                    "from the portion and nutrient estimates")
             reasons = [Reason(
                 ReasonKind.OFF_MENU,
                 f"recognized off-menu dish "
@@ -451,8 +804,11 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 "are provided from the ingredient-compositional route")]
             if (anchor or {}).get("label") != "measured":
                 reasons.append(no_card_reason(portion))
+            for note in estimate_only_notes:
+                reasons.append(Reason(ReasonKind.UNRECOGNIZED, note))
+            assumptions.extend(estimate_only_notes)
             return finish(Analysis(
-                verdict="cannot_verify",
+                verdict="ESTIMATED" if estimate_only_notes else "cannot_verify",
                 reasons=reasons,
                 lint=lint,
                 anchor=anchor_info,
@@ -461,6 +817,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 dish=dish_info,
                 portion=_portion_wire_block(portion),
                 nutrition=route["nutrition"],
+                assumptions=assumptions,
                 model_versions=_model_versions(None, ing_head),
             ))
         if ing_failure is not None:
@@ -471,86 +828,323 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     # --- depth stage (monocular depth + anchor calibration) ---------------
     def _depth_step():
-        depth_out = depth_fn(image_bgr, fov_x=fov_x)
+        active_depth_fn = depth_fn or _get_depth_provider()
+        depth_out = active_depth_fn(image_bgr, fov_x=fov_x)
         depth_m = np.asarray(depth_out["depth_m"], dtype=np.float64)
+        depth_K = normalized_intrinsics_to_pixel_K(
+            depth_out.get("intrinsics"), _W, _H)
+        active_anchor = anchor
+        if depth_K is None:
+            depth_K = K
+        else:
+            anchor_cfg = load_anchor_config()
+            active_anchor = refine_anchor_pose(
+                anchor, depth_K,
+                anchor_cfg["camera"].get("max_pose_reproj_err_px", 3.0))
         scale_factor, scale_source = 1.0, "none"
-        if anchor.get("label") == "measured":
+        if active_anchor.get("label") == "measured":
             depth_m, scale_factor, scale_source = calibrate_depth_scale(
-                depth_m, anchor, K)
-        return depth_out, depth_m, scale_factor, scale_source
+                depth_m, active_anchor, depth_K)
+            if scale_source != "card":
+                raise ValueError(
+                    "measured marker was not sufficient to calibrate metric depth")
+        return (depth_out, depth_m, depth_K, active_anchor,
+                scale_factor, scale_source)
 
-    depth_result, failure = stage(Stage.DEPTH, _oom_guard(_depth_step, degradations),
-                                  timings=timings)
-    if failure:
-        return fail(failure, lint=lint, anchor=anchor_info,
-                    segmentation=seg_info, classification=classification,
-                    dish=dish_info)
-    depth_out, depth_m, scale_factor, scale_source = depth_result
-    assert depth_out is not None  # successful depth stage always returns metadata
-    depth_model = depth_out.get("model")
+    if (anchor or {}).get("label") == "measured":
+        depth_result, failure = stage(
+            Stage.DEPTH, _oom_guard(_depth_step, degradations),
+            timings=timings)
+        if failure:
+            return fail(failure, lint=lint, anchor=anchor_info,
+                        segmentation=seg_info, classification=classification,
+                        dish=dish_info)
+        (depth_out, depth_m, depth_K, anchor,
+         scale_factor, scale_source) = depth_result
+    else:
+        depth_out, depth_m, depth_K = None, None, K
+        scale_factor, scale_source = 1.0, "none"
+    anchor_info = _anchor_summary(anchor)
+    depth_model = depth_out.get("model") if depth_out is not None else None
 
     head = deps["weight_head"] if "weight_head" in deps else _get_weight_head()
 
     # --- multi-item path (spec 003) ---------------------------------------
-    # grid9 multi-vessel detection runs once per frame after depth (one
-    # depth map serves every item). It engages only on menu-primary frames;
-    # off-menu and ingredient-route frames keep their existing flow.
-    # Detection failure, < 2 vessels, or every vessel unrecognized/unmeasurable
-    # -> the single-serving flow below runs unchanged (degradation-tagged,
-    # never a hard failure of the analysis).
-    segment_items_fn = (deps["segment_items"] if "segment_items" in deps
-                        else _get_segment_items())
+    # Structure detection runs on every recognized, in-scope meal before the
+    # school/general serving paths. A positive one-vessel result keeps the
+    # single-serving path; detected multi-vessel meals are measured separately.
 
-    def _item_portion(item_mask, dish_i, dish_id_i):
-        """Per-item portion under the same rules as the single path: learned
-        head on the prior tier for WED-mapped dishes, geometry otherwise
-        (real-MoGe measured tier keeps the ledger-015 table_prior base)."""
-        if ((anchor or {}).get("label") != "measured"
-                and _wed_slots_for_dish(dish_id_i) is not None):
-            if head is None:
-                raise WeightHeadUnavailable(
-                    f"weight head unavailable for {dish_id_i}: "
-                    "checkpoint missing or failed to load")
-            return _learned_portion(image_bgr, item_mask, dish_i,
-                                    dish_id_i, head)
+    def _item_portion(item_mask, dish_i, dish_id_i, bbox_mask=None, is_secondary=False):
+        """Use learned mass for mapped prior-tier items; otherwise require a
+        measured marker before computing geometry mass."""
+        if (anchor or {}).get("label") != "measured":
+            if _wed_slots_for_dish(dish_id_i) is not None:
+                if head is None:
+                    raise WeightHeadUnavailable(
+                        f"weight head unavailable for {dish_id_i}: "
+                        "checkpoint missing or failed to load")
+                roi_mask = bbox_mask if bbox_mask is not None else item_mask
+                return _learned_portion(image_bgr, roi_mask, dish_i,
+                                        dish_id_i, head)
+            raise ValueError(
+                "absolute geometry mass requires a measured marker scale")
+        geom_mask = np.asarray(item_mask, dtype=bool)
+        parent_mask = np.asarray(mask, dtype=bool)
+        if geom_mask.shape != parent_mask.shape:
+            raise ValueError("item mask shape mismatch with parent mask")
+        item_area = float(geom_mask.sum())
+        if item_area <= 0:
+            raise ValueError("empty item mask")
+        overlap = float((geom_mask & parent_mask).sum())
+        in_parent = overlap / max(item_area, 1.0)
+        c_mask = np.asarray(card_mask, dtype=bool) if card_mask is not None else np.zeros_like(parent_mask)
+        if parent_mask.sum() > 0:
+            if in_parent >= 0.50:
+                if int(overlap) < 64:
+                    raise ValueError("item mask overlap < 64 px")
+                geom_mask = geom_mask & parent_mask
+            elif is_secondary or _is_valid_secondary_vessel(geom_mask, parent_mask, card_mask, geom_mask.shape[:2]):
+                geom_mask = geom_mask & ~parent_mask & ~c_mask
+                if int(geom_mask.sum()) < 64:
+                    raise ValueError("secondary item mask too small after parent subtraction")
+            else:
+                raise ValueError(
+                    f"item mask mostly outside parent food mask (in_parent {in_parent:.1%} < 50%, overlap {int(overlap)} px < 64 px)"
+                )
+        if int(geom_mask.sum()) < 64:
+            raise ValueError("item mask too small after clipping")
+
+        effective_exclude = parent_mask | (geom_mask if in_parent < 0.50 else np.zeros_like(parent_mask))
+        if card_mask is not None:
+            effective_exclude = effective_exclude | card_mask
+
         geometry_cfg = (
-            {"base_method": "table_prior"}
+            {"base_method": "table_prior", "exclude_mask": effective_exclude}
             if (anchor or {}).get("label") == "measured"
             and depth_model == MOGE_MODEL_ID
-            else {}
+            else {"exclude_mask": effective_exclude}
         )
-        return estimate_portion(image_bgr, item_mask, depth_m, anchor,
-                                {"K": K}, dish_i, cfg=geometry_cfg)
+        portion_geom = estimate_portion(image_bgr, geom_mask, depth_m, anchor,
+                                        {"K": depth_K}, dish_i, cfg=geometry_cfg)
+        if (head is not None
+                and _wed_slots_for_dish(dish_id_i) is not None
+                and (anchor or {}).get("label") == "measured"
+                and depth_model == MOGE_MODEL_ID):
+            try:
+                roi_mask = bbox_mask if bbox_mask is not None else geom_mask
+                portion_head = _learned_portion(image_bgr, roi_mask, dish_i, dish_id_i, head)
+                g_geom = float(portion_geom["grams"])
+                g_head = float(portion_head["grams"])
+                s_geom = float(portion_geom.get("sigma_grams_rel", 0.33))
+                s_head = float(portion_head.get("sigma_grams_rel", 0.20))
+                w_geom = (s_head ** 2) / (s_geom ** 2 + s_head ** 2)
+                w_head = 1.0 - w_geom
+                flags = list(portion_geom.get("flags", []))
+                if g_geom < 0.55 * g_head or g_geom > 2.0 * g_head:
+                    g_fused = 0.35 * g_geom + 0.65 * g_head
+                    if g_geom > 2.0 * g_head:
+                        flags.append("plate_elevation_bias_clamped")
+                    elif g_geom < 0.55 * g_head:
+                        flags.append("sub_rim_depth_truncated")
+                else:
+                    g_fused = w_geom * g_geom + w_head * g_head
+                if g_geom > 1e-6:
+                    ratio = g_fused / g_geom
+                    portion_geom["grams"] = round(g_fused, 1)
+                    if portion_geom.get("volume_ml"):
+                        eff_density = portion_geom.get("density_eff", 0.85)
+                        portion_geom["volume_ml"] = round(g_fused / eff_density, 1)
+                    if portion_geom.get("components_g"):
+                        shares, _, _ = _components(dish_i)
+                        portion_geom["components_g"] = {k: round(g_fused * s, 1) for k, s in shares.items()}
+                flags.append("learned_geometry_fused")
+                portion_geom["flags"] = list(dict.fromkeys(flags))
+            except Exception as e:
+                log.warning("WeightHead fusion in item portion skipped (%s)", e)
+        return portion_geom
+
+    def _estimated_whole_meal(note, detected_count, item_evidence):
+        """Use the full food mask for a qualified estimate after item failure.
+
+        This path provides useful meal totals when individual regions cannot
+        be resolved. It deliberately does not produce a school compliance
+        score because the assumed whole-mask label/component mapping is not
+        independently verified.
+        """
+        portion, portion_failure = stage(
+            Stage.PORTION,
+            _oom_guard(lambda: _item_portion(mask, dish, dish_info["id"]),
+                       degradations),
+            timings=timings)
+        if portion_failure is not None:
+            return Analysis(
+                verdict="cannot_verify",
+                reasons=[reason_for_failure(portion_failure)],
+                failures=[portion_failure], lint=lint, anchor=anchor_info,
+                segmentation={**(seg_info or {}),
+                              "item_detection_fallback": "failed"},
+                classification=classification, dish=dish_info,
+                model_versions=_model_versions(depth_out, head),
+                items=item_evidence, path_used="multi_item")
+        assert portion is not None
+        mc, nutrition_failure = stage(
+            Stage.NUTRITION, sample_nutrients, portion, dish, band,
+            n=n_mc, seed=seed, timings=timings)
+        if nutrition_failure is not None:
+            return Analysis(
+                verdict="cannot_verify",
+                reasons=[reason_for_failure(nutrition_failure)],
+                failures=[nutrition_failure], lint=lint, anchor=anchor_info,
+                segmentation={**(seg_info or {}),
+                              "item_detection_fallback": "failed"},
+                classification=classification, dish=dish_info,
+                portion=_portion_wire_block(portion),
+                model_versions=_model_versions(depth_out, head),
+                items=item_evidence, path_used="multi_item")
+        assert mc is not None
+        fallback_note = (
+            f"{note}; totals below use the top-level food mask and the "
+            "leading meal label as one estimate. No school compliance "
+            "verdict was produced.")
+        reasons = [Reason(ReasonKind.ESTIMATE_ONLY, fallback_note)]
+        assumptions = [fallback_note, *estimate_only_notes]
+        reasons.extend(Reason(ReasonKind.ESTIMATE_ONLY, estimate_note)
+                       for estimate_note in estimate_only_notes)
+        if (anchor or {}).get("label") != "measured":
+            reasons.append(no_card_reason(portion))
+        return Analysis(
+            verdict="ESTIMATED",
+            reasons=reasons,
+            lint=lint,
+            anchor=anchor_info,
+            segmentation={**(seg_info or {}),
+                          "n_items": 1,
+                          "n_items_detected": int(detected_count),
+                          "item_detection_fallback": "top-level-food-mask"},
+            classification=classification,
+            dish=dish_info,
+            portion=_portion_wire_block(portion),
+            nutrition={
+                "kcal": mc["kcal"], "protein_g": mc["protein_g"],
+                "grams": mc["grams"], "n": mc["n"], "seed": mc["seed"],
+                "diagnostics": mc["diagnostics"],
+                "assumed_nutrients": mc["assumed_nutrients"],
+                "wider_ranges": mc["wider_ranges"],
+                "nutrition_provenance": mc["nutrition_provenance"],
+            },
+            assumptions=assumptions,
+            model_versions=_model_versions(depth_out, head),
+            items=None,
+            path_used="multi_item")
 
     def _multi_item_analysis(items):
         """Portion each vessel separately and judge the aggregate meal.
 
-        Returns an Analysis, or None when nothing measurable remains — the
-        caller then falls through to the single-serving flow."""
+        Unresolved item labels or component correspondence fall back to a
+        clearly marked whole-mask estimate without a compliance verdict.
+        Actual portion/nutrition stage failures still return cannot_verify."""
         pad = 0.10
         resolved, skipped = [], []
+        classified_items = []
         # Combo decomposition (spec 004): a combo plate restricts each
         # vessel's match to the combo's component serving targets, so the
         # aggregate sums distinct components instead of N x the combo.
         combo = _combo_candidates(dish_info["id"])
         for rank, item in enumerate(items):
+            semantic_name = item.get("semantic_class_name")
             x0, y0, x1, y1 = item["bbox"]
             pw, ph = int((x1 - x0) * pad), int((y1 - y0) * pad)
-            crop = image_bgr[max(0, y0 - ph):min(H, y1 + ph),
-                             max(0, x0 - pw):min(W, x1 + pw)]
+            y_min, y_max = max(0, y0 - ph), min(H, y1 + ph)
+            x_min, x_max = max(0, x0 - pw), min(W, x1 + pw)
+            crop = image_bgr[y_min:y_max, x_min:x_max].copy()
+            if "mask" in item:
+                item_mask_crop = np.asarray(item["mask"][y_min:y_max, x_min:x_max], dtype=np.uint8)
+                if item_mask_crop.sum() > 0:
+                    kernel_15 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31))
+                    dilated = cv2.dilate(item_mask_crop, kernel_15) > 0
+                    crop_f = crop.astype(np.float32)
+                    bg_mask = ~dilated
+                    if dilated.any():
+                        mean_rgb = crop_f[dilated].mean(axis=(0, 1))
+                    else:
+                        mean_rgb = np.array([128.0, 128.0, 128.0], dtype=np.float32)
+                    crop_f[bg_mask] = 0.35 * crop_f[bg_mask] + 0.65 * mean_rgb
+                    crop = np.clip(crop_f, 0, 255).astype(np.uint8)
             try:
-                cls_i = _oom_guard(lambda c=crop: classify(c),
-                                   degradations)()
-                if combo and cls_i.get("scores"):
+                if semantic_name and "classify" not in deps:
+                    cls_i = {
+                        "dish": semantic_name,
+                        "method": "wed_semantic_region",
+                        "confidence": None,
+                        "match_score": None,
+                        "reason": (
+                            f"region class from frozen WED semantic mask; "
+                            f"SigLIP candidate: {classification.get('dish') or 'abstained'}"
+                        ),
+                    }
+                else:
+                    cls_i = _oom_guard(lambda c=crop: classify(c),
+                                       degradations)()
+                if combo and not semantic_name and cls_i.get("scores"):
                     from models.food_classifier import gallery_match_threshold
-                    cand = {k: v for k, v in cls_i["scores"].items()
-                            if k in combo and v is not None}
+                    cand = {k: float(v) for k, v in cls_i["scores"].items()
+                            if k in combo and v is not None
+                            and np.isfinite(float(v))}
                     if cand:
                         best = max(cand, key=lambda key: cand[key])
-                        if cand[best] >= gallery_match_threshold():
-                            cls_i = dict(cls_i, dish=best,
-                                         reason=(f"combo component match "
-                                                 f"{best}={cand[best]:.3f}"))
+                        match_score = float(cand[best])
+                        threshold = gallery_match_threshold()
+                        low_confidence = (
+                            cls_i.get("method") == "gallery"
+                            and match_score < threshold)
+                        if low_confidence:
+                            note = (
+                                f"A combo region's best component label was "
+                                f"below threshold ({match_score:.3f} < "
+                                f"{threshold:.2f}); {best} is used only for "
+                                "an estimate, without a compliance verdict.")
+                            estimate_only_notes.append(note)
+                        cls_i = dict(
+                            cls_i,
+                            dish=best,
+                            reason=(f"tentative combo component {best}="
+                                    f"{match_score:.3f}" if low_confidence
+                                    else f"combo component match {best}="
+                                         f"{match_score:.3f}"),
+                        )
+                elif not semantic_name and cls_i.get("dish") is None:
+                    if item.get("is_secondary_vessel"):
+                        continue
+                    scores = cls_i.get("scores") or {}
+                    cand = {key: float(value) for key, value in scores.items()
+                            if value is not None
+                            and np.isfinite(float(value))}
+                    if cand:
+                        best = max(cand, key=lambda key: cand[key])
+                        note = (
+                            "An item classifier score was below its "
+                            f"acceptance threshold; {best} is used only for "
+                            "a tentative estimate, without a compliance "
+                            "verdict.")
+                        estimate_only_notes.append(note)
+                        cls_i = dict(cls_i, dish=best, reason=note)
+                if item.get("is_secondary_vessel") and not combo:
+                    ms = float(cls_i.get("match_score") or 0.0)
+                    if ms < 0.80:
+                        continue
+                if semantic_name and "classify" in deps:
+                    classifier_candidate = cls_i.get("dish")
+                    cls_i = dict(
+                        cls_i,
+                        dish=semantic_name,
+                        method="wed_semantic_region",
+                        confidence=None,
+                        match_score=None,
+                        reason=(
+                            f"region class from frozen WED semantic mask; "
+                            f"SigLIP candidate: {classifier_candidate or 'abstained'}"
+                        ),
+                    )
                 cls_info, info_i, dish_i, reason_i = _resolve_serving(cls_i)
             except Exception as e:
                 log.warning("item %d classification failed (%s) — skipped",
@@ -558,7 +1152,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 skipped.append(_item_wire_block(
                     item, None, None, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: classification failed ({e})")))
+                           "item could not be classified")))
                 continue
             if info_i is None:
                 skipped.append(_item_wire_block(
@@ -566,17 +1160,79 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     Reason(ReasonKind.UNRECOGNIZED,
                            f"item skipped: dish unrecognized ({reason_i})")))
                 continue
+            classified_items.append((item, cls_info, info_i, dish_i))
+
+        # Coalesce same-class proposals when bounding boxes overlap or masks touch
+        coalesced_items = []
+        for item, cls_info, info_i, dish_i in classified_items:
+            merged = False
+            for idx, (c_item, c_cls, c_info, c_dish) in enumerate(coalesced_items):
+                if _same_food_family(c_info["id"], info_i["id"]):
+                    b1, b2 = item.get("bbox"), c_item.get("bbox")
+                    overlap = False
+                    if b1 is not None and b2 is not None:
+                        ix0, iy0 = max(b1[0], b2[0]), max(b1[1], b2[1])
+                        ix1, iy1 = min(b1[2], b2[2]), min(b1[3], b2[3])
+                        inter_w, inter_h = max(0, ix1 - ix0), max(0, iy1 - iy0)
+                        inter_area = inter_w * inter_h
+                        min_area = min((b1[2] - b1[0]) * (b1[3] - b1[1]),
+                                       (b2[2] - b2[0]) * (b2[3] - b2[1]))
+                        if min_area > 0 and (inter_area / min_area) > 0.15:
+                            overlap = True
+                    m1, m2 = item.get("mask"), c_item.get("mask")
+                    if m1 is not None and m2 is not None:
+                        if (m1 & m2).any():
+                            overlap = True
+                    if overlap:
+                        m_merged = (m1 | m2) if (m1 is not None and m2 is not None) else (m1 or m2)
+                        b_merged = None
+                        if b1 is not None and b2 is not None:
+                            b_merged = [min(b1[0], b2[0]), min(b1[1], b2[1]),
+                                        max(b1[2], b2[2]), max(b1[3], b2[3])]
+                        elif b1 is not None:
+                            b_merged = b1
+                        elif b2 is not None:
+                            b_merged = b2
+                        score_1 = float(item.get("sam_score") or 0.0)
+                        score_2 = float(c_item.get("sam_score") or 0.0)
+                        merged_item = dict(
+                            c_item,
+                            mask=m_merged,
+                            bbox=b_merged,
+                            sam_score=max(score_1, score_2),
+                            area_frac=float(m_merged.mean()) if m_merged is not None else c_item.get("area_frac"),
+                            is_secondary_vessel=c_item.get("is_secondary_vessel", False) or item.get("is_secondary_vessel", False),
+                        )
+                        m_score_1 = float(cls_info.get("match_score") or 0.0)
+                        m_score_2 = float(c_cls.get("match_score") or 0.0)
+                        best_cls = cls_info if m_score_1 > m_score_2 else c_cls
+                        best_info = info_i if m_score_1 > m_score_2 else c_info
+                        best_dish = dish_i if m_score_1 > m_score_2 else c_dish
+                        coalesced_items[idx] = (merged_item, best_cls, best_info, best_dish)
+                        merged = True
+                        break
+            if not merged:
+                coalesced_items.append((item, cls_info, info_i, dish_i))
+
+        if len(coalesced_items) == 1 and not coalesced_items[0][0].get("is_secondary_vessel"):
+            coalesced_items[0][0]["mask"] = mask
+            ys, xs = np.nonzero(mask)
+            if len(xs):
+                coalesced_items[0][0]["bbox"] = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+            coalesced_items[0][0]["area_frac"] = float(mask.mean())
+
+        for rank, (item, cls_info, info_i, dish_i) in enumerate(coalesced_items):
             try:
                 portion_i = _oom_guard(
-                    lambda m=item["mask"], d=dish_i, k=info_i["id"]:
-                    _item_portion(m, d, k),
+                    lambda m=item["mask"], bm=item.get("bbox_mask"), d=dish_i, k=info_i["id"], sec=item.get("is_secondary_vessel", False):
+                    _item_portion(m, d, k, bbox_mask=bm, is_secondary=sec),
                     degradations)()
             except Exception as e:
                 log.warning("item %d portion failed (%s) — skipped", rank, e)
                 skipped.append(_item_wire_block(
                     item, cls_info, info_i, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: portion failed ({e})")))
+                           "item portion could not be measured")))
                 continue
             mc_i, mc_failure = stage(Stage.NUTRITION, sample_nutrients,
                                      portion_i, dish_i, band, n=n_mc,
@@ -587,16 +1243,33 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 skipped.append(_item_wire_block(
                     item, cls_info, info_i, None,
                     Reason(ReasonKind.STAGE_FAILED,
-                           f"item skipped: {mc_failure.error}")))
+                           "item nutrition could not be estimated")))
                 continue
             resolved.append((item, cls_info, info_i, dish_i, portion_i, mc_i))
+        item_evidence = [
+            _item_wire_block(it, ci, ii, pi)
+            for it, ci, ii, _d, pi, _m in resolved
+        ] + skipped
         if not resolved:
-            if "multi_item_fallback" not in degradations:
-                degradations.append("multi_item_fallback")
-            return None
+            note = ("None of the detected food regions could be identified "
+                    "and measured")
+            return _estimated_whole_meal(note, len(items), item_evidence)
+        if skipped:
+            note = (f"{len(skipped)} detected item(s) could not be measured; "
+                    "so the item-level total is incomplete")
+            return _estimated_whole_meal(note, len(items), item_evidence)
 
+        labels = [entry[2]["id"] for entry in resolved]
+        if combo and sorted(labels) != sorted(combo):
+            expected = ", ".join(combo)
+            found = ", ".join(labels) or "none"
+            note = ("Detected regions did not resolve to each expected meal "
+                    f"component exactly once (expected: {expected}; found: "
+                    f"{found})")
+            return _estimated_whole_meal(note, len(items), item_evidence)
         portions = [r[4] for r in resolved]
         total_g = float(sum(p["grams"] for p in portions))
+        _append_plate_sanity_note(lint, total_g, band)
         total_v = float(sum(p["volume_ml"] for p in portions))
         comp_g: dict[str, float] = {}
         agg_components: dict[str, dict] = {}
@@ -611,7 +1284,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                                            "type": src.get("type", "grain")}
         for key, g in comp_g.items():
             agg_components[key]["share"] = g / total_g if total_g > 0 else 0.0
-        var = sum((p["grams"] * p["sigma_grams_rel"]) ** 2 for p in portions)
+        item_sigmas = [float(p["grams"] * p["sigma_grams_rel"]) for p in portions]
+        indep_var = sum(s * s for s in item_sigmas)
+        rho_plate = 0.25 if len(item_sigmas) > 1 else 0.0
+        var = (1.0 - rho_plate) * indep_var + rho_plate * (sum(item_sigmas) ** 2)
         sigma_agg = float(np.sqrt(var) / total_g) if total_g > 0 else 0.0
         agg_portion = {
             "grams": total_g,
@@ -645,30 +1321,94 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             "ranges_wider": any(bool(d.get("ranges_wider"))
                                 for _i, _c, _inf, d, _p, _m in resolved),
         }
-        score, a_failure = stage(
-            Stage.COMPLIANCE, assess, agg_mc, agg_portion, agg_dish, band,
-            (anchor or {}).get("label", "prior"), day=day,
-            depth_scale_source=scale_source, timings=timings)
+        if mode == "general" or estimate_only_notes:
+            score, a_failure = None, None
+        else:
+            score, a_failure = stage(
+                Stage.COMPLIANCE, assess, agg_mc, agg_portion, agg_dish, band,
+                (anchor or {}).get("label", "prior"), day=day,
+                depth_scale_source=scale_source, timings=timings)
         if a_failure is not None:
-            log.warning("multi-item aggregate assess failed (%s) — "
-                        "single-serving flow", a_failure.error)
+            log.warning("multi-item aggregate assess failed (%s)",
+                        a_failure.error)
             if "multi_item_aggregate_failed" not in degradations:
                 degradations.append("multi_item_aggregate_failed")
-            return None
-        assert score is not None  # successful compliance stage
-
+            return Analysis(
+                verdict="cannot_verify",
+                reasons=[reason_for_failure(a_failure)],
+                failures=[a_failure],
+                lint=lint,
+                anchor=anchor_info,
+                segmentation={**(seg_info or {}), "n_items": len(items)},
+                classification=classification,
+                dish=dish_info,
+                portion=_portion_wire_block(agg_portion),
+                nutrition={
+                    "kcal": agg_mc["kcal"], "protein_g": agg_mc["protein_g"],
+                    "grams": agg_mc["grams"], "n": agg_mc["n"],
+                    "seed": agg_mc["seed"], "diagnostics": agg_mc["diagnostics"],
+                    "assumed_nutrients": agg_mc["assumed_nutrients"],
+                    "wider_ranges": agg_mc["wider_ranges"],
+                },
+                model_versions=_model_versions(depth_out, head),
+                items=item_evidence,
+                path_used="multi_item",
+            )
         names = agg_dish["display_name"]
         meal_info = {"id": "meal", "display_name": names, "day": day,
                      "band": band, "serving_style": serving_style,
-                     "on_day": True,
+                     "on_day": dish_info.get("on_day", True),
                      "nutrition_source": "multi_item_aggregate"}
-        assumptions = list(score.assumptions) + [
-            (f"multi_item_meal: {len(resolved)} servings measured separately "
-             "and summed; the verdict judges the whole captured meal")]
+        if score is not None:
+            verdict = score.verdict
+            reasons = list(score.reasons)
+            failures = list(score.failures)
+            assumptions = list(score.assumptions)
+            coverage = score.coverage
+            advisory = score.advisory
+            compliance = {"day": score.day, "band": score.band,
+                          "probs": score.probs, "nutrients": score.nutrients}
+        else:
+            verdict = "ESTIMATED" if estimate_only_notes else "cannot_verify"
+            reasons = []
+            if dish_info["id"] not in ((menu or {}).get("dishes") or {}):
+                reasons.append(Reason(
+                    ReasonKind.OFF_MENU,
+                    f"recognized off-menu meal {names} — no school compliance "
+                    "verdict; grams and nutrients are provided",
+                ))
+            if (anchor or {}).get("label") != "measured":
+                reasons.append(no_card_reason(agg_portion))
+            failures = []
+            assumptions = []
+            coverage = advisory = compliance = None
+        density_note = _density_assumption(agg_portion)
+        if density_note:
+            assumptions.append(density_note)
+        if estimate_only_notes:
+            verdict = "ESTIMATED"
+            reasons.extend(Reason(ReasonKind.ESTIMATE_ONLY, note)
+                           for note in estimate_only_notes)
+            assumptions.extend(estimate_only_notes)
+        assumptions.append(
+            f"wed_semantic_class_regions: {len(resolved)} predicted food-class "
+            "regions estimated separately and summed; this does not verify "
+            "serving instances or complete meal coverage"
+            if (seg_info or {}).get("strategy") == "wed_deeplabv3_semantic"
+            else f"multi_item_meal: {len(resolved)} servings measured "
+                 "separately and summed")
+        repeated_labels = sorted({label for label in labels
+                                  if labels.count(label) > 1})
+        if repeated_labels:
+            assumptions.append(
+                "repeated_food_regions: separate detected servings shared "
+                "the same food label (" + ", ".join(repeated_labels) + ")")
         if skipped:
             assumptions.append(
                 f"{len(skipped)} detected item(s) unrecognized or "
                 "unmeasurable — excluded from the aggregate")
+        if overlap_resolution_note:
+            assumptions.append(overlap_resolution_note)
         if combo:
             assumptions.append(
                 f"combo_decomposition: plate-level {dish_info['id']}; vessels "
@@ -679,9 +1419,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         seg_multi = dict(seg_info or {})
         seg_multi["n_items"] = len(resolved)
         analysis = Analysis(
-            verdict=score.verdict,
-            reasons=list(score.reasons),
-            failures=list(score.failures),
+            verdict=verdict,
+            reasons=reasons,
+            failures=failures,
             lint=lint,
             anchor=anchor_blk,
             segmentation=seg_multi,
@@ -695,11 +1435,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 "assumed_nutrients": agg_mc["assumed_nutrients"],
                 "wider_ranges": agg_mc["wider_ranges"],
             },
-            coverage=score.coverage,
+            coverage=coverage,
             assumptions=assumptions,
-            advisory=score.advisory,
-            compliance={"day": score.day, "band": score.band,
-                        "probs": score.probs, "nutrients": score.nutrients},
+            advisory=advisory,
+            compliance=compliance,
             model_versions=_model_versions(depth_out, head),
             items=[_item_wire_block(it, ci, ii, pi)
                    for it, ci, ii, _d, pi, _m in resolved] + skipped,
@@ -707,45 +1446,105 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         analysis.path_used = "multi_item"
         return analysis
 
-    if (segment_items_fn is not None
-            and dish_info["id"] in ((menu or {}).get("dishes") or {})):
-        try:
-            items_det = _oom_guard(lambda: segment_items_fn(image_bgr),
-                                   degradations)()
-        except Exception as e:
-            log.warning("multi-item detection failed (%s) — single-serving "
-                        "flow", e)
-            if "multi_item_detection_failed" not in degradations:
-                degradations.append("multi_item_detection_failed")
-            items_det = None
-        if items_det is not None and len(items_det.get("items") or []) >= 2:
-            multi = _multi_item_analysis(items_det["items"])
-            if multi is not None:
-                return finish(multi)
+    overlap_resolution_note = None
+    if len(detected_items) >= 2:
+        if items_det.get("truncated_count", 0):
+            note = (
+                "More distinct regions were detected than the per-item "
+                "limit can process. The top-level food mask is used for one "
+                "tentative meal estimate, without a compliance verdict.")
+            estimate_only_notes.append(note)
+            detected_items = [{
+                "mask": mask,
+                "sam_score": seg_info.get("sam_score"),
+                "area_frac": seg_info.get("area_frac", float(mask.mean())),
+                "bbox": None,
+            }]
+            seg_info = {
+                **(seg_info or {}),
+                "multi_item_status": "whole-mask-estimate",
+                "n_items_detected": int(items_det.get("candidate_count") or
+                                         len(detected_items)),
+            }
+        valid_food_envelope = np.asarray(mask, dtype=bool)
+        c_mask = np.asarray(card_mask, dtype=bool) if card_mask is not None else np.zeros_like(valid_food_envelope)
+        clipped_items = []
+        for item in detected_items:
+            m = np.asarray(item.get("mask"), dtype=bool)
+            if m.shape == valid_food_envelope.shape:
+                item_ar = float(m.sum())
+                in_top = float((m & valid_food_envelope).sum()) / max(item_ar, 1.0)
+                if in_top >= 0.50:
+                    m_clipped = m & valid_food_envelope & ~c_mask
+                elif item.get("is_secondary_vessel") or _is_valid_secondary_vessel(m, valid_food_envelope, card_mask, m.shape[:2]):
+                    m_clipped = m & ~valid_food_envelope & ~c_mask
+                else:
+                    m_clipped = np.zeros_like(m)
+                if m_clipped.sum() >= 64:
+                    item_copy = dict(item, mask=m_clipped)
+                    if item.get("bbox") is not None:
+                        ys, xs = np.nonzero(m_clipped)
+                        if len(xs):
+                            item_copy["bbox"] = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+                    clipped_items.append(item_copy)
+        if clipped_items:
+            detected_items = clipped_items
+
+        masks = [item.get("mask") for item in detected_items]
+        pair_fractions = [frac for _, _, frac in _mask_overlap_pairs(masks)]
+        if pair_fractions:
+            overlap_counts = np.zeros(masks[0].shape, dtype=np.uint8)
+            for item_mask in masks:
+                overlap_counts += np.asarray(item_mask, dtype=bool)
+            overlap_pixels = int((overlap_counts > 1).sum())
+            before_count = len(detected_items)
+            detected_items = _assign_boundary_overlap(detected_items)
+            overlap_resolution_note = (
+                "Detected masks overlapped; shared pixels were assigned once "
+                "to the nearest region interior before portion estimation")
+            seg_info = {
+                **(seg_info or {}),
+                "overlap_resolution": "nearest-exclusive-region",
+                "overlap_pairs_resolved": len(pair_fractions),
+                "overlap_pixels_assigned": overlap_pixels,
+                "duplicate_regions_removed": before_count - len(detected_items),
+            }
+        if len(detected_items) >= 2:
+            return finish(_multi_item_analysis(detected_items))
+        # If overlap partitioning removes a duplicate mask, continue through
+        # the ordinary whole-serving estimator rather than measuring the same
+        # vessel twice.
+        seg_info = {**(seg_info or {}), "n_items": len(detected_items)}
 
     # --- portion stage ----------------------------------------------------
     # Learned path (prior tier only): head.predict -> grams. An absent head
     # (checkpoint missing/load failed) and a failing head are treated the
     # same on a WED-mapped dish: WeightHeadUnavailable -> cannot_verify with
     # the weight_head_unavailable reason, no grams, path_used null. Unmapped
-    # dishes and the measured tier keep the geometry path.
+    # prior-tier dishes also abstain because absolute geometry has no scale.
 
     def _portion_step():
-        if (anchor.get("label") != "measured"
-                and _wed_slots_for_dish(dish_info["id"]) is not None):
-            if head is None:
-                raise WeightHeadUnavailable(
-                    f"weight head unavailable for {dish_info['id']}: "
-                    "checkpoint missing or failed to load")
-            try:
-                return _learned_portion(image_bgr, mask, dish,
-                                        dish_info["id"], head)
-            except Exception as e:
-                if _is_oom(e):
-                    raise  # _oom_guard retries; a second OOM is a Failure
-                raise WeightHeadUnavailable(
-                    f"learned weight head failed: {type(e).__name__}: {e}"
-                ) from e
+        if anchor.get("label") != "measured":
+            if _wed_slots_for_dish(dish_info["id"]) is not None:
+                if head is None:
+                    raise WeightHeadUnavailable(
+                        f"weight head unavailable for {dish_info['id']}: "
+                        "checkpoint missing or failed to load")
+                try:
+                    roi_mask = (detected_items[0]["bbox_mask"]
+                                if len(detected_items) == 1
+                                and detected_items[0].get("bbox_mask") is not None
+                                else mask)
+                    return _learned_portion(image_bgr, roi_mask, dish,
+                                            dish_info["id"], head)
+                except Exception as e:
+                    if _is_oom(e):
+                        raise  # _oom_guard retries; a second OOM is a Failure
+                    raise WeightHeadUnavailable(
+                        f"learned weight head failed: {type(e).__name__}: {e}"
+                    ) from e
+            raise ValueError(
+                "absolute geometry mass requires a measured marker scale")
         # Real MoGe ring fits follow the food surface on phone captures and
         # inflate thickness. The outside table plane is the validated real-
         # capture path (ledger 015); synthetic/GT depth keeps the ring path.
@@ -755,8 +1554,46 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             and depth_model == MOGE_MODEL_ID
             else {}
         )
-        return estimate_portion(image_bgr, mask, depth_m, anchor, {"K": K}, dish,
-                                cfg=geometry_cfg)
+        portion_geom = estimate_portion(image_bgr, mask, depth_m, anchor,
+                                        {"K": depth_K}, dish,
+                                        cfg=geometry_cfg)
+        dish_id = dish_info.get("id")
+        if (head is not None
+                and dish_id is not None
+                and _wed_slots_for_dish(dish_id) is not None
+                and (anchor or {}).get("label") == "measured"
+                and depth_model == MOGE_MODEL_ID):
+            try:
+                portion_head = _learned_portion(image_bgr, mask, dish, dish_id, head)
+                g_geom = float(portion_geom["grams"])
+                g_head = float(portion_head["grams"])
+                s_geom = float(portion_geom.get("sigma_grams_rel", 0.33))
+                s_head = float(portion_head.get("sigma_grams_rel", 0.20))
+                w_geom = (s_head ** 2) / (s_geom ** 2 + s_head ** 2)
+                w_head = 1.0 - w_geom
+                flags = list(portion_geom.get("flags", []))
+                if g_geom < 0.55 * g_head or g_geom > 2.0 * g_head:
+                    g_fused = 0.35 * g_geom + 0.65 * g_head
+                    if g_geom > 2.0 * g_head:
+                        flags.append("plate_elevation_bias_clamped")
+                    elif g_geom < 0.55 * g_head:
+                        flags.append("sub_rim_depth_truncated")
+                else:
+                    g_fused = w_geom * g_geom + w_head * g_head
+                if g_geom > 1e-6:
+                    ratio = g_fused / g_geom
+                    portion_geom["grams"] = round(g_fused, 1)
+                    if portion_geom.get("volume_ml"):
+                        eff_density = portion_geom.get("density_eff", 0.85)
+                        portion_geom["volume_ml"] = round(g_fused / eff_density, 1)
+                    if portion_geom.get("components_g"):
+                        shares, _, _ = _components(dish)
+                        portion_geom["components_g"] = {k: round(g_fused * s, 1) for k, s in shares.items()}
+                flags.append("learned_geometry_fused")
+                portion_geom["flags"] = list(dict.fromkeys(flags))
+            except Exception as e:
+                log.warning("WeightHead fusion in single flow skipped (%s)", e)
+        return portion_geom
 
     portion, failure = stage(Stage.PORTION, _oom_guard(_portion_step, degradations),
                              timings=timings)
@@ -764,7 +1601,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
                     dish=dish_info)
+    assert portion is not None
     portion_block = _portion_wire_block(portion)
+    _append_plate_sanity_note(lint, float(portion["grams"]), band)
 
     # --- nutrition stage (Monte Carlo) ------------------------------------
     mc, failure = stage(Stage.NUTRITION, sample_nutrients, portion, dish, band,
@@ -773,6 +1612,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         return fail(failure, lint=lint, anchor=anchor_info,
                     segmentation=seg_info, classification=classification,
                     dish=dish_info, portion=portion_block)
+    assert mc is not None
     nutrition_block = {
         "kcal": mc["kcal"], "protein_g": mc["protein_g"],
         "grams": mc["grams"],
@@ -783,26 +1623,38 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         "nutrition_provenance": mc["nutrition_provenance"],
     }
 
-    # --- off-menu serving path (spec 002 decision 3 + ADR 0003) -----------
-    # A recognized off-menu dish IS recognized (ledger 003 interpretation):
-    # grams + nutrients ride the wire like any plate; school compliance
-    # scoring does not apply, so the verdict is cannot_verify with the
-    # off_menu_dish reason LEADING the reasons (no-card disclaimer follows
-    # on the prior tier, spec story 22). out_of_scope stays only for
-    # explicitly-scoped menu dishes (SCOPE gate) and unrecognized captures.
-    if dish_info["id"] not in ((menu or {}).get("dishes") or {}):
+    # General mode compares this estimate with personal daily goals and does
+    # not produce a school-standards verdict. School mode assesses every
+    # recognized WED class; off-menu generic nutrient rows are explicitly
+    # marked assumed in the nutrition block and assessment assumptions.
+    if mode == "general":
         anchor_info = anchor_info or {}
         anchor_info["depth_scale_factor"] = round(float(scale_factor), 4)
         anchor_info["depth_scale_source"] = scale_source
         name = dish.get("display_name") or dish_info["id"]
-        reasons = [Reason(
-            ReasonKind.OFF_MENU,
-            f"recognized off-menu dish {name} — not on the school menu, so "
-            "no compliance verdict; grams and nutrients are provided")]
+        reasons = []
+        if dish_info["id"] not in ((menu or {}).get("dishes") or {}):
+            reasons.append(Reason(
+                ReasonKind.OFF_MENU,
+                f"recognized off-menu dish {name} — no school compliance "
+                "verdict; grams and nutrients are provided"))
         if (anchor or {}).get("label") != "measured":
             reasons.append(no_card_reason(portion))
+        assumptions = [
+            f"generic nutrient row {gid} is an assumed estimate"
+            for gid in mc.get("assumed_nutrients", [])
+        ]
+        density_note = _density_assumption(portion)
+        if density_note:
+            assumptions.append(density_note)
+        if overlap_resolution_note:
+            assumptions.append(overlap_resolution_note)
+        if estimate_only_notes:
+            reasons.extend(Reason(ReasonKind.ESTIMATE_ONLY, note)
+                           for note in estimate_only_notes)
+            assumptions.extend(estimate_only_notes)
         return finish(Analysis(
-            verdict="cannot_verify",
+            verdict="ESTIMATED" if estimate_only_notes else "cannot_verify",
             reasons=reasons,
             lint=lint,
             anchor=anchor_info,
@@ -811,6 +1663,35 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             dish=dish_info,
             portion=portion_block,
             nutrition=nutrition_block,
+            assumptions=assumptions,
+            model_versions=_model_versions(depth_out, head),
+        ))
+
+    if estimate_only_notes:
+        anchor_info = dict(anchor_info or {})
+        anchor_info["depth_scale_factor"] = round(float(scale_factor), 4)
+        anchor_info["depth_scale_source"] = scale_source
+        reasons = [Reason(ReasonKind.ESTIMATE_ONLY, note)
+                   for note in estimate_only_notes]
+        if (anchor or {}).get("label") != "measured":
+            reasons.append(no_card_reason(portion))
+        assumptions = list(estimate_only_notes)
+        density_note = _density_assumption(portion)
+        if density_note:
+            assumptions.append(density_note)
+        if overlap_resolution_note:
+            assumptions.append(overlap_resolution_note)
+        return finish(Analysis(
+            verdict="ESTIMATED",
+            reasons=reasons,
+            lint=lint,
+            anchor=anchor_info,
+            segmentation=seg_info,
+            classification=classification,
+            dish=dish_info,
+            portion=portion_block,
+            nutrition=nutrition_block,
+            assumptions=assumptions,
             model_versions=_model_versions(depth_out, head),
         ))
 
@@ -827,6 +1708,12 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     anchor_info["depth_scale_factor"] = round(float(scale_factor), 4)
     anchor_info["depth_scale_source"] = scale_source
+    assumptions = list(score.assumptions)
+    density_note = _density_assumption(portion)
+    if density_note:
+        assumptions.append(density_note)
+    if overlap_resolution_note:
+        assumptions.append(overlap_resolution_note)
 
     return finish(Analysis(
         verdict=score.verdict,
@@ -840,7 +1727,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         portion=portion_block,
         nutrition=nutrition_block,
         coverage=score.coverage,
-        assumptions=score.assumptions,
+        assumptions=assumptions,
         advisory=score.advisory,
         compliance={
             "day": score.day,
@@ -888,6 +1775,130 @@ def _portion_wire_block(portion: dict) -> dict:
     if "recipe_match" in portion:
         block["recipe_match"] = portion["recipe_match"]
     return block
+
+
+def _density_assumption(portion: dict) -> str | None:
+    """Keep configured density provenance visible without changing the wire shape."""
+    if portion.get("grams_source", "geometry") != "geometry":
+        return None
+    return ("geometry mass uses configured class/component density from "
+            "data/wed_dishes.yaml; density uncertainty follows the declared "
+            "density_sigma_pct status in data/params_status.yaml")
+
+
+def _mask_overlap_pairs(masks):
+    """Yield (i, j, inter/smaller) for mask pairs that share pixels."""
+    for i in range(len(masks)):
+        a = masks[i]
+        if a is None:
+            continue
+        for j in range(i + 1, len(masks)):
+            b = masks[j]
+            if b is None:
+                continue
+            inter = float(np.logical_and(a, b).sum())
+            if inter == 0:
+                continue
+            smaller = min(float(a.sum()), float(b.sum()))
+            yield i, j, (inter / smaller if smaller else 1.0)
+
+
+def _assign_boundary_overlap(items):
+    """Partition every shared pixel once, assigning it to its nearest region.
+
+    SAM proposals can overlap substantially even when they describe separate
+    foods. Abstaining on an arbitrary overlap percentage discarded these
+    meals; assigning all shared pixels to the largest proposal also distorted
+    small portions. This uses each mask's exclusive pixels as spatial seeds,
+    then assigns contested pixels to the nearest seed. A mask without an
+    exclusive core uses its deepest interior pixel as its seed. Identical
+    proposals resolve deterministically by score and area, and empty duplicate
+    masks are removed. The output masks are disjoint and preserve the input
+    union.
+    """
+    if not items:
+        return []
+    import cv2
+
+    masks = [np.asarray(item["mask"], dtype=bool) for item in items]
+    shape = masks[0].shape
+    if any(mask.shape != shape for mask in masks):
+        raise ValueError("overlapping food masks must have the same shape")
+
+    counts = np.zeros(shape, dtype=np.uint8)
+    for mask in masks:
+        counts += mask
+    union = counts > 0
+    contested = counts > 1
+    if not contested.any():
+        return items
+
+    seeds = []
+    for index, mask in enumerate(masks):
+        other_union = np.zeros(shape, dtype=bool)
+        for other_index, other in enumerate(masks):
+            if other_index != index:
+                other_union |= other
+        exclusive = mask & ~other_union
+        if not exclusive.any():
+            # This proposal is fully covered by other masks. Keep a stable
+            # interior seed so it can still receive its closest shared area.
+            interior = cv2.distanceTransform(
+                mask.astype(np.uint8), cv2.DIST_L2, 5)
+            if interior.max() > 0:
+                y, x = np.unravel_index(int(interior.argmax()), shape)
+                exclusive[y, x] = True
+        seeds.append(exclusive)
+
+    # Higher SAM score wins exact distance ties; original area is the stable
+    # secondary key. Visit the strongest item first and only replace on a
+    # strictly shorter distance.
+    priority = sorted(
+        range(len(items)),
+        key=lambda i: (float(items[i].get("sam_score") or 0.0),
+                       int(masks[i].sum())),
+        reverse=True,
+    )
+    best_distance = np.full(shape, np.inf, dtype=np.float32)
+    owner = np.full(shape, -1, dtype=np.int8)
+    for index in priority:
+        if not seeds[index].any():
+            continue
+        distance = cv2.distanceTransform(
+            (~seeds[index]).astype(np.uint8), cv2.DIST_L2, 5)
+        eligible = masks[index] & contested
+        take = eligible & (distance < best_distance)
+        owner[take] = index
+        best_distance[take] = distance[take]
+
+    assigned = []
+    for index, item in enumerate(items):
+        # Preserve uncontested pixels and take only the shared pixels owned by
+        # this mask. This also drops an exact duplicate that lost every tie.
+        result_mask = (masks[index] & ~contested) | (owner == index)
+        if not result_mask.any():
+            continue
+        ys, xs = np.nonzero(result_mask)
+        assigned.append(dict(
+            item,
+            mask=result_mask,
+            area_frac=float(result_mask.mean()),
+            bbox=[int(xs.min()), int(ys.min()),
+                  int(xs.max()) + 1, int(ys.max()) + 1],
+        ))
+
+    # Guard the partition invariant here: a programming or OpenCV error must
+    # not silently create or discard food pixels before nutrition scoring.
+    if assigned:
+        assigned_union = np.zeros(shape, dtype=bool)
+        assigned_count = np.zeros(shape, dtype=np.uint8)
+        for item in assigned:
+            item_mask = item["mask"]
+            assigned_union |= item_mask
+            assigned_count += item_mask
+        if np.any(assigned_count > 1) or not np.array_equal(assigned_union, union):
+            raise RuntimeError("overlap partition failed to preserve food regions")
+    return assigned
 
 
 def _item_wire_block(item, classification, dish_info, portion, reason=None):

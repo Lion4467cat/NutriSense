@@ -1,0 +1,763 @@
+{
+  "checks": {
+    "pair-02ab9189614e3cd684d0eed8": {
+      "card_absent_sample_id": "sample-3b8c482380cb35818aef82c3",
+      "card_present_sample_id": "sample-85d65fc6a836ff973f3b5b97",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-02ab9189614e3cd684d0eed8",
+      "passed": true
+    },
+    "pair-06be564277417c363c582d16": {
+      "card_absent_sample_id": "sample-fbb3e1643bbe061b549cd649",
+      "card_present_sample_id": "sample-5145c4f6c8e7a9f3e65ed2b3",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-06be564277417c363c582d16",
+      "passed": true
+    },
+    "pair-1073dc7c5af6d58b58d6597b": {
+      "card_absent_sample_id": "sample-2f2de7fc4a0d9bba30836e22",
+      "card_present_sample_id": "sample-0e8f1ef76108f7ec13cdd0fa",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-1073dc7c5af6d58b58d6597b",
+      "passed": true
+    },
+    "pair-137cd9693c742ff21d8028d8": {
+      "card_absent_sample_id": "sample-1f791b4bc4e935891ede40f6",
+      "card_present_sample_id": "sample-3dcc7f60f82bd674eb4e72d6",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-137cd9693c742ff21d8028d8",
+      "passed": true
+    },
+    "pair-177c0ca1d40f5bf894d19f03": {
+      "card_absent_sample_id": "sample-613b635421264cbe3c5a7672",
+      "card_present_sample_id": "sample-0571b8b2aa77bb90954bb730",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-177c0ca1d40f5bf894d19f03",
+      "passed": true
+    },
+    "pair-17a06a930a68cf5403a145fa": {
+      "card_absent_sample_id": "sample-97fd7c8815b9f430f19c6c9c",
+      "card_present_sample_id": "sample-61e8d31cb740634deaedc7cb",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-17a06a930a68cf5403a145fa",
+      "passed": true
+    },
+    "pair-24686b52b328f469c593a1ab": {
+      "card_absent_sample_id": "sample-e5cba0d893935132b5adb096",
+      "card_present_sample_id": "sample-1a83f89c1ee6cedee3fbcdb5",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-24686b52b328f469c593a1ab",
+      "passed": true
+    },
+    "pair-265a55f82092852426f37d2d": {
+      "card_absent_sample_id": "sample-9aba30102758a37a4325730d",
+      "card_present_sample_id": "sample-b5d856f4a42d7cbe8a478645",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-265a55f82092852426f37d2d",
+      "passed": true
+    },
+    "pair-27bbd6d6de078d5613dfcadb": {
+      "card_absent_sample_id": "sample-1f41964a8739c8d07203b6a6",
+      "card_present_sample_id": "sample-63fed2153cc11037a666e25f",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-27bbd6d6de078d5613dfcadb",
+      "passed": true
+    },
+    "pair-28f8f8a0eb74584c4ebb820a": {
+      "card_absent_sample_id": "sample-c4160a503c64ffde1bb1ed26",
+      "card_present_sample_id": "sample-f76dfe44cb210492dddd40c1",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-28f8f8a0eb74584c4ebb820a",
+      "passed": true
+    },
+    "pair-298fa7015cf478ac163f5cb2": {
+      "card_absent_sample_id": "sample-727f04cd52e412d2f665ede6",
+      "card_present_sample_id": "sample-842f64b2c2460de88831f4e3",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-298fa7015cf478ac163f5cb2",
+      "passed": true
+    },
+    "pair-2b579d05f806d8a42170e285": {
+      "card_absent_sample_id": "sample-efa422055f483c682f04b4cd",
+      "card_present_sample_id": "sample-44af68ea7eb8b0220d8412f7",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-2b579d05f806d8a42170e285",
+      "passed": true
+    },
+    "pair-2ef7e055e3941ec560f62be4": {
+      "card_absent_sample_id": "sample-cbfaff409ccc0ceb61c0b77e",
+      "card_present_sample_id": "sample-e96de11a13837b31be5fbef3",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-2ef7e055e3941ec560f62be4",
+      "passed": true
+    },
+    "pair-2fbf5119347bcb8ff964d80d": {
+      "card_absent_sample_id": "sample-54bbbcc24226fa8f0b927593",
+      "card_present_sample_id": "sample-979b2938d34fed0f53c1a186",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-2fbf5119347bcb8ff964d80d",
+      "passed": true
+    },
+    "pair-346eafc83ba1cd4605e8f306": {
+      "card_absent_sample_id": "sample-add2b17fd5731ab7e4fc6354",
+      "card_present_sample_id": "sample-b11b5e9291fe6c2bc0adeeee",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-346eafc83ba1cd4605e8f306",
+      "passed": true
+    },
+    "pair-4267c116727613adba92ca74": {
+      "card_absent_sample_id": "sample-a85b26a31271a2368669d370",
+      "card_present_sample_id": "sample-18f3d3ba26636c851e2260b5",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-4267c116727613adba92ca74",
+      "passed": true
+    },
+    "pair-4cecd0bd19918aba1a0f6a76": {
+      "card_absent_sample_id": "sample-e84b10499fc9ae5c25fd3468",
+      "card_present_sample_id": "sample-78ee42b25717d59e3b870449",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-4cecd0bd19918aba1a0f6a76",
+      "passed": true
+    },
+    "pair-537f32b3f0b5d49794230752": {
+      "card_absent_sample_id": "sample-f74280611c6489c13c5ac593",
+      "card_present_sample_id": "sample-20ca33d0c196bc6a8174f173",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-537f32b3f0b5d49794230752",
+      "passed": true
+    },
+    "pair-53fed236c4b5e34a49ab15be": {
+      "card_absent_sample_id": "sample-a263bc379ede5fb425e7843c",
+      "card_present_sample_id": "sample-f3f9a2c4a37d8b7b074b5fcf",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-53fed236c4b5e34a49ab15be",
+      "passed": true
+    },
+    "pair-5f76318d50c6a564d116edee": {
+      "card_absent_sample_id": "sample-3098cfc76c79e6fbe792d498",
+      "card_present_sample_id": "sample-a13776471a13aa4030cb682f",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-5f76318d50c6a564d116edee",
+      "passed": true
+    },
+    "pair-6182e8a6294b63691a69c6ec": {
+      "card_absent_sample_id": "sample-feb80f65f167a37de00ef609",
+      "card_present_sample_id": "sample-68529d22e914eb83dab739e3",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-6182e8a6294b63691a69c6ec",
+      "passed": true
+    },
+    "pair-6d7abf05138d449a0eee1eeb": {
+      "card_absent_sample_id": "sample-d8e7e2645617f02f6e894a0d",
+      "card_present_sample_id": "sample-e02083abb9ea7d5fdbb37287",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-6d7abf05138d449a0eee1eeb",
+      "passed": true
+    },
+    "pair-70b248862197ba74313e4c1b": {
+      "card_absent_sample_id": "sample-f5b407698c213c7bcfc5b813",
+      "card_present_sample_id": "sample-a56304f09c4267e32109af56",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-70b248862197ba74313e4c1b",
+      "passed": true
+    },
+    "pair-7ba7b3f9999dcfb5a0940976": {
+      "card_absent_sample_id": "sample-d537cecf97684e4ee25a58e6",
+      "card_present_sample_id": "sample-8629ab168a36395bb65c964d",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-7ba7b3f9999dcfb5a0940976",
+      "passed": true
+    },
+    "pair-7be304c2668ac89247f028b7": {
+      "card_absent_sample_id": "sample-26903c86b97160feb57073d6",
+      "card_present_sample_id": "sample-d3ccf16dcfb98ce8b84ecb43",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-7be304c2668ac89247f028b7",
+      "passed": true
+    },
+    "pair-7f4936f420ba1bfc0a85733b": {
+      "card_absent_sample_id": "sample-a723693ff4c6b423bfde7429",
+      "card_present_sample_id": "sample-1a638bf342e9ec01bb69a31d",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-7f4936f420ba1bfc0a85733b",
+      "passed": true
+    },
+    "pair-80932b036bc5d00f96dc35cf": {
+      "card_absent_sample_id": "sample-75ea7200ab63d81eafc39579",
+      "card_present_sample_id": "sample-8d61b32715502ad868110b4f",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-80932b036bc5d00f96dc35cf",
+      "passed": true
+    },
+    "pair-84bbe0db1a112ca7ba59264d": {
+      "card_absent_sample_id": "sample-4e1578512d59c8bdc1286829",
+      "card_present_sample_id": "sample-cb2e4e8652171ff898f6d281",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-84bbe0db1a112ca7ba59264d",
+      "passed": true
+    },
+    "pair-8974ac95ce8706892b4f22f8": {
+      "card_absent_sample_id": "sample-381a31cfc7d2afd2b1e053d6",
+      "card_present_sample_id": "sample-4a6f0edb6e7bc6bcfc0feb4b",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-8974ac95ce8706892b4f22f8",
+      "passed": true
+    },
+    "pair-8e213337571105f5474c6bc3": {
+      "card_absent_sample_id": "sample-d31091d85a6c52706471205a",
+      "card_present_sample_id": "sample-f2d39e1ff4af4319958e3d16",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-8e213337571105f5474c6bc3",
+      "passed": true
+    },
+    "pair-94cccda5e2ffc287eb27f92a": {
+      "card_absent_sample_id": "sample-15e21db903976bcbb6bb43ea",
+      "card_present_sample_id": "sample-b92a5ca9ab269fa43119cdf7",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-94cccda5e2ffc287eb27f92a",
+      "passed": true
+    },
+    "pair-983ad9d792da261572cd2268": {
+      "card_absent_sample_id": "sample-e43d8afe6a02d74a372590c0",
+      "card_present_sample_id": "sample-a1fd96c433be3518a642773f",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-983ad9d792da261572cd2268",
+      "passed": true
+    },
+    "pair-9a2754f0d8d6ee65cbe02fb8": {
+      "card_absent_sample_id": "sample-bfbf0c96c71aae8d5de4106b",
+      "card_present_sample_id": "sample-f9bb02c64f14ff909faa8457",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-9a2754f0d8d6ee65cbe02fb8",
+      "passed": true
+    },
+    "pair-9afc8ab3e9ba945da4873d6a": {
+      "card_absent_sample_id": "sample-2e8489e11a583655ee9a4e42",
+      "card_present_sample_id": "sample-0a75e399e2119fa1288ea018",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-9afc8ab3e9ba945da4873d6a",
+      "passed": true
+    },
+    "pair-9dbc0dcb1c9205ba7ce39dab": {
+      "card_absent_sample_id": "sample-94fa2992e01e09abc386568a",
+      "card_present_sample_id": "sample-05f9ef1f2ae3edf756109cb4",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-9dbc0dcb1c9205ba7ce39dab",
+      "passed": true
+    },
+    "pair-9f7d1045cb45322f5cad3724": {
+      "card_absent_sample_id": "sample-8bea245f58b1d67de5dfc8cc",
+      "card_present_sample_id": "sample-1cddf1ac02b2f7875380fa66",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-9f7d1045cb45322f5cad3724",
+      "passed": true
+    },
+    "pair-a0840e031c998b9ec2761c1a": {
+      "card_absent_sample_id": "sample-f604aed13431871761cee7de",
+      "card_present_sample_id": "sample-16cc0ddefea788dfd65645b0",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-a0840e031c998b9ec2761c1a",
+      "passed": true
+    },
+    "pair-a8f8f4e947cdcdb9ae2058a8": {
+      "card_absent_sample_id": "sample-6b6c9df1e9e0c23fd5aacec0",
+      "card_present_sample_id": "sample-1a11021e4a6491f5c937f04a",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-a8f8f4e947cdcdb9ae2058a8",
+      "passed": true
+    },
+    "pair-ac552b6b4a812384ee0ac954": {
+      "card_absent_sample_id": "sample-3a0576a3cda1b549f6bf223a",
+      "card_present_sample_id": "sample-91cc2e2d71a7c4c99a605d20",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-ac552b6b4a812384ee0ac954",
+      "passed": true
+    },
+    "pair-b40a00678d8d55d95881a329": {
+      "card_absent_sample_id": "sample-aaf8dbbe2c4b836b2589fb60",
+      "card_present_sample_id": "sample-a88e1785cde1546ca1f14153",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-b40a00678d8d55d95881a329",
+      "passed": true
+    },
+    "pair-b7be83e9aaa81e6f51d55f0d": {
+      "card_absent_sample_id": "sample-9a1762b69b69b85ffd7691d0",
+      "card_present_sample_id": "sample-e5b92210bb9d6b56400ded6b",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-b7be83e9aaa81e6f51d55f0d",
+      "passed": true
+    },
+    "pair-d6144fc06f9475ccc59e1f1c": {
+      "card_absent_sample_id": "sample-0d220d96c867d5e1a82f5682",
+      "card_present_sample_id": "sample-ba7251f14b9258dd1b0a2524",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-d6144fc06f9475ccc59e1f1c",
+      "passed": true
+    },
+    "pair-e497a43531f7a3920c72c373": {
+      "card_absent_sample_id": "sample-4244d75fa682c84b25ba8c90",
+      "card_present_sample_id": "sample-8edbf6c5c832042337115cf2",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-e497a43531f7a3920c72c373",
+      "passed": true
+    },
+    "pair-f44ab0bcfa95addc90647e85": {
+      "card_absent_sample_id": "sample-472609792e001e5b93da6b29",
+      "card_present_sample_id": "sample-687a5203c9781541aaf2255b",
+      "checks": {
+        "ID7_60mm_only_present": true,
+        "background_vessel_noise_identical": true,
+        "camera_identical": true,
+        "food_masks_geometry_mass_volume_density_identical": true,
+        "lighting_identical": true,
+        "metric_depth_identical_outside_card": true,
+        "rgb_differences_confined_to_card_edge_tolerance": true,
+        "scene_config_equal_except_anchor_card": true,
+        "world_geometry_identical_outside_card": true
+      },
+      "pair_id": "pair-f44ab0bcfa95addc90647e85",
+      "passed": true
+    }
+  },
+  "failed_pair_count": 0,
+  "human_pair_decisions": "REVIEW_REQUIRED",
+  "pair_count": 44,
+  "passed_pair_count": 44,
+  "pilot_manifest_sha256": "cda0d8c4ecde7ab9a4bbc43cb9cd34a033e4ad88d8f3135b4b972c226f943314",
+  "pilot_validation_sha256": "f5a30f497bcd0d1e68eca84c3839ad69bdc5b0ce231476d2f3eb40ea671724a7",
+  "review_states": [
+    "PASS",
+    "FAIL",
+    "REVIEW_REQUIRED"
+  ]
+}

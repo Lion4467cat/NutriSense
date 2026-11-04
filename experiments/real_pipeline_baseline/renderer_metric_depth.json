@@ -1,0 +1,406 @@
+{
+  "aruco_accessed": false,
+  "baseline_kind": "renderer_grounded_metric_depth",
+  "configuration": {
+    "calibration_intrinsics": "MoGe predicted pixel K; renderer K fallback only when absent/invalid",
+    "camera_resolution": [
+      640,
+      480
+    ],
+    "card_conditions": [
+      "card",
+      "no_card"
+    ],
+    "class_count": 41,
+    "depth_device": "cpu",
+    "depth_fov": "exact renderer camera K",
+    "marker_calibration": "renderer-known marker corners and configured physical size",
+    "portion_levels_per_class": 1,
+    "portion_source": "minimum observed WED TRAIN mass per class",
+    "renderer": "analytic-heightfield-v1"
+  },
+  "created_at": "2026-11-03T11:40:36.975258+00:00",
+  "data_sha256": "cc01722c05985ecb5502d447f56f6f1f09658b570fa0d4b937b609cc9480e5e5",
+  "elapsed_s": 797.15,
+  "feature": "real_pipeline_baseline",
+  "ground_truth": "analytic_renderer_camera_z_metres",
+  "groups": 41,
+  "locked_accessed": false,
+  "marker_scale_factor_summary": {
+    "median": 0.12985096498839432,
+    "n": 41,
+    "p10": 0.08471157705425233,
+    "p90": 0.18190702997221153
+  },
+  "metrics_by_condition": {
+    "card": {
+      "all_visible": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 7.324131429519036,
+          "delta_1_25": 0.0,
+          "mae_m": 3.6669407631589404,
+          "median_prediction_m": 3.959501541242367,
+          "median_prediction_to_target_scale": 8.393891214874913,
+          "median_target_m": 0.4633998198480141,
+          "rmse_m": 3.7891908368864486,
+          "silog_pct": 3.931156415157569,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            6.60306649324338,
+            8.10698408562035
+          ],
+          "rmse_m": [
+            3.40318441847593,
+            4.204869523668707
+          ]
+        }
+      },
+      "card": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 7.527070795500175,
+          "delta_1_25": 0.0,
+          "mae_m": 3.3310993471602517,
+          "median_prediction_m": 3.7627044072965297,
+          "median_prediction_to_target_scale": 8.530093392542408,
+          "median_target_m": 0.4410165679164049,
+          "rmse_m": 3.3370515004345185,
+          "silog_pct": 0.3494892982206854,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            6.781431400860566,
+            8.340540653975967
+          ],
+          "rmse_m": [
+            3.006484323433955,
+            3.6935342863807725
+          ]
+        }
+      },
+      "food": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 7.944281670927424,
+          "delta_1_25": 0.0,
+          "mae_m": 3.3079121332726507,
+          "median_prediction_m": 3.717215232732819,
+          "median_prediction_to_target_scale": 8.951004875343914,
+          "median_target_m": 0.4136322155231383,
+          "rmse_m": 3.3118325523606824,
+          "silog_pct": 0.7289084179760328,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            7.198633133112294,
+            8.782578193062143
+          ],
+          "rmse_m": [
+            2.9789764996838177,
+            3.666705862380994
+          ]
+        }
+      },
+      "table": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 7.270124140940921,
+          "delta_1_25": 0.0,
+          "mae_m": 3.7124722469127267,
+          "median_prediction_m": 4.124953778778634,
+          "median_prediction_to_target_scale": 8.368168570082904,
+          "median_target_m": 0.48850498911811086,
+          "rmse_m": 3.844021257291469,
+          "silog_pct": 3.334875784539348,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            6.551312686550555,
+            8.04982156060989
+          ],
+          "rmse_m": [
+            3.451852900736788,
+            4.266690412187042
+          ]
+        }
+      },
+      "vessel": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 8.020628811337687,
+          "delta_1_25": 0.0,
+          "mae_m": 3.2616027672985424,
+          "median_prediction_m": 3.6094672825278304,
+          "median_prediction_to_target_scale": 9.09818287712008,
+          "median_target_m": 0.39983918863098794,
+          "rmse_m": 3.2732230573720247,
+          "silog_pct": 2.132266598946259,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            7.2761033647407425,
+            8.869148846620531
+          ],
+          "rmse_m": [
+            2.9526499287260357,
+            3.623044290403438
+          ]
+        }
+      }
+    },
+    "card_calibrated": {
+      "all_visible": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 0.030373311081449243,
+          "delta_1_25": 0.9997171938516259,
+          "mae_m": 0.018317061807763668,
+          "median_prediction_m": 0.4673588366934188,
+          "median_prediction_to_target_scale": 0.9918978869224566,
+          "median_target_m": 0.4633998198480141,
+          "rmse_m": 0.029565130840441232,
+          "silog_pct": 3.931156415157402,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            0.02832049604279567,
+            0.03266492663054413
+          ],
+          "rmse_m": [
+            0.027030915472672862,
+            0.03238173503996653
+          ]
+        }
+      },
+      "card": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 0.00958041503014873,
+          "delta_1_25": 1.0,
+          "mae_m": 0.004201539703414772,
+          "median_prediction_m": 0.44515820766741115,
+          "median_prediction_to_target_scale": 1.0076068623168712,
+          "median_target_m": 0.4410165679164049,
+          "rmse_m": 0.004443750109176304,
+          "silog_pct": 0.3494892982209348,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            0.007686779852459961,
+            0.011643032099542662
+          ],
+          "rmse_m": [
+            0.003644621446605831,
+            0.005321454694931707
+          ]
+        }
+      },
+      "food": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 0.06497828569362185,
+          "delta_1_25": 1.0,
+          "mae_m": 0.026231687274980146,
+          "median_prediction_m": 0.4392191502869818,
+          "median_prediction_to_target_scale": 1.0608405083322998,
+          "median_target_m": 0.4136322155231383,
+          "rmse_m": 0.02654898957114559,
+          "silog_pct": 0.728908417977389,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            0.051217795412364805,
+            0.07802305659623532
+          ],
+          "rmse_m": [
+            0.021429540182929162,
+            0.03142115043973038
+          ]
+        }
+      },
+      "table": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 0.029006654654357235,
+          "delta_1_25": 0.9996863481518428,
+          "mae_m": 0.018512661942469064,
+          "median_prediction_m": 0.4863269144674755,
+          "median_prediction_to_target_scale": 0.9889838910630079,
+          "median_target_m": 0.48850498911811086,
+          "rmse_m": 0.029954102597350967,
+          "silog_pct": 3.334875784539195,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            0.02659925728890528,
+            0.03169535217102935
+          ],
+          "rmse_m": [
+            0.027141020549798937,
+            0.03318410500527046
+          ]
+        }
+      },
+      "vessel": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 0.07266220246933441,
+          "delta_1_25": 1.0,
+          "mae_m": 0.028159190819344117,
+          "median_prediction_m": 0.4266665812203447,
+          "median_prediction_to_target_scale": 1.0799428182402397,
+          "median_target_m": 0.39983918863098794,
+          "rmse_m": 0.02957102810632809,
+          "silog_pct": 2.132266598945981,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            0.05593517384825762,
+            0.08876249068438226
+          ],
+          "rmse_m": [
+            0.023425943254413096,
+            0.035254490497717644
+          ]
+        }
+      }
+    },
+    "no_card": {
+      "all_visible": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 3.9203286901930223,
+          "delta_1_25": 0.024385797764227644,
+          "mae_m": 1.9747554942199175,
+          "median_prediction_m": 2.3382054476476295,
+          "median_prediction_to_target_scale": 4.940321332218007,
+          "median_target_m": 0.46349195227390383,
+          "rmse_m": 2.0471603816525925,
+          "silog_pct": 3.6293423556400475,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            3.276695595043962,
+            4.56959828080901
+          ],
+          "rmse_m": [
+            1.7097954674982314,
+            2.401808028456399
+          ]
+        }
+      },
+      "card": {
+        "metrics": {},
+        "n_scenes": 0
+      },
+      "food": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 4.325765759278997,
+          "delta_1_25": 0.024390243902439025,
+          "mae_m": 1.803405606108424,
+          "median_prediction_m": 2.2167214482295803,
+          "median_prediction_to_target_scale": 5.330914405191153,
+          "median_target_m": 0.4136322155231383,
+          "rmse_m": 1.805521241874977,
+          "silog_pct": 0.9250432637244815,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            3.643042459330602,
+            5.027418547083646
+          ],
+          "rmse_m": [
+            1.518505422536227,
+            2.103257515539837
+          ]
+        }
+      },
+      "table": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 3.893206540467937,
+          "delta_1_25": 0.02438541360460286,
+          "mae_m": 1.9901511823303464,
+          "median_prediction_m": 2.3952215757311843,
+          "median_prediction_to_target_scale": 4.9306530780091435,
+          "median_target_m": 0.4801639685543572,
+          "rmse_m": 2.066115080199602,
+          "silog_pct": 2.918623140131315,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            3.2538598149365625,
+            4.539648333167879
+          ],
+          "rmse_m": [
+            1.7251698808107958,
+            2.425525567011308
+          ]
+        }
+      },
+      "vessel": {
+        "group_count": 41,
+        "metrics": {
+          "abs_rel": 4.311226795298058,
+          "delta_1_25": 0.024390243902439025,
+          "mae_m": 1.753960079321735,
+          "median_prediction_m": 2.12625010856768,
+          "median_prediction_to_target_scale": 5.353548408680832,
+          "median_target_m": 0.39983918863098794,
+          "rmse_m": 1.7603211780833194,
+          "silog_pct": 2.1447810679854005,
+          "valid_prediction_fraction": 1.0
+        },
+        "n_scenes": 41,
+        "uncertainty_group_bootstrap_95ci": {
+          "abs_rel": [
+            3.6314059365357405,
+            5.012958083423741
+          ],
+          "rmse_m": [
+            1.4786943240222048,
+            2.047417204194199
+          ]
+        }
+      }
+    }
+  },
+  "model": {
+    "id": "Ruicheng/moge-2-vitl",
+    "revision": "39c4d5e957afe587e04eec59dc2bcc3be5ecd968",
+    "source_sha256": "79b21cbe2365c935a77cb56c059f0c9d30bf604eacbac88971a9db8a4a36f1d9"
+  },
+  "real_depth_accuracy_claim": false,
+  "record_count": 574,
+  "rendered_views": 82,
+  "stage": "depth_geometry"
+}

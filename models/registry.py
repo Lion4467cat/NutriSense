@@ -4,10 +4,9 @@ Replaces the ad hoc per-module caches (dish_segmenter._STATE,
 food_classifier._STATE, MonocularDepth._model, pipeline's
 _default_weight_head/_default_depth globals). Loading is lazy: the first
 get_or_create() for a name runs the factory under a lock and caches the
-result; later calls return the same instance. A factory that raises marks
-the name sticky-failed: the first failure re-raises (callers may log it),
-every later call returns None without retrying — the behaviour the weight
-head loader already had. unload() drops every cached instance, runs gc and
+result; later calls return the same instance. A factory failure is surfaced
+to the first caller; later calls return None during an exponential backoff,
+then retry automatically. unload() drops every cached instance, runs gc and
 torch.cuda.empty_cache() so VRAM is actually returned to the driver.
 
 Factories are passed at the call site (or pre-registered with register(),
@@ -18,12 +17,15 @@ from __future__ import annotations
 
 import gc
 import threading
+import time
 from typing import Any, Callable
 
 _lock = threading.RLock()
 _instances: dict[str, Any] = {}
 _factories: dict[str, Callable[[], Any]] = {}
-_failed: set[str] = set()
+_failed: dict[str, tuple[int, float]] = {}
+_RETRY_BASE_SECONDS = 5.0
+_RETRY_MAX_SECONDS = 300.0
 
 
 def register(name: str, factory: Callable[[], Any]) -> None:
@@ -31,19 +33,24 @@ def register(name: str, factory: Callable[[], Any]) -> None:
     with _lock:
         _factories[name] = factory
         _instances.pop(name, None)
-        _failed.discard(name)
+        _failed.pop(name, None)
 
 
 def get_or_create(name: str, factory: Callable[[], Any] | None = None) -> Any:
     """Return the singleton for name, loading it once.
 
     A factory registered via register() takes precedence over the inline
-    one. Returns None for a sticky-failed name. Raises the original factory
-    error on the first failure.
+    one. Failed loads raise on the failing request, return None during a
+    bounded backoff, and retry automatically when that backoff expires.
     """
     with _lock:
-        if name in _failed:
-            return None
+        failure_state = _failed.get(name)
+        attempts_before = 0
+        if failure_state is not None:
+            attempts_before, retry_at = failure_state
+            if time.monotonic() < retry_at:
+                return None
+            _failed.pop(name, None)
         if name not in _instances:
             fn = _factories.get(name) or factory
             if fn is None:
@@ -51,8 +58,14 @@ def get_or_create(name: str, factory: Callable[[], Any] | None = None) -> Any:
             try:
                 _instances[name] = fn()
             except Exception:
-                _failed.add(name)
+                attempts = attempts_before + 1
+                delay = min(
+                    _RETRY_BASE_SECONDS * (3 ** (attempts - 1)),
+                    _RETRY_MAX_SECONDS,
+                )
+                _failed[name] = (attempts, time.monotonic() + delay)
                 raise
+            _failed.pop(name, None)
         return _instances[name]
 
 
@@ -65,6 +78,12 @@ def peek(name: str) -> Any:
 def loaded() -> tuple[str, ...]:
     with _lock:
         return tuple(sorted(_instances))
+
+
+def failed() -> tuple[str, ...]:
+    """Model names waiting for their next bounded load retry."""
+    with _lock:
+        return tuple(sorted(_failed))
 
 
 def clear_cache() -> None:
@@ -81,12 +100,12 @@ def clear_cache() -> None:
 
 
 def unload(name: str | None = None) -> None:
-    """Free one model (or all) and return GPU memory to the driver."""
+    """Free one model (or all), clear retry state, and return GPU memory."""
     with _lock:
         if name is None:
             _instances.clear()
             _failed.clear()
         else:
             _instances.pop(name, None)
-            _failed.discard(name)
+            _failed.pop(name, None)
     clear_cache()

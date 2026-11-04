@@ -29,6 +29,7 @@ import numpy as np
 from config import (GALLERY_PATH, load_gallery as _load_gallery, load_menu,
                     load_params, load_wed_dishes, load_wed_index,
                     reset_caches)
+from models.model_revisions import SIGLIP2_REVISION
 
 MODEL_ID = "google/siglip2-base-patch16-224"
 TOP_K = 3
@@ -110,8 +111,9 @@ def _device():
 def _make_state():
     from transformers import AutoModel, AutoProcessor
     dev = _device()
-    proc = AutoProcessor.from_pretrained(MODEL_ID)
-    model = AutoModel.from_pretrained(MODEL_ID).to(dev).eval()
+    proc = AutoProcessor.from_pretrained(MODEL_ID, revision=SIGLIP2_REVISION)
+    model = AutoModel.from_pretrained(
+        MODEL_ID, revision=SIGLIP2_REVISION).to(dev).eval()
     return {"proc": proc, "model": model, "device": dev}
 
 
@@ -190,14 +192,45 @@ def load_gallery(path=None):
 
 # --- classification ---------------------------------------------------------
 
+def _align_gallery_domains(gallery):
+    """Neutralize sensor/lighting domain shift between phone prototypes and WED studio crops."""
+    if "_aligned_emb" in gallery:
+        return gallery["_aligned_emb"], gallery.get("_delta_domain")
+    E = np.asarray(gallery["emb"], dtype=np.float32).copy()
+    sources = [str(s) for s in gallery.get("sources", [])]
+    is_phone = np.array([s.startswith("..") or "dataset" in s.lower() for s in sources])
+    if is_phone.any() and (~is_phone).any():
+        mu_phone = E[is_phone].mean(axis=0)
+        mu_wed = E[~is_phone].mean(axis=0)
+        delta = mu_phone - mu_wed
+        E[is_phone] -= delta
+        norms = np.linalg.norm(E, axis=-1, keepdims=True)
+        E = np.divide(E, np.maximum(norms, 1e-12))
+        gallery["_aligned_emb"] = E
+        gallery["_delta_domain"] = delta
+        return E, delta
+    return gallery["emb"], None
+
+
 def _gallery_scores(emb, gallery) -> dict[str, float | None]:
     """top-3-mean cosine per gallery label (unchanged match metric), then
     aggregated to serving targets — a menu key keeps its own score, a WED
     crop label scores under its serving target (spec 002, ledger 003).
     Serving keys without entries carry None (uncovered)."""
-    E = gallery["emb"]
+    E, delta = _align_gallery_domains(gallery)
     labels = gallery["labels"]
-    sims = E @ emb                          # (N,)
+    emb_aligned = emb
+    if delta is not None:
+        delta_norm = float(np.linalg.norm(delta))
+        if delta_norm > 1e-6:
+            delta_u = delta / delta_norm
+            comp = float(emb @ delta_u)
+            if comp > 0.05:
+                emb_aligned = emb - comp * delta_u
+                norm = float(np.linalg.norm(emb_aligned))
+                if norm > 1e-6:
+                    emb_aligned = emb_aligned / norm
+    sims = E @ emb_aligned                          # (N,)
     targets = serving_targets()
     per_label: dict[str, list[int]] = {}
     for i, lab in enumerate(labels):

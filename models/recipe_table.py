@@ -20,7 +20,7 @@ from pathlib import Path
 
 import yaml
 
-INDB_PATH = Path("data") / "indb_recipes.yaml"
+INDB_PATH = Path(__file__).resolve().parents[1] / "data" / "indb_recipes.yaml"
 _CACHE: dict[str, dict] = {}
 
 

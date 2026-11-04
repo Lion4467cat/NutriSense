@@ -1,0 +1,171 @@
+{"candidate": "dlv3_control", "epoch": 1, "train_loss": 0.7965917709315645, "internal_val_macro_food_iou": 0.6810004278492973, "internal_val_foreground_iou": 0.883017944935538, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 227.54}
+{"candidate": "dlv3_control", "epoch": 2, "train_loss": 0.3401815876493166, "internal_val_macro_food_iou": 0.7627992441241656, "internal_val_foreground_iou": 0.8960730432169342, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 445.51}
+{"candidate": "dlv3_control", "epoch": 3, "train_loss": 0.2885569190156871, "internal_val_macro_food_iou": 0.7731247589466993, "internal_val_foreground_iou": 0.9015470714517252, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 663.53}
+{"candidate": "dlv3_control", "epoch": 4, "train_loss": 0.2642914568041933, "internal_val_macro_food_iou": 0.761412225252717, "internal_val_foreground_iou": 0.9040183140488104, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 881.98}
+{"candidate": "dlv3_control", "epoch": 5, "train_loss": 0.24558986566061602, "internal_val_macro_food_iou": 0.7868473969738672, "internal_val_foreground_iou": 0.9084186013812268, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 1099.98}
+{"candidate": "dlv3_control", "epoch": 6, "train_loss": 0.23426978151988367, "internal_val_macro_food_iou": 0.7923440736961549, "internal_val_foreground_iou": 0.9102730030028919, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 1317.93}
+{"candidate": "dlv3_control", "epoch": 7, "train_loss": 0.2076261286334745, "internal_val_macro_food_iou": 0.8013042073326146, "internal_val_foreground_iou": 0.9111781625267608, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 1535.98}
+{"candidate": "dlv3_control", "epoch": 8, "train_loss": 0.14425025721369633, "internal_val_macro_food_iou": 0.7959457330730535, "internal_val_foreground_iou": 0.9104399642967969, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 1754.11}
+{"candidate": "dlv3_control", "epoch": 9, "train_loss": 0.10474514283625216, "internal_val_macro_food_iou": 0.7971496072726164, "internal_val_foreground_iou": 0.9121509328029845, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 1972.1}
+{"candidate": "dlv3_control", "epoch": 10, "train_loss": 0.0952918663347975, "internal_val_macro_food_iou": 0.804726544836821, "internal_val_foreground_iou": 0.9116340197341813, "learning_rates": [1e-06, 1e-06], "elapsed_s": 2190.05}
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_segmentation_study.py", line 534, in <module>
+    main()
+    ~~~~^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_segmentation_study.py", line 524, in main
+    result = run_study(manifest=args.manifest, wed_root=args.wed_root,
+                       out_root=args.out_dir, epochs=args.epochs,
+                       workers=args.workers, device_name=args.device)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_segmentation_study.py", line 467, in run_study
+    stage_a.append(_train_candidate(
+                   ~~~~~~~~~~~~~~~~^
+        config, train_rows=train_rows, val_rows=val_rows,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        train_groups=train_groups, val_groups=val_groups,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        dev_groups=dev_groups, wed_root=wed_root, out_root=out_root,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        device=device, epochs=epochs, workers=workers))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/tools/run_wed_segmentation_study.py", line 339, in _train_candidate
+    logits = model(images)["out"]
+             ~~~~~^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/segmentation/_utils.py", line 27, in forward
+    x = self.classifier(x)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/container.py", line 253, in forward
+    input = module(input)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/segmentation/deeplabv3.py", line 112, in forward
+    _res.append(conv(x))
+                ~~~~^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torchvision/models/segmentation/deeplabv3.py", line 82, in forward
+    x = mod(x)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/modules/batchnorm.py", line 210, in forward
+    return F.batch_norm(
+           ~~~~~~~~~~~~^
+        input,
+        ^^^^^^
+    ...<11 lines>...
+        self.eps,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/functional.py", line 2889, in batch_norm
+    _verify_batch_size(input.size())
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/.venv/lib/python3.14/site-packages/torch/nn/functional.py", line 2854, in _verify_batch_size
+    raise ValueError(
+        f"Expected more than 1 value per channel when training, got input size {size}"
+    )
+ValueError: Expected more than 1 value per channel when training, got input size torch.Size([1, 256, 1, 1])
+{"candidate": "dlv3_control", "status": "resume_skip_valid"}
+{"candidate": "dlv3_highres", "epoch": 1, "train_loss": 0.8094969328878254, "internal_val_macro_food_iou": 0.5962060964475386, "internal_val_foreground_iou": 0.8829544209656371, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 275.02}
+{"candidate": "dlv3_highres", "epoch": 2, "train_loss": 0.3534688626191226, "internal_val_macro_food_iou": 0.6702420776472804, "internal_val_foreground_iou": 0.8924905227837742, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 543.92}
+{"candidate": "dlv3_highres", "epoch": 3, "train_loss": 0.3075897040744794, "internal_val_macro_food_iou": 0.6986308898195286, "internal_val_foreground_iou": 0.9016936416689058, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 812.75}
+{"candidate": "dlv3_highres", "epoch": 4, "train_loss": 0.2832424259455553, "internal_val_macro_food_iou": 0.6833871654524298, "internal_val_foreground_iou": 0.9052293580864255, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 1081.67}
+{"candidate": "dlv3_highres", "epoch": 5, "train_loss": 0.2585610255663251, "internal_val_macro_food_iou": 0.6919220734569381, "internal_val_foreground_iou": 0.9050948470002433, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 1350.36}
+{"candidate": "dlv3_highres", "epoch": 6, "train_loss": 0.15926086977284787, "internal_val_macro_food_iou": 0.6550773004369134, "internal_val_foreground_iou": 0.8919557130053448, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 1619.12}
+{"candidate": "dlv3_highres", "epoch": 7, "train_loss": 0.0813093411631818, "internal_val_macro_food_iou": 0.7066448760219566, "internal_val_foreground_iou": 0.893714584047741, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 1887.84}
+{"candidate": "dlv3_highres", "epoch": 8, "train_loss": 0.05957633775963994, "internal_val_macro_food_iou": 0.6967282044240066, "internal_val_foreground_iou": 0.8982896425891508, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 2156.69}
+{"candidate": "dlv3_highres", "epoch": 9, "train_loss": 0.05114201583361638, "internal_val_macro_food_iou": 0.6893058530559082, "internal_val_foreground_iou": 0.8929038587733132, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 2425.44}
+{"candidate": "dlv3_highres", "epoch": 10, "train_loss": 0.04833366989824471, "internal_val_macro_food_iou": 0.7116487919968095, "internal_val_foreground_iou": 0.8969836156081238, "learning_rates": [1e-06, 1e-06], "elapsed_s": 2694.36}
+{"candidate": "dlv3_class_balanced", "epoch": 1, "train_loss": 0.7803082396758014, "internal_val_macro_food_iou": 0.684804417435107, "internal_val_foreground_iou": 0.8764029532087885, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 226.65}
+{"candidate": "dlv3_class_balanced", "epoch": 2, "train_loss": 0.3327549662890619, "internal_val_macro_food_iou": 0.7531913177401551, "internal_val_foreground_iou": 0.8952671389587801, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 444.57}
+{"candidate": "dlv3_class_balanced", "epoch": 3, "train_loss": 0.27749167270316133, "internal_val_macro_food_iou": 0.7652457726462932, "internal_val_foreground_iou": 0.8998202302604091, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 662.55}
+{"candidate": "dlv3_class_balanced", "epoch": 4, "train_loss": 0.26236011421885985, "internal_val_macro_food_iou": 0.7855962731612863, "internal_val_foreground_iou": 0.9034892563657556, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 880.67}
+{"candidate": "dlv3_class_balanced", "epoch": 5, "train_loss": 0.2460874333849241, "internal_val_macro_food_iou": 0.7763500578686978, "internal_val_foreground_iou": 0.9083676413210511, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 1098.69}
+{"candidate": "dlv3_class_balanced", "epoch": 6, "train_loss": 0.23283493778957376, "internal_val_macro_food_iou": 0.7901445202610539, "internal_val_foreground_iou": 0.9077719899496279, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 1316.72}
+{"candidate": "dlv3_class_balanced", "epoch": 7, "train_loss": 0.2120902630468381, "internal_val_macro_food_iou": 0.7965569034809591, "internal_val_foreground_iou": 0.9128381513094488, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 1534.8}
+{"candidate": "dlv3_class_balanced", "epoch": 8, "train_loss": 0.15934810687884174, "internal_val_macro_food_iou": 0.7984003455146994, "internal_val_foreground_iou": 0.9089467299094087, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 1752.89}
+{"candidate": "dlv3_class_balanced", "epoch": 9, "train_loss": 0.11431498918682337, "internal_val_macro_food_iou": 0.8021995487531327, "internal_val_foreground_iou": 0.9099690669063379, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 1970.9}
+{"candidate": "dlv3_class_balanced", "epoch": 10, "train_loss": 0.10135915547063382, "internal_val_macro_food_iou": 0.8017583946158092, "internal_val_foreground_iou": 0.9117191971667743, "learning_rates": [1e-06, 1e-06], "elapsed_s": 2188.99}
+{"candidate": "dlv3_food_augmentation", "epoch": 1, "train_loss": 0.8218109806164585, "internal_val_macro_food_iou": 0.6786833997952839, "internal_val_foreground_iou": 0.8778721766259312, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 219.97}
+{"candidate": "dlv3_food_augmentation", "epoch": 2, "train_loss": 0.36104560733355323, "internal_val_macro_food_iou": 0.7563965271462875, "internal_val_foreground_iou": 0.8898883945432381, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 438.07}
+{"candidate": "dlv3_food_augmentation", "epoch": 3, "train_loss": 0.3088798263142335, "internal_val_macro_food_iou": 0.7658014056446287, "internal_val_foreground_iou": 0.8991980170434697, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 656.15}
+{"candidate": "dlv3_food_augmentation", "epoch": 4, "train_loss": 0.2874523821961263, "internal_val_macro_food_iou": 0.776059146542642, "internal_val_foreground_iou": 0.9008154027889629, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 874.26}
+{"candidate": "dlv3_food_augmentation", "epoch": 5, "train_loss": 0.27136670351670733, "internal_val_macro_food_iou": 0.7774419539047464, "internal_val_foreground_iou": 0.9045562888195411, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 1092.45}
+{"candidate": "dlv3_food_augmentation", "epoch": 6, "train_loss": 0.26036767067451927, "internal_val_macro_food_iou": 0.7838037043832397, "internal_val_foreground_iou": 0.9057284814326361, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 1310.63}
+{"candidate": "dlv3_food_augmentation", "epoch": 7, "train_loss": 0.25109061646949626, "internal_val_macro_food_iou": 0.8052901027790593, "internal_val_foreground_iou": 0.9103348621292471, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 1528.73}
+{"candidate": "dlv3_food_augmentation", "epoch": 8, "train_loss": 0.23237993590662193, "internal_val_macro_food_iou": 0.7992853053210246, "internal_val_foreground_iou": 0.9085409000255079, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 1746.89}
+{"candidate": "dlv3_food_augmentation", "epoch": 9, "train_loss": 0.2080658600055452, "internal_val_macro_food_iou": 0.8054853831879982, "internal_val_foreground_iou": 0.9117768318921396, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 1964.96}
+{"candidate": "dlv3_food_augmentation", "epoch": 10, "train_loss": 0.1918606722791647, "internal_val_macro_food_iou": 0.802747266042679, "internal_val_foreground_iou": 0.9103431957847152, "learning_rates": [1e-06, 1e-06], "elapsed_s": 2183.13}
+{"candidate": "dlv3_boundary_loss", "epoch": 1, "train_loss": 0.42277799405414485, "internal_val_macro_food_iou": 0.6857434441559342, "internal_val_foreground_iou": 0.8804843710787956, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 234.24}
+{"candidate": "dlv3_boundary_loss", "epoch": 2, "train_loss": 0.2540694370801593, "internal_val_macro_food_iou": 0.7670395839442895, "internal_val_foreground_iou": 0.8949084796744846, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 466.39}
+{"candidate": "dlv3_boundary_loss", "epoch": 3, "train_loss": 0.23268749137762293, "internal_val_macro_food_iou": 0.7748296615192437, "internal_val_foreground_iou": 0.9019874208047561, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 698.58}
+{"candidate": "dlv3_boundary_loss", "epoch": 4, "train_loss": 0.2212055493146181, "internal_val_macro_food_iou": 0.7634882172518088, "internal_val_foreground_iou": 0.9056402079727728, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 930.72}
+{"candidate": "dlv3_boundary_loss", "epoch": 5, "train_loss": 0.15037788689971485, "internal_val_macro_food_iou": 0.768114101659541, "internal_val_foreground_iou": 0.9007721098025886, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 1162.73}
+{"candidate": "dlv3_boundary_loss", "epoch": 6, "train_loss": 0.06819443688085623, "internal_val_macro_food_iou": 0.7889045265344774, "internal_val_foreground_iou": 0.9058642050192024, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 1394.75}
+{"candidate": "dlv3_boundary_loss", "epoch": 7, "train_loss": 0.049688762383021674, "internal_val_macro_food_iou": 0.808466673100227, "internal_val_foreground_iou": 0.9092518277237687, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 1626.92}
+{"candidate": "dlv3_boundary_loss", "epoch": 8, "train_loss": 0.04109838197874869, "internal_val_macro_food_iou": 0.8067289725313452, "internal_val_foreground_iou": 0.9105308575478592, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 1859.15}
+{"candidate": "dlv3_boundary_loss", "epoch": 9, "train_loss": 0.0374123218734267, "internal_val_macro_food_iou": 0.8115439561406912, "internal_val_foreground_iou": 0.9113317253279045, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 2091.21}
+{"candidate": "dlv3_boundary_loss", "epoch": 10, "train_loss": 0.036587761578567586, "internal_val_macro_food_iou": 0.8122065664205202, "internal_val_foreground_iou": 0.9109033593957382, "learning_rates": [1e-06, 1e-06], "elapsed_s": 2323.41}
+{"candidate": "architecture_deeplabv3plus", "epoch": 1, "train_loss": 0.44549342790811225, "internal_val_macro_food_iou": 0.677232260628007, "internal_val_foreground_iou": 0.884194649884598, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 110.34}
+{"candidate": "architecture_deeplabv3plus", "epoch": 2, "train_loss": 0.2685582937094672, "internal_val_macro_food_iou": 0.7517792594025973, "internal_val_foreground_iou": 0.8973609472702933, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 216.59}
+{"candidate": "architecture_deeplabv3plus", "epoch": 3, "train_loss": 0.24261684163377203, "internal_val_macro_food_iou": 0.7517138365580078, "internal_val_foreground_iou": 0.9067444171365178, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 322.88}
+{"candidate": "architecture_deeplabv3plus", "epoch": 4, "train_loss": 0.2308194351800043, "internal_val_macro_food_iou": 0.7700505727948277, "internal_val_foreground_iou": 0.9088136548907616, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 429.06}
+{"candidate": "architecture_deeplabv3plus", "epoch": 5, "train_loss": 0.21863102543585258, "internal_val_macro_food_iou": 0.7822728629323843, "internal_val_foreground_iou": 0.9101062070413474, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 535.31}
+{"candidate": "architecture_deeplabv3plus", "epoch": 6, "train_loss": 0.13579998188652098, "internal_val_macro_food_iou": 0.7588900522536811, "internal_val_foreground_iou": 0.9030721851718518, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 641.6}
+{"candidate": "architecture_deeplabv3plus", "epoch": 7, "train_loss": 0.07772294449186402, "internal_val_macro_food_iou": 0.7916255341505228, "internal_val_foreground_iou": 0.9118442254697591, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 747.78}
+{"candidate": "architecture_deeplabv3plus", "epoch": 8, "train_loss": 0.062201607739552855, "internal_val_macro_food_iou": 0.7854598599859233, "internal_val_foreground_iou": 0.91040078923571, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 854.04}
+{"candidate": "architecture_deeplabv3plus", "epoch": 9, "train_loss": 0.054487560285608576, "internal_val_macro_food_iou": 0.798415112016882, "internal_val_foreground_iou": 0.9148779578342627, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 960.2}
+{"candidate": "architecture_deeplabv3plus", "epoch": 10, "train_loss": 0.052150440205627216, "internal_val_macro_food_iou": 0.7958169992910376, "internal_val_foreground_iou": 0.9150941715420366, "learning_rates": [1e-06, 1e-06], "elapsed_s": 1066.46}
+[transformers] You passed `num_labels=42` which is incompatible to the `id2label` map of length `150`.
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 14338.09it/s]
+[transformers] [1mSegformerForSemanticSegmentation LOAD REPORT[0m from: nvidia/segformer-b0-finetuned-ade-512-512
+Key                           | Status   |                                                                                                      
+------------------------------+----------+------------------------------------------------------------------------------------------------------
+decode_head.classifier.weight | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([150, 256, 1, 1]) vs model:torch.Size([42, 256, 1, 1])
+decode_head.classifier.bias   | MISMATCH | Reinit due to size mismatch - ckpt: torch.Size([150]) vs model:torch.Size([42])                      
+
+Notes:
+- MISMATCH:	ckpt weights were loaded, but they did not match the original empty weight shapes.
+{"candidate": "architecture_segformer_b0", "epoch": 1, "train_loss": 0.5964178617015995, "internal_val_macro_food_iou": 0.344554342085369, "internal_val_foreground_iou": 0.8764405090526362, "learning_rates": [1.9535036904803962e-05, 0.0001951301233713678], "elapsed_s": 97.17}
+{"candidate": "architecture_segformer_b0", "epoch": 2, "train_loss": 0.34442254454539767, "internal_val_macro_food_iou": 0.6735633477939518, "internal_val_foreground_iou": 0.89566974752811, "learning_rates": [1.8185661446562e-05, 0.00018099719094030728], "elapsed_s": 186.19}
+{"candidate": "architecture_segformer_b0", "epoch": 3, "train_loss": 0.2746338412679475, "internal_val_macro_food_iou": 0.7118637950134727, "internal_val_foreground_iou": 0.8984125978838062, "learning_rates": [1.6083959896778496e-05, 0.0001589846326031011], "elapsed_s": 275.22}
+{"candidate": "architecture_segformer_b0", "epoch": 4, "train_loss": 0.2563128862851139, "internal_val_macro_food_iou": 0.7678021323779659, "internal_val_foreground_iou": 0.9022675979267407, "learning_rates": [1.3435661446562001e-05, 0.0001312471909403073], "elapsed_s": 364.24}
+{"candidate": "architecture_segformer_b0", "epoch": 5, "train_loss": 0.2462319953302885, "internal_val_macro_food_iou": 0.7561197918449698, "internal_val_foreground_iou": 0.9012938895540143, "learning_rates": [1.0500000000000001e-05, 0.00010050000000000002], "elapsed_s": 453.31}
+{"candidate": "architecture_segformer_b0", "epoch": 6, "train_loss": 0.2403214092783887, "internal_val_macro_food_iou": 0.7893827645895434, "internal_val_foreground_iou": 0.9086437244698725, "learning_rates": [7.564338553438e-06, 6.975280905969276e-05], "elapsed_s": 542.31}
+{"candidate": "architecture_segformer_b0", "epoch": 7, "train_loss": 0.23315199127356553, "internal_val_macro_food_iou": 0.8036950612191317, "internal_val_foreground_iou": 0.9112878977866121, "learning_rates": [4.916040103221506e-06, 4.2015367396898945e-05], "elapsed_s": 631.3}
+{"candidate": "architecture_segformer_b0", "epoch": 8, "train_loss": 0.20788269265201584, "internal_val_macro_food_iou": 0.8036896437590774, "internal_val_foreground_iou": 0.9107109875175126, "learning_rates": [2.8143385534380006e-06, 2.000280905969275e-05], "elapsed_s": 720.36}
+{"candidate": "architecture_segformer_b0", "epoch": 9, "train_loss": 0.17772104560622368, "internal_val_macro_food_iou": 0.8078824869811273, "internal_val_foreground_iou": 0.9109716308896612, "learning_rates": [1.4649630951960416e-06, 5.869876628632225e-06], "elapsed_s": 809.35}
+{"candidate": "architecture_segformer_b0", "epoch": 10, "train_loss": 0.16341877696586066, "internal_val_macro_food_iou": 0.7995286767010604, "internal_val_foreground_iou": 0.91020099915365, "learning_rates": [1e-06, 1e-06], "elapsed_s": 898.38}
+{
+  "selected_recipe": {
+    "name": "dlv3_boundary_loss",
+    "architecture": "deeplabv3",
+    "size": [
+      768,
+      1024
+    ],
+    "balanced_sampling": false,
+    "food_augmentation": false,
+    "boundary_aware_loss": true
+  },
+  "training_report": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_segmentation_study/training_study_report.json"
+}

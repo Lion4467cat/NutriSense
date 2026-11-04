@@ -53,12 +53,21 @@ DATASET/golden/
 {
   "plate_id": "dev/plate_03",
   "day": "mon", "band": "1-5", "dish": "rice_sambar",
-  "serving_style": "mixed",
   "camera": "realme 14T", "captured_at": "2026-10-09T12:40:00",
   "anchor": {"card_present": true, "ruler_checked": true},
   "notes": ""
 }
 ```
+
+Serving-style metadata is not required from the capture form. The analyzer
+inspects the image for separate food regions and chooses its single- or
+multi-item path automatically. Older API clients may still send the optional
+`serving_style` field; it is retained for compatibility and does not drive
+region detection. The frontend sends `mode=school` or `mode=general`; omitted
+mode defaults to School for older clients. School mode scores all recognized
+WED classes against the selected band standard, including off-menu classes
+with assumed generic nutrient rows. General mode keeps nutrient estimates and
+personal goal comparisons without a school standards verdict.
 `weights.json`:
 ```json
 {
@@ -70,7 +79,9 @@ DATASET/golden/
 
 ## Capture lint (enforced by the pipeline)
 
-- digital zoom == 1.0 (else `cannot_verify`)
+- digital zoom == 1.0 for the normal scoring path. A known value above 1.0 is
+  rejected; if EXIF omits the zoom field, recognition continues as an
+  estimate-only result and no school-standard verdict is produced.
 - min side ≥ 1280 px, card marker ≥ 80 px (else `prior`)
 - plate weight inside `plate_sanity_g` band in `data/standards.yaml`
   (loose ±25%; flag only, never auto-reject)

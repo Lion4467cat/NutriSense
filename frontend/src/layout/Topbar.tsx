@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { EASE } from "../ui/motion";
 import { useMenu } from "../context/menu";
 import { usePrefs } from "../context/prefs";
 import { useRecords } from "../context/records";
+import { useExplore } from "../context/explore";
+import { TOTAL_AREAS, exploredCount } from "../explore/achievements";
+import { ProgressRing } from "../ui/fx";
 import {
   attention as selectAttention,
   unmeasured as selectUnmeasured,
@@ -12,48 +17,41 @@ import ModeSwitch from "../ui/ModeSwitch";
 import { formatDate } from  "../utils/format";
 import {
   IconBell,
-  IconHelp,
   IconMenu,
-  IconMonitor,
   IconMoon,
-  IconSearch,
   IconSun,
+  IconX,
+  IconSettings,
 } from  "../ui/Icon";
 
-const TITLES: Record<string, string> = {
-  "/": "Dashboard",
-  "/analyze": "Analyze Meal",
-  "/history": "Analysis History",
-  "/students": "Student Records",
-  "/menu": "Menu & Standards",
-  "/analytics": "Analytics",
-  "/settings": "Settings",
-  "/result": "Analysis Result",
-};
-
-function titleFor(pathname: string): string {
-  if (pathname.startsWith("/result")) return TITLES["/result"];
-  if (pathname.startsWith("/students/")) return "Student Detail";
-  return TITLES[pathname] || "NutriSense";
-}
-
 export default function Topbar({
-  onOpenDrawer,
-  onToggleTheme,
+  drawerOpen,
+  onToggleDrawer,
 }: {
-  onOpenDrawer: () => void;
-  onToggleTheme: () => void;
+  drawerOpen: boolean;
+  onToggleDrawer: () => void;
 }) {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const { apiUp } = useMenu();
   const { prefs, setPrefs } = usePrefs();
   const { records } = useRecords();
+  const { state: explored, panelOpen, togglePanel } = useExplore();
+  const areasSeen = exploredCount(explored);
   const general = (prefs.mode ?? "school") === "general";
-  const [search, setSearch] = useState(params.get("q") || "");
+  const darkTheme =
+    ["dark", "nord", "rosepine", "dracula", "catppuccin"].includes(prefs.theme) ||
+    (prefs.theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>(() => {
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem("nutrisense.dismissed-alerts") || "[]");
+      return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      return [];
+    }
+  });
   const profileRef = useRef<HTMLDivElement>(null);
   const alertsRef = useRef<HTMLDivElement>(null);
 
@@ -65,10 +63,25 @@ export default function Topbar({
         : selectAttention(records).slice(0, 6),
     [records, general]
   );
-
-  useEffect(() => {
-    setSearch(params.get("q") || "");
-  }, [params]);
+  const visibleAttention = useMemo(
+    () => attention.filter((record) => !dismissedAlerts.includes(record.id)),
+    [attention, dismissedAlerts]
+  );
+  const dismissAlerts = (ids: string[]) => {
+    setDismissedAlerts((current) => {
+      const next = [...new Set([...current, ...ids])];
+      try {
+        localStorage.setItem("nutrisense.dismissed-alerts", JSON.stringify(next));
+      } catch {
+        // Keep the in-memory dismissal if browser storage is unavailable.
+      }
+      return next;
+    });
+  };
+  const closeAlerts = () => {
+    dismissAlerts(visibleAttention.map((record) => record.id));
+    setAlertsOpen(false);
+  };
 
   useEffect(() => {
     if (!profileOpen && !alertsOpen) return;
@@ -77,76 +90,73 @@ export default function Topbar({
         setProfileOpen(false);
       }
       if (alertsRef.current && !alertsRef.current.contains(e.target as Node)) {
-        setAlertsOpen(false);
+        closeAlerts();
       }
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
-  }, [profileOpen, alertsOpen]);
-
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate(search.trim() ? `/history?q=${encodeURIComponent(search.trim())}` : "/history");
-  };
-
-  const resolved =
-    prefs.theme !== "system"
-      ? prefs.theme
-      : window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-  const darkish =
-    resolved === "dark" || resolved === "nord" ||
-    resolved === "rosepine" || resolved === "dracula" ||
-    resolved === "catppuccin";
-
-  const crumbRoot =
-    pathname === "/" ? "Workspace" : pathname.startsWith("/result")
-      ? "Workspace / History"
-      : "Workspace";
+  }, [profileOpen, alertsOpen, visibleAttention]);
 
   return (
-    <header className="topbar">
+    <motion.header
+      className="topbar"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: EASE }}
+    >
       <button
         className="icon-btn hamburger"
-        onClick={onOpenDrawer}
-        aria-label="Open navigation menu"
+        onClick={onToggleDrawer}
+        aria-label={drawerOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-expanded={drawerOpen}
       >
-        <IconMenu size={18} />
+        {drawerOpen ? <IconX size={18} /> : <IconMenu size={18} />}
       </button>
-
-      <div className="crumb">
-        <span className="crumb-root">{crumbRoot}</span>
-        <span className="crumb-sep" aria-hidden="true">
-          /
-        </span>
-        <span className="crumb-page">{titleFor(pathname)}</span>
-      </div>
 
       <div className="topbar-spacer" />
 
+      <button
+        className="icon-btn theme-toggle"
+        onClick={() => setPrefs({ theme: darkTheme ? "light" : "dark" })}
+        aria-label={darkTheme ? "Switch to light theme" : "Switch to dark theme"}
+        title={darkTheme ? "Switch to light theme" : "Switch to dark theme"}
+      >
+        <motion.span
+          key={darkTheme ? "sun" : "moon"}
+          initial={{ rotate: -80, opacity: 0, scale: 0.6 }}
+          animate={{ rotate: 0, opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, ease: EASE }}
+          style={{ display: "grid", placeItems: "center" }}
+        >
+          {darkTheme ? <IconSun size={17} /> : <IconMoon size={17} />}
+        </motion.span>
+      </button>
+
       <ModeSwitch className="topbar-mode" />
 
-      <form className="search-box" onSubmit={submitSearch} role="search">
-        <IconSearch size={14} />
-        <input
-          type="search"
-          placeholder="Search analyses…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search analyses"
-        />
-      </form>
+      <button
+        className="icon-btn explorer-btn"
+        onClick={togglePanel}
+        aria-expanded={panelOpen}
+        aria-haspopup="dialog"
+        aria-label={`Field notebook — ${areasSeen} of ${TOTAL_AREAS} sections explored`}
+        title="Field notebook"
+      >
+        <ProgressRing value={areasSeen / TOTAL_AREAS} size={18} stroke={2} />
+        {areasSeen > 0 && areasSeen < TOTAL_AREAS && (
+          <span className="explore-dot" aria-hidden="true" />
+        )}
+      </button>
 
       <div ref={alertsRef} style={{ position: "relative" }}>
         <button
           className="icon-btn"
-          onClick={() => setAlertsOpen((o) => !o)}
+          onClick={() => alertsOpen ? closeAlerts() : setAlertsOpen(true)}
           aria-label={
-            attention.length
+            visibleAttention.length
               ? general
-                ? `Notifications: ${attention.length} analyses have no nutrition numbers`
-                : `Notifications: ${attention.length} need attention`
+                ? `Notifications: ${visibleAttention.length} analyses have no nutrition numbers`
+                : `Notifications: ${visibleAttention.length} need attention`
               : "Notifications"
           }
           aria-expanded={alertsOpen}
@@ -157,15 +167,16 @@ export default function Topbar({
           {apiUp === false ? (
             <span className="alert-dot" aria-hidden="true" />
           ) : (
-            attention.length > 0 && (
+            visibleAttention.length > 0 && (
               <span className="count-badge" aria-hidden="true">
-                {attention.length}
+                {visibleAttention.length}
               </span>
             )
           )}
         </button>
+        <AnimatePresence>
         {alertsOpen && (
-          <div className="menu-pop notif-pop" role="menu">
+          <motion.div className="menu-pop notif-pop" role="menu" initial={{ opacity: 0, y: -5, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.99 }} transition={{ duration: 0.16, ease: EASE }}>
             <div className="pop-head">
               <div className="workspace-name">Notifications</div>
               <div className="workspace-role">
@@ -186,33 +197,26 @@ export default function Topbar({
                 Backend unreachable — open settings
               </button>
             )}
-            {attention.map((r) => (
-              <button
-                key={r.id}
-                className="pop-item"
-                role="menuitem"
-                onClick={() => {
-                  setAlertsOpen(false);
+            <AnimatePresence initial={false}>
+            {visibleAttention.map((r) => (
+              <motion.div key={r.id} className="pop-item notif-row" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 4 }} transition={{ duration: 0.15, ease: EASE }}>
+                <button className="notif-open" role="menuitem" onClick={() => {
+                  closeAlerts();
                   navigate(`/result/${r.id}`);
-                }}
-              >
-                <span className="pop-item-body">
-                  <span className="pop-item-title">
-                    {r.summary.dish || "Unrecognized dish"}
+                }}>
+                  <span className="pop-item-body">
+                    <span className="pop-item-title">{r.summary.dish || "Unrecognized dish"}</span>
+                    <span className="pop-item-sub">
+                      {formatDate(r.createdAt)}{r.student?.name ? ` · ${r.student.name}` : ""}
+                    </span>
                   </span>
-                  <span className="pop-item-sub">
-                    {formatDate(r.createdAt)}
-                    {r.student?.name ? ` · ${r.student.name}` : ""}
-                  </span>
-                </span>
-                {general ? (
-                  <span className="tag">no numbers</span>
-                ) : (
-                  <VerdictPill verdict={r.summary.verdict} />
-                )}
-              </button>
+                  {general ? <span className="tag">no numbers</span> : <VerdictPill verdict={r.summary.verdict} />}
+                </button>
+                <button className="notif-dismiss" aria-label={`Dismiss ${r.summary.dish || "food analysis"} notification`} title="Dismiss notification" onClick={() => dismissAlerts([r.id])}>×</button>
+              </motion.div>
             ))}
-            {attention.length === 0 && apiUp !== false && (
+            </AnimatePresence>
+            {visibleAttention.length === 0 && apiUp !== false && (
               <div className="pop-empty">
                 {general ? "Every analysis has numbers." : "Nothing needs attention."}
               </div>
@@ -227,18 +231,10 @@ export default function Topbar({
             >
               View all in history →
             </button>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
-
-      <button
-        className="icon-btn"
-        onClick={onToggleTheme}
-        aria-label={`Switch to ${resolved === "dark" ? "light" : "dark"} mode`}
-        title="Toggle theme"
-      >
-        {darkish ? <IconSun size={17} /> : <IconMoon size={17} />}
-      </button>
 
       <div ref={profileRef} style={{ position: "relative" }}>
         <button
@@ -246,6 +242,7 @@ export default function Topbar({
           onClick={() => setProfileOpen((o) => !o)}
           aria-expanded={profileOpen}
           aria-haspopup="menu"
+          aria-label="Open profile menu"
         >
           <span className="avatar" aria-hidden="true">
             {(() => {
@@ -259,16 +256,14 @@ export default function Topbar({
             })()}
           </span>
           <span className="profile-name">
-            {prefs.userName.trim().split(/\s+/)[0] || "Monitor"}
+              {prefs.userName.trim().split(/\s+/)[0] || "Workspace"}
           </span>
         </button>
         {profileOpen && (
           <div className="menu-pop" role="menu">
             <div className="pop-head">
-              <div className="workspace-name">NutriSense Monitor</div>
-              <div className="workspace-role">
-                {apiUp ? "Backend connected" : "Backend offline"} · local workspace
-              </div>
+              <div className="workspace-name">Your workspace</div>
+              <div className="workspace-role">Settings and meal preferences</div>
             </div>
             <button
               className="pop-item"
@@ -278,21 +273,11 @@ export default function Topbar({
                 navigate("/settings");
               }}
             >
-              <IconHelp size={15} /> Help & settings
-            </button>
-            <button
-              className="pop-item"
-              role="menuitem"
-              onClick={() => {
-                setProfileOpen(false);
-                setPrefs({ theme: darkish ? "light" : "dark" });
-              }}
-            >
-              <IconMonitor size={15} /> Theme: {prefs.theme}
+              <IconSettings size={15} /> Settings
             </button>
           </div>
         )}
       </div>
-    </header>
+    </motion.header>
   );
 }

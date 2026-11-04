@@ -1,0 +1,5364 @@
+{
+  "stage": "confirmatory_wed_boundary_loss_dev_evaluation",
+  "created_at": "2026-11-03T11:06:00.390440+00:00",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "epochs_per_run": 20,
+  "dev_views": 108,
+  "dev_groups": 21,
+  "dev_group_sha256": "8d86051ef8dbf28f91abc7b06797831176368a1551fedd237dfbd38db7035ddd",
+  "dev_data_sha256": "3686e21a984669d70ffef8af0c6a7cb0c60c45d82f90f57488a574b1c9ffb9f7",
+  "frozen_checkpoint_sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963",
+  "training_summary_sha256": "cb7bbf717c65ad1dd8c9ea674d370648d81e0da21137d7669f0846ecfcd7515f",
+  "metric_definitions": {
+    "macro_food_iou": "global confusion-matrix IoU averaged over WED food classes present in the fixed DEV carve",
+    "foreground_iou": "binary food-vs-background union IoU",
+    "boundary_f1": "class-wise semantic-mask boundaries with a 3-pixel tolerance at original DEV resolution",
+    "tiny_bin": "WED GT 8-connected per-class semantic components under 0.10% of image area",
+    "component_recall": "same-class one-to-one Hungarian component match at IoU >= 0.5",
+    "region_f1": "same-class one-to-one Hungarian component precision/recall/F1 at IoU >= 0.5",
+    "bootstrap": "10,000 paired resamples of the same 21 physical meal groups; differences averaged across three trained seeds"
+  },
+  "per_model_metrics": {
+    "frozen_original": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_native_segmentation/model_wed_semantic_baseline.pt",
+      "checkpoint_sha256": "946a8adc50b131465da421c14caee19f03e4471ed883c8d77bdce119cb0ae963",
+      "architecture": "frozen DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57232189178467,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8210799945241419,
+      "foreground_iou": 0.9196031725570949,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 274
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.8913140770629688,
+          "pixel_recall": 0.8880588035446335,
+          "iou": 0.8012881306140175,
+          "dice": 0.8896834626239133,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 281536
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9259829679289726,
+          "pixel_recall": 0.8943584007669745,
+          "iou": 0.8346872980592384,
+          "dice": 0.9098959794861871,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 253874
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.909952478760468,
+          "pixel_recall": 0.6906278877486504,
+          "iou": 0.6464474144499447,
+          "dice": 0.7852633601005882,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 296499
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9095933665749741,
+          "pixel_recall": 0.9523147785637643,
+          "iou": 0.8699696973269977,
+          "dice": 0.9304639519780067,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1216747
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7826179055504534,
+          "pixel_recall": 0.9693997943198467,
+          "iou": 0.7637500537612777,
+          "dice": 0.8660524796385358,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 703402
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8924671677340555,
+          "pixel_recall": 0.9852169817668035,
+          "iou": 0.880673781045217,
+          "dice": 0.9365513465666196,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 410191
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.9078846349831844,
+          "pixel_recall": 0.9860206683072428,
+          "iou": 0.8963472509634122,
+          "dice": 0.9453408393510584,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 294370
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.8456663711118413,
+          "pixel_recall": 0.9505959849435383,
+          "iou": 0.8100635492744,
+          "dice": 0.8950664186338984,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 222181
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.9344892483882593,
+          "pixel_recall": 0.9527605100390371,
+          "iou": 0.8931083504141608,
+          "dice": 0.9435364333148422,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 849082
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.9265427566752966,
+          "pixel_recall": 0.8950479896601763,
+          "iou": 0.8357433830737393,
+          "dice": 0.9105231055490817,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 414064
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8812656007555826,
+          "pixel_recall": 0.948417894657688,
+          "iou": 0.8409585756098009,
+          "dice": 0.9136094497196832,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 415044
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9138175260930762,
+          "pixel_recall": 0.9012018271320236,
+          "iou": 0.8306063640636815,
+          "dice": 0.9074658324904492,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 444754
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9366322606251366,
+          "pixel_recall": 0.9681613458195747,
+          "iou": 0.908644379583186,
+          "dice": 0.9521358607218572,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2786623
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.8374347152825722,
+          "pixel_recall": 0.9119286084422811,
+          "iou": 0.7747733768295851,
+          "dice": 0.8730955590663894,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 256377
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.9273521435133485,
+          "pixel_recall": 0.8102658508332172,
+          "iou": 0.7619036857924115,
+          "dice": 0.8648641715619629,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 181781
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8935833835966956,
+          "pixel_recall": 0.9599220190556657,
+          "iou": 0.8614443943523433,
+          "dice": 0.9255655414322141,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 752702
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.501410745809255,
+          "pixel_recall": 0.8868725147447359,
+          "iou": 0.47126893187361735,
+          "dice": 0.6406292169487604,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 265108
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8577932459451709,
+          "pixel_recall": 0.9167779205185689,
+          "iou": 0.7958242831528156,
+          "dice": 0.8863052923592691,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 254573
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.9279294296204342,
+          "pixel_recall": 0.9829652381195779,
+          "iou": 0.9132435664423214,
+          "dice": 0.9546547888207447,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 227971
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.9046178682940675,
+          "pixel_recall": 0.8915377218288312,
+          "iou": 0.8149317181144771,
+          "dice": 0.8980301682766394,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 112736
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8671444925242721,
+          "pixel_recall": 0.9451592075691048,
+          "iou": 0.8256048770564332,
+          "dice": 0.9044726900462942,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 575663
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.867360928839414,
+          "pixel_recall": 0.7782819032947181,
+          "iou": 0.6955050629479369,
+          "dice": 0.820410481981903,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1295380
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.9301205331261212,
+          "pixel_recall": 0.9178139428311276,
+          "iou": 0.8586086846879663,
+          "dice": 0.9239262592083651,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 658906
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9445344193874872,
+          "pixel_recall": 0.921163799821181,
+          "iou": 0.873892179326445,
+          "dice": 0.9327027338793402,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2140102
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9216465466357379,
+          "pixel_recall": 0.9671483747775897,
+          "iou": 0.8936692986869063,
+          "dice": 0.943849382050591,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 265987
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9664667061027614,
+          "pixel_recall": 0.9654188467034758,
+          "iou": 0.9341284067443901,
+          "dice": 0.9659424922223815,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2589844
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9208155425665686,
+          "pixel_recall": 0.9892301526037646,
+          "iou": 0.9116759810929687,
+          "dice": 0.9537975997080146,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 289476
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9435600671205171,
+          "pixel_recall": 0.9660365937303351,
+          "iou": 0.9132641823642386,
+          "dice": 0.9546660526887714,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 470199
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.918851320279788,
+          "pixel_recall": 0.9381200523075311,
+          "iou": 0.8663431701291476,
+          "dice": 0.9283857159765513,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2065850
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9091762981329138,
+          "pixel_recall": 0.959526686184822,
+          "iou": 0.8755975612664245,
+          "dice": 0.9336731709921943,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1211567
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.9403107527065103,
+          "pixel_recall": 0.9392260570880697,
+          "iou": 0.886379748362587,
+          "dice": 0.9397680919040625,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6625783
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.7537651956553014,
+          "pixel_recall": 0.6854979996606476,
+          "iou": 0.5600777006487303,
+          "dice": 0.7180125713172261,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 444864
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8700388067734545,
+          "pixel_recall": 0.9569514715116778,
+          "iou": 0.8372691342367483,
+          "dice": 0.9114278563054102,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 397611
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9287253273868162,
+          "pixel_recall": 0.9358082114329158,
+          "iou": 0.8731034529852664,
+          "dice": 0.9322533163811685,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1101373
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8603346601021481,
+          "pixel_recall": 0.9740129251789256,
+          "iou": 0.8410295904667411,
+          "dice": 0.9136513555477637,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1043387
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9142032877170829,
+          "pixel_recall": 0.9556735544254877,
+          "iou": 0.8770152499484614,
+          "dice": 0.9344785557523225,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 525836
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9544538822219891,
+          "pixel_recall": 0.9698273837270227,
+          "iou": 0.9269293399896735,
+          "dice": 0.9620792218511147,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1124794
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5544435001669348,
+          "pixel_recall": 0.9705436996369432,
+          "iou": 0.545267986179689,
+          "dice": 0.7057261148957542,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 395364
+        }
+      },
+      "region_precision": 0.7367104440275172,
+      "region_recall": 0.735330836454432,
+      "region_f1": 0.7360199937519525,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1599,
+      "region_matches_iou_0_5": 1178,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 2,
+          "missed_no_overlap": 269,
+          "gt_pixels": 13196,
+          "recalled_pixels": 4491,
+          "fragmented_gt_regions": 1,
+          "region_recall_iou_0_5": 0.005405405405405406,
+          "no_overlap_miss_rate": 0.727027027027027,
+          "pixel_recall": 0.34033040315247043
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 26,
+          "missed_no_overlap": 4,
+          "gt_pixels": 92168,
+          "recalled_pixels": 65800,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.7027027027027027,
+          "no_overlap_miss_rate": 0.10810810810810811,
+          "pixel_recall": 0.713913722767121
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 80,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 407745,
+          "fragmented_gt_regions": 4,
+          "region_recall_iou_0_5": 0.8791208791208791,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8362867796359877
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1070,
+          "missed_no_overlap": 14,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30326441,
+          "fragmented_gt_regions": 37,
+          "region_recall_iou_0_5": 0.9692028985507246,
+          "no_overlap_miss_rate": 0.012681159420289856,
+          "pixel_recall": 0.9335803820075578
+        }
+      },
+      "merge_proxy_total": 79,
+      "fragmentation_proxy_total": 42,
+      "mean_merge_proxy_per_view": 0.7314814814814815,
+      "mean_fragmentation_proxy_per_view": 0.3888888888888889,
+      "boundary_f1_tolerance_3px": 0.5973041827158846,
+      "boundary_precision_tolerance_3px": 0.6164249921982552,
+      "boundary_recall_tolerance_3px": 0.5793338972533227,
+      "inference_latency_ms_batch1": {
+        "mean": 106.9735347776899,
+        "median": 107.01679350313498,
+        "p90": 107.05409639558638
+      },
+      "complete_class_set_views": 76,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.34033040315247043,
+      "tiny_region_recall_iou_0_5": 0.005405405405405406
+    },
+    "seed_42_standard": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_42/standard/model_best.pt",
+      "checkpoint_sha256": "653df76959324f7d9efa7ca42fdb2a07106a15a27e0f3c73a366b037b6d3000f",
+      "training_report_sha256": "a0947177f900c8e410e3b73fe996cb16c663a55877bf1c256f024a76199dd173",
+      "training_seed": 42,
+      "loss_kind": "standard",
+      "initialization_sha256": "48f06c78acdb22b6bd623a5a5028407307dc68ccb0f0a4990a4d1f43b497d56a",
+      "selected_epoch": 20,
+      "peak_training_vram_mb": 5428.3,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8220567134167801,
+      "foreground_iou": 0.914872095094051,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.882768123277656,
+          "pixel_recall": 0.888791370572747,
+          "iou": 0.7949607495568498,
+          "dice": 0.8857695074982718,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 284496
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9019529991684584,
+          "pixel_recall": 0.9161007567024664,
+          "iou": 0.8331332366872299,
+          "dice": 0.9089718303213326,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 266974
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.9280620437700285,
+          "pixel_recall": 0.6775730240439872,
+          "iou": 0.6437616890049784,
+          "dice": 0.783278614304082,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 285218
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9068679613739232,
+          "pixel_recall": 0.9430338085105101,
+          "iou": 0.8597685441597096,
+          "dice": 0.9245973611712792,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1208510
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7946995223703738,
+          "pixel_recall": 0.9589749098388369,
+          "iou": 0.7685701624148268,
+          "dice": 0.8691429706870232,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 685259
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8848533052690798,
+          "pixel_recall": 0.9820413106371526,
+          "iou": 0.870763136543693,
+          "dice": 0.9309175699842595,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 412387
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.9164527300608212,
+          "pixel_recall": 0.9812096235652645,
+          "iou": 0.9006461488445179,
+          "dice": 0.9477262765529062,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 290195
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.8196026273426134,
+          "pixel_recall": 0.9633656453636621,
+          "iou": 0.7948298388342301,
+          "dice": 0.885688238112293,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 232326
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.9318045190469705,
+          "pixel_recall": 0.9529346216794209,
+          "iou": 0.890807965158046,
+          "dice": 0.9422511239353558,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 851684
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.9209376423436023,
+          "pixel_recall": 0.9386609555004969,
+          "iou": 0.8686608733200194,
+          "dice": 0.9297148409563302,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 436883
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8470172516523535,
+          "pixel_recall": 0.9546929006863611,
+          "iou": 0.8142853351498156,
+          "dice": 0.8976375649121097,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 434683
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9059649059716488,
+          "pixel_recall": 0.8937890815557231,
+          "iou": 0.8179104659326567,
+          "dice": 0.8998358073845377,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 444919
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9289057568847771,
+          "pixel_recall": 0.969519717909665,
+          "iou": 0.902548244682596,
+          "dice": 0.9487783000563741,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2813744
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.8930924140285007,
+          "pixel_recall": 0.8890941835079046,
+          "iou": 0.8035709487084006,
+          "dice": 0.8910888138710213,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 234380
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.9216318131489335,
+          "pixel_recall": 0.8481799960586208,
+          "iou": 0.791122329122096,
+          "dice": 0.8833816833826846,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 191468
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8772749489663897,
+          "pixel_recall": 0.9580281553453482,
+          "iou": 0.8448056924883368,
+          "dice": 0.9158749844801639,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 765182
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.6867725666005691,
+          "pixel_recall": 0.8503509380587655,
+          "iou": 0.6127183747247782,
+          "dice": 0.759857870199244,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 185584
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8423323144356653,
+          "pixel_recall": 0.9197460893221492,
+          "iou": 0.7846605133935767,
+          "dice": 0.8793386837494657,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 260085
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 53
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.8956142460021176,
+          "pixel_recall": 0.9865710687849373,
+          "iou": 0.8848274453747192,
+          "dice": 0.9388949079089924,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 237063
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.8708143727003957,
+          "pixel_recall": 0.8214004720692368,
+          "iou": 0.7321805671360332,
+          "dice": 0.8453859615185637,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 107899
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8685056811620575,
+          "pixel_recall": 0.9398595466792389,
+          "iou": 0.8227800053373026,
+          "dice": 0.9027748855354033,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 571538
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.8787924424160054,
+          "pixel_recall": 0.8205367805359216,
+          "iou": 0.7371154773572284,
+          "dice": 0.8486660639034127,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1347944
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.920305636117484,
+          "pixel_recall": 0.9233460278760777,
+          "iou": 0.8549835536351181,
+          "dice": 0.9218233250204831,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 669947
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9435468021424588,
+          "pixel_recall": 0.9166924140470416,
+          "iou": 0.8690292225563592,
+          "dice": 0.9299257733035838,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2131943
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9278226388435213,
+          "pixel_recall": 0.9637278921226324,
+          "iou": 0.896515656424786,
+          "dice": 0.9454344902323151,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 263282
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9578716658414036,
+          "pixel_recall": 0.9625175736841192,
+          "iou": 0.9234264687543595,
+          "dice": 0.9601889999490177,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2605230
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9031308184246741,
+          "pixel_recall": 0.9936798586782257,
+          "iou": 0.8979726670579358,
+          "dice": 0.946244045178892,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 296472
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9418833727344366,
+          "pixel_recall": 0.9577427987257735,
+          "iou": 0.9043028460173643,
+          "dice": 0.9497468828643639,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 466992
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9161667017037721,
+          "pixel_recall": 0.9347579195203364,
+          "iou": 0.8611038520548694,
+          "dice": 0.9253689428498181,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2064478
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9440753854351077,
+          "pixel_recall": 0.9569282337579301,
+          "iou": 0.9055937599438117,
+          "dice": 0.9504583599922305,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1163620
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.932458818783466,
+          "pixel_recall": 0.9380468791809975,
+          "iou": 0.8783655060945914,
+          "dice": 0.9352445019296031,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6673188
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.8067132653950004,
+          "pixel_recall": 0.7573589387673331,
+          "iou": 0.6410356235681707,
+          "dice": 0.7812574137474734,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 459240
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.855128534323553,
+          "pixel_recall": 0.9580967028954437,
+          "iou": 0.8242998172194509,
+          "dice": 0.9036889763830889,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 405028
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9319023604106753,
+          "pixel_recall": 0.9205187015627101,
+          "iou": 0.8625018323088119,
+          "dice": 0.9261755530620116,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1079685
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8558465409739141,
+          "pixel_recall": 0.9753876902644497,
+          "iou": 0.8377544915202112,
+          "dice": 0.9117153519534714,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1050339
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9124289595303522,
+          "pixel_recall": 0.929418032754295,
+          "iou": 0.8533021347428672,
+          "dice": 0.9208451431058832,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 512384
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9574925338805492,
+          "pixel_recall": 0.9627377222746177,
+          "iou": 0.9232765820306409,
+          "dice": 0.9601079643530247,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1113028
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5388208410629385,
+          "pixel_recall": 0.9709200389621889,
+          "iou": 0.5302633519766511,
+          "dice": 0.6930354194154967,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 406985
+        }
+      },
+      "region_precision": 0.7443037974683544,
+      "region_recall": 0.7340823970037453,
+      "region_f1": 0.7391577624135763,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1580,
+      "region_matches_iou_0_5": 1176,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 1,
+          "missed_no_overlap": 254,
+          "gt_pixels": 13196,
+          "recalled_pixels": 4582,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.002702702702702703,
+          "no_overlap_miss_rate": 0.6864864864864865,
+          "pixel_recall": 0.3472264322521976
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 23,
+          "missed_no_overlap": 4,
+          "gt_pixels": 92168,
+          "recalled_pixels": 63331,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.6216216216216216,
+          "no_overlap_miss_rate": 0.10810810810810811,
+          "pixel_recall": 0.6871256835344154
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 80,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 403852,
+          "fragmented_gt_regions": 6,
+          "region_recall_iou_0_5": 0.8791208791208791,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8283022195969366
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1072,
+          "missed_no_overlap": 12,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30356654,
+          "fragmented_gt_regions": 24,
+          "region_recall_iou_0_5": 0.9710144927536232,
+          "no_overlap_miss_rate": 0.010869565217391304,
+          "pixel_recall": 0.9345104701798426
+        }
+      },
+      "merge_proxy_total": 86,
+      "fragmentation_proxy_total": 30,
+      "mean_merge_proxy_per_view": 0.7962962962962963,
+      "mean_fragmentation_proxy_per_view": 0.2777777777777778,
+      "boundary_f1_tolerance_3px": 0.5626519013328812,
+      "boundary_precision_tolerance_3px": 0.5844665331267244,
+      "boundary_recall_tolerance_3px": 0.542407096173396,
+      "inference_latency_ms_batch1": {
+        "mean": 106.94341843494233,
+        "median": 106.98305949699716,
+        "p90": 107.02728429896524
+      },
+      "complete_class_set_views": 70,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.3472264322521976,
+      "tiny_region_recall_iou_0_5": 0.002702702702702703
+    },
+    "seed_42_boundary_aware": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_42/boundary_aware/model_best.pt",
+      "checkpoint_sha256": "e480610680ea678151e756c8075122fc230f7c622a541c064633c2839b23c5e8",
+      "training_report_sha256": "7cec9d5bad15b3961a5f3a048f74877ac16f355b7e0fad7185379951a9c66fbc",
+      "training_seed": 42,
+      "loss_kind": "boundary_aware",
+      "initialization_sha256": "48f06c78acdb22b6bd623a5a5028407307dc68ccb0f0a4990a4d1f43b497d56a",
+      "selected_epoch": 18,
+      "peak_training_vram_mb": 5684.6,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.814248269811099,
+      "foreground_iou": 0.9135989388977483,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.8810032224249719,
+          "pixel_recall": 0.8833696667704765,
+          "iou": 0.789204604736897,
+          "dice": 0.8821848576149286,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 283327
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9098949738296072,
+          "pixel_recall": 0.9040863454961175,
+          "iou": 0.8297949606123247,
+          "dice": 0.9069813596323832,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 261173
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.9120727918331114,
+          "pixel_recall": 0.6838112010730586,
+          "iou": 0.6415208975725963,
+          "dice": 0.7816177040709591,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 292890
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.8967100627494516,
+          "pixel_recall": 0.9493986643870094,
+          "iou": 0.8558083111499966,
+          "dice": 0.9223024878250213,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1230449
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7819294997105005,
+          "pixel_recall": 0.9607728502197679,
+          "iou": 0.7577385449535576,
+          "dice": 0.8621743513891917,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 697756
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8798892824763788,
+          "pixel_recall": 0.9846921886563951,
+          "iou": 0.8680160656289959,
+          "dice": 0.9293453965415642,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 415833
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.9231574845340738,
+          "pixel_recall": 0.9788889585785281,
+          "iou": 0.9051370049944052,
+          "dice": 0.9502067332916703,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 287406
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.824936178725662,
+          "pixel_recall": 0.9596723600599021,
+          "iou": 0.7972972972972973,
+          "dice": 0.8872180451127819,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 229939
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.924438198002146,
+          "pixel_recall": 0.9548798689719848,
+          "iou": 0.8857472552319617,
+          "dice": 0.939412482531237,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 860223
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.9170596343994621,
+          "pixel_recall": 0.9514177596737543,
+          "iou": 0.8760367505375743,
+          "dice": 0.9339228032569702,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 444693
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8248634671540982,
+          "pixel_recall": 0.9595106532488714,
+          "iou": 0.7971177769400614,
+          "dice": 0.8871068854455468,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 448610
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.900886634258863,
+          "pixel_recall": 0.8867954233003681,
+          "iou": 0.8079676107471226,
+          "dice": 0.8937854925545253,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 443926
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9250232941247943,
+          "pixel_recall": 0.9714523008122783,
+          "iou": 0.9005435419873892,
+          "dice": 0.9476694662261672,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2831186
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.8744044844640051,
+          "pixel_recall": 0.9004137040529405,
+          "iou": 0.7972980596728636,
+          "dice": 0.8872185171311923,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 242437
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.9168931315978408,
+          "pixel_recall": 0.8286893952866873,
+          "iou": 0.7707934691249844,
+          "dice": 0.8705628099090092,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 188035
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8889591733134175,
+          "pixel_recall": 0.9546956973471636,
+          "iou": 0.8529765047013549,
+          "dice": 0.9206554994487958,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 752498
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.6065489651163847,
+          "pixel_recall": 0.8911758426516506,
+          "iou": 0.5647214506466437,
+          "dice": 0.7218172287639624,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 220218
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8504345862964218,
+          "pixel_recall": 0.9172607202532389,
+          "iou": 0.7898445153803607,
+          "dice": 0.8825845022772947,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 256911
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.8940910354588419,
+          "pixel_recall": 0.9863015608228357,
+          "iou": 0.8831246099438319,
+          "dice": 0.9379353923585257,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 237402
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.863760917965405,
+          "pixel_recall": 0.7054462802692543,
+          "iou": 0.6348117497128652,
+          "dice": 0.7766175522342095,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 93424
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8614323058527678,
+          "pixel_recall": 0.9521364317131404,
+          "iou": 0.8256772577035549,
+          "dice": 0.9045161232299522,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 583758
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.8723426242036645,
+          "pixel_recall": 0.7835622909803248,
+          "iou": 0.7029574068780373,
+          "dice": 0.8255725058523226,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1296721
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.9209021020697256,
+          "pixel_recall": 0.9210082951323941,
+          "iou": 0.8534911541514703,
+          "dice": 0.9209551955398451,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 667818
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9429625525829854,
+          "pixel_recall": 0.9129260052187433,
+          "iou": 0.8651517938964594,
+          "dice": 0.9277012163059225,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2124499
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9325115621297252,
+          "pixel_recall": 0.9625206629502945,
+          "iou": 0.8998377162246892,
+          "dice": 0.9472785054639558,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 261630
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9553069781578019,
+          "pixel_recall": 0.9626066715394065,
+          "iou": 0.9211242726286939,
+          "dice": 0.9589429333150948,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2612466
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9063741373934029,
+          "pixel_recall": 0.9924180571224986,
+          "iou": 0.9001410399254071,
+          "dice": 0.9474465537155531,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 295036
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.945675703535718,
+          "pixel_recall": 0.9588315090177874,
+          "iou": 0.9087760935291144,
+          "dice": 0.9522081679563459,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 465648
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9105461877519496,
+          "pixel_recall": 0.9369141719605143,
+          "iou": 0.8579452423040266,
+          "dice": 0.9235420105708755,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2082013
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9336324921660732,
+          "pixel_recall": 0.9527574693529828,
+          "iou": 0.8923230927251352,
+          "dice": 0.9430980324190837,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1171507
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.9353266834522874,
+          "pixel_recall": 0.9375696000639187,
+          "iou": 0.8804889098417633,
+          "dice": 0.9364467987379447,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6649342
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.7397650496074015,
+          "pixel_recall": 0.7453650798193664,
+          "iou": 0.5905261981539578,
+          "dice": 0.7425545066020934,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 492870
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8541951768767245,
+          "pixel_recall": 0.9548463481226781,
+          "iou": 0.8210304982184398,
+          "dice": 0.9017207553873202,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 404095
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9334104157100522,
+          "pixel_recall": 0.926166268845428,
+          "iou": 0.8687645729654488,
+          "dice": 0.9297742321675649,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1084554
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8541625288302269,
+          "pixel_recall": 0.9752683341796765,
+          "iou": 0.836053146109012,
+          "dice": 0.9107069126847301,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1052281
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9080714782478748,
+          "pixel_recall": 0.9422465995252655,
+          "iou": 0.8601941923774955,
+          "dice": 0.9248434339837283,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 521949
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9597772809550587,
+          "pixel_recall": 0.9575117167315288,
+          "iou": 0.920571242956303,
+          "dice": 0.9586431602915008,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1104351
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5394679223188235,
+          "pixel_recall": 0.9708846187904011,
+          "iou": 0.5308794406596652,
+          "dice": 0.6935613955739142,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 406482
+        }
+      },
+      "region_precision": 0.7633637548891786,
+      "region_recall": 0.7309612983770287,
+      "region_f1": 0.7468112244897959,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1534,
+      "region_matches_iou_0_5": 1171,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 2,
+          "missed_no_overlap": 258,
+          "gt_pixels": 13196,
+          "recalled_pixels": 5367,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.005405405405405406,
+          "no_overlap_miss_rate": 0.6972972972972973,
+          "pixel_recall": 0.4067141558047893
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 25,
+          "missed_no_overlap": 4,
+          "gt_pixels": 92168,
+          "recalled_pixels": 63218,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.6756756756756757,
+          "no_overlap_miss_rate": 0.10810810810810811,
+          "pixel_recall": 0.6858996614877181
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 78,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 402833,
+          "fragmented_gt_regions": 8,
+          "region_recall_iou_0_5": 0.8571428571428571,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8262122461369332
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1066,
+          "missed_no_overlap": 12,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30289330,
+          "fragmented_gt_regions": 26,
+          "region_recall_iou_0_5": 0.9655797101449275,
+          "no_overlap_miss_rate": 0.010869565217391304,
+          "pixel_recall": 0.9324379432506762
+        }
+      },
+      "merge_proxy_total": 84,
+      "fragmentation_proxy_total": 34,
+      "mean_merge_proxy_per_view": 0.7777777777777778,
+      "mean_fragmentation_proxy_per_view": 0.3148148148148148,
+      "boundary_f1_tolerance_3px": 0.5552234397878452,
+      "boundary_precision_tolerance_3px": 0.5772834564569502,
+      "boundary_recall_tolerance_3px": 0.5347873478205574,
+      "inference_latency_ms_batch1": {
+        "mean": 106.94536087976303,
+        "median": 106.98792299808702,
+        "p90": 107.02759990090271
+      },
+      "complete_class_set_views": 80,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.4067141558047893,
+      "tiny_region_recall_iou_0_5": 0.005405405405405406
+    },
+    "seed_43_standard": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_43/standard/model_best.pt",
+      "checkpoint_sha256": "6ad3f9614f258b8eb35a095772b7925c2480cd399633d2bc91dc6b62471d8700",
+      "training_report_sha256": "bf7cfe1fe98cd29ef8bc55605acad8385a60bdbac3113512597fbee46de4f42c",
+      "training_seed": 43,
+      "loss_kind": "standard",
+      "initialization_sha256": "1b1b35dd11bc205a0bc55620cfac10676b8e92601f8aa7b6a5a2da762145da17",
+      "selected_epoch": 18,
+      "peak_training_vram_mb": 5426.6,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8204650370167799,
+      "foreground_iou": 0.9148558477672186,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.9089300845882825,
+          "pixel_recall": 0.8655049404037258,
+          "iou": 0.796438620258441,
+          "dice": 0.886686148112161,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 269068
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9189541773115182,
+          "pixel_recall": 0.9004493039782995,
+          "iou": 0.8342021323464622,
+          "dice": 0.9096076355328213,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 257558
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.9100779006109785,
+          "pixel_recall": 0.6821268676774374,
+          "iou": 0.6390552268764883,
+          "dice": 0.7797848619101406,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 292809
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9200738638237211,
+          "pixel_recall": 0.9363462784480319,
+          "iou": 0.8659131546049831,
+          "dice": 0.9281387533690424,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1182717
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7901133114966609,
+          "pixel_recall": 0.9616955933731545,
+          "iou": 0.7660068672995355,
+          "dice": 0.8675015725967862,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 691192
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.9004795033396639,
+          "pixel_recall": 0.9774446612393192,
+          "iou": 0.8821490594221731,
+          "dice": 0.9373849058405568,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 403334
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.910493816660146,
+          "pixel_recall": 0.9873931442612427,
+          "iou": 0.9000309397616293,
+          "dice": 0.9473855619156852,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 293935
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.837657832662689,
+          "pixel_recall": 0.946831869510665,
+          "iou": 0.8000265041081368,
+          "dice": 0.8889052492085695,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 223417
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.930291331688291,
+          "pixel_recall": 0.9542914917044809,
+          "iou": 0.8906068246764162,
+          "dice": 0.9421385906917443,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 854284
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.915143316257159,
+          "pixel_recall": 0.9327188230518344,
+          "iou": 0.8584726382581248,
+          "dice": 0.9238474870017331,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 436866
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8345990228049786,
+          "pixel_recall": 0.9589220473114711,
+          "iou": 0.8057902110701236,
+          "dice": 0.8924516326762086,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 443105
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9002280297780063,
+          "pixel_recall": 0.8929021242627168,
+          "iou": 0.8124973517430071,
+          "dice": 0.8965501118792372,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 447310
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.926344492635796,
+          "pixel_recall": 0.9695534731964476,
+          "iou": 0.9001591761138024,
+          "dice": 0.9474565998779156,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2821622
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.9060411014011452,
+          "pixel_recall": 0.899237153512237,
+          "iou": 0.8225332084898733,
+          "dice": 0.9026263056917502,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 233666
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.8997053539346029,
+          "pixel_recall": 0.9026287076602146,
+          "iou": 0.8201089163824389,
+          "dice": 0.9011646599835882,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 208725
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8858135787471364,
+          "pixel_recall": 0.9563654942884382,
+          "iou": 0.8514036324827048,
+          "dice": 0.9197385351793711,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 756491
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.7330995659929648,
+          "pixel_recall": 0.8801606575751915,
+          "iou": 0.6665656121629201,
+          "dice": 0.7999272363454455,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 179951
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8526546181735156,
+          "pixel_recall": 0.9093386063460877,
+          "iou": 0.7858495631730184,
+          "dice": 0.8800848395950616,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 254029
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.8998388123011665,
+          "pixel_recall": 0.985734664764622,
+          "iou": 0.888271501549284,
+          "dice": 0.94083027871837,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 235750
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.8315075916146923,
+          "pixel_recall": 0.6841419704519626,
+          "iou": 0.6008460782507217,
+          "dice": 0.7506606492827579,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 94117
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8719171628159168,
+          "pixel_recall": 0.940828973751626,
+          "iou": 0.8265894799880228,
+          "dice": 0.9050632219708643,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 569889
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.8762475828886929,
+          "pixel_recall": 0.8242800856720909,
+          "iou": 0.738328960112378,
+          "dice": 0.849469780523759,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1358026
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.9188607564500229,
+          "pixel_recall": 0.9156723939371703,
+          "iou": 0.8471720151357912,
+          "dice": 0.9172638045553251,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 665424
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9394197097621415,
+          "pixel_recall": 0.9232281473096494,
+          "iou": 0.8713512518472769,
+          "dice": 0.9312535538019763,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2156576
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9268143170130887,
+          "pixel_recall": 0.9663041033956279,
+          "iou": 0.8977985000769755,
+          "dice": 0.9461473386564068,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 264273
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9583007769817713,
+          "pixel_recall": 0.9640827645791669,
+          "iou": 0.9252670540926824,
+          "dice": 0.961183075486358,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2608298
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9021753060605039,
+          "pixel_recall": 0.992755774597708,
+          "iou": 0.8962749026676763,
+          "dice": 0.945300601096179,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 296510
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9481871676618326,
+          "pixel_recall": 0.9539845707977416,
+          "iou": 0.9067177152317881,
+          "dice": 0.9510770346218386,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 462067
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9179880056885467,
+          "pixel_recall": 0.9305645200349112,
+          "iou": 0.8591394738907373,
+          "dice": 0.9242334810876373,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2051139
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9216748342797129,
+          "pixel_recall": 0.9662680282336709,
+          "iou": 0.8929441388181844,
+          "dice": 0.9434447858304718,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1203534
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.9433411727699668,
+          "pixel_recall": 0.9331391654550019,
+          "iou": 0.8836159585725659,
+          "dice": 0.9382124360872204,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6561696
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.8163530979035688,
+          "pixel_recall": 0.714056753624018,
+          "iou": 0.6152297514372675,
+          "dice": 0.7617860566149457,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 427870
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8496472043750107,
+          "pixel_recall": 0.9536734541451014,
+          "iou": 0.8159694773565346,
+          "dice": 0.8986599031877153,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 405759
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.92682399715492,
+          "pixel_recall": 0.9298706265204197,
+          "iou": 0.8662719341608681,
+          "dice": 0.928344812247707,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1096630
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8564318632186234,
+          "pixel_recall": 0.9735355008398329,
+          "iou": 0.836946767684871,
+          "dice": 0.9112368223273953,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1047628
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9089084593124073,
+          "pixel_recall": 0.9534469939445507,
+          "iou": 0.8702865624841222,
+          "dice": 0.9306451534658989,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 527667
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9478023098127155,
+          "pixel_recall": 0.9660106381056656,
+          "iou": 0.9172144048788229,
+          "dice": 0.9568198554577365,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1128230
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5322309512357465,
+          "pixel_recall": 0.9700478172319136,
+          "iou": 0.5236258391707833,
+          "dice": 0.6873417681807772,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 411654
+        }
+      },
+      "region_precision": 0.7441418619379354,
+      "region_recall": 0.733458177278402,
+      "region_f1": 0.7387613957874882,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1579,
+      "region_matches_iou_0_5": 1175,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 2,
+          "missed_no_overlap": 275,
+          "gt_pixels": 13196,
+          "recalled_pixels": 4395,
+          "fragmented_gt_regions": 1,
+          "region_recall_iou_0_5": 0.005405405405405406,
+          "no_overlap_miss_rate": 0.7432432432432432,
+          "pixel_recall": 0.33305547135495606
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 22,
+          "missed_no_overlap": 3,
+          "gt_pixels": 92168,
+          "recalled_pixels": 60581,
+          "fragmented_gt_regions": 2,
+          "region_recall_iou_0_5": 0.5945945945945946,
+          "no_overlap_miss_rate": 0.08108108108108109,
+          "pixel_recall": 0.657288863813905
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 81,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 402920,
+          "fragmented_gt_regions": 4,
+          "region_recall_iou_0_5": 0.8901098901098901,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8263906835177186
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1070,
+          "missed_no_overlap": 13,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30325636,
+          "fragmented_gt_regions": 27,
+          "region_recall_iou_0_5": 0.9692028985507246,
+          "no_overlap_miss_rate": 0.01177536231884058,
+          "pixel_recall": 0.9335556005896685
+        }
+      },
+      "merge_proxy_total": 73,
+      "fragmentation_proxy_total": 34,
+      "mean_merge_proxy_per_view": 0.6759259259259259,
+      "mean_fragmentation_proxy_per_view": 0.3148148148148148,
+      "boundary_f1_tolerance_3px": 0.5624119354310333,
+      "boundary_precision_tolerance_3px": 0.5876612600065618,
+      "boundary_recall_tolerance_3px": 0.5392429416820805,
+      "inference_latency_ms_batch1": {
+        "mean": 106.94676824965023,
+        "median": 106.99137200208497,
+        "p90": 107.02694669744233
+      },
+      "complete_class_set_views": 69,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.33305547135495606,
+      "tiny_region_recall_iou_0_5": 0.005405405405405406
+    },
+    "seed_43_boundary_aware": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_43/boundary_aware/model_best.pt",
+      "checkpoint_sha256": "3df96d7b1a419179fb0ecaafd073ef66684261409c630a7a7b1586982c57467e",
+      "training_report_sha256": "f9f042bb7cd914978ece72f7ce5107597bfbf5b22189081e9d3d95dd21f72bcc",
+      "training_seed": 43,
+      "loss_kind": "boundary_aware",
+      "initialization_sha256": "1b1b35dd11bc205a0bc55620cfac10676b8e92601f8aa7b6a5a2da762145da17",
+      "selected_epoch": 18,
+      "peak_training_vram_mb": 5684.6,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8230708988661656,
+      "foreground_iou": 0.9137300581411866,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.8922262543333439,
+          "pixel_recall": 0.8953490841142663,
+          "iou": 0.8079667100993843,
+          "dice": 0.8937849414881872,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 283557
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9205928692303204,
+          "pixel_recall": 0.9002933220722006,
+          "iou": 0.8354179684604061,
+          "dice": 0.9103299442591546,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 257055
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.899738544936958,
+          "pixel_recall": 0.6844511453723068,
+          "iou": 0.6359467719494357,
+          "dice": 0.7774663367459388,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 297183
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9119082933707574,
+          "pixel_recall": 0.9437884358734532,
+          "iou": 0.8649314457081709,
+          "dice": 0.9275745204454208,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1202792
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7832484404427722,
+          "pixel_recall": 0.9615617603967092,
+          "iou": 0.7594693044739708,
+          "dice": 0.8632936107982055,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 697153
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8979617105683487,
+          "pixel_recall": 0.9758837381416942,
+          "iou": 0.8784679490285382,
+          "dice": 0.9353025687585924,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 403819
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.9187323404299361,
+          "pixel_recall": 0.9825046210379903,
+          "iou": 0.9039440052410226,
+          "dice": 0.9495489392048494,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 289857
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.8354846301057222,
+          "pixel_recall": 0.9519670538713725,
+          "iou": 0.8016889142633156,
+          "dice": 0.8899304512745082,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 225213
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.9292069166113613,
+          "pixel_recall": 0.9532516249419127,
+          "iou": 0.8887091519913667,
+          "dice": 0.941075708829338,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 854349
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.9129600394119557,
+          "pixel_recall": 0.951151798504085,
+          "iou": 0.8720714091674278,
+          "dice": 0.9316646842603796,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 446565
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.838860305440316,
+          "pixel_recall": 0.9605271005064085,
+          "iou": 0.8109059466085834,
+          "dice": 0.895580411701918,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 441592
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9077011936850212,
+          "pixel_recall": 0.888600381391636,
+          "iou": 0.8149631199298801,
+          "dice": 0.8980492341479266,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 441490
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9245383003068289,
+          "pixel_recall": 0.9714014824134956,
+          "iou": 0.9000402457914621,
+          "dice": 0.9473907174177253,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2832523
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.887377511683501,
+          "pixel_recall": 0.8750562790421095,
+          "iou": 0.7875877835163869,
+          "dice": 0.8811738262913308,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 232165
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.918346842414872,
+          "pixel_recall": 0.8479156352590015,
+          "iou": 0.7884720248151823,
+          "dice": 0.8817269869196436,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 192093
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8814056923169717,
+          "pixel_recall": 0.9593440124221475,
+          "iou": 0.849668006102671,
+          "dice": 0.9187248774367435,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 762642
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.7195673684631971,
+          "pixel_recall": 0.8393624402871555,
+          "iou": 0.6324693083443096,
+          "dice": 0.7748621123980278,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 174837
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8496133583425298,
+          "pixel_recall": 0.9146913860130818,
+          "iou": 0.7872336581646848,
+          "dice": 0.8809521402736978,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 256439
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.8993225921461435,
+          "pixel_recall": 0.9845590524471788,
+          "iou": 0.8868148011735802,
+          "dice": 0.9400125551506063,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 235604
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.8664266683300215,
+          "pixel_recall": 0.8500131130343561,
+          "iou": 0.7515303756376566,
+          "dice": 0.8581414128933468,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 112223
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8609792200300188,
+          "pixel_recall": 0.9438319255813249,
+          "iou": 0.8190149777535342,
+          "dice": 0.9005038306666499,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 578971
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.8922055540499466,
+          "pixel_recall": 0.8255220816212308,
+          "iou": 0.7506534897929619,
+          "dice": 0.857569466681538,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1335746
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.923143527764872,
+          "pixel_recall": 0.9164840858955793,
+          "iou": 0.8515119849838109,
+          "dice": 0.9198017532587089,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 662924
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9359907202848485,
+          "pixel_recall": 0.9248035224239176,
+          "iou": 0.8697940708414821,
+          "dice": 0.9303634923283717,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2168170
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.922694465515558,
+          "pixel_recall": 0.9693655734535829,
+          "iou": 0.8965514724931493,
+          "dice": 0.9454544055317095,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 266294
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9586990764218647,
+          "pixel_recall": 0.9624948170890458,
+          "iou": 0.9241744371996009,
+          "dice": 0.9605931970956054,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2602920
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9014589569451131,
+          "pixel_recall": 0.9935833679710231,
+          "iou": 0.8962413213623369,
+          "dice": 0.9452819229974808,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 296993
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9495156940998813,
+          "pixel_recall": 0.9583873152186457,
+          "iou": 0.9119195460167695,
+          "dice": 0.9539308784374665,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 463550
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9102890252385932,
+          "pixel_recall": 0.9351330273823797,
+          "iou": 0.8562239382414096,
+          "dice": 0.9225437950688191,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2078642
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9336831102682569,
+          "pixel_recall": 0.9555231704778173,
+          "iou": 0.8947951020594614,
+          "dice": 0.9444768999950491,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1174844
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.9345700574182966,
+          "pixel_recall": 0.939059024472238,
+          "iou": 0.8811298322593604,
+          "dice": 0.9368091634600952,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6665297
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.813672277868093,
+          "pixel_recall": 0.7612574028910372,
+          "iou": 0.6482510823565867,
+          "dice": 0.786592636638527,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 457656
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8396511611033989,
+          "pixel_recall": 0.9604009969598809,
+          "iou": 0.8115549052012501,
+          "dice": 0.8959760511493771,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 413486
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9257276353714167,
+          "pixel_recall": 0.925893633975794,
+          "iou": 0.8618690993447643,
+          "dice": 0.9258106272326839,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1093233
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8538163111840307,
+          "pixel_recall": 0.9757392481868725,
+          "iou": 0.8360672198591451,
+          "dice": 0.910715262291197,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1053216
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9075938531001542,
+          "pixel_recall": 0.9526796257787992,
+          "iou": 0.8684436100172342,
+          "dice": 0.9295903878086252,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 528006
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9504614823480222,
+          "pixel_recall": 0.9651705023830947,
+          "iou": 0.9189429320947835,
+          "dice": 0.9577595213752752,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1124095
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5288788249222743,
+          "pixel_recall": 0.9730939520056672,
+          "iou": 0.5212562345692189,
+          "dice": 0.6852970889770261,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 415564
+        }
+      },
+      "region_precision": 0.7653920933246922,
+      "region_recall": 0.737203495630462,
+      "region_f1": 0.7510333863275039,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1543,
+      "region_matches_iou_0_5": 1181,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 3,
+          "missed_no_overlap": 264,
+          "gt_pixels": 13196,
+          "recalled_pixels": 4989,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.008108108108108109,
+          "no_overlap_miss_rate": 0.7135135135135136,
+          "pixel_recall": 0.37806911185207637
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 24,
+          "missed_no_overlap": 4,
+          "gt_pixels": 92168,
+          "recalled_pixels": 61402,
+          "fragmented_gt_regions": 1,
+          "region_recall_iou_0_5": 0.6486486486486487,
+          "no_overlap_miss_rate": 0.10810810810810811,
+          "pixel_recall": 0.6661965107195555
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 80,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 403869,
+          "fragmented_gt_regions": 3,
+          "region_recall_iou_0_5": 0.8791208791208791,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.828337086671343
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1074,
+          "missed_no_overlap": 15,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30419831,
+          "fragmented_gt_regions": 23,
+          "region_recall_iou_0_5": 0.9728260869565217,
+          "no_overlap_miss_rate": 0.01358695652173913,
+          "pixel_recall": 0.9364553343264166
+        }
+      },
+      "merge_proxy_total": 82,
+      "fragmentation_proxy_total": 27,
+      "mean_merge_proxy_per_view": 0.7592592592592593,
+      "mean_fragmentation_proxy_per_view": 0.25,
+      "boundary_f1_tolerance_3px": 0.5562633397700548,
+      "boundary_precision_tolerance_3px": 0.5813890613804633,
+      "boundary_recall_tolerance_3px": 0.5332193543485999,
+      "inference_latency_ms_batch1": {
+        "mean": 106.943111666489,
+        "median": 106.98312499880558,
+        "p90": 107.02633540058741
+      },
+      "complete_class_set_views": 72,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.37806911185207637,
+      "tiny_region_recall_iou_0_5": 0.008108108108108109
+    },
+    "seed_44_standard": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_44/standard/model_best.pt",
+      "checkpoint_sha256": "5a2b2c48d9a46e35359e9eaae6278e0342ab2c71b75be0284b8cb07d5d1fc68d",
+      "training_report_sha256": "d9d7dd79eb416aa0f210a0d808c03f70756d7e174931382fd0e9b821617db358",
+      "training_seed": 44,
+      "loss_kind": "standard",
+      "initialization_sha256": "b3157b046a2a70d8981034b7da8ffb455fa0a0e63f3234897f136f6d263c6783",
+      "selected_epoch": 19,
+      "peak_training_vram_mb": 5426.6,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8191101887479346,
+      "foreground_iou": 0.9139892983507077,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.8769275672520309,
+          "pixel_recall": 0.8931584609722262,
+          "iou": 0.793671459300351,
+          "dice": 0.8849685991100451,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 287798
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.9193908778321055,
+          "pixel_recall": 0.906365203099855,
+          "iou": 0.8396413605461357,
+          "dice": 0.912831575277119,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 259127
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.9007926223852717,
+          "pixel_recall": 0.6850962092259489,
+          "iou": 0.6370309543361062,
+          "dice": 0.7782760034546232,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 297115
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9055340255535756,
+          "pixel_recall": 0.9453742719394783,
+          "iou": 0.8605090313272942,
+          "dice": 0.9250253740648642,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1213294
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7899318818436466,
+          "pixel_recall": 0.9614191226191818,
+          "iou": 0.7656610023546373,
+          "dice": 0.8672797341432729,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 691152
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8970584234930449,
+          "pixel_recall": 0.9762443652021799,
+          "iou": 0.8778950731119404,
+          "dice": 0.9349777691861589,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 404375
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.9114418092760043,
+          "pixel_recall": 0.9899646919492479,
+          "iou": 0.9030978008441204,
+          "dice": 0.9490818605786321,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 294394
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.8470099886791939,
+          "pixel_recall": 0.9425415874043793,
+          "iou": 0.8054222545026934,
+          "dice": 0.8922259072568576,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 219949
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.9361995653631938,
+          "pixel_recall": 0.9419799975744447,
+          "iou": 0.8851578543542526,
+          "dice": 0.939080886313849,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 837941
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.9112506783467186,
+          "pixel_recall": 0.9362836359224886,
+          "iou": 0.858041135722227,
+          "dice": 0.9235975665185727,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 440409
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8604223064428803,
+          "pixel_recall": 0.9477748361886339,
+          "iou": 0.8214747241831123,
+          "dice": 0.9019886065688054,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 424810
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9086926864863273,
+          "pixel_recall": 0.8891458601268349,
+          "iou": 0.8162219707209041,
+          "dice": 0.8988130128135441,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 441279
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9256514596055254,
+          "pixel_recall": 0.9707794206999288,
+          "iou": 0.9005598607058305,
+          "dice": 0.9476785018193327,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2827305
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.8732573940176819,
+          "pixel_recall": 0.8843922288199665,
+          "iou": 0.7837864289639908,
+          "dice": 0.8787895414354148,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 238436
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.9193241701526593,
+          "pixel_recall": 0.8133660820287528,
+          "iou": 0.759177923633574,
+          "dice": 0.8631053328198838,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 184070
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.8606716858746423,
+          "pixel_recall": 0.962752110794595,
+          "iou": 0.8329361590738472,
+          "dice": 0.9088545227835063,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 783789
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.7655660087314764,
+          "pixel_recall": 0.8306690507325665,
+          "iou": 0.6622200946758151,
+          "dice": 0.7967899038123092,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 162630
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.8475509934905229,
+          "pixel_recall": 0.9172355307018649,
+          "iou": 0.7873380133481326,
+          "dice": 0.8810174767930448,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 257778
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.9036717596976599,
+          "pixel_recall": 0.984424298466128,
+          "iou": 0.8909331763320577,
+          "dice": 0.9423211644741963,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 234438
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.7938596894872951,
+          "pixel_recall": 0.7540868957076667,
+          "iou": 0.6306062621994458,
+          "dice": 0.7734623333886276,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 108659
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8696484477312318,
+          "pixel_recall": 0.9367145889307333,
+          "iou": 0.8213883091676752,
+          "dice": 0.9019365118721194,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 568877
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.8950936754457499,
+          "pixel_recall": 0.8165676579544542,
+          "iou": 0.7452454632524237,
+          "dice": 0.8540293946544241,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1316994
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.9111078821809512,
+          "pixel_recall": 0.9202729800925809,
+          "iou": 0.8444526896570679,
+          "dice": 0.9156674978896572,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 674458
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9363037758525482,
+          "pixel_recall": 0.9194977392432914,
+          "iou": 0.8653665365164106,
+          "dice": 0.9278246602756053,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2155010
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9063659793814433,
+          "pixel_recall": 0.971184307598837,
+          "iou": 0.8826298654734246,
+          "dice": 0.9376562877923641,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 271600
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.95934891148544,
+          "pixel_recall": 0.9615949673211438,
+          "iou": 0.9239475580143913,
+          "dice": 0.9604706263074558,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2598725
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9153855643818153,
+          "pixel_recall": 0.9913121251707143,
+          "iou": 0.908100371582916,
+          "dice": 0.9518371099415246,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 291806
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9418442828350616,
+          "pixel_recall": 0.9534271511282305,
+          "iou": 0.9004186750456512,
+          "dice": 0.9476003228857154,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 464907
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9186895707747769,
+          "pixel_recall": 0.9308625306288666,
+          "iou": 0.8600083191674622,
+          "dice": 0.9247359920974989,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2050229
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9305656897320523,
+          "pixel_recall": 0.9598455040152754,
+          "iou": 0.8956965848892343,
+          "dice": 0.9449788452739866,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1184112
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.9369072917534783,
+          "pixel_recall": 0.937204178528922,
+          "iou": 0.881566157205333,
+          "dice": 0.9370557116255879,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6635537
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.7962241289313647,
+          "pixel_recall": 0.7764669325608636,
+          "iou": 0.6477470010607564,
+          "dice": 0.7862214291924206,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 477029
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8574008870439692,
+          "pixel_recall": 0.959900304011906,
+          "iou": 0.8277526114534208,
+          "dice": 0.9057600096056715,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 404715
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9288734300739275,
+          "pixel_recall": 0.913520768281403,
+          "iou": 0.8537968492410406,
+          "dice": 0.9211331323500651,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1074971
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8564159534650869,
+          "pixel_recall": 0.9744903495180184,
+          "iou": 0.8376371614973163,
+          "dice": 0.9116458668204175,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1048675
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9038385811864843,
+          "pixel_recall": 0.9491151410088705,
+          "iou": 0.8620651051259272,
+          "dice": 0.9259236991798175,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 528216
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9527335029983179,
+          "pixel_recall": 0.9634893275662081,
+          "iou": 0.919535433498552,
+          "dice": 0.9580812288758884,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1119461
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.5487263178870422,
+          "pixel_recall": 0.9631718763836005,
+          "iou": 0.5374499403360452,
+          "dice": 0.6991446371497118,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 396449
+        }
+      },
+      "region_precision": 0.7536882617062219,
+      "region_recall": 0.733458177278402,
+      "region_f1": 0.7434356216387219,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1559,
+      "region_matches_iou_0_5": 1175,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 2,
+          "missed_no_overlap": 262,
+          "gt_pixels": 13196,
+          "recalled_pixels": 4967,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.005405405405405406,
+          "no_overlap_miss_rate": 0.7081081081081081,
+          "pixel_recall": 0.37640193998181265
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 22,
+          "missed_no_overlap": 3,
+          "gt_pixels": 92168,
+          "recalled_pixels": 59658,
+          "fragmented_gt_regions": 1,
+          "region_recall_iou_0_5": 0.5945945945945946,
+          "no_overlap_miss_rate": 0.08108108108108109,
+          "pixel_recall": 0.6472745421404392
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 82,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 407301,
+          "fragmented_gt_regions": 5,
+          "region_recall_iou_0_5": 0.9010989010989011,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8353761336926693
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1069,
+          "missed_no_overlap": 14,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30312794,
+          "fragmented_gt_regions": 27,
+          "region_recall_iou_0_5": 0.9682971014492754,
+          "no_overlap_miss_rate": 0.012681159420289856,
+          "pixel_recall": 0.9331602677095016
+        }
+      },
+      "merge_proxy_total": 82,
+      "fragmentation_proxy_total": 33,
+      "mean_merge_proxy_per_view": 0.7592592592592593,
+      "mean_fragmentation_proxy_per_view": 0.3055555555555556,
+      "boundary_f1_tolerance_3px": 0.5585179643527912,
+      "boundary_precision_tolerance_3px": 0.5832764267165343,
+      "boundary_recall_tolerance_3px": 0.5357757726656999,
+      "inference_latency_ms_batch1": {
+        "mean": 106.94446287036246,
+        "median": 106.98815149953589,
+        "p90": 107.03235030014184
+      },
+      "complete_class_set_views": 71,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.37640193998181265,
+      "tiny_region_recall_iou_0_5": 0.005405405405405406
+    },
+    "seed_44_boundary_aware": {
+      "checkpoint": "/home/tinkerer/Desktop/Nutrisense/NutriSense-main/experiments/wed_boundary_confirmatory/candidates/seed_44/boundary_aware/model_best.pt",
+      "checkpoint_sha256": "aceb20c475413450f700513516db9f1ee023fd13385f12d6f4ee8a3658a8ab61",
+      "training_report_sha256": "d245080999c12fc23c7b7ccdd21b5f2887a73ed4767b570e5e5bba0fbf79d147",
+      "training_seed": 44,
+      "loss_kind": "boundary_aware",
+      "initialization_sha256": "b3157b046a2a70d8981034b7da8ffb455fa0a0e63f3234897f136f6d263c6783",
+      "selected_epoch": 19,
+      "peak_training_vram_mb": 5684.6,
+      "architecture": "DeepLabV3",
+      "parameter_count": 39644266,
+      "checkpoint_mb": 151.57244396209717,
+      "peak_inference_vram_mb": 512.7,
+      "macro_food_iou": 0.8229015126811546,
+      "foreground_iou": 0.9136559312010883,
+      "per_class_iou": {
+        "1": {
+          "class": "Bottle-gourd-curry",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "2": {
+          "class": "aloo-capsicum",
+          "pixel_precision": 0.8668637848040247,
+          "pixel_recall": 0.9037081339712919,
+          "iou": 0.7935653087290662,
+          "dice": 0.8849026069660016,
+          "ground_truth_pixels": 282568,
+          "predicted_pixels": 294578
+        },
+        "3": {
+          "class": "aloo-curry",
+          "pixel_precision": 0.912627885810104,
+          "pixel_recall": 0.9193497456734043,
+          "iou": 0.844978425517333,
+          "dice": 0.9159764838772037,
+          "ground_truth_pixels": 262851,
+          "predicted_pixels": 264787
+        },
+        "4": {
+          "class": "aloo-fry",
+          "pixel_precision": 0.9070804784855938,
+          "pixel_recall": 0.6787889182125588,
+          "iou": 0.6346586951891112,
+          "dice": 0.7765030058653173,
+          "ground_truth_pixels": 390659,
+          "predicted_pixels": 292339
+        },
+        "5": {
+          "class": "beans-curry",
+          "pixel_precision": 0.9092786798064757,
+          "pixel_recall": 0.950407989240752,
+          "iou": 0.8680913102765323,
+          "dice": 0.9293885213223644,
+          "ground_truth_pixels": 1162163,
+          "predicted_pixels": 1214731
+        },
+        "6": {
+          "class": "beetroot-kobari",
+          "pixel_precision": 0.7913985738013701,
+          "pixel_recall": 0.9640640848641947,
+          "iou": 0.7687214958100245,
+          "dice": 0.8692397278272143,
+          "ground_truth_pixels": 567872,
+          "predicted_pixels": 691769
+        },
+        "7": {
+          "class": "beetroot-poriyal",
+          "pixel_precision": 0.8951238608556499,
+          "pixel_recall": 0.981505752539864,
+          "iou": 0.8802766078130846,
+          "dice": 0.9363267129477489,
+          "ground_truth_pixels": 371575,
+          "predicted_pixels": 407433
+        },
+        "8": {
+          "class": "bisi-bele-bath",
+          "pixel_precision": 0.911367103435125,
+          "pixel_recall": 0.9874558649365599,
+          "iou": 0.9009364733128669,
+          "dice": 0.9478869872413518,
+          "ground_truth_pixels": 271043,
+          "predicted_pixels": 293672
+        },
+        "9": {
+          "class": "boondi",
+          "pixel_precision": 0.8420242083648546,
+          "pixel_recall": 0.9460375602056097,
+          "iou": 0.8034356228892574,
+          "dice": 0.8910056036290169,
+          "ground_truth_pixels": 197656,
+          "predicted_pixels": 222072
+        },
+        "10": {
+          "class": "cabbage-dry",
+          "pixel_precision": 0.933563742176997,
+          "pixel_recall": 0.9480739049878782,
+          "iou": 0.8881513452952631,
+          "dice": 0.9407628763534067,
+          "ground_truth_pixels": 832799,
+          "predicted_pixels": 845743
+        },
+        "11": {
+          "class": "channa-brinjal",
+          "pixel_precision": 0.903545579805135,
+          "pixel_recall": 0.9439405180177027,
+          "iou": 0.8575301064375427,
+          "dice": 0.9233014350245484,
+          "ground_truth_pixels": 428634,
+          "predicted_pixels": 447797
+        },
+        "12": {
+          "class": "chicken-dum-biryani",
+          "pixel_precision": 0.8621653090481397,
+          "pixel_recall": 0.9465716945368553,
+          "iou": 0.8221558585462752,
+          "dice": 0.902399050761986,
+          "ground_truth_pixels": 385657,
+          "predicted_pixels": 423413
+        },
+        "13": {
+          "class": "chutney",
+          "pixel_precision": 0.9067153446678791,
+          "pixel_recall": 0.8877378154241873,
+          "iou": 0.8134441624726466,
+          "dice": 0.8971262300831017,
+          "ground_truth_pixels": 450980,
+          "predicted_pixels": 441541
+        },
+        "14": {
+          "class": "curd",
+          "pixel_precision": 0.9215163474796566,
+          "pixel_recall": 0.9722909898608021,
+          "iou": 0.8979347843215442,
+          "dice": 0.9462230122332991,
+          "ground_truth_pixels": 2695874,
+          "predicted_pixels": 2844414
+        },
+        "15": {
+          "class": "dondakaya-fry",
+          "pixel_precision": 0.8733660872796334,
+          "pixel_recall": 0.8985023403586567,
+          "iou": 0.7949388589509444,
+          "dice": 0.8857559186339617,
+          "ground_truth_pixels": 235434,
+          "predicted_pixels": 242210
+        },
+        "16": {
+          "class": "kakarakaya-fry",
+          "pixel_precision": 0.9116154296164731,
+          "pixel_recall": 0.8313858754428043,
+          "iou": 0.7693700265546951,
+          "dice": 0.8696541876577474,
+          "ground_truth_pixels": 208049,
+          "predicted_pixels": 189739
+        },
+        "17": {
+          "class": "kofta-curry",
+          "pixel_precision": 0.858064991694616,
+          "pixel_recall": 0.9635713103196305,
+          "iou": 0.8311040371065187,
+          "dice": 0.9077627707269064,
+          "ground_truth_pixels": 700684,
+          "predicted_pixels": 786839
+        },
+        "18": {
+          "class": "leaf-dal",
+          "pixel_precision": 0.7645636087875723,
+          "pixel_recall": 0.887906647807638,
+          "iou": 0.6972624629974066,
+          "dice": 0.8216318668428266,
+          "ground_truth_pixels": 149884,
+          "predicted_pixels": 174064
+        },
+        "19": {
+          "class": "mango-pickle",
+          "pixel_precision": 0.851953720355286,
+          "pixel_recall": 0.9128903330898344,
+          "iou": 0.787901297195449,
+          "dice": 0.881370015706541,
+          "ground_truth_pixels": 238194,
+          "predicted_pixels": 255231
+        },
+        "20": {
+          "class": "masoor-dal",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "21": {
+          "class": "mirchi-ka-salan",
+          "pixel_precision": 0.8920274916974905,
+          "pixel_recall": 0.9872541320681948,
+          "iou": 0.8818714615397387,
+          "dice": 0.9372281577809735,
+          "ground_truth_pixels": 215207,
+          "predicted_pixels": 238181
+        },
+        "22": {
+          "class": "muddha-pappu",
+          "pixel_precision": 0.8413918993994656,
+          "pixel_recall": 0.8341026313488942,
+          "iou": 0.7207726476098386,
+          "dice": 0.8377314093305647,
+          "ground_truth_pixels": 114390,
+          "predicted_pixels": 113399
+        },
+        "23": {
+          "class": "non-spicy-curry",
+          "pixel_precision": 0.8666154785795306,
+          "pixel_recall": 0.9402950314969127,
+          "iou": 0.8214157526758112,
+          "dice": 0.9019530565375677,
+          "ground_truth_pixels": 528147,
+          "predicted_pixels": 573050
+        },
+        "24": {
+          "class": "non-spicy-dal",
+          "pixel_precision": 0.902137657120525,
+          "pixel_recall": 0.8250746028799344,
+          "iou": 0.7572947012246528,
+          "dice": 0.861886968300646,
+          "ground_truth_pixels": 1443644,
+          "predicted_pixels": 1320324
+        },
+        "25": {
+          "class": "pachi-pulusu",
+          "pixel_precision": 0.9134776438667528,
+          "pixel_recall": 0.9196514816373415,
+          "iou": 0.8459621493692021,
+          "dice": 0.916554166246889,
+          "ground_truth_pixels": 667741,
+          "predicted_pixels": 672254
+        },
+        "26": {
+          "class": "papad",
+          "pixel_precision": 0.9360370734004748,
+          "pixel_recall": 0.9201844879552388,
+          "iou": 0.865746634019056,
+          "dice": 0.9280430882023112,
+          "ground_truth_pixels": 2194398,
+          "predicted_pixels": 2157234
+        },
+        "27": {
+          "class": "payasam",
+          "pixel_precision": 0.9039483229886489,
+          "pixel_recall": 0.973322602407357,
+          "iou": 0.8820936186035868,
+          "dice": 0.9373536043951451,
+          "ground_truth_pixels": 253473,
+          "predicted_pixels": 272926
+        },
+        "28": {
+          "class": "phulka",
+          "pixel_precision": 0.9567543420743112,
+          "pixel_recall": 0.9632133855063632,
+          "iou": 0.9230269968985778,
+          "dice": 0.9599729992217672,
+          "ground_truth_pixels": 2592655,
+          "predicted_pixels": 2610158
+        },
+        "29": {
+          "class": "raita",
+          "pixel_precision": 0.9131689339108852,
+          "pixel_recall": 0.9912601686360667,
+          "iou": 0.9058754502228221,
+          "dice": 0.9506134832860282,
+          "ground_truth_pixels": 269456,
+          "predicted_pixels": 292499
+        },
+        "30": {
+          "class": "rajma",
+          "pixel_precision": 0.9354807073200893,
+          "pixel_recall": 0.9553998941773596,
+          "iou": 0.8963374400689654,
+          "dice": 0.9453353829647193,
+          "ground_truth_pixels": 459259,
+          "predicted_pixels": 469038
+        },
+        "31": {
+          "class": "rasam",
+          "pixel_precision": 0.0,
+          "pixel_recall": 0.0,
+          "iou": 0.0,
+          "dice": 0.0,
+          "ground_truth_pixels": 0,
+          "predicted_pixels": 0
+        },
+        "32": {
+          "class": "salad",
+          "pixel_precision": 0.9163558335270732,
+          "pixel_recall": 0.9330691928212559,
+          "iou": 0.8598370854267695,
+          "dice": 0.9246369933842523,
+          "ground_truth_pixels": 2023418,
+          "predicted_pixels": 2060323
+        },
+        "33": {
+          "class": "sambar",
+          "pixel_precision": 0.9294843989718022,
+          "pixel_recall": 0.9594378353140399,
+          "iou": 0.8943405510612228,
+          "dice": 0.9442236250078762,
+          "ground_truth_pixels": 1147991,
+          "predicted_pixels": 1184986
+        },
+        "34": {
+          "class": "steamed-rice",
+          "pixel_precision": 0.93266880444535,
+          "pixel_recall": 0.9391482693355705,
+          "iou": 0.8795178715759528,
+          "dice": 0.9358973222622117,
+          "ground_truth_pixels": 6633435,
+          "predicted_pixels": 6679519
+        },
+        "35": {
+          "class": "tomato-pappu",
+          "pixel_precision": 0.799368578880125,
+          "pixel_recall": 0.7738236634932446,
+          "iou": 0.6479741446455074,
+          "dice": 0.7863887267295591,
+          "ground_truth_pixels": 489167,
+          "predicted_pixels": 473535
+        },
+        "36": {
+          "class": "veg-dum-briyani",
+          "pixel_precision": 0.8599976079893157,
+          "pixel_recall": 0.9547688928600079,
+          "iou": 0.8263316789845028,
+          "dice": 0.9049086630791717,
+          "ground_truth_pixels": 361499,
+          "predicted_pixels": 401336
+        },
+        "37": {
+          "class": "veg-pulao",
+          "pixel_precision": 0.9290715042682265,
+          "pixel_recall": 0.9167585360788335,
+          "iou": 0.8567929018064413,
+          "dice": 0.9228739521493027,
+          "ground_truth_pixels": 1093037,
+          "predicted_pixels": 1078551
+        },
+        "38": {
+          "class": "Watermelon",
+          "pixel_precision": 0.8497256178543373,
+          "pixel_recall": 0.9788479316675565,
+          "iou": 0.8344044130705026,
+          "dice": 0.9097278736631926,
+          "ground_truth_pixels": 921612,
+          "predicted_pixels": 1061658
+        },
+        "39": {
+          "class": "Papaya",
+          "pixel_precision": 0.9030703226025357,
+          "pixel_recall": 0.9524052817195409,
+          "iou": 0.8640752183738878,
+          "dice": 0.9270819222924463,
+          "ground_truth_pixels": 503018,
+          "predicted_pixels": 530498
+        },
+        "40": {
+          "class": "Banana",
+          "pixel_precision": 0.9530901506919821,
+          "pixel_recall": 0.9635426264991455,
+          "iou": 0.9199162369411304,
+          "dice": 0.9582878869827876,
+          "ground_truth_pixels": 1106964,
+          "predicted_pixels": 1119104
+        },
+        "41": {
+          "class": "Muskmelon",
+          "pixel_precision": 0.541546199849499,
+          "pixel_recall": 0.9686354378818737,
+          "iou": 0.5322136483501513,
+          "dice": 0.6946990048329428,
+          "ground_truth_pixels": 225860,
+          "predicted_pixels": 403984
+        }
+      },
+      "region_precision": 0.7645161290322581,
+      "region_recall": 0.7397003745318352,
+      "region_f1": 0.7519035532994924,
+      "ground_truth_semantic_regions": 1602,
+      "predicted_semantic_regions": 1550,
+      "region_matches_iou_0_5": 1185,
+      "size_bins": {
+        "tiny_lt_0.10pct": {
+          "gt_regions": 370,
+          "matched_iou_at_0_5": 2,
+          "missed_no_overlap": 253,
+          "gt_pixels": 13196,
+          "recalled_pixels": 5295,
+          "fragmented_gt_regions": 2,
+          "region_recall_iou_0_5": 0.005405405405405406,
+          "no_overlap_miss_rate": 0.6837837837837838,
+          "pixel_recall": 0.4012579569566535
+        },
+        "small_0.10_to_0.25pct": {
+          "gt_regions": 37,
+          "matched_iou_at_0_5": 26,
+          "missed_no_overlap": 3,
+          "gt_pixels": 92168,
+          "recalled_pixels": 62266,
+          "fragmented_gt_regions": 0,
+          "region_recall_iou_0_5": 0.7027027027027027,
+          "no_overlap_miss_rate": 0.08108108108108109,
+          "pixel_recall": 0.6755706969881087
+        },
+        "medium_0.25_to_0.50pct": {
+          "gt_regions": 91,
+          "matched_iou_at_0_5": 81,
+          "missed_no_overlap": 3,
+          "gt_pixels": 487566,
+          "recalled_pixels": 410674,
+          "fragmented_gt_regions": 5,
+          "region_recall_iou_0_5": 0.8901098901098901,
+          "no_overlap_miss_rate": 0.03296703296703297,
+          "pixel_recall": 0.8422941714557619
+        },
+        "large_ge_0.50pct": {
+          "gt_regions": 1104,
+          "matched_iou_at_0_5": 1076,
+          "missed_no_overlap": 14,
+          "gt_pixels": 32484017,
+          "recalled_pixels": 30418972,
+          "fragmented_gt_regions": 30,
+          "region_recall_iou_0_5": 0.9746376811594203,
+          "no_overlap_miss_rate": 0.012681159420289856,
+          "pixel_recall": 0.9364288905525446
+        }
+      },
+      "merge_proxy_total": 88,
+      "fragmentation_proxy_total": 37,
+      "mean_merge_proxy_per_view": 0.8148148148148148,
+      "mean_fragmentation_proxy_per_view": 0.3425925925925926,
+      "boundary_f1_tolerance_3px": 0.5553029308118471,
+      "boundary_precision_tolerance_3px": 0.5790712575840833,
+      "boundary_recall_tolerance_3px": 0.5334088451220209,
+      "inference_latency_ms_batch1": {
+        "mean": 106.9458065370849,
+        "median": 106.98942149974755,
+        "p90": 107.03095989811118
+      },
+      "complete_class_set_views": 74,
+      "n_views": 108,
+      "tiny_pixel_recall": 0.4012579569566535,
+      "tiny_region_recall_iou_0_5": 0.005405405405405406
+    }
+  },
+  "per_seed": {
+    "42": {
+      "standard": {
+        "macro_food_iou": 0.8220567134167801,
+        "foreground_iou": 0.914872095094051,
+        "region_f1": 0.7391577624135763,
+        "boundary_f1_tolerance_3px": 0.5626519013328812,
+        "tiny_pixel_recall": 0.3472264322521976,
+        "tiny_region_recall_iou_0_5": 0.002702702702702703,
+        "mean_merge_proxy_per_view": 0.7962962962962963,
+        "mean_fragmentation_proxy_per_view": 0.2777777777777778
+      },
+      "boundary_aware": {
+        "macro_food_iou": 0.814248269811099,
+        "foreground_iou": 0.9135989388977483,
+        "region_f1": 0.7468112244897959,
+        "boundary_f1_tolerance_3px": 0.5552234397878452,
+        "tiny_pixel_recall": 0.4067141558047893,
+        "tiny_region_recall_iou_0_5": 0.005405405405405406,
+        "mean_merge_proxy_per_view": 0.7777777777777778,
+        "mean_fragmentation_proxy_per_view": 0.3148148148148148
+      },
+      "boundary_minus_standard": {
+        "macro_food_iou": {
+          "point": -0.007808443605681115,
+          "ci95_group_bootstrap": [
+            -0.011141166370613182,
+            -0.0028194138118051225
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.0012731561963026383,
+          "ci95_group_bootstrap": [
+            -0.0020197364916871795,
+            -0.000461287740648395
+          ]
+        },
+        "region_f1": {
+          "point": 0.0076534620762195305,
+          "ci95_group_bootstrap": [
+            -0.005074906402609078,
+            0.018510959283314383
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.007428461545036069,
+          "ci95_group_bootstrap": [
+            -0.011211696523777657,
+            -0.003217973061314264
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.05948772355259169,
+          "ci95_group_bootstrap": [
+            -0.02362606266082733,
+            0.14787135540940322
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.002702702702702703,
+          "ci95_group_bootstrap": [
+            0.0,
+            0.00909090909090909
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": -0.01851851851851849,
+          "ci95_group_bootstrap": [
+            -0.09523809523809523,
+            0.05660377358490565
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": 0.037037037037037035,
+          "ci95_group_bootstrap": [
+            -0.037383177570093434,
+            0.11214953271028039
+          ]
+        }
+      },
+      "boundary_minus_frozen": {
+        "macro_food_iou": {
+          "point": -0.0068317247130429415,
+          "ci95_group_bootstrap": [
+            -0.014057284351006411,
+            0.001958362431677755
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.006004233659346547,
+          "ci95_group_bootstrap": [
+            -0.007060400384231097,
+            -0.004837922811143417
+          ]
+        },
+        "region_f1": {
+          "point": 0.010791230737843382,
+          "ci95_group_bootstrap": [
+            -0.0008331576214347295,
+            0.02311380861794506
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.04208074292803943,
+          "ci95_group_bootstrap": [
+            -0.0515711025270424,
+            -0.03283760061895343
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.06638375265231888,
+          "ci95_group_bootstrap": [
+            -0.05445825293178878,
+            0.1426303329355998
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.0,
+          "ci95_group_bootstrap": [
+            -0.00804289544235925,
+            0.0079155672823219
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": 0.04629629629629628,
+          "ci95_group_bootstrap": [
+            -0.047169811320754707,
+            0.1504424778761062
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": -0.07407407407407407,
+          "ci95_group_bootstrap": [
+            -0.16666666666666669,
+            0.009433962264150941
+          ]
+        }
+      }
+    },
+    "43": {
+      "standard": {
+        "macro_food_iou": 0.8204650370167799,
+        "foreground_iou": 0.9148558477672186,
+        "region_f1": 0.7387613957874882,
+        "boundary_f1_tolerance_3px": 0.5624119354310333,
+        "tiny_pixel_recall": 0.33305547135495606,
+        "tiny_region_recall_iou_0_5": 0.005405405405405406,
+        "mean_merge_proxy_per_view": 0.6759259259259259,
+        "mean_fragmentation_proxy_per_view": 0.3148148148148148
+      },
+      "boundary_aware": {
+        "macro_food_iou": 0.8230708988661656,
+        "foreground_iou": 0.9137300581411866,
+        "region_f1": 0.7510333863275039,
+        "boundary_f1_tolerance_3px": 0.5562633397700548,
+        "tiny_pixel_recall": 0.37806911185207637,
+        "tiny_region_recall_iou_0_5": 0.008108108108108109,
+        "mean_merge_proxy_per_view": 0.7592592592592593,
+        "mean_fragmentation_proxy_per_view": 0.25
+      },
+      "boundary_minus_standard": {
+        "macro_food_iou": {
+          "point": 0.0026058618493857155,
+          "ci95_group_bootstrap": [
+            -0.0028988945718925545,
+            0.00712963951579991
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.0011257896260320477,
+          "ci95_group_bootstrap": [
+            -0.0017907441525149641,
+            -0.0003388650508714319
+          ]
+        },
+        "region_f1": {
+          "point": 0.01227199054001571,
+          "ci95_group_bootstrap": [
+            0.0027092245906305576,
+            0.022509840326328138
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.006148595660978473,
+          "ci95_group_bootstrap": [
+            -0.010529722920849976,
+            -0.0013002839118385766
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.04501364049712031,
+          "ci95_group_bootstrap": [
+            -0.10639982866214993,
+            0.19566094720467414
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.002702702702702703,
+          "ci95_group_bootstrap": [
+            0.0,
+            0.008928571428571428
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": 0.08333333333333337,
+          "ci95_group_bootstrap": [
+            -0.01869158878504673,
+            0.19811320754716977
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": -0.06481481481481483,
+          "ci95_group_bootstrap": [
+            -0.15740740740740738,
+            0.02702702702702703
+          ]
+        }
+      },
+      "boundary_minus_frozen": {
+        "macro_food_iou": {
+          "point": 0.001990904342023647,
+          "ci95_group_bootstrap": [
+            -0.006356705687327008,
+            0.00777469246283693
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.00587311441590832,
+          "ci95_group_bootstrap": [
+            -0.007102292280101044,
+            -0.004552010412094698
+          ]
+        },
+        "region_f1": {
+          "point": 0.015013392575551454,
+          "ci95_group_bootstrap": [
+            0.004108792468986444,
+            0.027263765088462705
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.04104084294582977,
+          "ci95_group_bootstrap": [
+            -0.05156981655618066,
+            -0.030295749784115727
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.03773870869960594,
+          "ci95_group_bootstrap": [
+            -0.0826712724020343,
+            0.12550948439733797
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.002702702702702703,
+          "ci95_group_bootstrap": [
+            0.0,
+            0.008928571428571428
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": 0.02777777777777779,
+          "ci95_group_bootstrap": [
+            -0.06603773584905659,
+            0.12176168990976173
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": -0.1388888888888889,
+          "ci95_group_bootstrap": [
+            -0.2169811320754717,
+            -0.05660377358490565
+          ]
+        }
+      }
+    },
+    "44": {
+      "standard": {
+        "macro_food_iou": 0.8191101887479346,
+        "foreground_iou": 0.9139892983507077,
+        "region_f1": 0.7434356216387219,
+        "boundary_f1_tolerance_3px": 0.5585179643527912,
+        "tiny_pixel_recall": 0.37640193998181265,
+        "tiny_region_recall_iou_0_5": 0.005405405405405406,
+        "mean_merge_proxy_per_view": 0.7592592592592593,
+        "mean_fragmentation_proxy_per_view": 0.3055555555555556
+      },
+      "boundary_aware": {
+        "macro_food_iou": 0.8229015126811546,
+        "foreground_iou": 0.9136559312010883,
+        "region_f1": 0.7519035532994924,
+        "boundary_f1_tolerance_3px": 0.5553029308118471,
+        "tiny_pixel_recall": 0.4012579569566535,
+        "tiny_region_recall_iou_0_5": 0.005405405405405406,
+        "mean_merge_proxy_per_view": 0.8148148148148148,
+        "mean_fragmentation_proxy_per_view": 0.3425925925925926
+      },
+      "boundary_minus_standard": {
+        "macro_food_iou": {
+          "point": 0.0037913239332200144,
+          "ci95_group_bootstrap": [
+            -0.00045697021312090234,
+            0.006860846087949748
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.0003333671496194013,
+          "ci95_group_bootstrap": [
+            -0.0009581577092571819,
+            0.0003526117948576295
+          ]
+        },
+        "region_f1": {
+          "point": 0.008467931660770533,
+          "ci95_group_bootstrap": [
+            0.000261538374381945,
+            0.017106004573897514
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.003215033540944101,
+          "ci95_group_bootstrap": [
+            -0.006236430691369613,
+            6.99511656322694e-05
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.024856016974840855,
+          "ci95_group_bootstrap": [
+            -0.04003098125608799,
+            0.06437667347791023
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.0,
+          "ci95_group_bootstrap": [
+            0.0,
+            0.0
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": 0.05555555555555547,
+          "ci95_group_bootstrap": [
+            -0.04672897196261683,
+            0.15887850467289721
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": 0.037037037037037035,
+          "ci95_group_bootstrap": [
+            -0.0714285714285714,
+            0.1559633027522936
+          ]
+        }
+      },
+      "boundary_minus_frozen": {
+        "macro_food_iou": {
+          "point": 0.0018215181570127026,
+          "ci95_group_bootstrap": [
+            -0.007936219924323468,
+            0.0070486695237160415
+          ]
+        },
+        "foreground_iou": {
+          "point": -0.00594724135600655,
+          "ci95_group_bootstrap": [
+            -0.007270697898238346,
+            -0.004577504506065293
+          ]
+        },
+        "region_f1": {
+          "point": 0.01588355954753995,
+          "ci95_group_bootstrap": [
+            0.0027424905246408032,
+            0.029179709246120344
+          ]
+        },
+        "boundary_f1_tolerance_3px": {
+          "point": -0.04200125190403747,
+          "ci95_group_bootstrap": [
+            -0.05207126182769226,
+            -0.03163002139929197
+          ]
+        },
+        "tiny_pixel_recall": {
+          "point": 0.06092755380418308,
+          "ci95_group_bootstrap": [
+            -0.07036037437740882,
+            0.16256479470943713
+          ]
+        },
+        "tiny_region_recall_iou_0_5": {
+          "point": 0.0,
+          "ci95_group_bootstrap": [
+            -0.008108108108108109,
+            0.007792207792207792
+          ]
+        },
+        "mean_merge_proxy_per_view": {
+          "point": 0.08333333333333326,
+          "ci95_group_bootstrap": [
+            -0.009433962264150941,
+            0.16981132075471705
+          ]
+        },
+        "mean_fragmentation_proxy_per_view": {
+          "point": -0.04629629629629628,
+          "ci95_group_bootstrap": [
+            -0.13084112149532712,
+            0.038239348370925255
+          ]
+        }
+      }
+    }
+  },
+  "boundary_minus_standard": {
+    "macro_food_iou": {
+      "point": -0.0004704192743584616,
+      "ci95": [
+        -0.0027715231397319323,
+        0.0016119883148497192
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.0004704192743584616,
+      "sd_across_seed_points": 0.006382498014364332,
+      "per_seed_points": [
+        -0.007808443605681115,
+        0.0026058618493857155,
+        0.0037913239332200144
+      ]
+    },
+    "foreground_iou": {
+      "point": -0.0009107709906513625,
+      "ci95": [
+        -0.0013776887780709828,
+        -0.0003594490396647965
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.0009107709906513625,
+      "sd_across_seed_points": 0.0005054459647056013,
+      "per_seed_points": [
+        -0.0012731561963026383,
+        -0.0011257896260320477,
+        -0.0003333671496194013
+      ]
+    },
+    "region_f1": {
+      "point": 0.009464461425668591,
+      "ci95": [
+        0.0037570485549862924,
+        0.015370236367526045
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.009464461425668591,
+      "sd_across_seed_points": 0.002465259615531335,
+      "per_seed_points": [
+        0.0076534620762195305,
+        0.01227199054001571,
+        0.008467931660770533
+      ]
+    },
+    "boundary_f1_tolerance_3px": {
+      "point": -0.005597363582319548,
+      "ci95": [
+        -0.008392962926380901,
+        -0.0024624976543066537
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.005597363582319548,
+      "sd_across_seed_points": 0.0021601241838893398,
+      "per_seed_points": [
+        -0.007428461545036069,
+        -0.006148595660978473,
+        -0.003215033540944101
+      ]
+    },
+    "tiny_pixel_recall": {
+      "point": 0.04311912700818429,
+      "ci95": [
+        -0.02898224450957621,
+        0.11600625463782704
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.04311912700818429,
+      "sd_across_seed_points": 0.01739340855444033,
+      "per_seed_points": [
+        0.05948772355259169,
+        0.04501364049712031,
+        0.024856016974840855
+      ]
+    },
+    "tiny_region_recall_iou_0_5": {
+      "point": 0.0018018018018018018,
+      "ci95": [
+        0.0,
+        0.004629952027236145
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.0018018018018018018,
+      "sd_across_seed_points": 0.0015604061329449347,
+      "per_seed_points": [
+        0.002702702702702703,
+        0.002702702702702703,
+        0.0
+      ]
+    },
+    "mean_merge_proxy_per_view": {
+      "point": 0.04012345679012345,
+      "ci95": [
+        -0.012012012012011963,
+        0.09567901234567898
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.04012345679012345,
+      "sd_across_seed_points": 0.05265037688034561,
+      "per_seed_points": [
+        -0.01851851851851849,
+        0.08333333333333337,
+        0.05555555555555547
+      ]
+    },
+    "mean_fragmentation_proxy_per_view": {
+      "point": 0.003086419753086415,
+      "ci95": [
+        -0.03903903903903905,
+        0.049844236760124616
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.003086419753086415,
+      "sd_across_seed_points": 0.058804194084128555,
+      "per_seed_points": [
+        0.037037037037037035,
+        -0.06481481481481483,
+        0.037037037037037035
+      ]
+    }
+  },
+  "boundary_minus_frozen_reference": {
+    "macro_food_iou": {
+      "point": -0.0010064340713355306,
+      "ci95": [
+        -0.009100325135592746,
+        0.004969314843649535
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.0010064340713355306,
+      "sd_across_seed_points": 0.005045560545191297,
+      "per_seed_points": [
+        -0.0068317247130429415,
+        0.001990904342023647,
+        0.0018215181570127026
+      ]
+    },
+    "foreground_iou": {
+      "point": -0.005941529810420472,
+      "ci95": [
+        -0.007011985054572938,
+        -0.004776580534512282
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.005941529810420472,
+      "sd_across_seed_points": 6.57459528388602e-05,
+      "per_seed_points": [
+        -0.006004233659346547,
+        -0.00587311441590832,
+        -0.00594724135600655
+      ]
+    },
+    "region_f1": {
+      "point": 0.013896060953644929,
+      "ci95": [
+        0.004580078523494976,
+        0.024292242119618675
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.013896060953644929,
+      "sd_across_seed_points": 0.002723834730944705,
+      "per_seed_points": [
+        0.010791230737843382,
+        0.015013392575551454,
+        0.01588355954753995
+      ]
+    },
+    "boundary_f1_tolerance_3px": {
+      "point": -0.04170761259263556,
+      "ci95": [
+        -0.05098202280981035,
+        -0.03218569858997566
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.04170761259263556,
+      "sd_across_seed_points": 0.0005788056903230611,
+      "per_seed_points": [
+        -0.04208074292803943,
+        -0.04104084294582977,
+        -0.04200125190403747
+      ]
+    },
+    "tiny_pixel_recall": {
+      "point": 0.055016671718702635,
+      "ci95": [
+        -0.05313983811079095,
+        0.13292996683476446
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.055016671718702635,
+      "sd_across_seed_points": 0.01520981692968572,
+      "per_seed_points": [
+        0.06638375265231888,
+        0.03773870869960594,
+        0.06092755380418308
+      ]
+    },
+    "tiny_region_recall_iou_0_5": {
+      "point": 0.0009009009009009009,
+      "ci95": [
+        -0.004541636267079605,
+        0.006357943160624275
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.0009009009009009009,
+      "sd_across_seed_points": 0.0015604061329449347,
+      "per_seed_points": [
+        0.0,
+        0.002702702702702703,
+        0.0
+      ]
+    },
+    "mean_merge_proxy_per_view": {
+      "point": 0.05246913580246911,
+      "ci95": [
+        -0.012578616352201255,
+        0.12312312312312308
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": 0.05246913580246911,
+      "sd_across_seed_points": 0.02828750428985082,
+      "per_seed_points": [
+        0.04629629629629628,
+        0.02777777777777779,
+        0.08333333333333326
+      ]
+    },
+    "mean_fragmentation_proxy_per_view": {
+      "point": -0.08641975308641975,
+      "ci95": [
+        -0.15094339622641512,
+        -0.022012578616352196
+      ],
+      "bootstrap_unit": "physical meal group, paired within each of three seeds",
+      "mean_across_seed_points": -0.08641975308641975,
+      "sd_across_seed_points": 0.04751482814302672,
+      "per_seed_points": [
+        -0.07407407407407407,
+        -0.1388888888888889,
+        -0.04629629629629628
+      ]
+    }
+  },
+  "per_class_iou": {
+    "1": {
+      "class": "Bottle-gourd-curry",
+      "dev_gt_pixels": 0,
+      "frozen_iou": null,
+      "standard_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "standard_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_minus_standard_mean": 0.0,
+      "boundary_minus_frozen_mean": 0.0
+    },
+    "2": {
+      "class": "aloo-capsicum",
+      "dev_gt_pixels": 282568,
+      "frozen_iou": 0.8012881306140175,
+      "standard_seed_values": [
+        0.7949607495568498,
+        0.796438620258441,
+        0.793671459300351
+      ],
+      "standard_mean_sd": {
+        "mean": 0.7950236097052139,
+        "sd_across_seeds": 0.0013846510357067303,
+        "min": 0.793671459300351,
+        "max": 0.796438620258441
+      },
+      "boundary_seed_values": [
+        0.789204604736897,
+        0.8079667100993843,
+        0.7935653087290662
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7969122078551157,
+        "sd_across_seeds": 0.009818627690682237,
+        "min": 0.789204604736897,
+        "max": 0.8079667100993843
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.005756144819952791,
+        0.011528089840943223,
+        -0.0001061505712848243
+      ],
+      "boundary_minus_standard_mean": 0.0018885981499018694,
+      "boundary_minus_frozen_mean": -0.004375922758901751
+    },
+    "3": {
+      "class": "aloo-curry",
+      "dev_gt_pixels": 262851,
+      "frozen_iou": 0.8346872980592384,
+      "standard_seed_values": [
+        0.8331332366872299,
+        0.8342021323464622,
+        0.8396413605461357
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8356589098599425,
+        "sd_across_seeds": 0.0034900672749319846,
+        "min": 0.8331332366872299,
+        "max": 0.8396413605461357
+      },
+      "boundary_seed_values": [
+        0.8297949606123247,
+        0.8354179684604061,
+        0.844978425517333
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8367304515300212,
+        "sd_across_seeds": 0.007676350727163579,
+        "min": 0.8297949606123247,
+        "max": 0.844978425517333
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.003338276074905222,
+        0.0012158361139438245,
+        0.005337064971197347
+      ],
+      "boundary_minus_standard_mean": 0.00107154167007865,
+      "boundary_minus_frozen_mean": 0.002043153470782877
+    },
+    "4": {
+      "class": "aloo-fry",
+      "dev_gt_pixels": 390659,
+      "frozen_iou": 0.6464474144499447,
+      "standard_seed_values": [
+        0.6437616890049784,
+        0.6390552268764883,
+        0.6370309543361062
+      ],
+      "standard_mean_sd": {
+        "mean": 0.6399492900725243,
+        "sd_across_seeds": 0.003453289597553199,
+        "min": 0.6370309543361062,
+        "max": 0.6437616890049784
+      },
+      "boundary_seed_values": [
+        0.6415208975725963,
+        0.6359467719494357,
+        0.6346586951891112
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.6373754549037144,
+        "sd_across_seeds": 0.0036473698230179655,
+        "min": 0.6346586951891112,
+        "max": 0.6415208975725963
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0022407914323820943,
+        -0.003108454927052584,
+        -0.002372259146995015
+      ],
+      "boundary_minus_standard_mean": -0.002573835168809898,
+      "boundary_minus_frozen_mean": -0.009071959546230302
+    },
+    "5": {
+      "class": "beans-curry",
+      "dev_gt_pixels": 1162163,
+      "frozen_iou": 0.8699696973269977,
+      "standard_seed_values": [
+        0.8597685441597096,
+        0.8659131546049831,
+        0.8605090313272942
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8620635766973289,
+        "sd_across_seeds": 0.0033543282280753947,
+        "min": 0.8597685441597096,
+        "max": 0.8659131546049831
+      },
+      "boundary_seed_values": [
+        0.8558083111499966,
+        0.8649314457081709,
+        0.8680913102765323
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8629436890448999,
+        "sd_across_seeds": 0.006378197182582485,
+        "min": 0.8558083111499966,
+        "max": 0.8680913102765323
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.003960233009713043,
+        -0.0009817088968121501,
+        0.00758227894923813
+      ],
+      "boundary_minus_standard_mean": 0.000880112347570979,
+      "boundary_minus_frozen_mean": -0.007026008282097762
+    },
+    "6": {
+      "class": "beetroot-kobari",
+      "dev_gt_pixels": 567872,
+      "frozen_iou": 0.7637500537612777,
+      "standard_seed_values": [
+        0.7685701624148268,
+        0.7660068672995355,
+        0.7656610023546373
+      ],
+      "standard_mean_sd": {
+        "mean": 0.7667460106896664,
+        "sd_across_seeds": 0.0015891987847123546,
+        "min": 0.7656610023546373,
+        "max": 0.7685701624148268
+      },
+      "boundary_seed_values": [
+        0.7577385449535576,
+        0.7594693044739708,
+        0.7687214958100245
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7619764484125175,
+        "sd_across_seeds": 0.0059051359362283585,
+        "min": 0.7577385449535576,
+        "max": 0.7687214958100245
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.01083161746126915,
+        -0.0065375628255647245,
+        0.00306049345538717
+      ],
+      "boundary_minus_standard_mean": -0.004769562277148902,
+      "boundary_minus_frozen_mean": -0.0017736053487601433
+    },
+    "7": {
+      "class": "beetroot-poriyal",
+      "dev_gt_pixels": 371575,
+      "frozen_iou": 0.880673781045217,
+      "standard_seed_values": [
+        0.870763136543693,
+        0.8821490594221731,
+        0.8778950731119404
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8769357563592687,
+        "sd_across_seeds": 0.005753262241775682,
+        "min": 0.870763136543693,
+        "max": 0.8821490594221731
+      },
+      "boundary_seed_values": [
+        0.8680160656289959,
+        0.8784679490285382,
+        0.8802766078130846
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8755868741568729,
+        "sd_across_seeds": 0.0066185850431992165,
+        "min": 0.8680160656289959,
+        "max": 0.8802766078130846
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0027470709146970584,
+        -0.0036811103936349454,
+        0.0023815347011442167
+      ],
+      "boundary_minus_standard_mean": -0.001348882202395929,
+      "boundary_minus_frozen_mean": -0.005086906888344123
+    },
+    "8": {
+      "class": "bisi-bele-bath",
+      "dev_gt_pixels": 271043,
+      "frozen_iou": 0.8963472509634122,
+      "standard_seed_values": [
+        0.9006461488445179,
+        0.9000309397616293,
+        0.9030978008441204
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9012582964834225,
+        "sd_across_seeds": 0.0016224835203129235,
+        "min": 0.9000309397616293,
+        "max": 0.9030978008441204
+      },
+      "boundary_seed_values": [
+        0.9051370049944052,
+        0.9039440052410226,
+        0.9009364733128669
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.9033391611827648,
+        "sd_across_seeds": 0.00216460016007785,
+        "min": 0.9009364733128669,
+        "max": 0.9051370049944052
+      },
+      "boundary_minus_standard_per_seed": [
+        0.004490856149887312,
+        0.003913065479393296,
+        -0.002161327531253532
+      ],
+      "boundary_minus_standard_mean": 0.0020808646993423587,
+      "boundary_minus_frozen_mean": 0.006991910219352637
+    },
+    "9": {
+      "class": "boondi",
+      "dev_gt_pixels": 197656,
+      "frozen_iou": 0.8100635492744,
+      "standard_seed_values": [
+        0.7948298388342301,
+        0.8000265041081368,
+        0.8054222545026934
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8000928658150203,
+        "sd_across_seeds": 0.005296519643169691,
+        "min": 0.7948298388342301,
+        "max": 0.8054222545026934
+      },
+      "boundary_seed_values": [
+        0.7972972972972973,
+        0.8016889142633156,
+        0.8034356228892574
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8008072781499568,
+        "sd_across_seeds": 0.00316270800826002,
+        "min": 0.7972972972972973,
+        "max": 0.8034356228892574
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0024674584630671736,
+        0.0016624101551787618,
+        -0.0019866316134360407
+      ],
+      "boundary_minus_standard_mean": 0.0007144123349366316,
+      "boundary_minus_frozen_mean": -0.009256271124443272
+    },
+    "10": {
+      "class": "cabbage-dry",
+      "dev_gt_pixels": 832799,
+      "frozen_iou": 0.8931083504141608,
+      "standard_seed_values": [
+        0.890807965158046,
+        0.8906068246764162,
+        0.8851578543542526
+      ],
+      "standard_mean_sd": {
+        "mean": 0.888857548062905,
+        "sd_across_seeds": 0.003205606733009908,
+        "min": 0.8851578543542526,
+        "max": 0.890807965158046
+      },
+      "boundary_seed_values": [
+        0.8857472552319617,
+        0.8887091519913667,
+        0.8881513452952631
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8875359175061971,
+        "sd_across_seeds": 0.0015739350768088545,
+        "min": 0.8857472552319617,
+        "max": 0.8887091519913667
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.005060709926084206,
+        -0.0018976726850494785,
+        0.002993490941010424
+      ],
+      "boundary_minus_standard_mean": -0.0013216305567077535,
+      "boundary_minus_frozen_mean": -0.00557243290796372
+    },
+    "11": {
+      "class": "channa-brinjal",
+      "dev_gt_pixels": 428634,
+      "frozen_iou": 0.8357433830737393,
+      "standard_seed_values": [
+        0.8686608733200194,
+        0.8584726382581248,
+        0.858041135722227
+      ],
+      "standard_mean_sd": {
+        "mean": 0.861724882433457,
+        "sd_across_seeds": 0.006010617754730249,
+        "min": 0.858041135722227,
+        "max": 0.8686608733200194
+      },
+      "boundary_seed_values": [
+        0.8760367505375743,
+        0.8720714091674278,
+        0.8575301064375427
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8685460887141816,
+        "sd_across_seeds": 0.009743966450315089,
+        "min": 0.8575301064375427,
+        "max": 0.8760367505375743
+      },
+      "boundary_minus_standard_per_seed": [
+        0.007375877217554949,
+        0.013598770909302949,
+        -0.0005110292846842723
+      ],
+      "boundary_minus_standard_mean": 0.0068212062807245415,
+      "boundary_minus_frozen_mean": 0.0328027056404423
+    },
+    "12": {
+      "class": "chicken-dum-biryani",
+      "dev_gt_pixels": 385657,
+      "frozen_iou": 0.8409585756098009,
+      "standard_seed_values": [
+        0.8142853351498156,
+        0.8057902110701236,
+        0.8214747241831123
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8138500901343505,
+        "sd_across_seeds": 0.007851309863041576,
+        "min": 0.8057902110701236,
+        "max": 0.8214747241831123
+      },
+      "boundary_seed_values": [
+        0.7971177769400614,
+        0.8109059466085834,
+        0.8221558585462752
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8100598606983066,
+        "sd_across_seeds": 0.012540465647476252,
+        "min": 0.7971177769400614,
+        "max": 0.8221558585462752
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.01716755820975424,
+        0.005115735538459787,
+        0.0006811343631628608
+      ],
+      "boundary_minus_standard_mean": -0.0037902294360438646,
+      "boundary_minus_frozen_mean": -0.030898714911494318
+    },
+    "13": {
+      "class": "chutney",
+      "dev_gt_pixels": 450980,
+      "frozen_iou": 0.8306063640636815,
+      "standard_seed_values": [
+        0.8179104659326567,
+        0.8124973517430071,
+        0.8162219707209041
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8155432627988559,
+        "sd_across_seeds": 0.0027696452191814554,
+        "min": 0.8124973517430071,
+        "max": 0.8179104659326567
+      },
+      "boundary_seed_values": [
+        0.8079676107471226,
+        0.8149631199298801,
+        0.8134441624726466
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8121249643832164,
+        "sd_across_seeds": 0.003679605940977675,
+        "min": 0.8079676107471226,
+        "max": 0.8149631199298801
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.00994285518553406,
+        0.002465768186873052,
+        -0.002777808248257463
+      ],
+      "boundary_minus_standard_mean": -0.0034182984156394904,
+      "boundary_minus_frozen_mean": -0.018481399680465138
+    },
+    "14": {
+      "class": "curd",
+      "dev_gt_pixels": 2695874,
+      "frozen_iou": 0.908644379583186,
+      "standard_seed_values": [
+        0.902548244682596,
+        0.9001591761138024,
+        0.9005598607058305
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9010890938340763,
+        "sd_across_seeds": 0.001279444385123484,
+        "min": 0.9001591761138024,
+        "max": 0.902548244682596
+      },
+      "boundary_seed_values": [
+        0.9005435419873892,
+        0.9000402457914621,
+        0.8979347843215442
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8995061907001318,
+        "sd_across_seeds": 0.0013839491573783128,
+        "min": 0.8979347843215442,
+        "max": 0.9005435419873892
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.002004702695206806,
+        -0.00011893032234022716,
+        -0.002625076384286329
+      ],
+      "boundary_minus_standard_mean": -0.001582903133944454,
+      "boundary_minus_frozen_mean": -0.009138188883054177
+    },
+    "15": {
+      "class": "dondakaya-fry",
+      "dev_gt_pixels": 235434,
+      "frozen_iou": 0.7747733768295851,
+      "standard_seed_values": [
+        0.8035709487084006,
+        0.8225332084898733,
+        0.7837864289639908
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8032968620540882,
+        "sd_across_seeds": 0.019374843832335585,
+        "min": 0.7837864289639908,
+        "max": 0.8225332084898733
+      },
+      "boundary_seed_values": [
+        0.7972980596728636,
+        0.7875877835163869,
+        0.7949388589509444
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7932749007133983,
+        "sd_across_seeds": 0.005064477615804322,
+        "min": 0.7875877835163869,
+        "max": 0.7972980596728636
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0062728890355370215,
+        -0.034945424973486405,
+        0.01115242998695365
+      ],
+      "boundary_minus_standard_mean": -0.010021961340689925,
+      "boundary_minus_frozen_mean": 0.01850152388381321
+    },
+    "16": {
+      "class": "kakarakaya-fry",
+      "dev_gt_pixels": 208049,
+      "frozen_iou": 0.7619036857924115,
+      "standard_seed_values": [
+        0.791122329122096,
+        0.8201089163824389,
+        0.759177923633574
+      ],
+      "standard_mean_sd": {
+        "mean": 0.790136389712703,
+        "sd_across_seeds": 0.030477459322092507,
+        "min": 0.759177923633574,
+        "max": 0.8201089163824389
+      },
+      "boundary_seed_values": [
+        0.7707934691249844,
+        0.7884720248151823,
+        0.7693700265546951
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7762118401649539,
+        "sd_across_seeds": 0.010641458684362759,
+        "min": 0.7693700265546951,
+        "max": 0.7884720248151823
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.020328859997111648,
+        -0.031636891567256575,
+        0.01019210292112116
+      ],
+      "boundary_minus_standard_mean": -0.013924549547749021,
+      "boundary_minus_frozen_mean": 0.014308154372542403
+    },
+    "17": {
+      "class": "kofta-curry",
+      "dev_gt_pixels": 700684,
+      "frozen_iou": 0.8614443943523433,
+      "standard_seed_values": [
+        0.8448056924883368,
+        0.8514036324827048,
+        0.8329361590738472
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8430484946816296,
+        "sd_across_seeds": 0.00935829587187955,
+        "min": 0.8329361590738472,
+        "max": 0.8514036324827048
+      },
+      "boundary_seed_values": [
+        0.8529765047013549,
+        0.849668006102671,
+        0.8311040371065187
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8445828493035149,
+        "sd_across_seeds": 0.011789627832369975,
+        "min": 0.8311040371065187,
+        "max": 0.8529765047013549
+      },
+      "boundary_minus_standard_per_seed": [
+        0.008170812213018075,
+        -0.0017356263800337723,
+        -0.001832121967328515
+      ],
+      "boundary_minus_standard_mean": 0.0015343546218852626,
+      "boundary_minus_frozen_mean": -0.01686154504882842
+    },
+    "18": {
+      "class": "leaf-dal",
+      "dev_gt_pixels": 149884,
+      "frozen_iou": 0.47126893187361735,
+      "standard_seed_values": [
+        0.6127183747247782,
+        0.6665656121629201,
+        0.6622200946758151
+      ],
+      "standard_mean_sd": {
+        "mean": 0.6471680271878378,
+        "sd_across_seeds": 0.02991328796165469,
+        "min": 0.6127183747247782,
+        "max": 0.6665656121629201
+      },
+      "boundary_seed_values": [
+        0.5647214506466437,
+        0.6324693083443096,
+        0.6972624629974066
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.6314844073294532,
+        "sd_across_seeds": 0.06627599498497226,
+        "min": 0.5647214506466437,
+        "max": 0.6972624629974066
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.047996924078134495,
+        -0.03409630381861051,
+        0.035042368321591466
+      ],
+      "boundary_minus_standard_mean": -0.015683619858384512,
+      "boundary_minus_frozen_mean": 0.16021547545583587
+    },
+    "19": {
+      "class": "mango-pickle",
+      "dev_gt_pixels": 238194,
+      "frozen_iou": 0.7958242831528156,
+      "standard_seed_values": [
+        0.7846605133935767,
+        0.7858495631730184,
+        0.7873380133481326
+      ],
+      "standard_mean_sd": {
+        "mean": 0.7859493633049092,
+        "sd_across_seeds": 0.0013415370108222113,
+        "min": 0.7846605133935767,
+        "max": 0.7873380133481326
+      },
+      "boundary_seed_values": [
+        0.7898445153803607,
+        0.7872336581646848,
+        0.787901297195449
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7883264902468315,
+        "sd_across_seeds": 0.001356368570252826,
+        "min": 0.7872336581646848,
+        "max": 0.7898445153803607
+      },
+      "boundary_minus_standard_per_seed": [
+        0.005184001986784037,
+        0.0013840949916664735,
+        0.0005632838473164092
+      ],
+      "boundary_minus_standard_mean": 0.0023771269419223065,
+      "boundary_minus_frozen_mean": -0.007497792905984069
+    },
+    "20": {
+      "class": "masoor-dal",
+      "dev_gt_pixels": 0,
+      "frozen_iou": null,
+      "standard_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "standard_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_minus_standard_mean": 0.0,
+      "boundary_minus_frozen_mean": 0.0
+    },
+    "21": {
+      "class": "mirchi-ka-salan",
+      "dev_gt_pixels": 215207,
+      "frozen_iou": 0.9132435664423214,
+      "standard_seed_values": [
+        0.8848274453747192,
+        0.888271501549284,
+        0.8909331763320577
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8880107077520204,
+        "sd_across_seeds": 0.003061208533303265,
+        "min": 0.8848274453747192,
+        "max": 0.8909331763320577
+      },
+      "boundary_seed_values": [
+        0.8831246099438319,
+        0.8868148011735802,
+        0.8818714615397387
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8839369575523836,
+        "sd_across_seeds": 0.002569841077132376,
+        "min": 0.8818714615397387,
+        "max": 0.8868148011735802
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0017028354308873395,
+        -0.0014567003757037789,
+        -0.009061714792318987
+      ],
+      "boundary_minus_standard_mean": -0.004073750199636701,
+      "boundary_minus_frozen_mean": -0.029306608889937857
+    },
+    "22": {
+      "class": "muddha-pappu",
+      "dev_gt_pixels": 114390,
+      "frozen_iou": 0.8149317181144771,
+      "standard_seed_values": [
+        0.7321805671360332,
+        0.6008460782507217,
+        0.6306062621994458
+      ],
+      "standard_mean_sd": {
+        "mean": 0.6545443025287336,
+        "sd_across_seeds": 0.06886188585710137,
+        "min": 0.6008460782507217,
+        "max": 0.7321805671360332
+      },
+      "boundary_seed_values": [
+        0.6348117497128652,
+        0.7515303756376566,
+        0.7207726476098386
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.7023715909867869,
+        "sd_across_seeds": 0.06049593848413637,
+        "min": 0.6348117497128652,
+        "max": 0.7515303756376566
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.09736881742316794,
+        0.1506842973869349,
+        0.09016638541039279
+      ],
+      "boundary_minus_standard_mean": 0.04782728845805325,
+      "boundary_minus_frozen_mean": -0.11256012712769015
+    },
+    "23": {
+      "class": "non-spicy-curry",
+      "dev_gt_pixels": 528147,
+      "frozen_iou": 0.8256048770564332,
+      "standard_seed_values": [
+        0.8227800053373026,
+        0.8265894799880228,
+        0.8213883091676752
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8235859314976669,
+        "sd_across_seeds": 0.0026926162384525495,
+        "min": 0.8213883091676752,
+        "max": 0.8265894799880228
+      },
+      "boundary_seed_values": [
+        0.8256772577035549,
+        0.8190149777535342,
+        0.8214157526758112
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8220359960443,
+        "sd_across_seeds": 0.0033741695141513016,
+        "min": 0.8190149777535342,
+        "max": 0.8256772577035549
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0028972523662523786,
+        -0.007574502234488634,
+        2.744350813599361e-05
+      ],
+      "boundary_minus_standard_mean": -0.0015499354533667538,
+      "boundary_minus_frozen_mean": -0.0035688810121331516
+    },
+    "24": {
+      "class": "non-spicy-dal",
+      "dev_gt_pixels": 1443644,
+      "frozen_iou": 0.6955050629479369,
+      "standard_seed_values": [
+        0.7371154773572284,
+        0.738328960112378,
+        0.7452454632524237
+      ],
+      "standard_mean_sd": {
+        "mean": 0.7402299669073433,
+        "sd_across_seeds": 0.004385719757337097,
+        "min": 0.7371154773572284,
+        "max": 0.7452454632524237
+      },
+      "boundary_seed_values": [
+        0.7029574068780373,
+        0.7506534897929619,
+        0.7572947012246528
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.736968532631884,
+        "sd_across_seeds": 0.029641085145505137,
+        "min": 0.7029574068780373,
+        "max": 0.7572947012246528
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.03415807047919106,
+        0.01232452968058384,
+        0.012049237972229121
+      ],
+      "boundary_minus_standard_mean": -0.0032614342754593664,
+      "boundary_minus_frozen_mean": 0.041463469683947096
+    },
+    "25": {
+      "class": "pachi-pulusu",
+      "dev_gt_pixels": 667741,
+      "frozen_iou": 0.8586086846879663,
+      "standard_seed_values": [
+        0.8549835536351181,
+        0.8471720151357912,
+        0.8444526896570679
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8488694194759924,
+        "sd_across_seeds": 0.005466777858268022,
+        "min": 0.8444526896570679,
+        "max": 0.8549835536351181
+      },
+      "boundary_seed_values": [
+        0.8534911541514703,
+        0.8515119849838109,
+        0.8459621493692021
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8503217628348277,
+        "sd_across_seeds": 0.0039030692827314315,
+        "min": 0.8459621493692021,
+        "max": 0.8534911541514703
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0014923994836478771,
+        0.004339969848019654,
+        0.0015094597121342312
+      ],
+      "boundary_minus_standard_mean": 0.0014523433588353358,
+      "boundary_minus_frozen_mean": -0.008286921853138507
+    },
+    "26": {
+      "class": "papad",
+      "dev_gt_pixels": 2194398,
+      "frozen_iou": 0.873892179326445,
+      "standard_seed_values": [
+        0.8690292225563592,
+        0.8713512518472769,
+        0.8653665365164106
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8685823369733489,
+        "sd_across_seeds": 0.003017280968206869,
+        "min": 0.8653665365164106,
+        "max": 0.8713512518472769
+      },
+      "boundary_seed_values": [
+        0.8651517938964594,
+        0.8697940708414821,
+        0.865746634019056
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8668974995856659,
+        "sd_across_seeds": 0.0025260745184729648,
+        "min": 0.8651517938964594,
+        "max": 0.8697940708414821
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0038774286598998176,
+        -0.0015571810057948277,
+        0.00038009750264544895
+      ],
+      "boundary_minus_standard_mean": -0.0016848373876830653,
+      "boundary_minus_frozen_mean": -0.006994679740779164
+    },
+    "27": {
+      "class": "payasam",
+      "dev_gt_pixels": 253473,
+      "frozen_iou": 0.8936692986869063,
+      "standard_seed_values": [
+        0.896515656424786,
+        0.8977985000769755,
+        0.8826298654734246
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8923146739917286,
+        "sd_across_seeds": 0.008411780963990478,
+        "min": 0.8826298654734246,
+        "max": 0.8977985000769755
+      },
+      "boundary_seed_values": [
+        0.8998377162246892,
+        0.8965514724931493,
+        0.8820936186035868
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8928276024404752,
+        "sd_across_seeds": 0.00944000297795004,
+        "min": 0.8820936186035868,
+        "max": 0.8998377162246892
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0033220597999031876,
+        -0.0012470275838262213,
+        -0.0005362468698377754
+      ],
+      "boundary_minus_standard_mean": 0.000512928448746397,
+      "boundary_minus_frozen_mean": -0.0008416962464310451
+    },
+    "28": {
+      "class": "phulka",
+      "dev_gt_pixels": 2592655,
+      "frozen_iou": 0.9341284067443901,
+      "standard_seed_values": [
+        0.9234264687543595,
+        0.9252670540926824,
+        0.9239475580143913
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9242136936204778,
+        "sd_across_seeds": 0.0009487147714316058,
+        "min": 0.9234264687543595,
+        "max": 0.9252670540926824
+      },
+      "boundary_seed_values": [
+        0.9211242726286939,
+        0.9241744371996009,
+        0.9230269968985778
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.9227752355756241,
+        "sd_across_seeds": 0.0015405887836167052,
+        "min": 0.9211242726286939,
+        "max": 0.9241744371996009
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.002302196125665623,
+        -0.0010926168930814883,
+        -0.0009205611158135119
+      ],
+      "boundary_minus_standard_mean": -0.0014384580448535411,
+      "boundary_minus_frozen_mean": -0.011353171168765996
+    },
+    "29": {
+      "class": "raita",
+      "dev_gt_pixels": 269456,
+      "frozen_iou": 0.9116759810929687,
+      "standard_seed_values": [
+        0.8979726670579358,
+        0.8962749026676763,
+        0.908100371582916
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9007826471028427,
+        "sd_across_seeds": 0.006393936162952095,
+        "min": 0.8962749026676763,
+        "max": 0.908100371582916
+      },
+      "boundary_seed_values": [
+        0.9001410399254071,
+        0.8962413213623369,
+        0.9058754502228221
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.9007526038368554,
+        "sd_across_seeds": 0.004846093017931862,
+        "min": 0.8962413213623369,
+        "max": 0.9058754502228221
+      },
+      "boundary_minus_standard_per_seed": [
+        0.002168372867471291,
+        -3.358130533936965e-05,
+        -0.00222492136009389
+      ],
+      "boundary_minus_standard_mean": -3.0043265987322876e-05,
+      "boundary_minus_frozen_mean": -0.010923377256113254
+    },
+    "30": {
+      "class": "rajma",
+      "dev_gt_pixels": 459259,
+      "frozen_iou": 0.9132641823642386,
+      "standard_seed_values": [
+        0.9043028460173643,
+        0.9067177152317881,
+        0.9004186750456512
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9038130787649346,
+        "sd_across_seeds": 0.0031779522947656736,
+        "min": 0.9004186750456512,
+        "max": 0.9067177152317881
+      },
+      "boundary_seed_values": [
+        0.9087760935291144,
+        0.9119195460167695,
+        0.8963374400689654
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.9056776932049498,
+        "sd_across_seeds": 0.00824018020851093,
+        "min": 0.8963374400689654,
+        "max": 0.9119195460167695
+      },
+      "boundary_minus_standard_per_seed": [
+        0.004473247511750045,
+        0.005201830784981376,
+        -0.004081234976685777
+      ],
+      "boundary_minus_standard_mean": 0.0018646144400152147,
+      "boundary_minus_frozen_mean": -0.007586489159288723
+    },
+    "31": {
+      "class": "rasam",
+      "dev_gt_pixels": 0,
+      "frozen_iou": null,
+      "standard_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "standard_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_seed_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.0,
+        "sd_across_seeds": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "boundary_minus_standard_mean": 0.0,
+      "boundary_minus_frozen_mean": 0.0
+    },
+    "32": {
+      "class": "salad",
+      "dev_gt_pixels": 2023418,
+      "frozen_iou": 0.8663431701291476,
+      "standard_seed_values": [
+        0.8611038520548694,
+        0.8591394738907373,
+        0.8600083191674622
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8600838817043562,
+        "sd_across_seeds": 0.000984366631731357,
+        "min": 0.8591394738907373,
+        "max": 0.8611038520548694
+      },
+      "boundary_seed_values": [
+        0.8579452423040266,
+        0.8562239382414096,
+        0.8598370854267695
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8580020886574019,
+        "sd_across_seeds": 0.0018072442493164988,
+        "min": 0.8562239382414096,
+        "max": 0.8598370854267695
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0031586097508428113,
+        -0.002915535649327672,
+        -0.00017123374069272224
+      ],
+      "boundary_minus_standard_mean": -0.002081793046954402,
+      "boundary_minus_frozen_mean": -0.008341081471745726
+    },
+    "33": {
+      "class": "sambar",
+      "dev_gt_pixels": 1147991,
+      "frozen_iou": 0.8755975612664245,
+      "standard_seed_values": [
+        0.9055937599438117,
+        0.8929441388181844,
+        0.8956965848892343
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8980781612170768,
+        "sd_across_seeds": 0.006652605355008255,
+        "min": 0.8929441388181844,
+        "max": 0.9055937599438117
+      },
+      "boundary_seed_values": [
+        0.8923230927251352,
+        0.8947951020594614,
+        0.8943405510612228
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8938195819486064,
+        "sd_across_seeds": 0.0013157751135639288,
+        "min": 0.8923230927251352,
+        "max": 0.8947951020594614
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.013270667218676535,
+        0.0018509632412770927,
+        -0.001356033828011527
+      ],
+      "boundary_minus_standard_mean": -0.004258579268470323,
+      "boundary_minus_frozen_mean": 0.018222020682181927
+    },
+    "34": {
+      "class": "steamed-rice",
+      "dev_gt_pixels": 6633435,
+      "frozen_iou": 0.886379748362587,
+      "standard_seed_values": [
+        0.8783655060945914,
+        0.8836159585725659,
+        0.881566157205333
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8811825406241635,
+        "sd_across_seeds": 0.002646164028717485,
+        "min": 0.8783655060945914,
+        "max": 0.8836159585725659
+      },
+      "boundary_seed_values": [
+        0.8804889098417633,
+        0.8811298322593604,
+        0.8795178715759528
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8803788712256922,
+        "sd_across_seeds": 0.0008115945317601939,
+        "min": 0.8795178715759528,
+        "max": 0.8811298322593604
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0021234037471719036,
+        -0.00248612631320555,
+        -0.0020482856293801976
+      ],
+      "boundary_minus_standard_mean": -0.0008036693984712814,
+      "boundary_minus_frozen_mean": -0.006000877136894789
+    },
+    "35": {
+      "class": "tomato-pappu",
+      "dev_gt_pixels": 489167,
+      "frozen_iou": 0.5600777006487303,
+      "standard_seed_values": [
+        0.6410356235681707,
+        0.6152297514372675,
+        0.6477470010607564
+      ],
+      "standard_mean_sd": {
+        "mean": 0.6346707920220649,
+        "sd_across_seeds": 0.01716759130532876,
+        "min": 0.6152297514372675,
+        "max": 0.6477470010607564
+      },
+      "boundary_seed_values": [
+        0.5905261981539578,
+        0.6482510823565867,
+        0.6479741446455074
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.628917141718684,
+        "sd_across_seeds": 0.03324782074762866,
+        "min": 0.5905261981539578,
+        "max": 0.6482510823565867
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.05050942541421288,
+        0.033021330919319136,
+        0.00022714358475095509
+      ],
+      "boundary_minus_standard_mean": -0.0057536503033809305,
+      "boundary_minus_frozen_mean": 0.06883944106995366
+    },
+    "36": {
+      "class": "veg-dum-briyani",
+      "dev_gt_pixels": 361499,
+      "frozen_iou": 0.8372691342367483,
+      "standard_seed_values": [
+        0.8242998172194509,
+        0.8159694773565346,
+        0.8277526114534208
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8226739686764688,
+        "sd_across_seeds": 0.006057482967358527,
+        "min": 0.8159694773565346,
+        "max": 0.8277526114534208
+      },
+      "boundary_seed_values": [
+        0.8210304982184398,
+        0.8115549052012501,
+        0.8263316789845028
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8196390274680642,
+        "sd_across_seeds": 0.007486013892400893,
+        "min": 0.8115549052012501,
+        "max": 0.8263316789845028
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.0032693190010111284,
+        -0.004414572155284513,
+        -0.001420932468918057
+      ],
+      "boundary_minus_standard_mean": -0.003034941208404566,
+      "boundary_minus_frozen_mean": -0.01763010676868415
+    },
+    "37": {
+      "class": "veg-pulao",
+      "dev_gt_pixels": 1093037,
+      "frozen_iou": 0.8731034529852664,
+      "standard_seed_values": [
+        0.8625018323088119,
+        0.8662719341608681,
+        0.8537968492410406
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8608568719035735,
+        "sd_across_seeds": 0.0063981526232443475,
+        "min": 0.8537968492410406,
+        "max": 0.8662719341608681
+      },
+      "boundary_seed_values": [
+        0.8687645729654488,
+        0.8618690993447643,
+        0.8567929018064413
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8624755247055514,
+        "sd_across_seeds": 0.006008830283300375,
+        "min": 0.8567929018064413,
+        "max": 0.8687645729654488
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0062627406566369,
+        -0.004402834816103818,
+        0.0029960525654006975
+      ],
+      "boundary_minus_standard_mean": 0.0016186528019779267,
+      "boundary_minus_frozen_mean": -0.010627928279714927
+    },
+    "38": {
+      "class": "Watermelon",
+      "dev_gt_pixels": 921612,
+      "frozen_iou": 0.8410295904667411,
+      "standard_seed_values": [
+        0.8377544915202112,
+        0.836946767684871,
+        0.8376371614973163
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8374461402341328,
+        "sd_across_seeds": 0.00043643016713482504,
+        "min": 0.836946767684871,
+        "max": 0.8377544915202112
+      },
+      "boundary_seed_values": [
+        0.836053146109012,
+        0.8360672198591451,
+        0.8344044130705026
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8355082596795533,
+        "sd_across_seeds": 0.0009559851044054798,
+        "min": 0.8344044130705026,
+        "max": 0.8360672198591451
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.001701345411199151,
+        -0.0008795478257258571,
+        -0.0032327484268136475
+      ],
+      "boundary_minus_standard_mean": -0.0019378805545795519,
+      "boundary_minus_frozen_mean": -0.00552133078718775
+    },
+    "39": {
+      "class": "Papaya",
+      "dev_gt_pixels": 503018,
+      "frozen_iou": 0.8770152499484614,
+      "standard_seed_values": [
+        0.8533021347428672,
+        0.8702865624841222,
+        0.8620651051259272
+      ],
+      "standard_mean_sd": {
+        "mean": 0.8618846007843054,
+        "sd_across_seeds": 0.008493652499807491,
+        "min": 0.8533021347428672,
+        "max": 0.8702865624841222
+      },
+      "boundary_seed_values": [
+        0.8601941923774955,
+        0.8684436100172342,
+        0.8640752183738878
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.8642376735895393,
+        "sd_across_seeds": 0.004127107536947327,
+        "min": 0.8601941923774955,
+        "max": 0.8684436100172342
+      },
+      "boundary_minus_standard_per_seed": [
+        0.006892057634628301,
+        -0.001842952466887926,
+        0.002010113247960632
+      ],
+      "boundary_minus_standard_mean": 0.002353072805233669,
+      "boundary_minus_frozen_mean": -0.012777576358922071
+    },
+    "40": {
+      "class": "Banana",
+      "dev_gt_pixels": 1106964,
+      "frozen_iou": 0.9269293399896735,
+      "standard_seed_values": [
+        0.9232765820306409,
+        0.9172144048788229,
+        0.919535433498552
+      ],
+      "standard_mean_sd": {
+        "mean": 0.9200088068026719,
+        "sd_across_seeds": 0.0030586859382414704,
+        "min": 0.9172144048788229,
+        "max": 0.9232765820306409
+      },
+      "boundary_seed_values": [
+        0.920571242956303,
+        0.9189429320947835,
+        0.9199162369411304
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.9198101373307389,
+        "sd_across_seeds": 0.0008193240573359852,
+        "min": 0.9189429320947835,
+        "max": 0.920571242956303
+      },
+      "boundary_minus_standard_per_seed": [
+        -0.002705339074337898,
+        0.001728527215960618,
+        0.0003808034425784035
+      ],
+      "boundary_minus_standard_mean": -0.00019866947193295884,
+      "boundary_minus_frozen_mean": -0.00711920265893462
+    },
+    "41": {
+      "class": "Muskmelon",
+      "dev_gt_pixels": 225860,
+      "frozen_iou": 0.545267986179689,
+      "standard_seed_values": [
+        0.5302633519766511,
+        0.5236258391707833,
+        0.5374499403360452
+      ],
+      "standard_mean_sd": {
+        "mean": 0.5304463771611599,
+        "sd_across_seeds": 0.006913867725121169,
+        "min": 0.5236258391707833,
+        "max": 0.5374499403360452
+      },
+      "boundary_seed_values": [
+        0.5308794406596652,
+        0.5212562345692189,
+        0.5322136483501513
+      ],
+      "boundary_mean_sd": {
+        "mean": 0.5281164411930118,
+        "sd_across_seeds": 0.005978449107518361,
+        "min": 0.5212562345692189,
+        "max": 0.5322136483501513
+      },
+      "boundary_minus_standard_per_seed": [
+        0.0006160886830141044,
+        -0.0023696046015644345,
+        -0.005236291985893926
+      ],
+      "boundary_minus_standard_mean": -0.0023299359681480856,
+      "boundary_minus_frozen_mean": -0.017151544986677147
+    }
+  },
+  "priority_classes": {
+    "18": "leaf-dal",
+    "26": "papad",
+    "32": "salad",
+    "34": "steamed-rice",
+    "35": "tomato-pappu",
+    "41": "Muskmelon"
+  },
+  "tiny_component_overlap_diagnostics": {
+    "standard": [
+      {
+        "seed": 42,
+        "gt_tiny_components": 370,
+        "no_overlap": 254,
+        "partial_overlap_below_0_5": 115,
+        "matched_iou_ge_0_5": 1,
+        "components_touched_by_multiple_predictions": 0,
+        "mean_best_iou_all_tiny": 0.007569416527662287,
+        "mean_best_pixel_coverage": 0.2618722933637213
+      },
+      {
+        "seed": 43,
+        "gt_tiny_components": 370,
+        "no_overlap": 275,
+        "partial_overlap_below_0_5": 93,
+        "matched_iou_ge_0_5": 2,
+        "components_touched_by_multiple_predictions": 1,
+        "mean_best_iou_all_tiny": 0.007599956038799242,
+        "mean_best_pixel_coverage": 0.21906128313063608
+      },
+      {
+        "seed": 44,
+        "gt_tiny_components": 370,
+        "no_overlap": 262,
+        "partial_overlap_below_0_5": 106,
+        "matched_iou_ge_0_5": 2,
+        "components_touched_by_multiple_predictions": 0,
+        "mean_best_iou_all_tiny": 0.006977847944992656,
+        "mean_best_pixel_coverage": 0.2522756247742901
+      }
+    ],
+    "boundary_aware": [
+      {
+        "seed": 42,
+        "gt_tiny_components": 370,
+        "no_overlap": 258,
+        "partial_overlap_below_0_5": 110,
+        "matched_iou_ge_0_5": 2,
+        "components_touched_by_multiple_predictions": 0,
+        "mean_best_iou_all_tiny": 0.009179498278864134,
+        "mean_best_pixel_coverage": 0.26955229228378746
+      },
+      {
+        "seed": 43,
+        "gt_tiny_components": 370,
+        "no_overlap": 264,
+        "partial_overlap_below_0_5": 103,
+        "matched_iou_ge_0_5": 3,
+        "components_touched_by_multiple_predictions": 0,
+        "mean_best_iou_all_tiny": 0.007462632157335414,
+        "mean_best_pixel_coverage": 0.26141290863116956
+      },
+      {
+        "seed": 44,
+        "gt_tiny_components": 370,
+        "no_overlap": 253,
+        "partial_overlap_below_0_5": 115,
+        "matched_iou_ge_0_5": 2,
+        "components_touched_by_multiple_predictions": 2,
+        "mean_best_iou_all_tiny": 0.009264204385355303,
+        "mean_best_pixel_coverage": 0.26778677835905784
+      }
+    ]
+  },
+  "paired_control_gate": {
+    "macro_gain_at_least_0_01_with_ci_above_zero": false,
+    "tiny_pixel_or_component_gain_at_least_0_05_with_ci_above_zero": false,
+    "foreground_iou_lower_ci_above_minus_0_01": true,
+    "region_f1_lower_ci_above_minus_0_01": true,
+    "priority_class_iou_regression_no_worse_than_minus_0_05": true,
+    "merge_increase_upper_ci_at_most_0_25": true,
+    "fragmentation_increase_upper_ci_at_most_0_25": true,
+    "boundary_f1_drop_no_more_than_0_01": true,
+    "latency_no_more_than_2x_reference": true
+  },
+  "frozen_reference_promotion_gate": {
+    "macro_gain_at_least_0_01_with_ci_above_zero": false,
+    "tiny_pixel_or_component_gain_at_least_0_05_with_ci_above_zero": false,
+    "foreground_iou_lower_ci_above_minus_0_01": true,
+    "region_f1_lower_ci_above_minus_0_01": true,
+    "priority_class_iou_regression_no_worse_than_minus_0_05": true,
+    "merge_increase_upper_ci_at_most_0_25": true,
+    "fragmentation_increase_upper_ci_at_most_0_25": true,
+    "boundary_f1_drop_no_more_than_0_01": false,
+    "latency_no_more_than_2x_reference": true
+  },
+  "promotion_recommendation": "retain_frozen_deeplabv3_and_close_boundary_loss_line",
+  "locked_accessed": false,
+  "aruco_accessed": false,
+  "wed_test_split_accessed": false,
+  "synthetic_data_used": false,
+  "geometry_or_weight_code_changed": false
+}
