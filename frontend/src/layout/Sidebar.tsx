@@ -1,6 +1,5 @@
 import { useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { introItem, introStagger } from "../ui/motion";
 import { ProgressRing } from "../ui/fx";
@@ -8,26 +7,13 @@ import { useMenu } from "../context/menu";
 import { useRecords } from "../context/records";
 import { useExplore } from "../context/explore";
 import { TOTAL_AREAS, exploredCount, pointsFor } from "../explore/achievements";
-import { apiBase } from  "../services/api";
+import { apiBase } from "../services/api";
 import {
-  IconBook,
-  IconCamera,
-  IconChart,
-  IconDashboard,
-  IconHistory,
   IconSettings,
-  IconUsers,
+  IconX,
   LogoMark,
-} from  "../ui/Icon";
-
-const NAV = [
-  { to: "/", label: "Home", icon: IconDashboard, end: true },
-  { to: "/analyze", label: "Analyze", icon: IconCamera },
-  { to: "/history", label: "History", icon: IconHistory },
-  { to: "/analytics", label: "Insights", icon: IconChart },
-  { to: "/students", label: "Students", icon: IconUsers },
-  { to: "/menu", label: "Menu", fullLabel: "Menu & standards", icon: IconBook },
-];
+} from "../ui/Icon";
+import { NAV_ITEMS } from "./Topbar";
 
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { apiUp, menu } = useMenu();
@@ -49,15 +35,15 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <motion.aside
       className="sidebar"
-      aria-label="Primary"
+      aria-label="Mobile navigation drawer"
       variants={introStagger}
       initial="hidden"
       animate="show"
     >
-      <motion.div variants={introItem}>
+      <div className="sidebar-brand">
         <button
           type="button"
-          className="sidebar-brand brand-link"
+          className="brand-link"
           aria-label="NutriSense — go home"
           onClick={() => {
             const now = Date.now();
@@ -76,45 +62,38 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <div className="brand-sub">Meal intelligence</div>
           </div>
         </button>
-      </motion.div>
+        <button
+          type="button"
+          className="icon-btn drawer-close"
+          onClick={onNavigate}
+          aria-label="Close navigation drawer"
+          title="Close drawer"
+        >
+          <IconX size={18} />
+        </button>
+      </div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {NAV.map(({ to, label, fullLabel, icon: Icon, end }) => (
+        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <motion.div
             key={to}
             variants={introItem}
             whileTap={{ scale: 0.95 }}
-            style={{ display: "flex", flexShrink: 0 }}
           >
             <NavLink
               to={to}
               end={end}
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
               onClick={onNavigate}
-              title={fullLabel ? "Menu & meal standards" : label}
+              title={label}
             >
-              {isActive(to, end) && (
-                <motion.span
-                  className="nav-glider"
-                  layoutId="nav-glider"
-                  transition={{ type: "spring", stiffness: 480, damping: 38 }}
-                  aria-hidden="true"
-                />
-              )}
               <Icon size={17} />
-              {fullLabel ? (
-                <>
-                  <span className="nav-label-long">{fullLabel}</span>
-                  <span className="nav-label-short">{label}</span>
-                </>
-              ) : (
-                <span>{label}</span>
-              )}
+              <span>{label}</span>
               {to === "/history" && records.length > 0 && (
                 <span className="nav-badge num">{records.length}</span>
               )}
               {to === "/menu" && menu && Object.keys(menu.dishes).length > 0 && (
-                <span className="nav-badge num drawer-only-badge">
+                <span className="nav-badge num">
                   {Object.keys(menu.dishes).length}
                 </span>
               )}
@@ -124,7 +103,6 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
         <motion.div
           key="/settings"
-          className="drawer-only-item"
           variants={introItem}
           whileTap={{ scale: 0.95 }}
         >
@@ -144,7 +122,10 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <button
           type="button"
           className={`explore-btn${panelOpen ? " open" : ""}`}
-          onClick={togglePanel}
+          onClick={() => {
+            togglePanel();
+            onNavigate?.();
+          }}
           aria-expanded={panelOpen}
           aria-haspopup="dialog"
           aria-label={`Field notebook — ${explored} of ${TOTAL_AREAS} sections explored, ${points} points`}

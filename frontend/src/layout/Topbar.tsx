@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { EASE } from "../ui/motion";
 import { useMenu } from "../context/menu";
@@ -17,13 +17,37 @@ import ModeSwitch from "../ui/ModeSwitch";
 import { formatDate } from  "../utils/format";
 import {
   IconBell,
+  IconBook,
+  IconCamera,
+  IconChart,
+  IconDashboard,
+  IconHistory,
   IconMenu,
   IconMoon,
   IconSun,
   IconX,
   IconSettings,
   IconSparkle,
+  IconUsers,
+  LogoMark,
 } from  "../ui/Icon";
+
+export interface NavItemConfig {
+  to: string;
+  label: string;
+  shortLabel?: string;
+  icon: (props: { size?: number; className?: string }) => ReactElement;
+  end?: boolean;
+}
+
+export const NAV_ITEMS: NavItemConfig[] = [
+  { to: "/", label: "Home", icon: IconDashboard, end: true },
+  { to: "/analyze", label: "Analyze", icon: IconCamera },
+  { to: "/history", label: "History", icon: IconHistory },
+  { to: "/analytics", label: "Insights", icon: IconChart },
+  { to: "/students", label: "Students", icon: IconUsers },
+  { to: "/menu", label: "Menu & standards", shortLabel: "Menu", icon: IconBook },
+];
 
 export default function Topbar({
   drawerOpen,
@@ -33,10 +57,11 @@ export default function Topbar({
   onToggleDrawer: () => void;
 }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { apiUp } = useMenu();
   const { prefs, setPrefs } = usePrefs();
   const { records } = useRecords();
-  const { state: explored, panelOpen, togglePanel } = useExplore();
+  const { state: explored, panelOpen, togglePanel, discover } = useExplore();
   const areasSeen = exploredCount(explored);
   const general = (prefs.mode ?? "school") === "general";
   const darkTheme =
@@ -45,6 +70,8 @@ export default function Topbar({
       window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const taps = useRef<number[]>([]);
+  const TAP_WINDOW_MS = 2600;
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>(() => {
     try {
       const stored: unknown = JSON.parse(localStorage.getItem("nutrisense.dismissed-alerts") || "[]");
@@ -113,6 +140,51 @@ export default function Topbar({
       >
         {drawerOpen ? <IconX size={18} /> : <IconMenu size={18} />}
       </button>
+
+      <button
+        type="button"
+        className="topbar-brand brand-link"
+        aria-label="NutriSense — go home"
+        onClick={() => {
+          const now = Date.now();
+          taps.current = [...taps.current, now].filter((t) => now - t < TAP_WINDOW_MS);
+          if (taps.current.length >= 5) {
+            taps.current = [];
+            discover("logo-patter");
+          }
+          navigate("/");
+        }}
+      >
+        <LogoMark />
+        <div className="brand-text">
+          <div className="brand-name">NutriSense</div>
+          <div className="brand-sub">Meal intelligence</div>
+        </div>
+      </button>
+
+      <nav className="topbar-nav" aria-label="Main navigation">
+        {NAV_ITEMS.map(({ to, label, shortLabel, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+            title={shortLabel ? "Menu & meal standards" : label}
+          >
+            {shortLabel ? (
+              <>
+                <span className="nav-label-long">{label}</span>
+                <span className="nav-label-short">{shortLabel}</span>
+              </>
+            ) : (
+              <span>{label}</span>
+            )}
+            {to === "/history" && records.length > 0 && (
+              <span className="nav-badge num">{records.length}</span>
+            )}
+          </NavLink>
+        ))}
+      </nav>
 
       <div className="topbar-spacer" />
 

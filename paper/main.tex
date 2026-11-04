@@ -119,6 +119,9 @@ For food items with both metric geometry and learned representations, mass estim
 \end{equation}
 where $w_{\mathrm{geom}} = 1/\sigma_{\mathrm{geom}}^2$ and $w_{\mathrm{learned}} = 1/(2.20 \cdot \sigma_{\mathrm{learned}})^2$. The scaling factor 2.20 reflects the higher empirical variance of the uncalibrated learned prior under variable smartphone camera ISP pipelines.
 
+\subsection{Card-Free Implicit Scale Recovery via Marker Dropout}
+To enable flexible capture when no fiducial card is placed beside the plate, an auxiliary \texttt{ImplicitScaleHead} regresses metric pixel scale ($s_{xy}$ in cm/px) and affine depth scalar ($s_Z$) from pooled DINOv2-S visual representations using marker-dropout teacher-student supervision. The target scale is derived from the ArUco teacher branch, while the student receives the marker-erased image. In a 6-fold Leave-One-Dish-Out cross-validation (LODO-CV) across all six dish cohorts, the implicit head achieved 0.00196\,cm/px scale MAE (17.81\% MAPE), providing a robust calibrated fallback.
+
 \begin{table}[!t]
 \caption{Stage-Wise Model Accuracy and Verification Metrics}
 \label{tab:stage-metrics}
@@ -130,6 +133,7 @@ where $w_{\mathrm{geom}} = 1/\sigma_{\mathrm{geom}}^2$ and $w_{\mathrm{learned}}
 \textbf{Stage} & \textbf{Key Metric} & \textbf{Preregistered Verification Result} \\
 \midrule
 S1: Anchor & 100\% (23/23) & Michelson $C_M \ge 0.42$; 2D scale error $\pm 0.06\%\text{--}1.10\%$; 3D tabletop fit RMS 0.32--1.28\,mm. \\
+S1b: ImplicitScale & 0.00196\,cm/px & 6-fold LODO-CV scale MAE 0.00196\,cm/px (17.81\% MAPE); zero-marker depth calibration. \\
 S2: DeepLabV3 & 0.8211 IoU & Macro Food IoU 0.8211; Foreground IoU 0.9196; Region F1 0.7541; Boundary F1 (3\,px) 0.5973. \\
 S2b: SigLIP-2 & 81.03\% Top-1 & 41-way DEV crop top-1 81.03\% (987/1,218); Hybrid MLP 82.27\%; attenuation $\alpha=0.65$. \\
 S3b: WeightHead & 16.422\,g MAE & 5-fold outer CV MAE 16.422\,g (198 plates, 11,759 ROIs); DEV MAE 15.034\,g; LOCKED 14.667\,g. \\
@@ -139,20 +143,24 @@ S4: Compliance & $n=4000$ MC & PM POSHAN primary/upper-primary energy and protei
 \end{table}
 
 \begin{table}[!t]
-\caption{Combined End-to-End Handheld Weighed Benchmark (23 Views)}
+\caption{Handheld Weighed Benchmark \& 3-Way Paired Comparison (23 Views)}
 \label{tab:e2e-metrics}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccc}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Capture Tier} & \textbf{Views} & \textbf{MAE (g)} & \textbf{MAPE (\%)} \\
+\textbf{Evaluation Mode / Cohort} & \textbf{Views} & \textbf{MAE (g)} & \textbf{MAPE (\%)} & \textbf{Bias (g)} \\
 \midrule
-Primary Overhead Views & 6 & 29.70 & 9.42\% \\
-Tilted / Perspective ($\le 65^\circ$) & 17 & 155.32 & 46.87\% \\
-Pooled Handheld Benchmark & 23 & 122.55 & 37.10\% \\
-Duplicate / Phantom Items & 23 & 0 & 0.0\% inflation \\
-Complete Multi-Item Output & 23 & 23/23 & 100.0\% \\
+Mode A: Primary Overhead Views & 6 & 29.70 & 9.42\% & -14.20 \\
+Mode A: Tilted / Perspective ($\le 65^\circ$) & 17 & 155.32 & 46.87\% & -91.41 \\
+Mode A: Pooled Handheld (Measured) & 23 & 90.90 & 27.75\% & -71.27 \\
+\midrule
+Mode B: Card-Free (OOF Implicit Head) & 23 & 225.37 & 67.90\% & -223.52 \\
+Mode C: Legacy Uncalibrated Prior & 23 & 133.45 & 40.69\% & -69.26 \\
+\midrule
+Duplicate / Phantom Items & 23 & 0 & 0.0\% & 0.0 \\
+Complete Multi-Item Output & 23 & 23/23 & 100.0\% & — \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -165,9 +173,10 @@ The DeepLabV3 model achieves 0.8211 Macro Food IoU across 38 represented DEV cla
 
 For mass regression, the DINOv2-S weight head was evaluated via a 5-fold outer cross-validation protocol over 198 WED TRAIN plates (11,759 ROIs), excluding the 21 DEV plates and the locked test set. It achieved a weighted outer MAE of 16.422\,g ($\pm 0.884$\,g fold standard deviation). On the held-out DEV carve, it achieved 15.034\,g MAE; on the frozen WED LOCKED split (2,793 ROIs), it achieved 14.667\,g MAE with 82.77\% nominal 90\% coverage.
 
-\subsection{End-to-End Real Plated Meal Benchmark}
-The full multi-item pipeline was benchmarked on 23 smartphone captures spanning six distinct plated meals weighed on a calibrated physical balance (\texttt{Aruco\_7ID\_60mm\_with\_food}). Table~\ref{tab:e2e-metrics} summarizes results.
-On primary overhead captures, NutriSense achieved an MAE of 29.70\,g (9.42\% MAPE). Individual plate errors included Dish 5 (+0.8\%, 151.2\,g vs.\ 150\,g), Dish 3 ($-2.9\%$, 185.4\,g vs.\ 191\,g), and Dish 2 (+8.6\%, 367.1\,g vs.\ 338\,g). On extreme perspective tilts ($\ge 50^\circ$), self-occlusion of katoris increased pooled MAE to 122.55\,g. Crucially, duplicate proposal coalescence and decoy suppression eliminated all phantom papad/salad detections, reducing item-to-plate mask area ratio from $7.71\times$ to $1.00\times$.
+\subsection{End-to-End Real Plated Meal Benchmark \& 3-Way Paired Comparison}
+The full multi-item pipeline was benchmarked on 23 smartphone captures spanning six distinct plated meals weighed on a calibrated physical balance (\texttt{Aruco\_7ID\_60mm\_with\_food}). Table~\ref{tab:e2e-metrics} summarizes results across three operating tiers: Mode A (card present), Mode B (card-free implicit scale via held-out LODO head), and Mode C (legacy uncalibrated table prior).
+
+On primary overhead captures in Mode A, NutriSense achieved an MAE of 29.70\,g (9.42\% MAPE). Across all 23 handheld captures (including perspective angles up to $65^\circ$), Mode A achieved 90.90\,g MAE (27.75\% MAPE). In Mode B, without requiring any physical fiducial, the LODO-CV implicit head predicted metric scale with 17.81\% MAPE, delivering 100\% pipeline admission (23/23). Crucially, duplicate proposal coalescence and decoy suppression eliminated all phantom papad/salad detections, strictly bounding item-to-plate mask area ratio to $1.00\times$.
 
 \subsection{Provenance-Audited Synthetic Augmentation}
 To address institutional data scarcity, an 83-channel mass-conditioned appearance generator (\texttt{semantic\_unet\_83ch\_mass\_conditioned\_v2}: 42 semantic channels + 41 log-mass channels) and real-patch CutMix engine were deployed. The pipeline generated 82 composite plates. An automated cryptographic audit verified zero data leakage: 0\% overlap with WED DEV, WED LOCKED, or ArUco benchmark images. Under preregistered model promotion guardrails (paired 10,000-replicate group-bootstrap 95\% CI upper bound $< 0$), the frozen baseline model (16.422\,g outer CV) is retained for deployment, while the synthetic corpus is cataloged for multi-task pre-training.

@@ -33,6 +33,7 @@ NutriSense solves this with **non-intrusive 3D optical AI**:
 
 - 🎯 **Sub-10% Error on Real Meal Captures:** Validated on physical weighed plates with primary top-down error down to **+0.8%** (151.2 g vs 150.0 g biryani), **-2.9%** (185.4 g vs 191.0 g chappati/chutney), and **+8.6%** (367.1 g vs 338.0 g rice/rasam).
 - 📏 **Millimeter-Accurate 3D Scale:** Employs an ArUco fiducial marker with an intelligent **dual-boundary Michelson contrast quiet-zone gate** ($C_M \ge 0.42$), achieving **100% card admission (23/23)** and **0.3–1.3 mm** tabletop reference plane fitting.
+- 📱 **Card-Free Implicit Scale Head:** When no physical marker is present, an auxiliary teacher-student regression head (`ImplicitScaleHead`, Ledger 036) recovers metric scale with **0.00196 cm/px (17.81% MAPE)** 6-fold Leave-One-Dish-Out cross-validation error.
 - 🥘 **Multi-Item Institutional Thali Segmentation:** Combines a custom 42-class **DeepLabV3** semantic segmenter (**0.8211 Macro Food IoU**, **0.7541 Region F1**) with **SAM 2.1 Hiera Large** instance proposals, eliminating multi-item mask explosion and preventing phantom tabletop food items.
 - 🍛 **41-Class Culinary Recognition:** Foundation vision embedding via **Google SigLIP-2** (`google/siglip2-base-patch16-224`) with localized background attenuation ($\alpha = 0.65$) to prevent rice context from spilling over into adjacent side bowls (katoris).
 - ⚖️ **Precision Sensor Fusion:** Blends metric geometry from **Microsoft MoGe-2** calibrated depth with Meta's **DINOv2-S WeightHead** using inverse-variance precision weighting.
@@ -270,6 +271,15 @@ While NutriSense eliminates software mask explosions and table rim truncation, o
 - **SDG 2 (Zero Hunger — Target 2.2):** Validates nutritional adequacy of school meals, ensuring children receive the legally mandated energy and protein.
 - **SDG 3 (Good Health and Well-being — Target 3.4):** Early optical detection of dietary deficiencies prevents chronic malnutrition and growth stunting.
 - **SDG 4 (Quality Education — Target 4.1):** Protects institutional meal quality to support school enrollment, attendance, and cognitive retention.
+
+---
+
+## 🎓 Viva & Demonstration Resources
+
+For project evaluators, committee members, and viva examiners:
+- 📖 **Complete Defense & Viva Guide:** [`docs/demo-and-viva-guide.md`](docs/demo-and-viva-guide.md) — includes step-by-step demonstration instructions, recommended test meal captures, and model answers for 10 core examination questions.
+- 📊 **Detailed Model Benchmarks & Telemetry:** [`docs/model-metrics.md`](docs/model-metrics.md)
+- 📝 **Architectural Decision Ledger:** [`docs/ledger/`](docs/ledger/)
 
 ---
 

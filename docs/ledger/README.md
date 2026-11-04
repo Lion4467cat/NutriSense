@@ -69,6 +69,7 @@ Each iteration **must** run the kill switch first:
 | [033 — ArUco card plane & vessel fusion](033-aruco-card-plane-and-vessel-fusion.md) | Fix multi-item mask explosion, quiet-zone dropouts, and rim-plane truncation on real captures. | Approved and deployed: 23/23 admission (100%), 0 tabletop items, 29.7g primary MAE (9.42% MAPE). |
 | [034 — stage promotion evaluation](034-stage-promotion-evaluation.md) | Stage-wise synthetic and augmentation promotion evaluation across all pipeline stages. | Baseline frozen; candidate weight head promotion rejected per protocol guardrails. |
 | [035 — synthetic augmentation & plate study](035-synthetic-augmentation-and-plate-rel-study.md) | Provenance-audited synthetic & CutMix corpus generation, stage-wise audits, and strict two-column IEEE paper overhaul. | Corpus audited (zero leakage); paper compiled with 0 errors/warnings; production weights preserved. |
+| [036 — card-free implicit scale & docker](036-card-free-implicit-scale-and-docker.md) | Card-free metric scale estimation via marker-dropout teacher-student training and production containerization. | Achieved 0.00196 cm/px (17.81% MAPE) 6-fold LODO-CV; docker compose runtime verified. |
 
 These are synthetic mechanism diagnostics only. The weighed ArUco plates are
 permanently EVAL-ONLY and are not eligible for tuning or candidate selection.

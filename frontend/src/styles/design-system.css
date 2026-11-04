@@ -27,7 +27,6 @@ body { background: var(--bg); }
 .nav-link { min-height: 42px; border-radius: var(--r-md); }
 .nav-link.active { color: var(--accent-text); background: var(--accent-soft); }
 .nav-glider { display: none; }
-.topbar { background: transparent; backdrop-filter: none; }
 .scroll-rail { background: var(--accent); }
 
 .main { min-width: 0; }
@@ -207,24 +206,6 @@ body { background: var(--bg); }
 .page-settings .settings-local-card { border-color: var(--border-strong); }
 .demo-mode-banner { width: min(calc(100% - 32px), var(--content-max)); border-radius: var(--r-md); box-shadow: none; }
 .demo-mode-banner strong { color: #875511; }
-
-@media (min-width: 1041px) {
-  .topbar {
-    right: clamp(16px, 2.5vw, 42px);
-    width: auto;
-    padding-inline: 0;
-    gap: clamp(4px, 0.6vw, 8px);
-    background: transparent;
-    backdrop-filter: none;
-    border: 0;
-    pointer-events: none;
-    z-index: 70;
-  }
-  .topbar > * {
-    pointer-events: auto;
-  }
-  .topbar-spacer { display: none; }
-}
 
 @media (max-width: 1040px) {
   .page { padding-inline: clamp(20px, 4vw, 40px); }

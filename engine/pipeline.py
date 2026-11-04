@@ -1038,6 +1038,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         """Use learned mass for mapped prior-tier items; otherwise require a
         measured marker before computing geometry mass."""
         if (anchor or {}).get("label") != "measured":
+            if anchor and anchor.get("method") == "implicit_scale" and depth_m is not None:
+                return estimate_portion(image_bgr, item_mask, depth_m, anchor,
+                                        {"K": depth_K}, dish_i,
+                                        cfg={"base_method": "table_prior"})
             if _wed_slots_for_dish(dish_id_i) is not None:
                 if head is None:
                     raise WeightHeadUnavailable(
@@ -1046,10 +1050,6 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 roi_mask = bbox_mask if bbox_mask is not None else item_mask
                 return _learned_portion(image_bgr, roi_mask, dish_i,
                                         dish_id_i, head)
-            if anchor and anchor.get("cm_per_px") is not None and depth_m is not None:
-                return estimate_portion(image_bgr, item_mask, depth_m, anchor,
-                                        {"K": depth_K}, dish_i,
-                                        cfg={"base_method": "table_prior"})
             raise ValueError(
                 "absolute geometry mass requires a measured marker scale")
         geom_mask = np.asarray(item_mask, dtype=bool)
@@ -1838,6 +1838,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
     def _portion_step():
         if anchor.get("label") != "measured":
+            if anchor.get("method") == "implicit_scale" and depth_m is not None:
+                return estimate_portion(image_bgr, mask, depth_m, anchor,
+                                        {"K": depth_K}, dish,
+                                        cfg={"base_method": "table_prior"})
             if _wed_slots_for_dish(dish_info["id"]) is not None:
                 if head is None:
                     raise WeightHeadUnavailable(

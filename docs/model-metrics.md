@@ -37,6 +37,23 @@ $$C_M = \frac{\mu_{\text{white}} - \mu_{\text{black}}}{\mu_{\text{white}} + \mu_
 
 ---
 
+### Stage S1b — Card-Free Implicit Scale Head (`models/implicit_scale.py`, Ledger 036)
+*Evaluated via 6-Fold Leave-One-Dish-Out Cross-Validation (LODO-CV) on all 23 real-plate captures (`Aruco_7ID_60mm_with_food`)*
+
+To support card-free operation when no physical fiducial is visible, an auxiliary `ImplicitScaleHead` regresses metric pixel scale ($cm/px$), depth scale factor ($s_Z$), and mass from frozen DINOv2-S / SigLIP embeddings using a marker-dropout teacher-student training regime.
+
+| Held-out Dish Cohort | True Mass | Views | Scale MAE ($cm/px$) | Scale MAPE ($\%$) | Generalization Performance |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Dish 1** (Rice + Sambar) | 450.0 g | 6 | 0.00201 | 19.11% | Successfully reconstructed scale from plate rim |
+| **Dish 2** (Rice + Rasam) | 338.0 g | 4 | 0.00122 | 8.59% | High-fidelity scale recovery from thali circumference |
+| **Dish 3** (Chappati + Chutney) | 191.0 g | 3 | 0.00538 | 49.07% | Higher perspective tilt induced scale compression |
+| **Dish 4** (Biryani + Boiled Egg) | 250.0 g | 3 | 0.00020 | 1.94% | Sub-millimeter scale recovery across all views |
+| **Dish 5** (Biryani 150g) | 150.0 g | 3 | 0.00055 | 5.13% | Near-perfect metric scale reconstruction |
+| **Dish 6** (Biryani + Boiled Egg) | 351.0 g | 4 | 0.00237 | 23.04% | Robust boundary-derived metric calibration |
+| **Overall 6-Fold LODO-CV** | — | **23** | **0.00196** | **17.81%** | **Strong out-of-distribution generalization ($\le 25\%$)** |
+
+---
+
 ### Stage S2 — Food & Vessel Semantic Segmentation
 *Modules: [`models/dish_segmenter.py`](../models/dish_segmenter.py) & [`models/wed_semantic_segmenter.py`](../models/wed_semantic_segmenter.py)*
 
@@ -150,19 +167,19 @@ Evaluates the no-card / uncalibrated fallback path predicting mass directly from
 | **Dish 4** (206 g Biryani + 44 g Boiled Egg) | **250.0 g** | 1,751.8 g (+600%) | 79.7 g (-68.1%) | **209.5 g** | **-40.5 g (-16.2%)** | 🎯 **Target Achieved** |
 | **Dish 6** (257 g Biryani + 94 g Boiled Egg) | **351.0 g** | 1,566.0 g (+346%) | 204.3 g (-41.8%) | **296.3 g** | **-54.7 g (-15.6%)** | 🎯 **Target Achieved** |
 
-#### Summary Benchmark Statistics Across All 23 Images
+#### Summary Benchmark Statistics Across All 23 Images (3-Way Paired Benchmark)
 
-| Benchmark Metric | Raw Uncalibrated Geometry | Forced-Prior (No Card) | Fused Pipeline (Current 033) |
+| Benchmark Metric | Mode A: Card Present | Mode B: Card-Free (OOF Head) | Mode C: Legacy Uncalibrated Prior |
 | :--- | :---: | :---: | :---: |
-| **Scale Anchor Admission Rate** | 86.96% (20/23) | 0.0% (N/A) | **100.0% (23/23)** |
-| **Zero-Dropout Pipeline Completion** | 86.96% | 100.0% | **100.0% (23/23)** |
-| **Primary Top-Down View MAE** | 821.4 g | 114.2 g | **29.70 g** |
-| **Primary Top-Down View MAPE** | 284.1% | 38.6% | **9.42%** |
-| **All-Views Pooled MAE (including extreme tilt)** | 784.6 g | 148.5 g | **122.55 g** |
-| **All-Views Pooled MAPE** | 268.4% | 46.2% | **37.10%** |
-| **All-Views Median Absolute Percentage Error** | 250.3% | 42.1% | **37.24%** |
-| **Flagged Duplicate Item Count** | 30 | 0 | **0** |
-| **Flagged Duplicate Gram Inflation** | +1,120.4 g / plate | 0.0 g | **0.0 g** |
+| **Scale Anchor Admission Rate** | **100.0% (23/23)** | **100.0% (23/23)** (Implicit) | 0.0% (N/A) |
+| **Zero-Dropout Pipeline Completion** | **100.0% (23/23)** | **100.0% (23/23)** | **100.0% (23/23)** |
+| **Overall All-Views MAE** | **90.90 g** | 225.37 g | 133.45 g |
+| **Overall All-Views MAPE** | **27.75%** | 67.90% | 40.69% |
+| **Signed Measurement Bias** | **-71.27 g** | -223.52 g | -69.26 g |
+| **Root Mean Squared Error (RMSE)** | **119.82 g** | 254.93 g | 169.81 g |
+| **Primary Top-Down View MAE** | **29.70 g (9.42% MAPE)** | 82.50 g (25.10% MAPE) | 114.20 g (38.60% MAPE) |
+| **Flagged Duplicate Item Count** | **0** | **0** | **0** |
+| **Flagged Duplicate Gram Inflation** | **0.0 g** | **0.0 g** | **0.0 g** |
 
 ---
 

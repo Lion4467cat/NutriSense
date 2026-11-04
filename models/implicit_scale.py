@@ -54,6 +54,7 @@ class ImplicitScaleHead(nn.Module):
             nn.GELU(),
             nn.Linear(64, 1),
         )
+        self.meta: dict[str, Any] = {}
 
     def _build_encoder(self, pretrained: bool) -> None:
         from transformers import AutoModel
@@ -135,7 +136,9 @@ class ImplicitScaleHead(nn.Module):
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ])
-        img_t = tf(rgb).unsqueeze(0).to(dev)
+        tf_out = tf(rgb)
+        assert isinstance(tf_out, torch.Tensor)
+        img_t = tf_out.unsqueeze(0).to(dev)
 
         scale_pred, mass_pred = self.forward(img_t)
         log_s224 = float(scale_pred[0, 0].item())

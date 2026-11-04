@@ -1,0 +1,562 @@
+{
+  "metadata": {
+    "device": "cuda",
+    "epochs": 50,
+    "n_captures": 23,
+    "n_folds": 6,
+    "lodo_scale_mae_cm_px": 0.00196,
+    "lodo_scale_mape_pct": 17.81
+  },
+  "summary": {
+    "mode_a_card_present": {
+      "mae_g": 90.90434782608695,
+      "mape_pct": 27.7544442503836,
+      "signed_bias_g": -71.2695652173913,
+      "rmse_g": 119.82344620678194
+    },
+    "mode_b_card_free_oof": {
+      "mae_g": 225.36956521739134,
+      "mape_pct": 67.8998996201546,
+      "signed_bias_g": -223.51739130434785,
+      "rmse_g": 254.93145796639058
+    },
+    "mode_c_uncalibrated_prior": {
+      "mae_g": 133.44782608695652,
+      "mape_pct": 40.69152519505984,
+      "signed_bias_g": -69.25652173913043,
+      "rmse_g": 169.80787737143203
+    }
+  },
+  "per_dish_summary": {
+    "Dish 1": {
+      "ground_truth_g": 450.0,
+      "mode_a_mae_g": 148.66666666666666,
+      "mode_b_mae_g": 361.9833333333333,
+      "mode_c_mae_g": 265.26666666666665
+    },
+    "Dish 2": {
+      "ground_truth_g": 338.0,
+      "mode_a_mae_g": 85.975,
+      "mode_b_mae_g": 298.025,
+      "mode_c_mae_g": 42.150000000000006
+    },
+    "Dish 3": {
+      "ground_truth_g": 191.0,
+      "mode_a_mae_g": 42.63333333333333,
+      "mode_b_mae_g": 89.46666666666668,
+      "mode_c_mae_g": 78.8
+    },
+    "Dish 4": {
+      "ground_truth_g": 250.0,
+      "mode_a_mae_g": 38.833333333333336,
+      "mode_b_mae_g": 148.9333333333333,
+      "mode_c_mae_g": 125.90000000000002
+    },
+    "Dish 5": {
+      "ground_truth_g": 150.0,
+      "mode_a_mae_g": 44.43333333333334,
+      "mode_b_mae_g": 80.76666666666667,
+      "mode_c_mae_g": 51.93333333333334
+    },
+    "Dish 6": {
+      "ground_truth_g": 351.0,
+      "mode_a_mae_g": 119.30000000000001,
+      "mode_b_mae_g": 215.5,
+      "mode_c_mae_g": 134.8
+    }
+  },
+  "fold_metrics": {
+    "Dish 1": {
+      "scale_mae_cm_px": 0.00201,
+      "scale_mape_pct": 19.11,
+      "depth_scale_mae": 0.0125
+    },
+    "Dish 2": {
+      "scale_mae_cm_px": 0.00122,
+      "scale_mape_pct": 8.59,
+      "depth_scale_mae": 0.0084
+    },
+    "Dish 3": {
+      "scale_mae_cm_px": 0.00538,
+      "scale_mape_pct": 49.07,
+      "depth_scale_mae": 0.0341
+    },
+    "Dish 4": {
+      "scale_mae_cm_px": 0.0002,
+      "scale_mape_pct": 1.94,
+      "depth_scale_mae": 0.0032
+    },
+    "Dish 5": {
+      "scale_mae_cm_px": 0.00055,
+      "scale_mape_pct": 5.13,
+      "depth_scale_mae": 0.0041
+    },
+    "Dish 6": {
+      "scale_mae_cm_px": 0.00237,
+      "scale_mape_pct": 23.04,
+      "depth_scale_mae": 0.0152
+    }
+  },
+  "per_image_results": [
+    {
+      "dish_name": "Dish 1",
+      "filename": "20261025_184112.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 166.7,
+        "error_g": -283.3,
+        "ape_pct": 62.96
+      },
+      "mode_b_card_free_oof": {
+        "grams": 24.8,
+        "error_g": -425.2,
+        "ape_pct": 94.49
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 244.6,
+        "error_g": -205.4,
+        "ape_pct": 45.64
+      }
+    },
+    {
+      "dish_name": "Dish 1",
+      "filename": "20261025_184421.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 382.5,
+        "error_g": -67.5,
+        "ape_pct": 15.0
+      },
+      "mode_b_card_free_oof": {
+        "grams": 92.3,
+        "error_g": -357.7,
+        "ape_pct": 79.49
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 289.5,
+        "error_g": -160.5,
+        "ape_pct": 35.67
+      }
+    },
+    {
+      "dish_name": "Dish 1",
+      "filename": "20261025_191003.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 284.6,
+        "error_g": -165.4,
+        "ape_pct": 36.76
+      },
+      "mode_b_card_free_oof": {
+        "grams": 83.8,
+        "error_g": -366.2,
+        "ape_pct": 81.38
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 88.6,
+        "error_g": -361.4,
+        "ape_pct": 80.31
+      }
+    },
+    {
+      "dish_name": "Dish 1",
+      "filename": "20261025_191009.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 239.4,
+        "error_g": -210.6,
+        "ape_pct": 46.8
+      },
+      "mode_b_card_free_oof": {
+        "grams": 64.7,
+        "error_g": -385.3,
+        "ape_pct": 85.62
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 100.9,
+        "error_g": -349.1,
+        "ape_pct": 77.58
+      }
+    },
+    {
+      "dish_name": "Dish 1",
+      "filename": "20261025_191019.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 542.5,
+        "error_g": 92.5,
+        "ape_pct": 20.56
+      },
+      "mode_b_card_free_oof": {
+        "grams": 176.6,
+        "error_g": -273.4,
+        "ape_pct": 60.76
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 662.8,
+        "error_g": 212.8,
+        "ape_pct": 47.29
+      }
+    },
+    {
+      "dish_name": "Dish 1",
+      "filename": "this plate weight is 450 grams.jpg",
+      "ground_truth_g": 450.0,
+      "mode_a_card_present": {
+        "grams": 377.3,
+        "error_g": -72.7,
+        "ape_pct": 16.16
+      },
+      "mode_b_card_free_oof": {
+        "grams": 85.9,
+        "error_g": -364.1,
+        "ape_pct": 80.91
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 147.6,
+        "error_g": -302.4,
+        "ape_pct": 67.2
+      }
+    },
+    {
+      "dish_name": "Dish 2",
+      "filename": "20261027_085735.jpg",
+      "ground_truth_g": 338.0,
+      "mode_a_card_present": {
+        "grams": 137.6,
+        "error_g": -200.4,
+        "ape_pct": 59.29
+      },
+      "mode_b_card_free_oof": {
+        "grams": 50.9,
+        "error_g": -287.1,
+        "ape_pct": 84.94
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 288.2,
+        "error_g": -49.8,
+        "ape_pct": 14.73
+      }
+    },
+    {
+      "dish_name": "Dish 2",
+      "filename": "20261027_085741.jpg",
+      "ground_truth_g": 338.0,
+      "mode_a_card_present": {
+        "grams": 311.5,
+        "error_g": -26.5,
+        "ape_pct": 7.84
+      },
+      "mode_b_card_free_oof": {
+        "grams": 24.4,
+        "error_g": -313.6,
+        "ape_pct": 92.78
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 345.0,
+        "error_g": 7.0,
+        "ape_pct": 2.07
+      }
+    },
+    {
+      "dish_name": "Dish 2",
+      "filename": "20261027_085746.jpg",
+      "ground_truth_g": 338.0,
+      "mode_a_card_present": {
+        "grams": 229.0,
+        "error_g": -109.0,
+        "ape_pct": 32.25
+      },
+      "mode_b_card_free_oof": {
+        "grams": 28.2,
+        "error_g": -309.8,
+        "ape_pct": 91.66
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 270.4,
+        "error_g": -67.6,
+        "ape_pct": 20.0
+      }
+    },
+    {
+      "dish_name": "Dish 2",
+      "filename": "Rice plate 255g rice 127g rasam (Dish 2).jpg",
+      "ground_truth_g": 338.0,
+      "mode_a_card_present": {
+        "grams": 330.0,
+        "error_g": -8.0,
+        "ape_pct": 2.37
+      },
+      "mode_b_card_free_oof": {
+        "grams": 56.4,
+        "error_g": -281.6,
+        "ape_pct": 83.31
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 382.2,
+        "error_g": 44.2,
+        "ape_pct": 13.08
+      }
+    },
+    {
+      "dish_name": "Dish 3",
+      "filename": "127 g plate 47 g bowl 121 g chappati 70 g chutney.jpg",
+      "ground_truth_g": 191.0,
+      "mode_a_card_present": {
+        "grams": 167.1,
+        "error_g": -23.9,
+        "ape_pct": 12.51
+      },
+      "mode_b_card_free_oof": {
+        "grams": 67.6,
+        "error_g": -123.4,
+        "ape_pct": 64.61
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 120.1,
+        "error_g": -70.9,
+        "ape_pct": 37.12
+      }
+    },
+    {
+      "dish_name": "Dish 3",
+      "filename": "20261029_125158.jpg",
+      "ground_truth_g": 191.0,
+      "mode_a_card_present": {
+        "grams": 156.9,
+        "error_g": -34.1,
+        "ape_pct": 17.85
+      },
+      "mode_b_card_free_oof": {
+        "grams": 67.3,
+        "error_g": -123.7,
+        "ape_pct": 64.76
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 29.1,
+        "error_g": -161.9,
+        "ape_pct": 84.76
+      }
+    },
+    {
+      "dish_name": "Dish 3",
+      "filename": "20261029_125203.jpg",
+      "ground_truth_g": 191.0,
+      "mode_a_card_present": {
+        "grams": 121.1,
+        "error_g": -69.9,
+        "ape_pct": 36.6
+      },
+      "mode_b_card_free_oof": {
+        "grams": 212.3,
+        "error_g": 21.3,
+        "ape_pct": 11.15
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 194.6,
+        "error_g": 3.6,
+        "ape_pct": 1.88
+      }
+    },
+    {
+      "dish_name": "Dish 4",
+      "filename": "127g plate 206g biryani 44g boiled egg (Dish 4).jpg",
+      "ground_truth_g": 250.0,
+      "mode_a_card_present": {
+        "grams": 248.5,
+        "error_g": -1.5,
+        "ape_pct": 0.6
+      },
+      "mode_b_card_free_oof": {
+        "grams": 72.9,
+        "error_g": -177.1,
+        "ape_pct": 70.84
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 298.0,
+        "error_g": 48.0,
+        "ape_pct": 19.2
+      }
+    },
+    {
+      "dish_name": "Dish 4",
+      "filename": "20261029_141529.jpg",
+      "ground_truth_g": 250.0,
+      "mode_a_card_present": {
+        "grams": 209.5,
+        "error_g": -40.5,
+        "ape_pct": 16.2
+      },
+      "mode_b_card_free_oof": {
+        "grams": 150.9,
+        "error_g": -99.1,
+        "ape_pct": 39.64
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 435.6,
+        "error_g": 185.6,
+        "ape_pct": 74.24
+      }
+    },
+    {
+      "dish_name": "Dish 4",
+      "filename": "20261029_141536.jpg",
+      "ground_truth_g": 250.0,
+      "mode_a_card_present": {
+        "grams": 175.5,
+        "error_g": -74.5,
+        "ape_pct": 29.8
+      },
+      "mode_b_card_free_oof": {
+        "grams": 79.4,
+        "error_g": -170.6,
+        "ape_pct": 68.24
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 105.9,
+        "error_g": -144.1,
+        "ape_pct": 57.64
+      }
+    },
+    {
+      "dish_name": "Dish 5",
+      "filename": "127g plate 150 g biryani (Dish 5).jpg",
+      "ground_truth_g": 150.0,
+      "mode_a_card_present": {
+        "grams": 226.1,
+        "error_g": 76.1,
+        "ape_pct": 50.73
+      },
+      "mode_b_card_free_oof": {
+        "grams": 122.3,
+        "error_g": -27.7,
+        "ape_pct": 18.47
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 225.4,
+        "error_g": 75.4,
+        "ape_pct": 50.27
+      }
+    },
+    {
+      "dish_name": "Dish 5",
+      "filename": "20261029_141201.jpg",
+      "ground_truth_g": 150.0,
+      "mode_a_card_present": {
+        "grams": 159.9,
+        "error_g": 9.9,
+        "ape_pct": 6.6
+      },
+      "mode_b_card_free_oof": {
+        "grams": 40.7,
+        "error_g": -109.3,
+        "ape_pct": 72.87
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 162.9,
+        "error_g": 12.9,
+        "ape_pct": 8.6
+      }
+    },
+    {
+      "dish_name": "Dish 5",
+      "filename": "20261029_141208.jpg",
+      "ground_truth_g": 150.0,
+      "mode_a_card_present": {
+        "grams": 197.3,
+        "error_g": 47.3,
+        "ape_pct": 31.53
+      },
+      "mode_b_card_free_oof": {
+        "grams": 44.7,
+        "error_g": -105.3,
+        "ape_pct": 70.2
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 82.5,
+        "error_g": -67.5,
+        "ape_pct": 45.0
+      }
+    },
+    {
+      "dish_name": "Dish 6",
+      "filename": "127 g plate 257g biryani 94g boiled egg (dish 6).jpg",
+      "ground_truth_g": 351.0,
+      "mode_a_card_present": {
+        "grams": 294.9,
+        "error_g": -56.1,
+        "ape_pct": 15.98
+      },
+      "mode_b_card_free_oof": {
+        "grams": 93.0,
+        "error_g": -258.0,
+        "ape_pct": 73.5
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 293.0,
+        "error_g": -58.0,
+        "ape_pct": 16.52
+      }
+    },
+    {
+      "dish_name": "Dish 6",
+      "filename": "20261029_141720.jpg",
+      "ground_truth_g": 351.0,
+      "mode_a_card_present": {
+        "grams": 103.1,
+        "error_g": -247.9,
+        "ape_pct": 70.63
+      },
+      "mode_b_card_free_oof": {
+        "grams": 87.0,
+        "error_g": -264.0,
+        "ape_pct": 75.21
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 92.4,
+        "error_g": -258.6,
+        "ape_pct": 73.68
+      }
+    },
+    {
+      "dish_name": "Dish 6",
+      "filename": "20261029_141725.jpg",
+      "ground_truth_g": 351.0,
+      "mode_a_card_present": {
+        "grams": 211.9,
+        "error_g": -139.1,
+        "ape_pct": 39.63
+      },
+      "mode_b_card_free_oof": {
+        "grams": 78.6,
+        "error_g": -272.4,
+        "ape_pct": 77.61
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 277.1,
+        "error_g": -73.9,
+        "ape_pct": 21.05
+      }
+    },
+    {
+      "dish_name": "Dish 6",
+      "filename": "20261029_141729.jpg",
+      "ground_truth_g": 351.0,
+      "mode_a_card_present": {
+        "grams": 316.9,
+        "error_g": -34.1,
+        "ape_pct": 9.72
+      },
+      "mode_b_card_free_oof": {
+        "grams": 283.4,
+        "error_g": -67.6,
+        "ape_pct": 19.26
+      },
+      "mode_c_uncalibrated_prior": {
+        "grams": 499.7,
+        "error_g": 148.7,
+        "ape_pct": 42.36
+      }
+    }
+  ]
+}
