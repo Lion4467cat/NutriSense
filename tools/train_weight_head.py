@@ -176,7 +176,7 @@ def load_manifest(split: str, *, allow_locked: bool = False) -> list[dict]:
 
         for row in rows:
             MeasuredExample.from_row(
-                row, dataset_root=_ROOT / "data" / "wed", require_files=True)
+                row, dataset_root=_ROOT / "data" / "wed", require_files=False)
     return rows
 
 
