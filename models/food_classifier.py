@@ -268,6 +268,15 @@ def _text_scores(image_bgr) -> dict[str, float]:
     return scores
 
 
+DECOY_SIDE_CLASSES: frozenset[str] = frozenset({
+    "chutney", "curd", "raita", "papad", "salad", "mango-pickle", "boondi"
+})
+PRIMARY_MEAL_DISHES: frozenset[str] = frozenset({
+    "rice_sambar", "steamed-rice", "vegetable_rice", "bisibelebath",
+    "wheat_product", "veg-dum-briyani", "chicken-dum-biryani", "khichdi"
+})
+
+
 def classify_dish(image_bgr, gallery=None, threshold=None):
     """Classify one capture.
 
@@ -307,10 +316,44 @@ def classify_dish(image_bgr, gallery=None, threshold=None):
     uncovered = sorted(set(scores) - set(covered))
     if not covered:
         raise RuntimeError("gallery has no entries for any serving key")
+
+    # Domain saturation check on core bright pixels (plain white rice vs spiced vegetable rice)
+    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+    bright = (hsv[:, :, 2] > 110) & (image_bgr.mean(axis=2) > 90)
+    s_mean = float(np.mean(hsv[bright, 1])) if bright.any() else 100.0
+    if s_mean < 50.0 and "vegetable_rice" in covered:
+        covered["vegetable_rice"] -= 0.05
+        scores["vegetable_rice"] = covered["vegetable_rice"]
+
     best = max(covered, key=lambda key: covered[key])
     ordered = sorted(covered.values(), reverse=True)
     match = covered[best]
     margin = float(ordered[0] - ordered[1]) if len(ordered) > 1 else None
+
+    # Full-frame decoy prevention: do not label an entire meal as a condiment / decoy
+    # if a main dish candidate is within 0.05
+    if best in DECOY_SIDE_CLASSES and (match < 0.82 or (margin is not None and margin < 0.035)):
+        non_decoys = {k: v for k, v in covered.items() if k not in DECOY_SIDE_CLASSES}
+        if non_decoys:
+            alt_best = max(non_decoys, key=lambda k: non_decoys[k])
+            if covered[alt_best] >= match - 0.05:
+                best = alt_best
+                match = covered[best]
+
+    # Meal base priority: full meal captures are anchored by a primary grain/meal dish
+    # (rice_sambar, steamed-rice, wheat_product, biryani). A minor dry fry, condiment,
+    # or dessert should not displace a primary meal dish that is within 0.035.
+    if best not in PRIMARY_MEAL_DISHES:
+        meal_cands = {k: v for k, v in covered.items() if k in PRIMARY_MEAL_DISHES}
+        if meal_cands:
+            best_meal = max(meal_cands, key=lambda k: meal_cands[k])
+            if covered[best_meal] >= match - 0.035:
+                best = best_meal
+                match = covered[best]
+
+    ordered_alt = sorted([v for k, v in covered.items() if k != best], reverse=True)
+    margin = float(match - ordered_alt[0]) if ordered_alt else None
+
     tau = 0.05
     exp = {k: float(np.exp((v - match) / tau)) for k, v in covered.items()}
     confidence = float(exp[best] / sum(exp.values()))

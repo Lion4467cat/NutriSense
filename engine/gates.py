@@ -41,6 +41,8 @@ def _zoom(ctx: dict) -> str | None:
 
 def _day(ctx: dict) -> str | None:
     day = ctx.get("day")
+    if isinstance(day, str) and day.strip().lower() in ctx["menu"]["days"]:
+        return None
     if day in ctx["menu"]["days"]:
         return None
     return f"unknown day {day!r}"

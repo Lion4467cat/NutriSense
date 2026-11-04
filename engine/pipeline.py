@@ -338,6 +338,58 @@ def _is_valid_secondary_vessel(
     return aspect >= 0.50 and solidity >= 0.60 and touches == 0
 
 
+DECOY_SIDE_CLASSES: frozenset[str] = frozenset({
+    "chutney", "curd", "raita", "papad", "salad", "mango-pickle", "boondi"
+})
+LIQUID_BOWL_CLASSES: frozenset[str] = frozenset({
+    "sambar", "leaf-dal", "rasam", "non-spicy-dal", "tomato-pappu",
+    "dal", "pachi-pulusu", "bendakaya-pulusu", "rajma"
+})
+
+
+def _mask_core_chromaticity(
+    image_bgr: np.ndarray,
+    mask: np.ndarray | None,
+    bbox: list[int] | None = None,
+) -> dict[str, float]:
+    """Compute core chromaticity (HSV) on the inner 60% core of a mask/bbox.
+    Drops specular highlights (V > 235, S < 35) and dark shadows (V < 40)."""
+    if mask is None and bbox is not None:
+        x0, y0, x1, y1 = bbox
+        mask = np.zeros(image_bgr.shape[:2], dtype=bool)
+        mask[max(0, y0):min(image_bgr.shape[0], y1), max(0, x0):min(image_bgr.shape[1], x1)] = True
+    if mask is None or not np.asarray(mask).any():
+        return {"mean_h": 0.0, "mean_s": 0.0, "mean_v": 0.0, "specular_frac": 0.0, "valid_px": 0}
+
+    mask_bool = np.asarray(mask, dtype=bool)
+    k_size = max(3, int(np.sqrt(float(mask_bool.sum())) * 0.15))
+    if k_size % 2 == 0:
+        k_size += 1
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_size, k_size))
+    eroded = cv2.erode(mask_bool.astype(np.uint8), kernel) > 0
+    if not eroded.any():
+        eroded = mask_bool
+
+    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+    h_chan, s_chan, v_chan = hsv[:, :, 0], hsv[:, :, 1], hsv[:, :, 2]
+
+    specular = (v_chan > 235) & (s_chan < 35) & eroded
+    shadow = (v_chan < 40) & eroded
+    valid = eroded & (~specular) & (~shadow)
+
+    spec_frac = float(specular.sum()) / float(eroded.sum()) if eroded.any() else 0.0
+    if not valid.any():
+        valid = eroded
+
+    return {
+        "mean_h": float(np.mean(h_chan[valid])),
+        "mean_s": float(np.mean(s_chan[valid])),
+        "mean_v": float(np.mean(v_chan[valid])),
+        "specular_frac": spec_frac,
+        "valid_px": int(valid.sum()),
+    }
+
+
 def _same_food_family(id1: str | None, id2: str | None) -> bool:
     """True if two food IDs represent the same broad dish family."""
     if not id1 or not id2:
@@ -446,6 +498,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     from models.food_classifier import classify_dish
 
     deps = deps or {}
+    day = day.strip().lower() if isinstance(day, str) else day
     if mode not in {"school", "general"}:
         raise ValueError("mode must be 'school' or 'general'")
     segment = deps.get("segment") or segment_food
@@ -649,7 +702,28 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         candidates = {key: float(value) for key, value in scores.items()
                       if value is not None and np.isfinite(float(value))}
         if candidates:
-            candidate = max(candidates, key=lambda key: candidates[key])
+            main_cands = {k: v for k, v in candidates.items() if k not in DECOY_SIDE_CLASSES}
+            if main_cands:
+                candidate = max(main_cands, key=lambda key: main_cands[key])
+            else:
+                candidate = max(candidates, key=lambda key: candidates[key])
+
+            # Domain saturation check on plain white rice vs spiced vegetable rice
+            hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+            bright = (hsv[:, :, 2] > 110) & (image_bgr.mean(axis=2) > 90)
+            s_mean = float(np.mean(hsv[bright, 1])) if bright.any() else 100.0
+            if s_mean < 50.0 and candidate == "vegetable_rice":
+                if "steamed-rice" in candidates and candidates["steamed-rice"] >= candidates["vegetable_rice"] - 0.05:
+                    candidate = "steamed-rice"
+                elif "rice_sambar" in candidates and candidates["rice_sambar"] >= candidates["vegetable_rice"] - 0.05:
+                    candidate = "rice_sambar"
+
+            # If grain dish was picked and a separate katori / secondary vessel exists, promote to combo
+            if candidate in ("steamed-rice", "vegetable_rice"):
+                has_katori = any(it.get("is_secondary_vessel") for it in (seg.get("items") or []))
+                if has_katori and ("rice_sambar" in candidates or "rice_sambar" in menu["dishes"]):
+                    candidate = "rice_sambar"
+
             note = (
                 "The classifier's best food label was below its acceptance "
                 f"threshold; {candidate} is used only for a tentative meal "
@@ -1110,6 +1184,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         mean_rgb = np.array([128.0, 128.0, 128.0], dtype=np.float32)
                     crop_f[bg_mask] = 0.35 * crop_f[bg_mask] + 0.65 * mean_rgb
                     crop = np.clip(crop_f, 0, 255).astype(np.uint8)
+            chroma = _mask_core_chromaticity(image_bgr, item.get("mask"), item.get("bbox"))
             try:
                 if semantic_name and "classify" not in deps:
                     cls_i = {
@@ -1132,11 +1207,12 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         sem_score = float(crop_scores.get(semantic_name, 0.0))
                         if is_decoy:
                             # Papad and salad are frequent DeepLabV3 spurious artifacts on plate rims,
-                            # specular highlights, and card margins. Only admit if SigLIP independently
-                            # confirms the crop with high confidence.
-                            if crop_dish == semantic_name and ms >= 0.85:
+                            # specular highlights, and card margins.
+                            if chroma["mean_s"] < 40 or chroma["specular_frac"] > 0.12 or ms < 0.88:
+                                continue
+                            if crop_dish == semantic_name and ms >= 0.88:
                                 pass
-                            elif crop_dish and ms >= 0.85 and crop_dish not in ("papad", "salad", "curd"):
+                            elif crop_dish and ms >= 0.85 and crop_dish not in DECOY_SIDE_CLASSES:
                                 cls_i = dict(
                                     cls_crop,
                                     reason=f"SigLIP verified serving {crop_dish}={ms:.3f} (overrode decoy WED {semantic_name})",
@@ -1149,6 +1225,30 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 else:
                     cls_i = _oom_guard(lambda c=crop: classify(c),
                                        degradations)()
+
+                crop_dish = cls_i.get("dish")
+                ms = float(cls_i.get("match_score") or 0.0)
+                if chroma["mean_s"] < 35 and chroma["specular_frac"] > 0.18 and ms < 0.84:
+                    continue
+
+                if crop_dish in ("chutney", "curd", "raita"):
+                    if chroma["mean_s"] >= 55 and (chroma["mean_h"] <= 45 or chroma["mean_h"] >= 160):
+                        liq_cand = {k: float(v) for k, v in (cls_i.get("scores") or {}).items()
+                                    if k in LIQUID_BOWL_CLASSES and v is not None and np.isfinite(float(v))}
+                        if liq_cand:
+                            best_liq = max(liq_cand, key=lambda k: liq_cand[k])
+                            cls_i = dict(cls_i, dish=best_liq, match_score=liq_cand[best_liq],
+                                         reason=f"liquid chromaticity (H={chroma['mean_h']:.1f}, S={chroma['mean_s']:.1f}) re-ranked to {best_liq}")
+                            crop_dish = best_liq
+                        else:
+                            continue
+                    elif chroma["mean_s"] > 55 and not (35 <= chroma["mean_h"] <= 85):
+                        continue
+                elif crop_dish in ("papad", "salad") and (
+                    chroma["mean_s"] < 40 or chroma["specular_frac"] > 0.12 or ms < 0.85
+                ):
+                    continue
+
                 if combo and not semantic_name and cls_i.get("scores"):
                     from models.food_classifier import gallery_match_threshold
                     cand = {k: float(v) for k, v in cls_i["scores"].items()
@@ -1157,6 +1257,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     if cand:
                         best = max(cand, key=lambda key: cand[key])
                         match_score = float(cand[best])
+                        if best == "vegetable_rice" and chroma["mean_s"] < 50.0 and "steamed-rice" in combo:
+                            best = "steamed-rice"
+                            match_score = float(cls_i["scores"].get("steamed-rice", match_score))
                         threshold = gallery_match_threshold()
                         low_confidence = (
                             cls_i.get("method") == "gallery"
@@ -1182,11 +1285,14 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     scores = cls_i.get("scores") or {}
                     cand = {key: float(value) for key, value in scores.items()
                             if value is not None
-                            and np.isfinite(float(value))}
+                            and np.isfinite(float(value))
+                            and key not in DECOY_SIDE_CLASSES}
                     if cand:
                         best = max(cand, key=lambda key: cand[key])
-                        if cand[best] < 0.65:
+                        if cand[best] < 0.74:
                             continue
+                        if best == "vegetable_rice" and chroma["mean_s"] < 50.0:
+                            best = "steamed-rice"
                         note = (
                             "An item classifier score was below its "
                             f"acceptance threshold; {best} is used only for "
@@ -1196,7 +1302,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         cls_i = dict(cls_i, dish=best, reason=note)
                 if item.get("is_secondary_vessel") and not combo:
                     ms = float(cls_i.get("match_score") or 0.0)
-                    if ms < 0.80:
+                    if ms < 0.80 or cls_i.get("dish") in ("papad", "salad"):
                         continue
                 if semantic_name and "classify" in deps:
                     classifier_candidate = cls_i.get("dish")
@@ -1212,6 +1318,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         ),
                     )
                 cls_info, info_i, dish_i, reason_i = _resolve_serving(cls_i)
+                if info_i and info_i["id"] == "vegetable_rice" and chroma["mean_s"] < 50.0:
+                    cls_promoted = dict(cls_i, dish="steamed-rice",
+                                        reason="promoted to steamed-rice due to low grain saturation")
+                    cls_info, info_i, dish_i, reason_i = _resolve_serving(cls_promoted)
             except Exception as e:
                 log.warning("item %d classification failed (%s) — skipped",
                             rank, e)
@@ -1228,26 +1338,26 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                 continue
             classified_items.append((item, cls_info, info_i, dish_i))
 
-        # Coalesce same-class proposals when bounding boxes overlap or masks touch
+        # Coalesce same-class proposals when masks overlap or bounding boxes intersect
         coalesced_items = []
         for item, cls_info, info_i, dish_i in classified_items:
             merged = False
             for idx, (c_item, c_cls, c_info, c_dish) in enumerate(coalesced_items):
                 if _same_food_family(c_info["id"], info_i["id"]):
+                    m1, m2 = item.get("mask"), c_item.get("mask")
                     b1, b2 = item.get("bbox"), c_item.get("bbox")
                     overlap = False
-                    if b1 is not None and b2 is not None:
+                    if m1 is not None and m2 is not None:
+                        overlap = bool((m1 & m2).any())
+                    elif b1 is not None and b2 is not None:
                         ix0, iy0 = max(b1[0], b2[0]), max(b1[1], b2[1])
                         ix1, iy1 = min(b1[2], b2[2]), min(b1[3], b2[3])
                         inter_w, inter_h = max(0, ix1 - ix0), max(0, iy1 - iy0)
                         inter_area = inter_w * inter_h
                         min_area = min((b1[2] - b1[0]) * (b1[3] - b1[1]),
                                        (b2[2] - b2[0]) * (b2[3] - b2[1]))
-                        if min_area > 0 and (inter_area / min_area) > 0.15:
+                        if min_area > 0 and (inter_area / min_area) > 0.25:
                             overlap = True
-                    m1, m2 = item.get("mask"), c_item.get("mask")
-                    if m1 is not None and m2 is not None and (m1 & m2).any():
-                        overlap = True
                     if overlap:
                         m_merged = (m1 | m2) if (m1 is not None and m2 is not None) else (m1 or m2)
                         b_merged = None
@@ -1377,19 +1487,25 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         }
         agg_mc = aggregate_meal([r[5] for r in resolved])
         matched_menu_dish = None
-        if len(resolved) == 2:
-            id1 = resolved[0][2]["id"]
-            id2 = resolved[1][2]["id"]
-            if (_same_food_family(id1, "rice") and _same_food_family(id2, "dal")) or \
-               (_same_food_family(id1, "dal") and _same_food_family(id2, "rice")):
-                matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
+        has_rice = any(_same_food_family(r[2]["id"], "rice") for r in resolved)
+        has_dal = any(_same_food_family(r[2]["id"], "dal") for r in resolved)
+        if has_rice and has_dal:
+            matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
 
         if matched_menu_dish and matched_menu_dish.get("display_name"):
             agg_dish_name = "Rice + Sambar"
         else:
-            agg_dish_name = " + ".join(
-                (info_i.get("display_name") or info_i["id"])
-                for _i, _c, info_i, _d, _p, _m in resolved)
+            seen_families = set()
+            unique_names = []
+            for _i, _c, info_i, _d, _p, _m in resolved:
+                fam = ("rice" if _same_food_family(info_i["id"], "rice")
+                       else ("dal" if _same_food_family(info_i["id"], "dal")
+                       else info_i["id"]))
+                if fam not in seen_families:
+                    seen_families.add(fam)
+                    dn = info_i.get("display_name") or info_i["id"]
+                    unique_names.append(dn)
+            agg_dish_name = " + ".join(unique_names)
         agg_days = list(matched_menu_dish.get("days") or []) if matched_menu_dish else []
 
         agg_dish = {
