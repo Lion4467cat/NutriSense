@@ -107,10 +107,21 @@ class MonocularDepth:
         return registry.get_or_create(key, _make)["model"]
 
     def __call__(self, image_bgr, fov_x=None):
+        import cv2
         import torch
 
         model = self._load()
-        rgb = image_bgr[..., ::-1]
+        H, W = image_bgr.shape[:2]
+        max_side = max(H, W)
+        scale = 1.0
+        if max_side > 1024:
+            scale = 1024.0 / max_side
+            new_W, new_H = int(round(W * scale)), int(round(H * scale))
+            img_infer = cv2.resize(image_bgr, (new_W, new_H), interpolation=cv2.INTER_AREA)
+        else:
+            img_infer = image_bgr
+
+        rgb = img_infer[..., ::-1]
         tensor = torch.from_numpy(np.ascontiguousarray(rgb, dtype=np.float32) / 255.0)
         tensor = tensor.permute(2, 0, 1).to(next(model.parameters()).device)
         with torch.inference_mode():
@@ -121,6 +132,8 @@ class MonocularDepth:
         if isinstance(depth, torch.Tensor):
             depth = depth.float().cpu().numpy()
         depth = np.asarray(depth, dtype=np.float32)
+        if scale != 1.0:
+            depth = cv2.resize(depth, (W, H), interpolation=cv2.INTER_LINEAR)
         finite = np.isfinite(depth) & (depth > 0)
         if finite.mean() < 0.5:
             raise ValueError("monocular depth mostly invalid")

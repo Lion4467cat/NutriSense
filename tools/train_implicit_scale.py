@@ -9,7 +9,12 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import sys
+
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -224,7 +229,8 @@ def run_lodo_cv_and_eval(
 
         # Mode A: Card Present
         res_a = pipeline.analyze(img, day="mon", band="1-5", exif=exif)
-        grams_a = float(res_a.get("portion", {}).get("grams", 0.0))
+        p_a = res_a.get("portion") or {}
+        grams_a = float(p_a.get("grams") or 0.0)
         err_a = grams_a - gt_g
         ape_a = abs(err_a) / gt_g * 100.0
         mode_a_errors.append(err_a)
@@ -236,7 +242,8 @@ def run_lodo_cv_and_eval(
         res_b = pipeline.analyze(
             masked_img, day="mon", band="1-5", exif=exif, deps={"implicit_scale_head": oof_model}
         )
-        grams_b = float(res_b.get("portion", {}).get("grams", 0.0))
+        p_b = res_b.get("portion") or {}
+        grams_b = float(p_b.get("grams") or 0.0)
         err_b = grams_b - gt_g
         ape_b = abs(err_b) / gt_g * 100.0
         mode_b_errors.append(err_b)
@@ -247,7 +254,8 @@ def run_lodo_cv_and_eval(
         res_c = pipeline.analyze(
             masked_img, day="mon", band="1-5", exif=exif, deps={"implicit_scale_head": None}
         )
-        grams_c = float(res_c.get("portion", {}).get("grams", 0.0))
+        p_c = res_c.get("portion") or {}
+        grams_c = float(p_c.get("grams") or 0.0)
         err_c = grams_c - gt_g
         ape_c = abs(err_c) / gt_g * 100.0
         mode_c_errors.append(err_c)
@@ -256,6 +264,8 @@ def run_lodo_cv_and_eval(
 
         print(f"[{idx:2d}/23] {ex.dish_name} ({ex.filename[:20]}...) GT: {gt_g:5.1f}g | Mode A: {grams_a:5.1f}g (Δ{err_a:+5.1f}g) | Mode B: {grams_b:5.1f}g (Δ{err_b:+5.1f}g) | Mode C: {grams_c:5.1f}g (Δ{err_c:+5.1f}g)")
 
+        a_b = res_b.get("anchor") or {}
+        a_c = res_c.get("anchor") or {}
         per_image_results.append({
             "dish_name": ex.dish_name,
             "filename": ex.filename,
@@ -265,22 +275,22 @@ def run_lodo_cv_and_eval(
                 "error_g": round(err_a, 2),
                 "ape_pct": round(ape_a, 2),
                 "verdict": res_a.get("verdict"),
-                "anchor_tier": res_a.get("anchor", {}).get("tier"),
+                "anchor_tier": (res_a.get("anchor") or {}).get("tier"),
             },
             "mode_b_card_free_oof": {
                 "grams": round(grams_b, 2),
                 "error_g": round(err_b, 2),
                 "ape_pct": round(ape_b, 2),
                 "verdict": res_b.get("verdict"),
-                "anchor_tier": res_b.get("anchor", {}).get("tier"),
-                "cm_per_px": res_b.get("anchor", {}).get("cm_per_px"),
+                "anchor_tier": a_b.get("tier"),
+                "cm_per_px": a_b.get("cm_per_px"),
             },
             "mode_c_uncalibrated_prior": {
                 "grams": round(grams_c, 2),
                 "error_g": round(err_c, 2),
                 "ape_pct": round(ape_c, 2),
                 "verdict": res_c.get("verdict"),
-                "anchor_tier": res_c.get("anchor", {}).get("tier"),
+                "anchor_tier": a_c.get("tier"),
             },
         })
 

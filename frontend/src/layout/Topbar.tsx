@@ -169,7 +169,7 @@ export default function Topbar({
             to={to}
             end={end}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            title={shortLabel ? "Menu & meal standards" : label}
+            title={shortLabel ? `${label} (nutrition targets & meal standards)` : label}
           >
             {shortLabel ? (
               <>

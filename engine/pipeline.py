@@ -701,14 +701,36 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         off_menu = wed.get("off_menu") or {}
         if dish_key in menu["dishes"] or dish_key in off_menu:
             target = dish_key
+            dish = menu["dishes"].get(target) or off_menu.get(target)
         else:
-            # a raw WED label routes through the serving map (e.g. phulka
-            # -> wheat_product, the menu dish whose verdict path it keeps)
-            target = (wed.get("serving") or {}).get(dish_key, {}).get("dish")
-            if target is None:
-                raise KeyError(
-                    f"classified dish {dish_key!r} has no serving entry")
-        dish = menu["dishes"].get(target) or off_menu.get(target)
+            # Check expanded Indian food nutrition master (INDB + IFCT)
+            from engine.nutrients import get_indb_master
+            indb_entry = get_indb_master().get(dish_key)
+            if indb_entry is not None:
+                target = dish_key
+                dish = {
+                    "id": target,
+                    "display_name": indb_entry.get("name", target.replace("_", " ").title()),
+                    "nutrition_source": "indb_ifct",
+                    "density_g_ml": indb_entry.get("density_g_cm3", 0.85),
+                    "serving_prior": indb_entry.get("serving_prior"),
+                    "components": {
+                        dish_key: {
+                            "generic_id": f"indb_{dish_key}",
+                            "share": 1.0,
+                            "density_g_ml": indb_entry.get("density_g_cm3", 0.85),
+                        }
+                    },
+                    "per_100g": indb_entry.get("per_100g", {}),
+                }
+            else:
+                # a raw WED label routes through the serving map (e.g. phulka
+                # -> wheat_product, the menu dish whose verdict path it keeps)
+                target = (wed.get("serving") or {}).get(dish_key, {}).get("dish")
+                if target is None:
+                    raise KeyError(
+                        f"classified dish {dish_key!r} has no serving entry")
+                dish = menu["dishes"].get(target) or off_menu.get(target)
         if dish is None:
             raise KeyError(f"classified dish {dish_key!r} has no serving entry")
         menu_dish = target in menu["dishes"]
@@ -1041,7 +1063,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             if anchor and anchor.get("method") == "implicit_scale" and depth_m is not None:
                 return estimate_portion(image_bgr, item_mask, depth_m, anchor,
                                         {"K": depth_K}, dish_i,
-                                        cfg={"base_method": "table_prior"})
+                                        cfg={"base_method": "table_prior",
+                                             "parent_mask": mask,
+                                             "cm_per_px": anchor.get("cm_per_px")})
             if _wed_slots_for_dish(dish_id_i) is not None:
                 if head is None:
                     raise WeightHeadUnavailable(
@@ -1841,7 +1865,9 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             if anchor.get("method") == "implicit_scale" and depth_m is not None:
                 return estimate_portion(image_bgr, mask, depth_m, anchor,
                                         {"K": depth_K}, dish,
-                                        cfg={"base_method": "table_prior"})
+                                        cfg={"base_method": "table_prior",
+                                             "parent_mask": mask,
+                                             "cm_per_px": anchor.get("cm_per_px")})
             if _wed_slots_for_dish(dish_info["id"]) is not None:
                 if head is None:
                     raise WeightHeadUnavailable(

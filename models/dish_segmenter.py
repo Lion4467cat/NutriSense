@@ -41,13 +41,14 @@ def _device():
 
 
 def _make_state():
+    import torch
     from transformers import Sam2Model, Sam2Processor
     dev = _device()
     proc = Sam2Processor.from_pretrained(MODEL_ID, revision=SAM2_REVISION)
-    # Transformers' current Sam2Model stub mis-types Module.to's first
-    # positional argument as `self`; keep the runtime device move unchanged.
+    # Load directly in FP16 to halve VRAM allocation and prevent OOM
+    dtype = torch.float16 if dev == "cuda" else torch.float32
     model = cast(Any, Sam2Model.from_pretrained(
-        MODEL_ID, revision=SAM2_REVISION)).to(dev).eval()
+        MODEL_ID, revision=SAM2_REVISION, torch_dtype=dtype)).to(dev).eval()
     return {"proc": proc, "model": model, "device": dev}
 
 
@@ -74,7 +75,7 @@ def _query(rgb, pt, box=None):
     if box is not None:
         kw["input_boxes"] = _np.array([[box]], dtype=_np.float32)
     inputs = {k: (v.to(dev) if hasattr(v, "to") else v) for k, v in proc(**kw).items()}
-    with torch.no_grad():
+    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.float16, enabled=(dev == "cuda")):
         out = model(**inputs)
     masks = out.pred_masks[0][0]              # (K, hh, ww) logits
     scores = out.iou_scores[0][0].cpu().numpy()
@@ -117,7 +118,7 @@ def _query_batch(crops):
     inputs = {key: (value.to(dev) if hasattr(value, "to") else value)
               for key, value in inputs.items()}
     try:
-        with torch.no_grad():
+        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.float16, enabled=(dev == "cuda")):
             output = model(**inputs)
     except torch.cuda.OutOfMemoryError:
         if count == 1:
@@ -205,8 +206,17 @@ def segment_food(image_bgr):
     """
     H, W = image_bgr.shape[:2]
     _load()
-    rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-    cx, cy = W / 2.0, H / 2.0
+    max_side = max(H, W)
+    if max_side > 1024:
+        s = 1024.0 / max_side
+        new_W, new_H = int(round(W * s)), int(round(H * s))
+        image_scaled = cv2.resize(image_bgr, (new_W, new_H), interpolation=cv2.INTER_AREA)
+    else:
+        image_scaled = image_bgr
+        new_W, new_H = W, H
+
+    rgb = cv2.cvtColor(image_scaled, cv2.COLOR_BGR2RGB)
+    cx, cy = new_W / 2.0, new_H / 2.0
 
     cands = _query(rgb, (cx, cy))
     strategy = "centre_point"
@@ -216,7 +226,7 @@ def segment_food(image_bgr):
     # SAM score). Treat sub-AREA_MIN as a failed query and retry with the
     # box prompt rather than measuring a speck as the whole serving.
     if k is None or cands[k][0].mean() > AREA_MAX or cands[k][0].mean() < AREA_MIN:
-        box = [W * 0.2, H * 0.2, W * 0.8, H * 0.8]
+        box = [new_W * 0.2, new_H * 0.2, new_W * 0.8, new_H * 0.8]
         cands = _query(rgb, (cx, cy), box=box)
         strategy = "centre_box"
         k = _select(cands)

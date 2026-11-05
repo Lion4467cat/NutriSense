@@ -109,6 +109,60 @@ def _fit_base_table(depth, mask, K, params, cfg):
     return (float(a), float(b), float(c)), sigma_mm, f"table_prior (rms {rms * 1000:.1f}mm)"
 
 
+def _fit_base_tabletop_annulus(depth, plate_mask, K, cfg):
+    """Fit a robust plane to the tabletop surface in an annular zone 1.5 - 5.5 cm outside the plate boundary."""
+    cm_px = float(cfg.get("cm_per_px") or 0.05)
+    near = max(6, int(round(1.5 / cm_px)))
+    far = max(near + 10, int(round(5.5 / cm_px)))
+    k_near = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * near + 1, 2 * near + 1))
+    k_far = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * far + 1, 2 * far + 1))
+    plate_u8 = np.asarray(plate_mask, dtype=np.uint8)
+    annulus = (cv2.dilate(plate_u8, k_far) > 0) & ~(cv2.dilate(plate_u8, k_near) > 0)
+    annulus = annulus & ~np.asarray(plate_mask, dtype=bool)
+    exclude_mask = cfg.get("exclude_mask")
+    if exclude_mask is not None:
+        annulus = annulus & ~np.asarray(exclude_mask, dtype=bool)
+
+    border = 10
+    annulus[:border, :] = False
+    annulus[-border:, :] = False
+    annulus[:, :border] = False
+    annulus[:, -border:] = False
+
+    bv, bu = np.nonzero(annulus)
+    if len(bu) < 150:
+        return None, 0.0, "tabletop annulus too small"
+    bz = depth[bv, bu]
+    valid = np.isfinite(bz) & (bz > 0.05) & (bz < 3.0)
+    if int(valid.sum()) < 100:
+        return None, 0.0, "invalid depth in tabletop annulus"
+    bv, bu, bz = bv[valid], bu[valid], bz[valid]
+
+    p15, p85 = np.percentile(bz, [15, 85])
+    in_range = (bz >= p15) & (bz <= p85)
+    if int(in_range.sum()) >= 60:
+        bv, bu, bz = bv[in_range], bu[in_range], bz[in_range]
+
+    if len(bu) > 3000:
+        step = len(bu) // 3000
+        bu, bv, bz = bu[::step], bv[::step], bz[::step]
+
+    bpts = _unproject(bu, bv, bz, K)
+    a, b, c, rms = fit_plane(bpts)
+    res = plane_residuals(bpts, a, b, c)
+    q = np.quantile(res, 0.70)
+    win = (res >= q - 0.015) & (res <= q)
+    if int(win.sum()) >= 40:
+        a, b, c, rms = fit_plane(bpts[win])
+
+    nrm = float(np.sqrt(a * a + b * b + 1.0))
+    # Plate tare thickness: standard stainless steel / ceramic thali bottom is ~3.5 mm thick
+    tare_thickness_m = 0.0035
+    c_plate = float(c) - tare_thickness_m * nrm
+    sigma_mm = float(rms * 1000.0)
+    return (float(a), float(b), float(c_plate)), sigma_mm, f"tabletop_annulus (rms {rms * 1000:.1f}mm)"
+
+
 def _fit_base_card(depth, anchor, K, params):
     """Fit base plane directly to the measured ArUco card on the table."""
     if (anchor or {}).get("label") != "measured":
@@ -266,6 +320,10 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
             base, sigma_base_mm, _ = _fit_base_card(depth, anchor, K, params)
             if base is not None:
                 card_fitted = True
+        if base is None and cfg.get("parent_mask") is not None:
+            base, sigma_base_mm, _ = _fit_base_tabletop_annulus(depth, cfg["parent_mask"], K, cfg)
+            if base is not None:
+                card_fitted = True
         if base is None:
             base, sigma_base_mm, why = _fit_base_table(depth, mask, K, params, cfg)
             if base is None:
@@ -276,6 +334,9 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
         pass
     else:
         raise ValueError(f"ring base fit failed: {method}")
+
+    if base is None:
+        raise ValueError("base plane could not be determined")
 
     a, b, c = base
     nrm = float(np.sqrt(a * a + b * b + 1.0))
@@ -320,8 +381,43 @@ def estimate_portion(image_bgr, mask, depth_m, anchor, camera, dish,
 
     # --- volume -> grams --------------------------------------------------
     volume_ml = area_cm2 * mean_h_mm / 10.0  # cm^2 * mm / 10 = cm^3 = ml
+
+    # Check for Indian liquid katori frustum (sambar, dal, rasam, curd, kootu)
+    is_liquid_bowl = False
+    dish_id = str(dish.get("id") or "").lower()
+    dish_name = str(dish.get("display_name") or dish.get("name") or "").lower()
+    if any(k in dish_id or k in dish_name for k in ["sambar", "dal", "rasam", "curd", "katori", "kootu", "liquid"]):
+        is_liquid_bowl = True
+
+    equiv_diam_cm = 2.0 * float(np.sqrt(max(area_cm2, 1e-4) / np.pi))
+    if 6.0 <= equiv_diam_cm <= 13.5 and (is_liquid_bowl or mean_h_mm < 12.0):
+        d_rim = equiv_diam_cm
+        d_base = 0.72 * d_rim
+        h_fill = 0.36 * d_rim
+        v_frustum = (np.pi * h_fill / 12.0) * (d_rim * d_rim + d_rim * d_base + d_base * d_base)
+        if v_frustum > volume_ml:
+            volume_ml = float(v_frustum)
+            mean_h_mm = max(mean_h_mm, float(h_fill * 10.0))
+            flags.append("katori_frustum_inferred")
+
     shares, dens, rho_eff = _components(dish)
     grams = volume_ml * rho_eff
+
+    # Scale-modulated prior fusion & downward clamping for Mode B
+    implicit_mass = (anchor.get("extras") or {}).get("implicit_mass_g")
+    if anchor.get("method") == "implicit_scale" and implicit_mass is not None:
+        item_share = 1.0
+        if cfg.get("parent_mask") is not None:
+            parent_area = float(np.asarray(cfg["parent_mask"], dtype=bool).sum())
+            if parent_area > 0:
+                item_share = min(1.0, max(0.18, float(mask.sum()) / parent_area))
+        target_item_mass = float(implicit_mass) * item_share
+        if grams < 0.55 * target_item_mass:
+            grams = 0.50 * grams + 0.50 * target_item_mass
+            grams = max(grams, 0.60 * target_item_mass)
+            volume_ml = grams / rho_eff
+            flags.append("implicit_mass_fused")
+
     components_g = {name: shares[name] * grams for name in shares}
 
     sigma_rel = {

@@ -127,16 +127,23 @@ def _pool(o):
     return o.pooler_output if hasattr(o, "pooler_output") else o
 
 
+def embed_images_batch(images_bgr_list):
+    """-> (N, D) L2-normalised embeddings for a list of BGR images in a single batched FP16 forward pass."""
+    import torch
+    if not images_bgr_list:
+        return np.empty((0, 768), dtype=np.float32)
+    proc, model, dev = _load()
+    rgbs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in images_bgr_list]
+    inputs = proc(images=rgbs, return_tensors="pt").to(dev)
+    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.float16, enabled=(dev == "cuda")):
+        e = _pool(model.get_image_features(**inputs))
+        e = e / e.norm(dim=-1, keepdim=True)
+    return e.cpu().float().numpy().astype(np.float32)
+
+
 def embed_image(image_bgr):
     """-> L2-normalised embedding (D,) for an RGB-converted BGR image."""
-    import torch
-    proc, model, dev = _load()
-    rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-    inputs = proc(images=rgb, return_tensors="pt").to(dev)
-    with torch.no_grad():
-        e = _pool(model.get_image_features(**inputs))
-    e = (e / e.norm(dim=-1, keepdim=True))[0]
-    return e.cpu().numpy().astype(np.float32)
+    return embed_images_batch([image_bgr])[0]
 
 
 
@@ -277,6 +284,75 @@ PRIMARY_MEAL_DISHES: frozenset[str] = frozenset({
 })
 
 
+EXPANDED_GALLERY_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "data", "indian_food_expanded_gallery.npz"
+)
+
+
+def load_expanded_indian_gallery(path=EXPANDED_GALLERY_PATH):
+    if not os.path.isfile(path):
+        return None
+    from models import registry
+    def _loader():
+        g = np.load(path, allow_pickle=True)
+        return {
+            "dish_ids": [str(x) for x in g["dish_ids"]],
+            "text_embeddings": np.asarray(g["text_embeddings"], dtype=np.float32),
+            "visual_prototypes": np.asarray(g["visual_prototypes"], dtype=np.float32),
+            "visual_dish_indices": np.asarray(g["visual_dish_indices"], dtype=np.int32),
+        }
+    return registry.get_or_create("expanded_indian_gallery", _loader)
+
+
+def _match_tier2_expanded(emb, expanded_gallery, threshold=0.58):
+    dish_ids = expanded_gallery["dish_ids"]
+    text_embs = expanded_gallery["text_embeddings"]
+    vis_embs = expanded_gallery["visual_prototypes"]
+    vis_idx = expanded_gallery["visual_dish_indices"]
+
+    q_norm = float(np.linalg.norm(emb))
+    emb_norm = (emb / q_norm) if q_norm > 1e-12 else emb
+
+    text_sims = text_embs @ emb_norm
+    vis_sims = vis_embs @ emb_norm if len(vis_embs) > 0 else None
+
+    scores = {}
+    for i, d in enumerate(dish_ids):
+        s_text = float(text_sims[i])
+        if vis_sims is not None:
+            mask = (vis_idx == i)
+            if mask.any():
+                v = vis_sims[mask]
+                k = min(3, len(v))
+                s_vis = float(np.sort(v)[-k:].mean())
+                s_fused = 0.70 * s_vis + 0.30 * s_text
+            else:
+                s_fused = s_text
+        else:
+            s_fused = s_text
+        scores[d] = float(s_fused)
+
+    ordered = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    best_dish, best_score = ordered[0]
+    margin = float(best_score - ordered[1][1]) if len(ordered) > 1 else None
+
+    if best_score < threshold:
+        return None
+
+    return {
+        "dish": best_dish,
+        "confidence": float(best_score),
+        "scores": scores,
+        "method": "expanded_indian_gallery",
+        "match_score": float(best_score),
+        "margin": margin,
+        "uncovered": [],
+        "tier": 2,
+        "reason": f"Tier 2 Indian gallery match {best_dish}={best_score:.3f} >= {threshold:.2f}",
+    }
+
+
 def classify_dish(image_bgr, gallery=None, threshold=None):
     """Classify one capture.
 
@@ -359,6 +435,11 @@ def classify_dish(image_bgr, gallery=None, threshold=None):
     confidence = float(exp[best] / sum(exp.values()))
     thr = gallery_match_threshold() if threshold is None else threshold
     if match < thr:
+        exp_gallery = load_expanded_indian_gallery()
+        if exp_gallery is not None:
+            tier2_res = _match_tier2_expanded(emb, exp_gallery, threshold=0.58)
+            if tier2_res is not None:
+                return tier2_res
         return {"dish": None, "confidence": confidence, "scores": scores,
                 "method": "gallery", "match_score": float(match),
                 "margin": margin, "uncovered": uncovered,

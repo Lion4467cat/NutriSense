@@ -694,11 +694,16 @@
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 0 clamp(16px, 2.5vw, 42px);
+  padding: 0 clamp(14px, 2vw, 36px);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   z-index: 50;
   gap: clamp(4px, 0.6vw, 10px);
+  overflow: visible;
+}
+
+.topbar > * {
+  flex-shrink: 0;
 }
 
 .topbar-brand {
@@ -711,7 +716,7 @@
   cursor: pointer;
   color: inherit;
   flex-shrink: 0;
-  margin-right: clamp(8px, 1.2vw, 24px);
+  margin-right: clamp(6px, 1vw, 20px);
   text-decoration: none;
 }
 
@@ -726,25 +731,27 @@
   align-items: center;
   gap: clamp(2px, 0.4vw, 6px);
   flex-shrink: 0;
-  min-width: 0;
+  min-width: max-content;
+  overflow: visible;
 }
 
 .topbar-spacer {
   flex: 1 1 auto;
-  min-width: 8px;
+  min-width: 16px;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px clamp(8px, 0.75vw, 12px) 8px;
+  padding: 7px clamp(6px, 0.6vw, 11px) 8px;
   border-radius: var(--r-md);
   color: var(--text-2);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 550;
   letter-spacing: -0.005em;
   white-space: nowrap;
+  flex-shrink: 0;
   text-decoration: none;
   transition: background var(--t-fast), color var(--t-fast);
 }
@@ -765,10 +772,19 @@
 }
 
 .nav-label-long {
-  display: inline;
+  display: none;
 }
 .nav-label-short {
-  display: none;
+  display: inline;
+}
+
+@media (min-width: 1540px) {
+  .nav-label-long {
+    display: inline;
+  }
+  .nav-label-short {
+    display: none;
+  }
 }
 
 .main {
@@ -783,13 +799,7 @@
   padding: clamp(28px, 4vw, 62px) clamp(22px, 5vw, 76px) 72px;
 }
 
-@media (max-width: 1280px) {
-  .nav-label-long {
-    display: none;
-  }
-  .nav-label-short {
-    display: inline;
-  }
+@media (max-width: 1360px) {
   .topbar-brand .brand-sub {
     display: none;
   }
@@ -798,7 +808,7 @@
   }
 }
 
-@media (min-width: 1041px) {
+@media (min-width: 1121px) {
   .sidebar {
     display: none !important;
   }
@@ -810,7 +820,7 @@
   }
 }
 
-@media (max-width: 1040px) {
+@media (max-width: 1120px) {
   .topbar-nav {
     display: none !important;
   }

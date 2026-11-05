@@ -1,0 +1,2768 @@
+{
+  "meta": {
+    "source": "INDB + IFCT 2017",
+    "classes": 115
+  },
+  "dishes": {
+    "masala_dosa": {
+      "id": "masala_dosa",
+      "name": "Masala Dosa",
+      "aliases": {
+        "kn": "ಮಸಾಲೆ ದೋಸೆ",
+        "ta": "மசால் தோசை",
+        "te": "మసాలా దోశ",
+        "hi": "मसाला डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 209.7,
+        "std_g": 46.1
+      },
+      "per_100g": {
+        "energy_kcal": 164.58,
+        "protein_g": 3.29,
+        "carb_g": 19.57,
+        "fat_g": 7.84,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "plain_dosa": {
+      "id": "plain_dosa",
+      "name": "Plain Dosa",
+      "aliases": {
+        "kn": "ಖಾಲಿ ದೋಸೆ",
+        "ta": "சாதாரண தோசை",
+        "te": "ప్లెయిన్ దోశ",
+        "hi": "सादा डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 36.1,
+        "std_g": 7.9
+      },
+      "per_100g": {
+        "energy_kcal": 380.91,
+        "protein_g": 10.34,
+        "carb_g": 64.08,
+        "fat_g": 8.43,
+        "fibre_g": 5.23,
+        "variance_pct": 0.12
+      }
+    },
+    "benne_dosa": {
+      "id": "benne_dosa",
+      "name": "Benne Dosa (Butter Dosa)",
+      "aliases": {
+        "kn": "ಬೆಣ್ಣೆ ದೋಸೆ",
+        "ta": "வெண்ணெய் தோசை",
+        "te": "వెన్న దోశ",
+        "hi": "मक्खन डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 209.7,
+        "std_g": 46.1
+      },
+      "per_100g": {
+        "energy_kcal": 164.58,
+        "protein_g": 3.29,
+        "carb_g": 19.57,
+        "fat_g": 7.84,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "set_dosa": {
+      "id": "set_dosa",
+      "name": "Set Dosa",
+      "aliases": {
+        "kn": "ಸೆಟ್ ದೋಸೆ",
+        "ta": "செட் தோசை",
+        "te": "సెట్ దోశ",
+        "hi": "सेट डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 209.7,
+        "std_g": 46.1
+      },
+      "per_100g": {
+        "energy_kcal": 164.58,
+        "protein_g": 3.29,
+        "carb_g": 19.57,
+        "fat_g": 7.84,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "rava_dosa": {
+      "id": "rava_dosa",
+      "name": "Rava Dosa",
+      "aliases": {
+        "kn": "ರವೆ ದೋಸೆ",
+        "ta": "ரவா தோசை",
+        "te": "రవ్వ దోశ",
+        "hi": "ರವಾ डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 73.4,
+        "std_g": 16.2
+      },
+      "per_100g": {
+        "energy_kcal": 227.05,
+        "protein_g": 7.3,
+        "carb_g": 32.84,
+        "fat_g": 7.12,
+        "fibre_g": 4.04,
+        "variance_pct": 0.12
+      }
+    },
+    "ghee_roast_dosa": {
+      "id": "ghee_roast_dosa",
+      "name": "Ghee Roast Dosa",
+      "aliases": {
+        "kn": "ತುಪ್ಪದ ರೋಸ್ಟ್ ದೋಸೆ",
+        "ta": "நெய் ரோஸ்ட் தோசை",
+        "te": "నెయ్యి రోస్ట్ దోశ",
+        "hi": "घी रोस्ट डोसा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 209.7,
+        "std_g": 46.1
+      },
+      "per_100g": {
+        "energy_kcal": 164.58,
+        "protein_g": 3.29,
+        "carb_g": 19.57,
+        "fat_g": 7.84,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "onion_uttapam": {
+      "id": "onion_uttapam",
+      "name": "Onion Uttapam",
+      "aliases": {
+        "kn": "ಈರುಳ್ಳಿ ಉತ್ತಪ್ಪ",
+        "ta": "வெங்காய ஊத்தப்பம்",
+        "te": "ఉల్లి ఉత్తప్పం",
+        "hi": "प्याज उत्तपम"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 139.5,
+        "std_g": 30.7
+      },
+      "per_100g": {
+        "energy_kcal": 462.02,
+        "protein_g": 1.91,
+        "carb_g": 11.32,
+        "fat_g": 45.3,
+        "fibre_g": 1.26,
+        "variance_pct": 0.12
+      }
+    },
+    "tomato_uttapam": {
+      "id": "tomato_uttapam",
+      "name": "Tomato Uttapam",
+      "aliases": {
+        "kn": "ಟೊಮೆಟೊ ಉತ್ತಪ್ಪ",
+        "ta": "தக்காளி ஊத்தப்பம்",
+        "te": "టమాటా ఉత్తప్పం",
+        "hi": "टमाटर उत्तपम"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 139.5,
+        "std_g": 30.7
+      },
+      "per_100g": {
+        "energy_kcal": 462.02,
+        "protein_g": 1.91,
+        "carb_g": 11.32,
+        "fat_g": 45.3,
+        "fibre_g": 1.26,
+        "variance_pct": 0.12
+      }
+    },
+    "idli": {
+      "id": "idli",
+      "name": "Steamed Idli",
+      "aliases": {
+        "kn": "ಇಡ್ಲಿ",
+        "ta": "இட்லி",
+        "te": "ఇడ్లీ",
+        "hi": "इडली"
+      },
+      "geometry_class": "steamed_cake",
+      "density_g_cm3": 0.68,
+      "serving_prior": {
+        "mean_g": 25.1,
+        "std_g": 5.5
+      },
+      "per_100g": {
+        "energy_kcal": 137.54,
+        "protein_g": 4.64,
+        "carb_g": 28.18,
+        "fat_g": 0.33,
+        "fibre_g": 2.31,
+        "variance_pct": 0.12
+      }
+    },
+    "thatte_idli": {
+      "id": "thatte_idli",
+      "name": "Thatte Idli (Plate Idli)",
+      "aliases": {
+        "kn": "ತಟ್ಟೆ ಇಡ್ಲಿ",
+        "ta": "தட்டே இட்லி",
+        "te": "తట్టె ఇడ్లీ",
+        "hi": "थट्टे इडली"
+      },
+      "geometry_class": "steamed_cake",
+      "density_g_cm3": 0.68,
+      "serving_prior": {
+        "mean_g": 25.1,
+        "std_g": 5.5
+      },
+      "per_100g": {
+        "energy_kcal": 137.54,
+        "protein_g": 4.64,
+        "carb_g": 28.18,
+        "fat_g": 0.33,
+        "fibre_g": 2.31,
+        "variance_pct": 0.12
+      }
+    },
+    "rava_idli": {
+      "id": "rava_idli",
+      "name": "Rava Idli",
+      "aliases": {
+        "kn": "ರವೆ ಇಡ್ಲಿ",
+        "ta": "ரவா இட்லி",
+        "te": "రవ్వ ఇడ్లీ",
+        "hi": "रवा इडली"
+      },
+      "geometry_class": "steamed_cake",
+      "density_g_cm3": 0.68,
+      "serving_prior": {
+        "mean_g": 29.6,
+        "std_g": 6.5
+      },
+      "per_100g": {
+        "energy_kcal": 206.39,
+        "protein_g": 9.34,
+        "carb_g": 33.67,
+        "fat_g": 3.47,
+        "fibre_g": 5.85,
+        "variance_pct": 0.12
+      }
+    },
+    "button_idli": {
+      "id": "button_idli",
+      "name": "Mini Ghee Sambar Idli",
+      "aliases": {
+        "kn": "ಮಿನಿ ತುಪ್ಪ ಸಾಂಬಾರ್ ಇಡ್ಲಿ",
+        "ta": "மினி சாம்பார் இட்லி",
+        "te": "మినీ సాంబార్ ఇడ్లీ",
+        "hi": "मिनी सांभर इडली"
+      },
+      "geometry_class": "steamed_cake",
+      "density_g_cm3": 0.68,
+      "serving_prior": {
+        "mean_g": 25.1,
+        "std_g": 5.5
+      },
+      "per_100g": {
+        "energy_kcal": 137.54,
+        "protein_g": 4.64,
+        "carb_g": 28.18,
+        "fat_g": 0.33,
+        "fibre_g": 2.31,
+        "variance_pct": 0.12
+      }
+    },
+    "medu_vada": {
+      "id": "medu_vada",
+      "name": "Medu Vada",
+      "aliases": {
+        "kn": "ಮೆದ್ದು ವಡೆ",
+        "ta": "மெது வடை",
+        "te": "మేదు వడ",
+        "hi": "मेदु वड़ा"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 78.9,
+        "std_g": 17.4
+      },
+      "per_100g": {
+        "energy_kcal": 745.5,
+        "protein_g": 4.39,
+        "carb_g": 9.7,
+        "fat_g": 76.32,
+        "fibre_g": 2.27,
+        "variance_pct": 0.12
+      }
+    },
+    "maddur_vada": {
+      "id": "maddur_vada",
+      "name": "Maddur Vada",
+      "aliases": {
+        "kn": "ಮದ್ದೂರು ವಡೆ",
+        "ta": "மத்தூர் வடை",
+        "te": "ಮದ್ದೂರು వడ",
+        "hi": "मद्दूर वड़ा"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 172.3,
+        "std_g": 37.9
+      },
+      "per_100g": {
+        "energy_kcal": 667.73,
+        "protein_g": 2.96,
+        "carb_g": 5.49,
+        "fat_g": 70.4,
+        "fibre_g": 0.97,
+        "variance_pct": 0.12
+      }
+    },
+    "masala_vada": {
+      "id": "masala_vada",
+      "name": "Chana Dal Masala Vada",
+      "aliases": {
+        "kn": "ಮಸಾಲೆ ವಡೆ",
+        "ta": "மசால் வடை",
+        "te": "మసాలా వడ",
+        "hi": "मसाला वड़ा"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 85.5,
+        "std_g": 18.8
+      },
+      "per_100g": {
+        "energy_kcal": 703.78,
+        "protein_g": 4.32,
+        "carb_g": 9.93,
+        "fat_g": 71.62,
+        "fibre_g": 2.71,
+        "variance_pct": 0.12
+      }
+    },
+    "paniyaram": {
+      "id": "paniyaram",
+      "name": "Paniyaram (Paddu/Gunta Ponganalu)",
+      "aliases": {
+        "kn": "ಪದ್ದು",
+        "ta": "பணியாரம்",
+        "te": "గుంత పొంగనాలు",
+        "hi": "अप्पे"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 150.0,
+        "std_g": 33.0
+      },
+      "per_100g": {
+        "energy_kcal": 165.0,
+        "protein_g": 4.5,
+        "carb_g": 26.0,
+        "fat_g": 5.0,
+        "fibre_g": 2.2,
+        "variance_pct": 0.12
+      }
+    },
+    "appam": {
+      "id": "appam",
+      "name": "Appam (Hoppers)",
+      "aliases": {
+        "kn": "ಆಪ್ಪಂ",
+        "ta": "ஆப்பம்",
+        "te": "ఆప్పం",
+        "hi": "अप्पम"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 152.9,
+        "std_g": 33.6
+      },
+      "per_100g": {
+        "energy_kcal": 267.7,
+        "protein_g": 3.12,
+        "carb_g": 13.28,
+        "fat_g": 22.63,
+        "fibre_g": 6.19,
+        "variance_pct": 0.12
+      }
+    },
+    "poori_saagu": {
+      "id": "poori_saagu",
+      "name": "Poori Saagu",
+      "aliases": {
+        "kn": "ಪೂರಿ ಸಾಗು",
+        "ta": "பூரி சாகு",
+        "te": "పూరీ సాగు",
+        "hi": "पूरी सागू"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 700.9,
+        "std_g": 154.2
+      },
+      "per_100g": {
+        "energy_kcal": 509.89,
+        "protein_g": 3.52,
+        "carb_g": 16.47,
+        "fat_g": 47.91,
+        "fibre_g": 2.24,
+        "variance_pct": 0.12
+      }
+    },
+    "ven_pongal": {
+      "id": "ven_pongal",
+      "name": "Ven Pongal (Khara Pongal)",
+      "aliases": {
+        "kn": "ಖಾರ ಪೊಂಗಲ್",
+        "ta": "வெண் பொங்கல்",
+        "te": "వెನ್ పొంగల్",
+        "hi": "पोंगल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 180.0,
+        "std_g": 39.6
+      },
+      "per_100g": {
+        "energy_kcal": 178.89,
+        "protein_g": 0.31,
+        "carb_g": 46.2,
+        "fat_g": 0.19,
+        "fibre_g": 1.0,
+        "variance_pct": 0.12
+      }
+    },
+    "sweet_pongal": {
+      "id": "sweet_pongal",
+      "name": "Sakkarai Pongal (Sweet Pongal)",
+      "aliases": {
+        "kn": "ಸಿಹಿ ಪೊಂಗಲ್",
+        "ta": "சர்க்கரை பொங்கல்",
+        "te": "తీపి పొంగలి",
+        "hi": "मीठा पोंगल"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 442.5,
+        "std_g": 97.4
+      },
+      "per_100g": {
+        "energy_kcal": 35.66,
+        "protein_g": 1.29,
+        "carb_g": 6.51,
+        "fat_g": 0.68,
+        "fibre_g": 0.0,
+        "variance_pct": 0.12
+      }
+    },
+    "khara_bath": {
+      "id": "khara_bath",
+      "name": "Khara Bath (Vegetable Rava Upma)",
+      "aliases": {
+        "kn": "ಖಾರಾ ಬಾತ್ / ಉಪ್ಮಾ",
+        "ta": "உப்மா",
+        "te": "உప్మా",
+        "hi": "उपमा"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 106.3,
+        "std_g": 23.4
+      },
+      "per_100g": {
+        "energy_kcal": 147.89,
+        "protein_g": 3.3,
+        "carb_g": 16.31,
+        "fat_g": 7.49,
+        "fibre_g": 3.24,
+        "variance_pct": 0.12
+      }
+    },
+    "kesari_bath": {
+      "id": "kesari_bath",
+      "name": "Kesari Bath (Suji Halwa)",
+      "aliases": {
+        "kn": "ಕೇಸರಿ ಬಾತ್",
+        "ta": "கேசரி",
+        "te": "కేసరి బాత్",
+        "hi": "केसरी हलवा"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 159.6,
+        "std_g": 35.1
+      },
+      "per_100g": {
+        "energy_kcal": 225.65,
+        "protein_g": 2.16,
+        "carb_g": 24.67,
+        "fat_g": 13.38,
+        "fibre_g": 1.86,
+        "variance_pct": 0.12
+      }
+    },
+    "akki_rotti": {
+      "id": "akki_rotti",
+      "name": "Akki Rotti (Karnataka Rice Bread)",
+      "aliases": {
+        "kn": "ಅಕ್ಕಿ ರೊಟ್ಟಿ",
+        "ta": "அரிசி ரொட்டி",
+        "te": "బియ్యం రొట్టె",
+        "hi": "चावल की रोटी"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 85.0,
+        "std_g": 18.7
+      },
+      "per_100g": {
+        "energy_kcal": 263.97,
+        "protein_g": 3.49,
+        "carb_g": 24.19,
+        "fat_g": 16.85,
+        "fibre_g": 5.19,
+        "variance_pct": 0.12
+      }
+    },
+    "ragi_rotti": {
+      "id": "ragi_rotti",
+      "name": "Ragi Rotti (Finger Millet Flatbread)",
+      "aliases": {
+        "kn": "ರಾಗಿ ರೊಟ್ಟಿ",
+        "ta": "கேழ்வரகு ரொட்டி",
+        "te": "రాగి రొట్టె",
+        "hi": "रागी रोटी"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 75.3,
+        "std_g": 16.6
+      },
+      "per_100g": {
+        "energy_kcal": 458.56,
+        "protein_g": 4.03,
+        "carb_g": 52.69,
+        "fat_g": 25.79,
+        "fibre_g": 5.97,
+        "variance_pct": 0.12
+      }
+    },
+    "ragi_mudde": {
+      "id": "ragi_mudde",
+      "name": "Ragi Mudde (Finger Millet Ball)",
+      "aliases": {
+        "kn": "ರಾಗಿ ಮುದ್ದೆ",
+        "ta": "ராகி களி",
+        "te": "రాగి సంకటి",
+        "hi": "रागी मुड्डे"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 75.3,
+        "std_g": 16.6
+      },
+      "per_100g": {
+        "energy_kcal": 458.56,
+        "protein_g": 4.03,
+        "carb_g": 52.69,
+        "fat_g": 25.79,
+        "fibre_g": 5.97,
+        "variance_pct": 0.12
+      }
+    },
+    "jolada_rotti": {
+      "id": "jolada_rotti",
+      "name": "Jolada Rotti (Jowar Sorghum Roti)",
+      "aliases": {
+        "kn": "ಜೋಳದ ರೊಟ್ಟಿ",
+        "ta": "சோள ரொட்டி",
+        "te": "జొన్న రొట్టె",
+        "hi": "ज्वार की रोटी"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 36.0,
+        "std_g": 7.9
+      },
+      "per_100g": {
+        "energy_kcal": 202.31,
+        "protein_g": 5.88,
+        "carb_g": 35.65,
+        "fat_g": 3.56,
+        "fibre_g": 6.31,
+        "variance_pct": 0.12
+      }
+    },
+    "steamed_rice": {
+      "id": "steamed_rice",
+      "name": "Steamed White Rice",
+      "aliases": {
+        "kn": "ಅನ್ನ",
+        "ta": "சாதம்",
+        "te": "అన్నం",
+        "hi": "चावल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 278.0,
+        "std_g": 61.2
+      },
+      "per_100g": {
+        "energy_kcal": 112.44,
+        "protein_g": 3.62,
+        "carb_g": 15.57,
+        "fat_g": 3.99,
+        "fibre_g": 0.37,
+        "variance_pct": 0.12
+      }
+    },
+    "bisi_bele_bath": {
+      "id": "bisi_bele_bath",
+      "name": "Bisi Bele Bath",
+      "aliases": {
+        "kn": "ಬಿಸಿ ಬೇಳೆ ಬಾತ್",
+        "ta": "சாம்பார் சாதം",
+        "te": "సాంబార్ అన్నం",
+        "hi": "बिसी बेले बाथ"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 90.9,
+        "std_g": 20.0
+      },
+      "per_100g": {
+        "energy_kcal": 598.79,
+        "protein_g": 2.35,
+        "carb_g": 13.85,
+        "fat_g": 59.14,
+        "fibre_g": 1.87,
+        "variance_pct": 0.12
+      }
+    },
+    "puliyogare": {
+      "id": "puliyogare",
+      "name": "Puliyogare (Tamarind Rice)",
+      "aliases": {
+        "kn": "ಪುಳಿಯೋಗರೆ",
+        "ta": "புளியோதரை",
+        "te": "పులిహోర",
+        "hi": "इमली चावल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 127.8,
+        "std_g": 28.1
+      },
+      "per_100g": {
+        "energy_kcal": 373.04,
+        "protein_g": 7.45,
+        "carb_g": 65.08,
+        "fat_g": 8.53,
+        "fibre_g": 5.12,
+        "variance_pct": 0.12
+      }
+    },
+    "lemon_rice": {
+      "id": "lemon_rice",
+      "name": "Lemon Rice (Chitranna)",
+      "aliases": {
+        "kn": "ಚಿತ್ರಾನ್ನ",
+        "ta": "எலுமிச்சை சாதம்",
+        "te": "నిమ్మకాయ పులిహోర",
+        "hi": "नींबू चावल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 319.2,
+        "std_g": 70.2
+      },
+      "per_100g": {
+        "energy_kcal": 176.3,
+        "protein_g": 4.26,
+        "carb_g": 21.62,
+        "fat_g": 7.88,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "curd_rice": {
+      "id": "curd_rice",
+      "name": "Curd Rice (Mosaranna)",
+      "aliases": {
+        "kn": "ಮೊಸರನ್ನ",
+        "ta": "தயிர் சாதம்",
+        "te": "పెరుగన్నం",
+        "hi": "दही चावल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 216.2,
+        "std_g": 47.6
+      },
+      "per_100g": {
+        "energy_kcal": 195.74,
+        "protein_g": 5.75,
+        "carb_g": 32.93,
+        "fat_g": 4.32,
+        "fibre_g": 2.13,
+        "variance_pct": 0.12
+      }
+    },
+    "veg_biryani": {
+      "id": "veg_biryani",
+      "name": "Vegetable Dum Biryani",
+      "aliases": {
+        "kn": "ತರಕಾರಿ ಬಿರಿಯಾನಿ",
+        "ta": "காய்கறி பிரியாணி",
+        "te": "వెజిటబుల్ బిర్యానీ",
+        "hi": "वेज बिरयानी"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 301.6,
+        "std_g": 66.3
+      },
+      "per_100g": {
+        "energy_kcal": 174.61,
+        "protein_g": 3.16,
+        "carb_g": 18.56,
+        "fat_g": 9.51,
+        "fibre_g": 3.31,
+        "variance_pct": 0.12
+      }
+    },
+    "veg_pulao": {
+      "id": "veg_pulao",
+      "name": "Vegetable Pulao",
+      "aliases": {
+        "kn": "ಪುಲಾವ್",
+        "ta": "புலாவ்",
+        "te": "పులావ్",
+        "hi": "वेज पुलाव"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 438.4,
+        "std_g": 96.4
+      },
+      "per_100g": {
+        "energy_kcal": 113.05,
+        "protein_g": 2.72,
+        "carb_g": 17.49,
+        "fat_g": 3.33,
+        "fibre_g": 2.67,
+        "variance_pct": 0.12
+      }
+    },
+    "jeera_rice": {
+      "id": "jeera_rice",
+      "name": "Jeera Rice (Cumin Rice)",
+      "aliases": {
+        "kn": "ಜೀರಾ ರೈಸ್",
+        "ta": "சீரக சாதம்",
+        "te": "జీలకర్ర అన్నం",
+        "hi": "जीरा राइस"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 278.0,
+        "std_g": 61.2
+      },
+      "per_100g": {
+        "energy_kcal": 112.44,
+        "protein_g": 3.62,
+        "carb_g": 15.57,
+        "fat_g": 3.99,
+        "fibre_g": 0.37,
+        "variance_pct": 0.12
+      }
+    },
+    "ghee_rice": {
+      "id": "ghee_rice",
+      "name": "Neychoru (Ghee Rice)",
+      "aliases": {
+        "kn": "ತುಪ್ಪದನ್ನ",
+        "ta": "நெய் சாதம்",
+        "te": "నెయ్యి అన్నం",
+        "hi": "घी चावल"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 278.0,
+        "std_g": 61.2
+      },
+      "per_100g": {
+        "energy_kcal": 112.44,
+        "protein_g": 3.62,
+        "carb_g": 15.57,
+        "fat_g": 3.99,
+        "fibre_g": 0.37,
+        "variance_pct": 0.12
+      }
+    },
+    "fried_rice": {
+      "id": "fried_rice",
+      "name": "Vegetable Fried Rice",
+      "aliases": {
+        "kn": "ಫ್ರೈಡ್ ರೈಸ್",
+        "ta": "ஃப்ரைட் ரைஸ்",
+        "te": "ಫ್ರೈಡ್ ರೈಸ್",
+        "hi": "फ्राइड राइस"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 351.3,
+        "std_g": 77.3
+      },
+      "per_100g": {
+        "energy_kcal": 120.58,
+        "protein_g": 4.05,
+        "carb_g": 13.4,
+        "fat_g": 5.43,
+        "fibre_g": 2.31,
+        "variance_pct": 0.12
+      }
+    },
+    "sambar_rice": {
+      "id": "sambar_rice",
+      "name": "Rice Sambar Combination",
+      "aliases": {
+        "kn": "ಅನ್ನ ಸಾಂಬಾರು",
+        "ta": "சாதம் சாம்பார்",
+        "te": "అన్నం సాంబార్",
+        "hi": "चावल सांभर"
+      },
+      "geometry_class": "grain_mound",
+      "density_g_cm3": 0.78,
+      "serving_prior": {
+        "mean_g": 278.0,
+        "std_g": 61.2
+      },
+      "per_100g": {
+        "energy_kcal": 112.44,
+        "protein_g": 3.62,
+        "carb_g": 15.57,
+        "fat_g": 3.99,
+        "fibre_g": 0.37,
+        "variance_pct": 0.12
+      }
+    },
+    "chapati": {
+      "id": "chapati",
+      "name": "Chapati (Phulka/Roti)",
+      "aliases": {
+        "kn": "ಚಪಾತಿ",
+        "ta": "சப்பாத்தி",
+        "te": "చపాతీ",
+        "hi": "चपाती / रोटी"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 36.0,
+        "std_g": 7.9
+      },
+      "per_100g": {
+        "energy_kcal": 202.31,
+        "protein_g": 5.88,
+        "carb_g": 35.65,
+        "fat_g": 3.56,
+        "fibre_g": 6.31,
+        "variance_pct": 0.12
+      }
+    },
+    "butter_naan": {
+      "id": "butter_naan",
+      "name": "Butter Naan",
+      "aliases": {
+        "kn": "ಬಟರ್ ನಾನ್",
+        "ta": "பட்டர் நான்",
+        "te": "ಬಟರ್ ನಾನ್",
+        "hi": "बटर नान"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 53.2,
+        "std_g": 11.7
+      },
+      "per_100g": {
+        "energy_kcal": 286.45,
+        "protein_g": 8.05,
+        "carb_g": 51.75,
+        "fat_g": 4.99,
+        "fibre_g": 1.91,
+        "variance_pct": 0.12
+      }
+    },
+    "garlic_naan": {
+      "id": "garlic_naan",
+      "name": "Garlic Naan",
+      "aliases": {
+        "kn": "ಗಾರ್ಲಿಕ್ ನಾನ್",
+        "ta": "பூண்டு நான்",
+        "te": "వెల్లుల్లి నాನ್",
+        "hi": "गार्लिक नान"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 53.2,
+        "std_g": 11.7
+      },
+      "per_100g": {
+        "energy_kcal": 286.45,
+        "protein_g": 8.05,
+        "carb_g": 51.75,
+        "fat_g": 4.99,
+        "fibre_g": 1.91,
+        "variance_pct": 0.12
+      }
+    },
+    "plain_naan": {
+      "id": "plain_naan",
+      "name": "Tandoori Naan",
+      "aliases": {
+        "kn": "ಪ್ಲೇನ್ ನಾನ್",
+        "ta": "பிளேன் நான்",
+        "te": "ప్లేన్ నాన్",
+        "hi": "सादा नान"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 53.2,
+        "std_g": 11.7
+      },
+      "per_100g": {
+        "energy_kcal": 286.45,
+        "protein_g": 8.05,
+        "carb_g": 51.75,
+        "fat_g": 4.99,
+        "fibre_g": 1.91,
+        "variance_pct": 0.12
+      }
+    },
+    "tandoori_roti": {
+      "id": "tandoori_roti",
+      "name": "Tandoori Roti",
+      "aliases": {
+        "kn": "ತಂದೂರಿ ರೊಟ್ಟಿ",
+        "ta": "தந்தூரி ரொட்டி",
+        "te": "తందూరి రొట్టె",
+        "hi": "तंदूरी रोटी"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 36.0,
+        "std_g": 7.9
+      },
+      "per_100g": {
+        "energy_kcal": 202.31,
+        "protein_g": 5.88,
+        "carb_g": 35.65,
+        "fat_g": 3.56,
+        "fibre_g": 6.31,
+        "variance_pct": 0.12
+      }
+    },
+    "malabar_parotta": {
+      "id": "malabar_parotta",
+      "name": "Malabar Parotta (Layered Parotta)",
+      "aliases": {
+        "kn": "ಪರೋಟ",
+        "ta": "பரோட்டா",
+        "te": "ಪರೋಟ",
+        "hi": "परोठा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 150.0,
+        "std_g": 33.0
+      },
+      "per_100g": {
+        "energy_kcal": 165.0,
+        "protein_g": 4.5,
+        "carb_g": 26.0,
+        "fat_g": 5.0,
+        "fibre_g": 2.2,
+        "variance_pct": 0.12
+      }
+    },
+    "aloo_paratha": {
+      "id": "aloo_paratha",
+      "name": "Aloo Paratha (Stuffed Potato Flatbread)",
+      "aliases": {
+        "kn": "ಆಲೂ ಪರೋಟ",
+        "ta": "ஆலூ பரோட்டா",
+        "te": "ఆలూ పరోటా",
+        "hi": "आलू पराठा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 93.4,
+        "std_g": 20.5
+      },
+      "per_100g": {
+        "energy_kcal": 205.04,
+        "protein_g": 3.7,
+        "carb_g": 23.92,
+        "fat_g": 10.22,
+        "fibre_g": 4.18,
+        "variance_pct": 0.12
+      }
+    },
+    "paneer_paratha": {
+      "id": "paneer_paratha",
+      "name": "Paneer Paratha",
+      "aliases": {
+        "kn": "ಪನ್ನೀರ್ ಪರೋಟ",
+        "ta": "பன்னீர் பரோட்டா",
+        "te": "పన్నీರ್ పరోటా",
+        "hi": "पनीर पराठा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 85.0,
+        "std_g": 18.7
+      },
+      "per_100g": {
+        "energy_kcal": 262.97,
+        "protein_g": 7.98,
+        "carb_g": 24.33,
+        "fat_g": 14.62,
+        "fibre_g": 4.0,
+        "variance_pct": 0.12
+      }
+    },
+    "gobi_paratha": {
+      "id": "gobi_paratha",
+      "name": "Gobi Paratha (Cauliflower Paratha)",
+      "aliases": {
+        "kn": "ಗೋಬಿ ಪರೋಟ",
+        "ta": "கோபி பரோட்டா",
+        "te": "గోబీ పరోటా",
+        "hi": "गोभी पराठा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 101.9,
+        "std_g": 22.4
+      },
+      "per_100g": {
+        "energy_kcal": 178.07,
+        "protein_g": 3.73,
+        "carb_g": 18.84,
+        "fat_g": 9.47,
+        "fibre_g": 4.68,
+        "variance_pct": 0.12
+      }
+    },
+    "methi_thepla": {
+      "id": "methi_thepla",
+      "name": "Methi Thepla",
+      "aliases": {
+        "kn": "ಮೆಂತೆ ಥೇಪ್ಲಾ",
+        "ta": "மேத்தி தெப்லா",
+        "te": "మేథీ తెప్లా",
+        "hi": "मेथी थेपला"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 36.4,
+        "std_g": 8.0
+      },
+      "per_100g": {
+        "energy_kcal": 346.16,
+        "protein_g": 8.98,
+        "carb_g": 41.34,
+        "fat_g": 15.95,
+        "fibre_g": 7.56,
+        "variance_pct": 0.12
+      }
+    },
+    "bhatura": {
+      "id": "bhatura",
+      "name": "Chole Bhatura Bread",
+      "aliases": {
+        "kn": "ಭಟೂರ",
+        "ta": "பதூரா",
+        "te": "భటూరా",
+        "hi": "भटूरा"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 145.6,
+        "std_g": 32.0
+      },
+      "per_100g": {
+        "energy_kcal": 793.2,
+        "protein_g": 1.63,
+        "carb_g": 10.73,
+        "fat_g": 82.56,
+        "fibre_g": 0.38,
+        "variance_pct": 0.12
+      }
+    },
+    "sambar": {
+      "id": "sambar",
+      "name": "Vegetable Sambar",
+      "aliases": {
+        "kn": "ಸಾಂಬಾರು",
+        "ta": "சாம்பார்",
+        "te": "సాంబార్",
+        "hi": "सांबर"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 257.2,
+        "std_g": 56.6
+      },
+      "per_100g": {
+        "energy_kcal": 96.92,
+        "protein_g": 3.35,
+        "carb_g": 10.57,
+        "fat_g": 4.38,
+        "fibre_g": 3.52,
+        "variance_pct": 0.12
+      }
+    },
+    "rasam": {
+      "id": "rasam",
+      "name": "Tomato Rasam (Saaru)",
+      "aliases": {
+        "kn": "ಸಾರು",
+        "ta": "ரசம்",
+        "te": "చారు / రసం",
+        "hi": "रसम"
+      },
+      "geometry_class": "thin_broth",
+      "density_g_cm3": 1.02,
+      "serving_prior": {
+        "mean_g": 389.9,
+        "std_g": 85.8
+      },
+      "per_100g": {
+        "energy_kcal": 26.74,
+        "protein_g": 1.13,
+        "carb_g": 3.37,
+        "fat_g": 0.88,
+        "fibre_g": 1.6,
+        "variance_pct": 0.12
+      }
+    },
+    "dal_tadka": {
+      "id": "dal_tadka",
+      "name": "Dal Tadka (Yellow Dal)",
+      "aliases": {
+        "kn": "ಬೇಳೆ ಸಾರು",
+        "ta": "பருப்பு",
+        "te": "పప్పు",
+        "hi": "दाल तड़का"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 225.7,
+        "std_g": 49.7
+      },
+      "per_100g": {
+        "energy_kcal": 63.43,
+        "protein_g": 3.23,
+        "carb_g": 6.79,
+        "fat_g": 2.48,
+        "fibre_g": 3.02,
+        "variance_pct": 0.12
+      }
+    },
+    "dal_fry": {
+      "id": "dal_fry",
+      "name": "Dal Fry",
+      "aliases": {
+        "kn": "ದಾಲ್ ಫ್ರೈ",
+        "ta": "தால் ஃப்ரை",
+        "te": "దాల్ ఫ్రై",
+        "hi": "दाल फ्राई"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 403.0,
+        "std_g": 88.7
+      },
+      "per_100g": {
+        "energy_kcal": 81.57,
+        "protein_g": 2.64,
+        "carb_g": 8.87,
+        "fat_g": 4.08,
+        "fibre_g": 0.62,
+        "variance_pct": 0.12
+      }
+    },
+    "dal_makhani": {
+      "id": "dal_makhani",
+      "name": "Dal Makhani (Black Lentils)",
+      "aliases": {
+        "kn": "ದಾಲ್ ಮಖನಿ",
+        "ta": "தால் மக்கனி",
+        "te": "దాల్ మఖనీ",
+        "hi": "दाल मखनी"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 353.4,
+        "std_g": 77.7
+      },
+      "per_100g": {
+        "energy_kcal": 74.04,
+        "protein_g": 3.32,
+        "carb_g": 7.96,
+        "fat_g": 3.06,
+        "fibre_g": 2.27,
+        "variance_pct": 0.12
+      }
+    },
+    "rajma_masala": {
+      "id": "rajma_masala",
+      "name": "Rajma Masala (Kidney Beans Gravy)",
+      "aliases": {
+        "kn": "ರಾಜ್ಮಾ",
+        "ta": "ராஜ்மா",
+        "te": "రాజ్మా",
+        "hi": "राजमा मसाला"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 119.9,
+        "std_g": 26.4
+      },
+      "per_100g": {
+        "energy_kcal": 143.73,
+        "protein_g": 5.95,
+        "carb_g": 16.38,
+        "fat_g": 5.77,
+        "fibre_g": 5.83,
+        "variance_pct": 0.12
+      }
+    },
+    "chole_masala": {
+      "id": "chole_masala",
+      "name": "Chole Masala (Amritsari Chole)",
+      "aliases": {
+        "kn": "ಕಡಲೆ ಕಾಳು ಮಸಾಲೆ",
+        "ta": "கொண்டைக்கடலை மசாலா",
+        "te": "చోలే మసాలా",
+        "hi": "छोले मसाला"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 209.7,
+        "std_g": 46.1
+      },
+      "per_100g": {
+        "energy_kcal": 164.58,
+        "protein_g": 3.29,
+        "carb_g": 19.57,
+        "fat_g": 7.84,
+        "fibre_g": 2.52,
+        "variance_pct": 0.12
+      }
+    },
+    "kootu": {
+      "id": "kootu",
+      "name": "South Indian Vegetable Kootu",
+      "aliases": {
+        "kn": "ಕೂಟು",
+        "ta": "கூட்டு",
+        "te": "కూటు",
+        "hi": "कूटू"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 68.3,
+        "std_g": 15.0
+      },
+      "per_100g": {
+        "energy_kcal": 244.26,
+        "protein_g": 4.47,
+        "carb_g": 23.2,
+        "fat_g": 15.4,
+        "fibre_g": 2.35,
+        "variance_pct": 0.12
+      }
+    },
+    "avial": {
+      "id": "avial",
+      "name": "Kerala Avial (Mixed Vegetables in Coconut Curd)",
+      "aliases": {
+        "kn": "ಅವಿಯಲ್",
+        "ta": "அவியல்",
+        "te": "అవియల్",
+        "hi": "अवियल"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 335.1,
+        "std_g": 73.7
+      },
+      "per_100g": {
+        "energy_kcal": 124.56,
+        "protein_g": 2.46,
+        "carb_g": 8.47,
+        "fat_g": 8.94,
+        "fibre_g": 5.44,
+        "variance_pct": 0.12
+      }
+    },
+    "moong_dal": {
+      "id": "moong_dal",
+      "name": "Yellow Moong Dal",
+      "aliases": {
+        "kn": "ಹೆಸರು ಬೇಳೆ ಸಾರು",
+        "ta": "பாசிப்பருப்பு",
+        "te": "పెసరపప్పు",
+        "hi": "मूंग दाल"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 277.0,
+        "std_g": 60.9
+      },
+      "per_100g": {
+        "energy_kcal": 50.0,
+        "protein_g": 2.68,
+        "carb_g": 5.91,
+        "fat_g": 1.68,
+        "fibre_g": 1.17,
+        "variance_pct": 0.12
+      }
+    },
+    "paneer_butter_masala": {
+      "id": "paneer_butter_masala",
+      "name": "Paneer Butter Masala",
+      "aliases": {
+        "kn": "ಪನ್ನೀರ್ ಬಟರ್ ಮಸಾಲ",
+        "ta": "பன்னீர் பட்டர் மசாலா",
+        "te": "పన్నీర్ ಬಟರ್ ಮಸಾಲಾ",
+        "hi": "पनीर बटर मसाला"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 156.8,
+        "std_g": 34.5
+      },
+      "per_100g": {
+        "energy_kcal": 145.61,
+        "protein_g": 6.99,
+        "carb_g": 9.7,
+        "fat_g": 8.81,
+        "fibre_g": 1.5,
+        "variance_pct": 0.12
+      }
+    },
+    "palak_paneer": {
+      "id": "palak_paneer",
+      "name": "Palak Paneer (Spinach Cottage Cheese)",
+      "aliases": {
+        "kn": "ಪಾಲಕ್ ಪನ್ನೀರ್",
+        "ta": "பாலக் பன்னீர்",
+        "te": "పాలకూర పన్నీర్",
+        "hi": "पालक पनीर"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 762.5,
+        "std_g": 167.8
+      },
+      "per_100g": {
+        "energy_kcal": 606.03,
+        "protein_g": 1.43,
+        "carb_g": 2.94,
+        "fat_g": 65.41,
+        "fibre_g": 0.75,
+        "variance_pct": 0.12
+      }
+    },
+    "kadai_paneer": {
+      "id": "kadai_paneer",
+      "name": "Kadai Paneer (Bell Pepper Paneer)",
+      "aliases": {
+        "kn": "ಕಡಾಯಿ ಪನ್ನೀರ್",
+        "ta": "கடாய் பன்னீர்",
+        "te": "కడాయి పన్నీర్",
+        "hi": "कड़ाही पनीर"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 88.9,
+        "std_g": 19.6
+      },
+      "per_100g": {
+        "energy_kcal": 249.56,
+        "protein_g": 12.4,
+        "carb_g": 24.05,
+        "fat_g": 11.98,
+        "fibre_g": 2.12,
+        "variance_pct": 0.12
+      }
+    },
+    "matar_paneer": {
+      "id": "matar_paneer",
+      "name": "Matar Paneer (Peas and Paneer)",
+      "aliases": {
+        "kn": "ಮಟರ್ ಪನ್ನೀರ್",
+        "ta": "மட்டர் பன்னீர்",
+        "te": "మటర్ పన్నీర్",
+        "hi": "मटर पनीर"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 88.9,
+        "std_g": 19.6
+      },
+      "per_100g": {
+        "energy_kcal": 249.56,
+        "protein_g": 12.4,
+        "carb_g": 24.05,
+        "fat_g": 11.98,
+        "fibre_g": 2.12,
+        "variance_pct": 0.12
+      }
+    },
+    "shahi_paneer": {
+      "id": "shahi_paneer",
+      "name": "Shahi Paneer",
+      "aliases": {
+        "kn": "ಶಾಹಿ ಪನ್ನೀರ್",
+        "ta": "ஷாஹி பன்னீர்",
+        "te": "షాహీ పన్నీర్",
+        "hi": "शाही पनीर"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 259.3,
+        "std_g": 57.1
+      },
+      "per_100g": {
+        "energy_kcal": 156.5,
+        "protein_g": 5.06,
+        "carb_g": 6.64,
+        "fat_g": 12.34,
+        "fibre_g": 1.4,
+        "variance_pct": 0.12
+      }
+    },
+    "paneer_tikka_masala": {
+      "id": "paneer_tikka_masala",
+      "name": "Paneer Tikka Masala",
+      "aliases": {
+        "kn": "ಪನ್ನೀರ್ ಟಿಕ್ಕಾ ಮಸಾಲ",
+        "ta": "பன்னீர் டிக்கா மசாலா",
+        "te": "పన్నీರ್ టిక్కಾ ಮಸಾಲಾ",
+        "hi": "पनीर टिक्का मसाला"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 438.7,
+        "std_g": 96.5
+      },
+      "per_100g": {
+        "energy_kcal": 93.85,
+        "protein_g": 5.11,
+        "carb_g": 7.98,
+        "fat_g": 4.49,
+        "fibre_g": 1.23,
+        "variance_pct": 0.12
+      }
+    },
+    "veg_kurma": {
+      "id": "veg_kurma",
+      "name": "South Indian Vegetable Kurma",
+      "aliases": {
+        "kn": "ವೆಜ್ ಕುರ್ಮಾ",
+        "ta": "வெஜிடபிள் குருமா",
+        "te": "వెజ్ కుర్మా",
+        "hi": "वेज कोरमा"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 68.3,
+        "std_g": 15.0
+      },
+      "per_100g": {
+        "energy_kcal": 244.26,
+        "protein_g": 4.47,
+        "carb_g": 23.2,
+        "fat_g": 15.4,
+        "fibre_g": 2.35,
+        "variance_pct": 0.12
+      }
+    },
+    "aloo_gobi": {
+      "id": "aloo_gobi",
+      "name": "Aloo Gobi (Potato & Cauliflower)",
+      "aliases": {
+        "kn": "ಆಲೂ ಗೋಬಿ",
+        "ta": "ஆலூ கோபி",
+        "te": "ఆలూ గోబీ",
+        "hi": "आलू गोभी"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 175.7,
+        "std_g": 38.7
+      },
+      "per_100g": {
+        "energy_kcal": 106.18,
+        "protein_g": 1.9,
+        "carb_g": 5.99,
+        "fat_g": 8.13,
+        "fibre_g": 3.02,
+        "variance_pct": 0.12
+      }
+    },
+    "aloo_matar": {
+      "id": "aloo_matar",
+      "name": "Aloo Matar (Potato & Green Peas)",
+      "aliases": {
+        "kn": "ಆಲೂ ಮಟರ್",
+        "ta": "ஆலூ மட்டர்",
+        "te": "ఆలూ ಮటర్",
+        "hi": "आलू मटर"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 88.9,
+        "std_g": 19.6
+      },
+      "per_100g": {
+        "energy_kcal": 164.9,
+        "protein_g": 4.6,
+        "carb_g": 25.17,
+        "fat_g": 5.43,
+        "fibre_g": 2.89,
+        "variance_pct": 0.12
+      }
+    },
+    "baingan_bharta": {
+      "id": "baingan_bharta",
+      "name": "Baingan Bharta (Smoky Roasted Eggplant)",
+      "aliases": {
+        "kn": "ಬದನೆಕಾಯಿ ಗೊಜ್ಜು",
+        "ta": "கத்திரிக்காய் பஜ்ஜி",
+        "te": "వంకాయ పచ్చడి",
+        "hi": "बैंगन भर्ता"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 325.8,
+        "std_g": 71.7
+      },
+      "per_100g": {
+        "energy_kcal": 65.12,
+        "protein_g": 1.38,
+        "carb_g": 4.4,
+        "fat_g": 4.48,
+        "fibre_g": 3.27,
+        "variance_pct": 0.12
+      }
+    },
+    "bhindi_masala": {
+      "id": "bhindi_masala",
+      "name": "Bhindi Masala (Okra Stir-Fry)",
+      "aliases": {
+        "kn": "ಬೆಂಡೆಕಾಯಿ ಪಲ್ಯ",
+        "ta": "வெண்டைக்காய் பொரியல்",
+        "te": "బెండకాయ వేపుడు",
+        "hi": "भिंडी मसाला"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 166.3,
+        "std_g": 36.6
+      },
+      "per_100g": {
+        "energy_kcal": 110.81,
+        "protein_g": 1.83,
+        "carb_g": 4.5,
+        "fat_g": 9.27,
+        "fibre_g": 3.57,
+        "variance_pct": 0.12
+      }
+    },
+    "malai_kofta": {
+      "id": "malai_kofta",
+      "name": "Malai Kofta (Creamy Dumplings)",
+      "aliases": {
+        "kn": "ಮಲೈ ಕೋಫ್ತಾ",
+        "ta": "மலை கோஃப்தா",
+        "te": "మలై కోఫ్తా",
+        "hi": "मलाई कोफ्ता"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 139.3,
+        "std_g": 30.6
+      },
+      "per_100g": {
+        "energy_kcal": 125.59,
+        "protein_g": 1.75,
+        "carb_g": 6.31,
+        "fat_g": 10.35,
+        "fibre_g": 1.96,
+        "variance_pct": 0.12
+      }
+    },
+    "dum_aloo": {
+      "id": "dum_aloo",
+      "name": "Kashmiri Dum Aloo",
+      "aliases": {
+        "kn": "ದಮ್ ಆಲೂ",
+        "ta": "டம் ஆலூ",
+        "te": "దమ్ ఆలూ",
+        "hi": "दम आलू"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 670.6,
+        "std_g": 147.5
+      },
+      "per_100g": {
+        "energy_kcal": 682.33,
+        "protein_g": 0.7,
+        "carb_g": 3.33,
+        "fat_g": 74.01,
+        "fibre_g": 0.68,
+        "variance_pct": 0.12
+      }
+    },
+    "chana_masala": {
+      "id": "chana_masala",
+      "name": "Chana Masala (Spiced Chickpeas)",
+      "aliases": {
+        "kn": "ಚನ್ನಾ ಮಸಾಲ",
+        "ta": "சென்னா மசாலா",
+        "te": "చెన్నా ಮಸಾಲಾ",
+        "hi": "चना मसाला"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 357.9,
+        "std_g": 78.7
+      },
+      "per_100g": {
+        "energy_kcal": 173.43,
+        "protein_g": 4.88,
+        "carb_g": 27.57,
+        "fat_g": 4.82,
+        "fibre_g": 3.15,
+        "variance_pct": 0.12
+      }
+    },
+    "mixed_veg_curry": {
+      "id": "mixed_veg_curry",
+      "name": "Mixed Vegetable Curry",
+      "aliases": {
+        "kn": "ಮಿಶ್ರ ತರಕಾರಿ ಸಾರು",
+        "ta": "கலவை காய்கறி குழம்பு",
+        "te": "కూరగాయల కూర",
+        "hi": "मिक्स्ड वेज"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 371.6,
+        "std_g": 81.7
+      },
+      "per_100g": {
+        "energy_kcal": 83.07,
+        "protein_g": 2.77,
+        "carb_g": 7.19,
+        "fat_g": 4.66,
+        "fibre_g": 3.35,
+        "variance_pct": 0.12
+      }
+    },
+    "beans_poriyal": {
+      "id": "beans_poriyal",
+      "name": "Beans Poriyal (Green Beans Palya)",
+      "aliases": {
+        "kn": "ಬೀನ್ಸ್ ಪಲ್ಯ",
+        "ta": "பீன்ஸ் பொரியல்",
+        "te": "బీన్స్ వేపుడు",
+        "hi": "बीन्स सब्जी"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 96.6,
+        "std_g": 21.2
+      },
+      "per_100g": {
+        "energy_kcal": 94.32,
+        "protein_g": 2.41,
+        "carb_g": 6.04,
+        "fat_g": 6.61,
+        "fibre_g": 3.52,
+        "variance_pct": 0.12
+      }
+    },
+    "cabbage_poriyal": {
+      "id": "cabbage_poriyal",
+      "name": "Cabbage Poriyal (Cabbage Palya)",
+      "aliases": {
+        "kn": "ಎಲೆಕೋಸು ಪಲ್ಯ",
+        "ta": "முட்டைக்கோஸ் பொரியல்",
+        "te": "క్యాబేజీ వేపుడు",
+        "hi": "पत्तागोभी सब्जी"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 465.5,
+        "std_g": 102.4
+      },
+      "per_100g": {
+        "energy_kcal": 484.31,
+        "protein_g": 5.21,
+        "carb_g": 1.43,
+        "fat_g": 56.57,
+        "fibre_g": 0.57,
+        "variance_pct": 0.12
+      }
+    },
+    "carrot_beans_palya": {
+      "id": "carrot_beans_palya",
+      "name": "Carrot Beans Palya",
+      "aliases": {
+        "kn": "ಕ್ಯಾರೆಟ್ ಬೀನ್ಸ್ ಪಲ್ಯ",
+        "ta": "கேரட் பீன்ஸ் பொரியல்",
+        "te": "క్యారెట్ బీన్స్ వేపుడు",
+        "hi": "गाजर बीन्स सब्जी"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 97.3,
+        "std_g": 21.4
+      },
+      "per_100g": {
+        "energy_kcal": 214.11,
+        "protein_g": 5.3,
+        "carb_g": 29.05,
+        "fat_g": 9.12,
+        "fibre_g": 3.66,
+        "variance_pct": 0.12
+      }
+    },
+    "beetroot_poriyal": {
+      "id": "beetroot_poriyal",
+      "name": "Beetroot Poriyal (Beetroot Palya)",
+      "aliases": {
+        "kn": "ಬೀಟ್ರೂಟ್ ಪಲ್ಯ",
+        "ta": "பீட்ரூட் பொரியல்",
+        "te": "బీట్‌రూట్ వేపుడు",
+        "hi": "चुकंदर सब्जी"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 102.9,
+        "std_g": 22.6
+      },
+      "per_100g": {
+        "energy_kcal": 527.66,
+        "protein_g": 1.91,
+        "carb_g": 12.29,
+        "fat_g": 52.18,
+        "fibre_g": 1.4,
+        "variance_pct": 0.12
+      }
+    },
+    "potato_fry": {
+      "id": "potato_fry",
+      "name": "Crispy Potato Roast (Aloo Fry)",
+      "aliases": {
+        "kn": "ಆಲೂಗಡ್ಡೆ ರೋಸ್ಟ್",
+        "ta": "உருளைக்கிழங்கு வறுவல்",
+        "te": "బంగాళదుంప వేపుడు",
+        "hi": "आलू फ्राई"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 88.9,
+        "std_g": 19.6
+      },
+      "per_100g": {
+        "energy_kcal": 164.9,
+        "protein_g": 4.6,
+        "carb_g": 25.17,
+        "fat_g": 5.43,
+        "fibre_g": 2.89,
+        "variance_pct": 0.12
+      }
+    },
+    "karela_fry": {
+      "id": "karela_fry",
+      "name": "Karela Fry (Crispy Bitter Gourd)",
+      "aliases": {
+        "kn": "ಹಾಗಲಕಾಯಿ ಫ್ರೈ",
+        "ta": "பாகற்காய் வறுவல்",
+        "te": "కాకరకాయ వేపుడు",
+        "hi": "करेला फ्राई"
+      },
+      "geometry_class": "curry",
+      "density_g_cm3": 0.95,
+      "serving_prior": {
+        "mean_g": 106.1,
+        "std_g": 23.3
+      },
+      "per_100g": {
+        "energy_kcal": 217.65,
+        "protein_g": 1.29,
+        "carb_g": 2.49,
+        "fat_g": 22.38,
+        "fibre_g": 3.0,
+        "variance_pct": 0.12
+      }
+    },
+    "samosa": {
+      "id": "samosa",
+      "name": "Vegetable Potato Samosa",
+      "aliases": {
+        "kn": "ಸಮೋಸಾ",
+        "ta": "சமோசா",
+        "te": "సమోసా",
+        "hi": "समोसा"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 140.9,
+        "std_g": 31.0
+      },
+      "per_100g": {
+        "energy_kcal": 577.39,
+        "protein_g": 1.71,
+        "carb_g": 9.21,
+        "fat_g": 59.19,
+        "fibre_g": 1.19,
+        "variance_pct": 0.12
+      }
+    },
+    "pakora": {
+      "id": "pakora",
+      "name": "Crispy Vegetable Pakora (Bhajiya)",
+      "aliases": {
+        "kn": "ಬಜ್ಜಿ / ಬೋಂಡ",
+        "ta": "பக்கோடா",
+        "te": "పకోడీ",
+        "hi": "पकौड़ा / भजिया"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 674.5,
+        "std_g": 148.4
+      },
+      "per_100g": {
+        "energy_kcal": 673.81,
+        "protein_g": 1.94,
+        "carb_g": 5.12,
+        "fat_g": 71.86,
+        "fibre_g": 1.13,
+        "variance_pct": 0.12
+      }
+    },
+    "onion_bhajji": {
+      "id": "onion_bhajji",
+      "name": "Onion Bhajji (Kanda Bhaji)",
+      "aliases": {
+        "kn": "ಈರುಳ್ಳಿ ಬಜ್ಜಿ",
+        "ta": "வெங்காய பஜ்ஜி",
+        "te": "ఉల్లి బజ్జీ",
+        "hi": "कांदा भजी"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 351.9,
+        "std_g": 77.4
+      },
+      "per_100g": {
+        "energy_kcal": 55.61,
+        "protein_g": 11.41,
+        "carb_g": 4.28,
+        "fat_g": 14.39,
+        "fibre_g": 1.01,
+        "variance_pct": 0.12
+      }
+    },
+    "mirchi_bajji": {
+      "id": "mirchi_bajji",
+      "name": "Menasinakai Bajji (Mirchi Bajji)",
+      "aliases": {
+        "kn": "ಮೆಣಸಿನಕಾಯಿ ಬಜ್ಜಿ",
+        "ta": "மிளகாய் பஜ்ஜி",
+        "te": "మిరపకాయ బజ్జీ",
+        "hi": "मिर्ची भजिया"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 150.0,
+        "std_g": 33.0
+      },
+      "per_100g": {
+        "energy_kcal": 165.0,
+        "protein_g": 4.5,
+        "carb_g": 26.0,
+        "fat_g": 5.0,
+        "fibre_g": 2.2,
+        "variance_pct": 0.12
+      }
+    },
+    "aloo_bonda": {
+      "id": "aloo_bonda",
+      "name": "Aloo Bonda (Batata Vada)",
+      "aliases": {
+        "kn": "ಆಲೂ ಬೋಂಡ",
+        "ta": "ஆலூ போண்டா",
+        "te": "ఆలూ బోండా",
+        "hi": "बटाटा वड़ा"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 179.2,
+        "std_g": 39.4
+      },
+      "per_100g": {
+        "energy_kcal": 632.84,
+        "protein_g": 1.09,
+        "carb_g": 4.53,
+        "fat_g": 67.8,
+        "fibre_g": 0.83,
+        "variance_pct": 0.12
+      }
+    },
+    "pav_bhaji": {
+      "id": "pav_bhaji",
+      "name": "Mumbai Pav Bhaji",
+      "aliases": {
+        "kn": "ಪಾವ್ ಭಾಜಿ",
+        "ta": "பாவ் பாஜி",
+        "te": "పావ్ భాజీ",
+        "hi": "पाव भाजी"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 1.1,
+        "std_g": 0.2
+      },
+      "per_100g": {
+        "energy_kcal": 230.47,
+        "protein_g": 9.13,
+        "carb_g": 29.15,
+        "fat_g": 10.96,
+        "fibre_g": 24.3,
+        "variance_pct": 0.12
+      }
+    },
+    "vada_pav": {
+      "id": "vada_pav",
+      "name": "Mumbai Vada Pav",
+      "aliases": {
+        "kn": "ವಡಾ ಪಾವ್",
+        "ta": "வடா பாவ்",
+        "te": "వడా పావ్",
+        "hi": "वड़ा पाव"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 172.3,
+        "std_g": 37.9
+      },
+      "per_100g": {
+        "energy_kcal": 667.73,
+        "protein_g": 2.96,
+        "carb_g": 5.49,
+        "fat_g": 70.4,
+        "fibre_g": 0.97,
+        "variance_pct": 0.12
+      }
+    },
+    "dabeli": {
+      "id": "dabeli",
+      "name": "Kutchi Dabeli",
+      "aliases": {
+        "kn": "ದಾಬೇಲಿ",
+        "ta": "தாபேலி",
+        "te": "దాబేలి",
+        "hi": "दाबेली"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 150.0,
+        "std_g": 33.0
+      },
+      "per_100g": {
+        "energy_kcal": 165.0,
+        "protein_g": 4.5,
+        "carb_g": 26.0,
+        "fat_g": 5.0,
+        "fibre_g": 2.2,
+        "variance_pct": 0.12
+      }
+    },
+    "pani_puri": {
+      "id": "pani_puri",
+      "name": "Pani Puri (Golgappa / Puchka)",
+      "aliases": {
+        "kn": "ಪಾನಿ ಪುರಿ",
+        "ta": "பானி பூரி",
+        "te": "పానీ పూరి",
+        "hi": "पानी पूरी / गोलगप्पे"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 338.9,
+        "std_g": 74.6
+      },
+      "per_100g": {
+        "energy_kcal": 9.09,
+        "protein_g": 0.17,
+        "carb_g": 1.86,
+        "fat_g": 0.11,
+        "fibre_g": 0.46,
+        "variance_pct": 0.12
+      }
+    },
+    "bhel_puri": {
+      "id": "bhel_puri",
+      "name": "Bhel Puri (Chaat)",
+      "aliases": {
+        "kn": "ಬೇಲ್ ಪುರಿ",
+        "ta": "பேல் பூரி",
+        "te": "భేల్ పూరి",
+        "hi": "भेल पूरी"
+      },
+      "geometry_class": "snack_item",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 700.9,
+        "std_g": 154.2
+      },
+      "per_100g": {
+        "energy_kcal": 509.89,
+        "protein_g": 3.52,
+        "carb_g": 16.47,
+        "fat_g": 47.91,
+        "fibre_g": 2.24,
+        "variance_pct": 0.12
+      }
+    },
+    "sev_puri": {
+      "id": "sev_puri",
+      "name": "Sev Puri (Chaat)",
+      "aliases": {
+        "kn": "ಸೇವ್ ಪುರಿ",
+        "ta": "சேவ் பூரி",
+        "te": "సేవ్ పూరి",
+        "hi": "सेव पूरी"
+      },
+      "geometry_class": "snack_item",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 232.4,
+        "std_g": 51.1
+      },
+      "per_100g": {
+        "energy_kcal": 120.07,
+        "protein_g": 3.35,
+        "carb_g": 15.87,
+        "fat_g": 5.0,
+        "fibre_g": 0.5,
+        "variance_pct": 0.12
+      }
+    },
+    "dahi_puri": {
+      "id": "dahi_puri",
+      "name": "Dahi Puri (Sweet Curd Chaat)",
+      "aliases": {
+        "kn": "ದಹಿ ಪುರಿ",
+        "ta": "தயிர் பூரி",
+        "te": "దహీ పూరి",
+        "hi": "दही पूरी"
+      },
+      "geometry_class": "snack_item",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 216.2,
+        "std_g": 47.6
+      },
+      "per_100g": {
+        "energy_kcal": 195.74,
+        "protein_g": 5.75,
+        "carb_g": 32.93,
+        "fat_g": 4.32,
+        "fibre_g": 2.13,
+        "variance_pct": 0.12
+      }
+    },
+    "dhokla": {
+      "id": "dhokla",
+      "name": "Khaman Dhokla",
+      "aliases": {
+        "kn": "ಧೋಕ್ಲಾ",
+        "ta": "டோக்ளா",
+        "te": "ధోక్లా",
+        "hi": "खमन ढोकला"
+      },
+      "geometry_class": "steamed_cake",
+      "density_g_cm3": 0.68,
+      "serving_prior": {
+        "mean_g": 118.7,
+        "std_g": 26.1
+      },
+      "per_100g": {
+        "energy_kcal": 54.73,
+        "protein_g": 1.92,
+        "carb_g": 5.36,
+        "fat_g": 2.8,
+        "fibre_g": 1.49,
+        "variance_pct": 0.12
+      }
+    },
+    "kathi_roll": {
+      "id": "kathi_roll",
+      "name": "Paneer / Veg Kathi Roll (Frankie)",
+      "aliases": {
+        "kn": "ಕಾತಿ ರೋಲ್",
+        "ta": "காதி ரோல்",
+        "te": "కాతి రోల్",
+        "hi": "काठी रोल"
+      },
+      "geometry_class": "flatbread",
+      "density_g_cm3": 0.55,
+      "serving_prior": {
+        "mean_g": 148.3,
+        "std_g": 32.6
+      },
+      "per_100g": {
+        "energy_kcal": 285.94,
+        "protein_g": 6.92,
+        "carb_g": 20.1,
+        "fat_g": 19.55,
+        "fibre_g": 2.4,
+        "variance_pct": 0.12
+      }
+    },
+    "coconut_chutney": {
+      "id": "coconut_chutney",
+      "name": "Fresh White Coconut Chutney",
+      "aliases": {
+        "kn": "ಕಾಯಿ ಚಟ್ನಿ",
+        "ta": "தேங்காய் சட்னி",
+        "te": "కొబ్బరి పచ్చడి",
+        "hi": "नारियल चटनी"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 25.3,
+        "std_g": 5.6
+      },
+      "per_100g": {
+        "energy_kcal": 265.92,
+        "protein_g": 3.59,
+        "carb_g": 8.29,
+        "fat_g": 25.0,
+        "fibre_g": 6.73,
+        "variance_pct": 0.12
+      }
+    },
+    "tomato_chutney": {
+      "id": "tomato_chutney",
+      "name": "Spicy Red Tomato Chutney",
+      "aliases": {
+        "kn": "ಟೊಮೆಟೊ ಚಟ್ನಿ",
+        "ta": "தக்காளி சட்னி",
+        "te": "టమాటో పచ్చడి",
+        "hi": "टमाटर चटनी"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 123.8,
+        "std_g": 27.2
+      },
+      "per_100g": {
+        "energy_kcal": 125.03,
+        "protein_g": 11.48,
+        "carb_g": 2.51,
+        "fat_g": 7.61,
+        "fibre_g": 1.13,
+        "variance_pct": 0.12
+      }
+    },
+    "mint_coriander_chutney": {
+      "id": "mint_coriander_chutney",
+      "name": "Green Mint Coriander Chutney",
+      "aliases": {
+        "kn": "ಪುದೀನಾ ಚಟ್ನಿ",
+        "ta": "புதினா சட்னி",
+        "te": "పుదీనా పచ్చడి",
+        "hi": "हरी पुदीना चटनी"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 26.3,
+        "std_g": 5.8
+      },
+      "per_100g": {
+        "energy_kcal": 102.6,
+        "protein_g": 2.81,
+        "carb_g": 21.18,
+        "fat_g": 0.51,
+        "fibre_g": 4.33,
+        "variance_pct": 0.12
+      }
+    },
+    "peanut_chutney": {
+      "id": "peanut_chutney",
+      "name": "Peanut Chutney (Shenga Chutney)",
+      "aliases": {
+        "kn": "ಶೇಂಗಾ ಚಟ್ನಿ",
+        "ta": "வேர்க்கடலை சட்னி",
+        "te": "పల్లీ పచ్చడి",
+        "hi": "मूंगफली चटनी"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 21.0,
+        "std_g": 4.6
+      },
+      "per_100g": {
+        "energy_kcal": 258.37,
+        "protein_g": 11.8,
+        "carb_g": 9.87,
+        "fat_g": 19.06,
+        "fibre_g": 5.73,
+        "variance_pct": 0.12
+      }
+    },
+    "papadum": {
+      "id": "papadum",
+      "name": "Crispy Roasted / Fried Papad",
+      "aliases": {
+        "kn": "ಹಪ್ಪಳ",
+        "ta": "அப்பளம்",
+        "te": "అప్పడం",
+        "hi": "पापड़"
+      },
+      "geometry_class": "fried_snack",
+      "density_g_cm3": 0.62,
+      "serving_prior": {
+        "mean_g": 57.8,
+        "std_g": 12.7
+      },
+      "per_100g": {
+        "energy_kcal": 223.67,
+        "protein_g": 11.59,
+        "carb_g": 0.31,
+        "fat_g": 19.62,
+        "fibre_g": 0.29,
+        "variance_pct": 0.12
+      }
+    },
+    "cucumber_raita": {
+      "id": "cucumber_raita",
+      "name": "Cucumber Curd Raita",
+      "aliases": {
+        "kn": "ಸೌತೆಕಾಯಿ ಮೊಸರು ಬಜ್ಜಿ",
+        "ta": "வெள்ளரி தயிர்பச்சடி",
+        "te": "దోసకాయ రైతా",
+        "hi": "खीरा रायता"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 152.7,
+        "std_g": 33.6
+      },
+      "per_100g": {
+        "energy_kcal": 59.13,
+        "protein_g": 4.04,
+        "carb_g": 6.35,
+        "fat_g": 2.08,
+        "fibre_g": 0.86,
+        "variance_pct": 0.12
+      }
+    },
+    "boondi_raita": {
+      "id": "boondi_raita",
+      "name": "Crispy Boondi Raita",
+      "aliases": {
+        "kn": "ಬೂಂದಿ ಮೊಸರು ಬಜ್ಜಿ",
+        "ta": "பூந்தி பச்சடி",
+        "te": "బూಂದೀ రైతా",
+        "hi": "बूंदी रायता"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 328.9,
+        "std_g": 72.4
+      },
+      "per_100g": {
+        "energy_kcal": 687.72,
+        "protein_g": 2.19,
+        "carb_g": 3.96,
+        "fat_g": 73.83,
+        "fibre_g": 0.46,
+        "variance_pct": 0.12
+      }
+    },
+    "onion_raita": {
+      "id": "onion_raita",
+      "name": "Onion Tomato Raita",
+      "aliases": {
+        "kn": "ಈರುಳ್ಳಿ ಮೊಸರು ಬಜ್ಜಿ",
+        "ta": "வெங்காய பச்சடி",
+        "te": "ఉల్లిపాయ రైతా",
+        "hi": "प्याज रायता"
+      },
+      "geometry_class": "thick_gravy",
+      "density_g_cm3": 0.98,
+      "serving_prior": {
+        "mean_g": 177.7,
+        "std_g": 39.1
+      },
+      "per_100g": {
+        "energy_kcal": 59.0,
+        "protein_g": 3.74,
+        "carb_g": 7.08,
+        "fat_g": 1.84,
+        "fibre_g": 0.97,
+        "variance_pct": 0.12
+      }
+    },
+    "mango_pickle": {
+      "id": "mango_pickle",
+      "name": "Spicy Indian Mango Pickle (Achar)",
+      "aliases": {
+        "kn": "ಮಾವಿನಕಾಯಿ ಉಪ್ಪಿನಕಾಯಿ",
+        "ta": "மாங்காய் ஊறுகாய்",
+        "te": "మామిడికాయ ఆవకాయ",
+        "hi": "आम का अचार"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 180.0,
+        "std_g": 39.6
+      },
+      "per_100g": {
+        "energy_kcal": 192.12,
+        "protein_g": 1.6,
+        "carb_g": 8.11,
+        "fat_g": 17.89,
+        "fibre_g": 3.68,
+        "variance_pct": 0.12
+      }
+    },
+    "lemon_pickle": {
+      "id": "lemon_pickle",
+      "name": "Tangy Lemon Pickle",
+      "aliases": {
+        "kn": "ನಿಂಬೆಕಾಯಿ ಉಪ್ಪಿನಕಾಯಿ",
+        "ta": "எலுமிச்சை ஊறுகாய்",
+        "te": "నిమ్మకాయ ఊరగాయ",
+        "hi": "नींबू का अचार"
+      },
+      "geometry_class": "accompaniment",
+      "density_g_cm3": 0.85,
+      "serving_prior": {
+        "mean_g": 180.0,
+        "std_g": 39.6
+      },
+      "per_100g": {
+        "energy_kcal": 69.54,
+        "protein_g": 1.22,
+        "carb_g": 16.87,
+        "fat_g": 0.21,
+        "fibre_g": 2.13,
+        "variance_pct": 0.12
+      }
+    },
+    "gulab_jamun": {
+      "id": "gulab_jamun",
+      "name": "Gulab Jamun (Rose Syrup Dumplings)",
+      "aliases": {
+        "kn": "ಗುಲಾಬ್ ಜಾಮೂನ್",
+        "ta": "குலாப் ஜாமுன்",
+        "te": "గులాಬ್ జామూನ್",
+        "hi": "गुलाब जामुन"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 156.7,
+        "std_g": 34.5
+      },
+      "per_100g": {
+        "energy_kcal": 586.06,
+        "protein_g": 2.03,
+        "carb_g": 26.09,
+        "fat_g": 53.23,
+        "fibre_g": 0.07,
+        "variance_pct": 0.12
+      }
+    },
+    "jalebi": {
+      "id": "jalebi",
+      "name": "Crispy Golden Jalebi",
+      "aliases": {
+        "kn": "ಜಿಲೇಬಿ",
+        "ta": "ஜிலேபி",
+        "te": "జిలేబీ",
+        "hi": "जलेबी"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 283.0,
+        "std_g": 62.3
+      },
+      "per_100g": {
+        "energy_kcal": 138.4,
+        "protein_g": 10.95,
+        "carb_g": 9.59,
+        "fat_g": 6.41,
+        "fibre_g": 1.21,
+        "variance_pct": 0.12
+      }
+    },
+    "mysore_pak": {
+      "id": "mysore_pak",
+      "name": "Authentic Mysore Pak",
+      "aliases": {
+        "kn": "ಮೈಸೂರು ಪಾಕ್",
+        "ta": "மைசூர் பாக்",
+        "te": "మైసూర్ పాక్",
+        "hi": "मैसूर पाक"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 586.8,
+        "std_g": 129.1
+      },
+      "per_100g": {
+        "energy_kcal": 403.35,
+        "protein_g": 1.64,
+        "carb_g": 3.56,
+        "fat_g": 42.59,
+        "fibre_g": 0.81,
+        "variance_pct": 0.12
+      }
+    },
+    "payasam": {
+      "id": "payasam",
+      "name": "Semiya / Rice Payasam (Kheer)",
+      "aliases": {
+        "kn": "ಪಾಯಸ",
+        "ta": "பாயசம்",
+        "te": "పాయసం",
+        "hi": "खीर / पायसम"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 331.1,
+        "std_g": 72.8
+      },
+      "per_100g": {
+        "energy_kcal": 136.5,
+        "protein_g": 3.13,
+        "carb_g": 14.4,
+        "fat_g": 7.66,
+        "fibre_g": 0.38,
+        "variance_pct": 0.12
+      }
+    },
+    "rasgulla": {
+      "id": "rasgulla",
+      "name": "Spongy White Rasgulla",
+      "aliases": {
+        "kn": "ರಸಗುಲ್ಲಾ",
+        "ta": "ரசகுல்லா",
+        "te": "రసగుల్లా",
+        "hi": "रसगुल्ला"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 341.7,
+        "std_g": 75.2
+      },
+      "per_100g": {
+        "energy_kcal": 118.64,
+        "protein_g": 1.38,
+        "carb_g": 25.79,
+        "fat_g": 1.75,
+        "fibre_g": 0.01,
+        "variance_pct": 0.12
+      }
+    },
+    "rasmalai": {
+      "id": "rasmalai",
+      "name": "Saffron Rasmalai",
+      "aliases": {
+        "kn": "ರಸಮಲೈ",
+        "ta": "ரஸ்மலாய்",
+        "te": "రసమలై",
+        "hi": "रसमलाई"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 317.4,
+        "std_g": 69.8
+      },
+      "per_100g": {
+        "energy_kcal": 135.55,
+        "protein_g": 1.61,
+        "carb_g": 29.17,
+        "fat_g": 2.11,
+        "fibre_g": 0.07,
+        "variance_pct": 0.12
+      }
+    },
+    "kaju_katli": {
+      "id": "kaju_katli",
+      "name": "Kaju Katli (Cashew Fudge)",
+      "aliases": {
+        "kn": "ಕಾಜು ಕತ್ಲಿ",
+        "ta": "காஜு கட்லி",
+        "te": "కాజూ కట్లి",
+        "hi": "काजू कतली"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 28.7,
+        "std_g": 6.3
+      },
+      "per_100g": {
+        "energy_kcal": 421.74,
+        "protein_g": 5.47,
+        "carb_g": 37.92,
+        "fat_g": 28.46,
+        "fibre_g": 1.12,
+        "variance_pct": 0.12
+      }
+    },
+    "gajar_halwa": {
+      "id": "gajar_halwa",
+      "name": "Gajar Ka Halwa (Carrot Pudding)",
+      "aliases": {
+        "kn": "ಕ್ಯಾರೆಟ್ ಹಲ್ವಾ",
+        "ta": "கேரட் அல்வா",
+        "te": "క్యారెట్ హల్వా",
+        "hi": "गाजर का हलवा"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 167.8,
+        "std_g": 36.9
+      },
+      "per_100g": {
+        "energy_kcal": 172.64,
+        "protein_g": 3.11,
+        "carb_g": 18.53,
+        "fat_g": 9.73,
+        "fibre_g": 2.65,
+        "variance_pct": 0.12
+      }
+    },
+    "shrikhand": {
+      "id": "shrikhand",
+      "name": "Cardamom Saffron Shrikhand",
+      "aliases": {
+        "kn": "ಶ್ರೀಖಂಡ್",
+        "ta": "ஸ்ரீகண்ட்",
+        "te": "శ్రీఖండ్",
+        "hi": "श्रीखंड"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 304.6,
+        "std_g": 67.0
+      },
+      "per_100g": {
+        "energy_kcal": 107.18,
+        "protein_g": 5.27,
+        "carb_g": 16.02,
+        "fat_g": 2.89,
+        "fibre_g": 0.08,
+        "variance_pct": 0.12
+      }
+    },
+    "kulfi": {
+      "id": "kulfi",
+      "name": "Traditional Malai Kulfi",
+      "aliases": {
+        "kn": "ಕುಲ್ಫಿ",
+        "ta": "குல்பி",
+        "te": "కుల్ఫీ",
+        "hi": "कुल्फी"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 270.1,
+        "std_g": 59.4
+      },
+      "per_100g": {
+        "energy_kcal": 98.43,
+        "protein_g": 3.21,
+        "carb_g": 11.3,
+        "fat_g": 4.7,
+        "fibre_g": 0.12,
+        "variance_pct": 0.12
+      }
+    },
+    "motichoor_laddu": {
+      "id": "motichoor_laddu",
+      "name": "Motichoor Laddu (Besan Laddu)",
+      "aliases": {
+        "kn": "ಮೋತಿಚೂರ್ ಲಡ್ಡು",
+        "ta": "மோத்திச்சூர் லட்டு",
+        "te": "మోతీచూర్ లడ్డు",
+        "hi": "मोतीचूर लड्डू"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 82.3,
+        "std_g": 18.1
+      },
+      "per_100g": {
+        "energy_kcal": 216.49,
+        "protein_g": 5.54,
+        "carb_g": 21.39,
+        "fat_g": 12.09,
+        "fibre_g": 4.39,
+        "variance_pct": 0.12
+      }
+    },
+    "badam_halwa": {
+      "id": "badam_halwa",
+      "name": "Almond Badam Halwa",
+      "aliases": {
+        "kn": "ಬಾದಾಮಿ ಹಲ್ವಾ",
+        "ta": "பாதாம் அல்வா",
+        "te": "బాదం హల్వా",
+        "hi": "बादाम हलवा"
+      },
+      "geometry_class": "sweet",
+      "density_g_cm3": 1.05,
+      "serving_prior": {
+        "mean_g": 159.6,
+        "std_g": 35.1
+      },
+      "per_100g": {
+        "energy_kcal": 225.65,
+        "protein_g": 2.16,
+        "carb_g": 24.67,
+        "fat_g": 13.38,
+        "fibre_g": 1.86,
+        "variance_pct": 0.12
+      }
+    }
+  }
+}

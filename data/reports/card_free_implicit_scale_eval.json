@@ -4,97 +4,103 @@
     "epochs": 50,
     "n_captures": 23,
     "n_folds": 6,
-    "lodo_scale_mae_cm_px": 0.00196,
-    "lodo_scale_mape_pct": 17.81
+    "lodo_scale_mae_cm_px": 0.00251,
+    "lodo_scale_mape_pct": 23.0
   },
   "summary": {
     "mode_a_card_present": {
-      "mae_g": 90.90434782608695,
-      "mape_pct": 27.7544442503836,
-      "signed_bias_g": -71.2695652173913,
-      "rmse_g": 119.82344620678194
+      "mae_g": 93.94347826086958,
+      "mape_pct": 30.441365374226393,
+      "signed_bias_g": -64.83913043478262,
+      "rmse_g": 112.6837648890257
     },
     "mode_b_card_free_oof": {
-      "mae_g": 225.36956521739134,
-      "mape_pct": 67.8998996201546,
-      "signed_bias_g": -223.51739130434785,
-      "rmse_g": 254.93145796639058
+      "mae_g": 153.22608695652175,
+      "mape_pct": 46.51168696598034,
+      "signed_bias_g": -44.399999999999984,
+      "rmse_g": 206.21199728940837
     },
     "mode_c_uncalibrated_prior": {
-      "mae_g": 133.44782608695652,
-      "mape_pct": 40.69152519505984,
-      "signed_bias_g": -69.25652173913043,
-      "rmse_g": 169.80787737143203
+      "mae_g": 140.39565217391302,
+      "mape_pct": 44.16081524115004,
+      "signed_bias_g": -93.1434782608696,
+      "rmse_g": 173.26050128158994
     }
   },
   "per_dish_summary": {
     "Dish 1": {
       "ground_truth_g": 450.0,
-      "mode_a_mae_g": 148.66666666666666,
-      "mode_b_mae_g": 361.9833333333333,
-      "mode_c_mae_g": 265.26666666666665
+      "mode_a_mae_g": 138.75,
+      "mode_b_mae_g": 239.6833333333333,
+      "mode_c_mae_g": 265.2166666666667
     },
     "Dish 2": {
       "ground_truth_g": 338.0,
-      "mode_a_mae_g": 85.975,
-      "mode_b_mae_g": 298.025,
-      "mode_c_mae_g": 42.150000000000006
+      "mode_a_mae_g": 77.175,
+      "mode_b_mae_g": 50.30000000000001,
+      "mode_c_mae_g": 42.17500000000001
     },
     "Dish 3": {
       "ground_truth_g": 191.0,
-      "mode_a_mae_g": 42.63333333333333,
-      "mode_b_mae_g": 89.46666666666668,
-      "mode_c_mae_g": 78.8
+      "mode_a_mae_g": 32.76666666666667,
+      "mode_b_mae_g": 74.83333333333333,
+      "mode_c_mae_g": 78.86666666666667
     },
     "Dish 4": {
       "ground_truth_g": 250.0,
-      "mode_a_mae_g": 38.833333333333336,
-      "mode_b_mae_g": 148.9333333333333,
-      "mode_c_mae_g": 125.90000000000002
+      "mode_a_mae_g": 83.23333333333333,
+      "mode_b_mae_g": 123.10000000000001,
+      "mode_c_mae_g": 159.6
     },
     "Dish 5": {
       "ground_truth_g": 150.0,
-      "mode_a_mae_g": 44.43333333333334,
-      "mode_b_mae_g": 80.76666666666667,
-      "mode_c_mae_g": 51.93333333333334
+      "mode_a_mae_g": 70.86666666666667,
+      "mode_b_mae_g": 50.26666666666667,
+      "mode_c_mae_g": 71.63333333333333
     },
     "Dish 6": {
       "ground_truth_g": 351.0,
-      "mode_a_mae_g": 119.30000000000001,
-      "mode_b_mae_g": 215.5,
-      "mode_c_mae_g": 134.8
+      "mode_a_mae_g": 114.72500000000001,
+      "mode_b_mae_g": 285.07500000000005,
+      "mode_c_mae_g": 134.7
     }
   },
   "fold_metrics": {
     "Dish 1": {
-      "scale_mae_cm_px": 0.00201,
-      "scale_mape_pct": 19.11,
-      "depth_scale_mae": 0.0125
+      "n_val": 6,
+      "scale_mae_cm_px": 0.0029664929550297266,
+      "scale_mape_pct": 28.257650328846648,
+      "depth_scale_mae": 0.03171565487187087
     },
     "Dish 2": {
-      "scale_mae_cm_px": 0.00122,
-      "scale_mape_pct": 8.59,
-      "depth_scale_mae": 0.0084
+      "n_val": 4,
+      "scale_mae_cm_px": 0.0006656939530151318,
+      "scale_mape_pct": 4.95656357801305,
+      "depth_scale_mae": 0.019621263954281487
     },
     "Dish 3": {
-      "scale_mae_cm_px": 0.00538,
-      "scale_mape_pct": 49.07,
-      "depth_scale_mae": 0.0341
+      "n_val": 3,
+      "scale_mae_cm_px": 0.006623343940388173,
+      "scale_mape_pct": 59.89310246793931,
+      "depth_scale_mae": 0.08280044443607983
     },
     "Dish 4": {
-      "scale_mae_cm_px": 0.0002,
-      "scale_mape_pct": 1.94,
-      "depth_scale_mae": 0.0032
+      "n_val": 3,
+      "scale_mae_cm_px": 0.0004162582731608924,
+      "scale_mape_pct": 3.9628138235401047,
+      "depth_scale_mae": 0.012928987332044737
     },
     "Dish 5": {
-      "scale_mae_cm_px": 0.00055,
-      "scale_mape_pct": 5.13,
-      "depth_scale_mae": 0.0041
+      "n_val": 3,
+      "scale_mae_cm_px": 0.0021854587987407952,
+      "scale_mape_pct": 20.15810713607738,
+      "depth_scale_mae": 0.021487797354235876
     },
     "Dish 6": {
-      "scale_mae_cm_px": 0.00237,
-      "scale_mape_pct": 23.04,
-      "depth_scale_mae": 0.0152
+      "n_val": 4,
+      "scale_mae_cm_px": 0.002200061559629372,
+      "scale_mape_pct": 20.767746855750822,
+      "depth_scale_mae": 0.020499839001842067
     }
   },
   "per_image_results": [
@@ -103,19 +109,26 @@
       "filename": "20261025_184112.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 166.7,
-        "error_g": -283.3,
-        "ape_pct": 62.96
+        "grams": 272.2,
+        "error_g": -177.8,
+        "ape_pct": 39.51,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 24.8,
-        "error_g": -425.2,
-        "ape_pct": 94.49
+        "grams": 120.0,
+        "error_g": -330.0,
+        "ape_pct": 73.33,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.013243315337160224
       },
       "mode_c_uncalibrated_prior": {
         "grams": 244.6,
         "error_g": -205.4,
-        "ape_pct": 45.64
+        "ape_pct": 45.64,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -123,19 +136,26 @@
       "filename": "20261025_184421.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 382.5,
-        "error_g": -67.5,
-        "ape_pct": 15.0
+        "grams": 383.3,
+        "error_g": -66.7,
+        "ape_pct": 14.82,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 92.3,
-        "error_g": -357.7,
-        "ape_pct": 79.49
+        "grams": 374.8,
+        "error_g": -75.2,
+        "ape_pct": 16.71,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.013551137780389284
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 289.5,
-        "error_g": -160.5,
-        "ape_pct": 35.67
+        "grams": 289.7,
+        "error_g": -160.3,
+        "ape_pct": 35.62,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -143,19 +163,26 @@
       "filename": "20261025_191003.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 284.6,
-        "error_g": -165.4,
-        "ape_pct": 36.76
+        "grams": 275.8,
+        "error_g": -174.2,
+        "ape_pct": 38.71,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 83.8,
-        "error_g": -366.2,
-        "ape_pct": 81.38
+        "grams": 109.3,
+        "error_g": -340.7,
+        "ape_pct": 75.71,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014208433566317395
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 88.6,
-        "error_g": -361.4,
-        "ape_pct": 80.31
+        "grams": 88.8,
+        "error_g": -361.2,
+        "ape_pct": 80.27,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -163,19 +190,26 @@
       "filename": "20261025_191009.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 239.4,
-        "error_g": -210.6,
-        "ape_pct": 46.8
+        "grams": 236.7,
+        "error_g": -213.3,
+        "ape_pct": 47.4,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 64.7,
-        "error_g": -385.3,
-        "ape_pct": 85.62
+        "grams": 111.6,
+        "error_g": -338.4,
+        "ape_pct": 75.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014742942214780386
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 100.9,
-        "error_g": -349.1,
-        "ape_pct": 77.58
+        "grams": 101.0,
+        "error_g": -349.0,
+        "ape_pct": 77.56,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -183,39 +217,53 @@
       "filename": "20261025_191019.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 542.5,
-        "error_g": 92.5,
-        "ape_pct": 20.56
+        "grams": 573.1,
+        "error_g": 123.1,
+        "ape_pct": 27.36,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 176.6,
-        "error_g": -273.4,
-        "ape_pct": 60.76
+        "grams": 433.1,
+        "error_g": -16.9,
+        "ape_pct": 3.76,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.01535117899155516
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 662.8,
-        "error_g": 212.8,
-        "ape_pct": 47.29
+        "grams": 663.0,
+        "error_g": 213.0,
+        "ape_pct": 47.33,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 1",
-      "filename": "this plate weight is 450 grams.jpg",
+      "filename": "this plate weight is 127g and rice is 250g _bowl weight is 109g and sambar is 200g.jpg",
       "ground_truth_g": 450.0,
       "mode_a_card_present": {
-        "grams": 377.3,
-        "error_g": -72.7,
-        "ape_pct": 16.16
+        "grams": 372.6,
+        "error_g": -77.4,
+        "ape_pct": 17.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 85.9,
-        "error_g": -364.1,
-        "ape_pct": 80.91
+        "grams": 113.1,
+        "error_g": -336.9,
+        "ape_pct": 74.87,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.015609871668690746
       },
       "mode_c_uncalibrated_prior": {
         "grams": 147.6,
         "error_g": -302.4,
-        "ape_pct": 67.2
+        "ape_pct": 67.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -223,19 +271,26 @@
       "filename": "20261027_085735.jpg",
       "ground_truth_g": 338.0,
       "mode_a_card_present": {
-        "grams": 137.6,
-        "error_g": -200.4,
-        "ape_pct": 59.29
+        "grams": 220.6,
+        "error_g": -117.4,
+        "ape_pct": 34.73,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 50.9,
-        "error_g": -287.1,
-        "ape_pct": 84.94
+        "grams": 325.9,
+        "error_g": -12.1,
+        "ape_pct": 3.58,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014239173258970127
       },
       "mode_c_uncalibrated_prior": {
         "grams": 288.2,
         "error_g": -49.8,
-        "ape_pct": 14.73
+        "ape_pct": 14.73,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -243,19 +298,26 @@
       "filename": "20261027_085741.jpg",
       "ground_truth_g": 338.0,
       "mode_a_card_present": {
-        "grams": 311.5,
-        "error_g": -26.5,
-        "ape_pct": 7.84
+        "grams": 346.2,
+        "error_g": 8.2,
+        "ape_pct": 2.43,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 24.4,
-        "error_g": -313.6,
-        "ape_pct": 92.78
+        "grams": 369.0,
+        "error_g": 31.0,
+        "ape_pct": 9.17,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014804328931221881
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 345.0,
-        "error_g": 7.0,
-        "ape_pct": 2.07
+        "grams": 345.2,
+        "error_g": 7.2,
+        "ape_pct": 2.13,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -263,59 +325,80 @@
       "filename": "20261027_085746.jpg",
       "ground_truth_g": 338.0,
       "mode_a_card_present": {
-        "grams": 229.0,
-        "error_g": -109.0,
-        "ape_pct": 32.25
+        "grams": 227.6,
+        "error_g": -110.4,
+        "ape_pct": 32.66,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 28.2,
-        "error_g": -309.8,
-        "ape_pct": 91.66
+        "grams": 304.4,
+        "error_g": -33.6,
+        "ape_pct": 9.94,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.013761346045084279
       },
       "mode_c_uncalibrated_prior": {
         "grams": 270.4,
         "error_g": -67.6,
-        "ape_pct": 20.0
+        "ape_pct": 20.0,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 2",
-      "filename": "Rice plate 255g rice 127g rasam (Dish 2).jpg",
+      "filename": "Rice plate 255g rice 211 g,Bowl 66g rasam 127g.jpg",
       "ground_truth_g": 338.0,
       "mode_a_card_present": {
-        "grams": 330.0,
-        "error_g": -8.0,
-        "ape_pct": 2.37
+        "grams": 265.3,
+        "error_g": -72.7,
+        "ape_pct": 21.51,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 56.4,
-        "error_g": -281.6,
-        "ape_pct": 83.31
+        "grams": 462.5,
+        "error_g": 124.5,
+        "ape_pct": 36.83,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014118882404820903
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 382.2,
-        "error_g": 44.2,
-        "ape_pct": 13.08
+        "grams": 382.1,
+        "error_g": 44.1,
+        "ape_pct": 13.05,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 3",
-      "filename": "127 g plate 47 g bowl 121 g chappati 70 g chutney.jpg",
+      "filename": "127 g plate 47 g bowl- 70g cocunt chutney _121 g of chappati.jpg",
       "ground_truth_g": 191.0,
       "mode_a_card_present": {
-        "grams": 167.1,
-        "error_g": -23.9,
-        "ape_pct": 12.51
+        "grams": 165.5,
+        "error_g": -25.5,
+        "ape_pct": 13.35,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 67.6,
-        "error_g": -123.4,
-        "ape_pct": 64.61
+        "grams": 177.5,
+        "error_g": -13.5,
+        "ape_pct": 7.07,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.01723108706279165
       },
       "mode_c_uncalibrated_prior": {
         "grams": 120.1,
         "error_g": -70.9,
-        "ape_pct": 37.12
+        "ape_pct": 37.12,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -323,19 +406,26 @@
       "filename": "20261029_125158.jpg",
       "ground_truth_g": 191.0,
       "mode_a_card_present": {
-        "grams": 156.9,
-        "error_g": -34.1,
-        "ape_pct": 17.85
+        "grams": 159.1,
+        "error_g": -31.9,
+        "ape_pct": 16.7,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 67.3,
-        "error_g": -123.7,
-        "ape_pct": 64.76
+        "grams": 221.0,
+        "error_g": 30.0,
+        "ape_pct": 15.71,
+        "verdict": "BORDERLINE",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.01711919097971612
       },
       "mode_c_uncalibrated_prior": {
         "grams": 29.1,
         "error_g": -161.9,
-        "ape_pct": 84.76
+        "ape_pct": 84.76,
+        "verdict": "FAIL",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -343,39 +433,53 @@
       "filename": "20261029_125203.jpg",
       "ground_truth_g": 191.0,
       "mode_a_card_present": {
-        "grams": 121.1,
-        "error_g": -69.9,
-        "ape_pct": 36.6
+        "grams": 150.1,
+        "error_g": -40.9,
+        "ape_pct": 21.41,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 212.3,
-        "error_g": 21.3,
-        "ape_pct": 11.15
+        "grams": 372.0,
+        "error_g": 181.0,
+        "ape_pct": 94.76,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.019665888341495588
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 194.6,
-        "error_g": 3.6,
-        "ape_pct": 1.88
+        "grams": 194.8,
+        "error_g": 3.8,
+        "ape_pct": 1.99,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 4",
-      "filename": "127g plate 206g biryani 44g boiled egg (Dish 4).jpg",
+      "filename": "127g plate 206g biryani rice 44 g egg.jpg",
       "ground_truth_g": 250.0,
       "mode_a_card_present": {
-        "grams": 248.5,
-        "error_g": -1.5,
-        "ape_pct": 0.6
+        "grams": 118.3,
+        "error_g": -131.7,
+        "ape_pct": 52.68,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 72.9,
-        "error_g": -177.1,
-        "ape_pct": 70.84
+        "grams": 96.6,
+        "error_g": -153.4,
+        "ape_pct": 61.36,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.013277990011513313
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 298.0,
-        "error_g": 48.0,
-        "ape_pct": 19.2
+        "grams": 65.6,
+        "error_g": -184.4,
+        "ape_pct": 73.76,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -383,19 +487,26 @@
       "filename": "20261029_141529.jpg",
       "ground_truth_g": 250.0,
       "mode_a_card_present": {
-        "grams": 209.5,
-        "error_g": -40.5,
-        "ape_pct": 16.2
+        "grams": 209.0,
+        "error_g": -41.0,
+        "ape_pct": 16.4,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 150.9,
-        "error_g": -99.1,
-        "ape_pct": 39.64
+        "grams": 154.4,
+        "error_g": -95.6,
+        "ape_pct": 38.24,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.010780519850739648
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 435.6,
-        "error_g": 185.6,
-        "ape_pct": 74.24
+        "grams": 100.8,
+        "error_g": -149.2,
+        "ape_pct": 59.68,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -403,39 +514,53 @@
       "filename": "20261029_141536.jpg",
       "ground_truth_g": 250.0,
       "mode_a_card_present": {
-        "grams": 175.5,
-        "error_g": -74.5,
-        "ape_pct": 29.8
+        "grams": 173.0,
+        "error_g": -77.0,
+        "ape_pct": 30.8,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 79.4,
-        "error_g": -170.6,
-        "ape_pct": 68.24
+        "grams": 129.7,
+        "error_g": -120.3,
+        "ape_pct": 48.12,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.011733892237529088
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 105.9,
-        "error_g": -144.1,
-        "ape_pct": 57.64
+        "grams": 104.8,
+        "error_g": -145.2,
+        "ape_pct": 58.08,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 5",
-      "filename": "127g plate 150 g biryani (Dish 5).jpg",
+      "filename": "127g plate 150 g biryani rice.jpg",
       "ground_truth_g": 150.0,
       "mode_a_card_present": {
-        "grams": 226.1,
-        "error_g": 76.1,
-        "ape_pct": 50.73
+        "grams": 225.3,
+        "error_g": 75.3,
+        "ape_pct": 50.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 122.3,
-        "error_g": -27.7,
-        "ape_pct": 18.47
+        "grams": 214.8,
+        "error_g": 64.8,
+        "ape_pct": 43.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.012897499647191914
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 225.4,
-        "error_g": 75.4,
-        "ape_pct": 50.27
+        "grams": 225.5,
+        "error_g": 75.5,
+        "ape_pct": 50.33,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -443,19 +568,26 @@
       "filename": "20261029_141201.jpg",
       "ground_truth_g": 150.0,
       "mode_a_card_present": {
-        "grams": 159.9,
-        "error_g": 9.9,
-        "ape_pct": 6.6
+        "grams": 61.0,
+        "error_g": -89.0,
+        "ape_pct": 59.33,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 40.7,
-        "error_g": -109.3,
-        "ape_pct": 72.87
+        "grams": 95.7,
+        "error_g": -54.3,
+        "ape_pct": 36.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.015266748760750976
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 162.9,
-        "error_g": 12.9,
-        "ape_pct": 8.6
+        "grams": 78.3,
+        "error_g": -71.7,
+        "ape_pct": 47.8,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -463,39 +595,53 @@
       "filename": "20261029_141208.jpg",
       "ground_truth_g": 150.0,
       "mode_a_card_present": {
-        "grams": 197.3,
-        "error_g": 47.3,
-        "ape_pct": 31.53
+        "grams": 198.3,
+        "error_g": 48.3,
+        "ape_pct": 32.2,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 44.7,
-        "error_g": -105.3,
-        "ape_pct": 70.2
+        "grams": 181.7,
+        "error_g": 31.7,
+        "ape_pct": 21.13,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.012187431789483987
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 82.5,
-        "error_g": -67.5,
-        "ape_pct": 45.0
+        "grams": 82.3,
+        "error_g": -67.7,
+        "ape_pct": 45.13,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
       "dish_name": "Dish 6",
-      "filename": "127 g plate 257g biryani 94g boiled egg (dish 6).jpg",
+      "filename": "127 g plate 257g biryani rice 94g egg_.jpg",
       "ground_truth_g": 351.0,
       "mode_a_card_present": {
-        "grams": 294.9,
-        "error_g": -56.1,
-        "ape_pct": 15.98
+        "grams": 217.8,
+        "error_g": -133.2,
+        "ape_pct": 37.95,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 93.0,
-        "error_g": -258.0,
-        "ape_pct": 73.5
+        "grams": 262.7,
+        "error_g": -88.3,
+        "ape_pct": 25.16,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.013508100359777484
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 293.0,
-        "error_g": -58.0,
-        "ape_pct": 16.52
+        "grams": 277.0,
+        "error_g": -74.0,
+        "ape_pct": 21.08,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -503,19 +649,26 @@
       "filename": "20261029_141720.jpg",
       "ground_truth_g": 351.0,
       "mode_a_card_present": {
-        "grams": 103.1,
-        "error_g": -247.9,
-        "ape_pct": 70.63
+        "grams": 423.0,
+        "error_g": 72.0,
+        "ape_pct": 20.51,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 87.0,
-        "error_g": -264.0,
-        "ape_pct": 75.21
+        "grams": 635.4,
+        "error_g": 284.4,
+        "ape_pct": 81.03,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.012348750188614152
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 92.4,
-        "error_g": -258.6,
-        "ape_pct": 73.68
+        "grams": 402.2,
+        "error_g": 51.2,
+        "ape_pct": 14.59,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -523,19 +676,26 @@
       "filename": "20261029_141725.jpg",
       "ground_truth_g": 351.0,
       "mode_a_card_present": {
-        "grams": 211.9,
-        "error_g": -139.1,
-        "ape_pct": 39.63
+        "grams": 105.1,
+        "error_g": -245.9,
+        "ape_pct": 70.06,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 78.6,
-        "error_g": -272.4,
-        "ape_pct": 77.61
+        "grams": 87.5,
+        "error_g": -263.5,
+        "ape_pct": 75.07,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.014746935785728483
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 277.1,
-        "error_g": -73.9,
-        "ape_pct": 21.05
+        "grams": 86.0,
+        "error_g": -265.0,
+        "ape_pct": 75.5,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     },
     {
@@ -543,19 +703,26 @@
       "filename": "20261029_141729.jpg",
       "ground_truth_g": 351.0,
       "mode_a_card_present": {
-        "grams": 316.9,
-        "error_g": -34.1,
-        "ape_pct": 9.72
+        "grams": 358.8,
+        "error_g": 7.8,
+        "ape_pct": 2.22,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "measured"
       },
       "mode_b_card_free_oof": {
-        "grams": 283.4,
-        "error_g": -67.6,
-        "ape_pct": 19.26
+        "grams": 855.1,
+        "error_g": 504.1,
+        "ape_pct": 143.62,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior",
+        "cm_per_px": 0.012602502691170966
       },
       "mode_c_uncalibrated_prior": {
-        "grams": 499.7,
-        "error_g": 148.7,
-        "ape_pct": 42.36
+        "grams": 499.6,
+        "error_g": 148.6,
+        "ape_pct": 42.34,
+        "verdict": "ESTIMATED",
+        "anchor_tier": "prior"
       }
     }
   ]
