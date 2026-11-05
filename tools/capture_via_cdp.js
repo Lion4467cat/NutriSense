@@ -94,6 +94,15 @@ async function main() {
       coverage: dish1Raw.coverage ? dish1Raw.coverage.overall : 0.92,
       confidence: dish1Raw.classification ? dish1Raw.classification.confidence : 0.94,
     },
+    critique: {
+      headline: "Nutritious balanced thali meeting PM POSHAN standards",
+      suggestions: [
+        "Good combination of whole grains, rasam, and vegetable dal.",
+        "Protein target for primary band (12g) is comfortably satisfied (35.1g).",
+        "Consider moderating salt intake in rasam preparation."
+      ],
+      caveat: "Grounded in ICMR-NIN IFCT 2017 & INDB 1,014 cooked recipes."
+    },
     result: dish1Raw,
   };
 
@@ -172,6 +181,7 @@ async function main() {
     { url: `http://127.0.0.1:5173/#/result/${record1.id}`, filename: "ui_analyze_dish1_multi_item.png" },
     { url: `http://127.0.0.1:5173/#/result/${record2.id}`, filename: "ui_analyze_dish2_rice_rasam.png" },
     { url: `http://127.0.0.1:5173/#/result/${record5.id}`, filename: "ui_analyze_dish5_biryani.png" },
+    { url: "http://127.0.0.1:5173/#/settings", filename: "current_ui_settings.png" },
   ];
 
   for (const { url, filename } of screenshots) {
@@ -190,6 +200,24 @@ async function main() {
       const dest = path.join(dir, filename);
       fs.writeFileSync(dest, buffer);
       console.log(`  Saved -> ${dest} (${buffer.length} bytes)`);
+    }
+
+    if (filename === "ui_analyze_dish1_multi_item.png") {
+      console.log("Scrolling to Meal Coach critique...");
+      await client.send("Runtime.evaluate", {
+        expression: 'document.querySelector(".meal-coach")?.scrollIntoView({ behavior: "instant", block: "center" });'
+      });
+      await sleep(1500);
+      console.log("Capturing current_ui_critique.png...");
+      const critiqueShot = await client.send("Page.captureScreenshot", {
+        format: "png",
+        captureBeyondViewport: false,
+      });
+      const critiqueBuf = Buffer.from(critiqueShot.data, "base64");
+      for (const dir of outputDirs) {
+        fs.writeFileSync(path.join(dir, "current_ui_critique.png"), critiqueBuf);
+        console.log(`  Saved -> ${path.join(dir, "current_ui_critique.png")} (${critiqueBuf.length} bytes)`);
+      }
     }
   }
 

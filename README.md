@@ -3,10 +3,10 @@
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-009688.svg)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React%2018%20%C2%B7%20TypeScript%20%C2%B7%20Vite-61DAFB.svg)](https://react.dev)
+[![React](https://img.shields.io/badge/Frontend-React%2019%20%C2%B7%20TypeScript%20%C2%B7%20Vite-61DAFB.svg)](https://react.dev)
 [![CUDA](https://img.shields.io/badge/PyTorch-2.13%20%C2%B7%20CUDA%2013.0-EE4C2C.svg)](https://pytorch.org)
 [![Foundation Models](https://img.shields.io/badge/Models-SAM%202.1%20%C2%B7%20SigLIP2%20%C2%B7%20MoGe--2%20%C2%B7%20DINOv2-FF6F00.svg)](https://huggingface.co)
-[![Tests](https://img.shields.io/badge/Tests-495%2B%20Passing-brightgreen.svg)](#2-system-verification--testing)
+[![Tests](https://img.shields.io/badge/Tests-385%20Python%20%C2%B7%20115%20Vitest%20Passing-brightgreen.svg)](#2-system-verification--testing)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 ---
@@ -131,25 +131,58 @@ flowchart TD
 
 ---
 
-## 🖼️ User Interface & Experience
+## 🖼️ User Interface & Production Visuals
 
-The web application is designed for both high-contrast kitchen inspection and personal mobile tracking.
+The responsive web application (`React 19 + TypeScript + Vite`) is engineered for high-throughput institutional cafeteria audits and individual nutrition observation:
 
-| Dashboard — OLED Teal Theme | Result View — Compliant Plate |
+| Live Operational Dashboard | Multi-Item Indian Thali Breakdown |
 | :---: | :---: |
-| ![Dashboard — OLED theme](docs/screenshots/dashboard-oled-teal.jpg) | ![Result PASS — Dark theme](docs/screenshots/result-pass-dark.jpg) |
-| *Real-time statistics, quick capture, and recent compliance records* | *Multi-item meal breakdown with 90% confidence intervals and compliance verdict* |
+| ![NutriSense Unified Dashboard](docs/screenshots/ui_home_dashboard.png) | ![Multi-Item Indian Thali Analysis](docs/screenshots/ui_analyze_dish1_multi_item.png) |
+| *Real-time canteen operational summary, student throughput metrics, and topbar navigation* | *Multi-item meal decomposition into discrete item masks, grams, and PM POSHAN verdict* |
 
-| Theme & Appearance Settings | Real-Time Staged Analysis Progress |
+| Dual-Item Meal (Rice + Rasam) | Single-Item Weighed Biryani (151.1 g) |
 | :---: | :---: |
-| ![Settings themes](docs/screenshots/settings-appearance-light.jpg) | ![Analyze — staged progress](docs/screenshots/analyze-light.jpg) |
-| *8 coordinated accessibility themes (Light, Dark, OLED, Nord, Dracula, etc.)* | *Live progress tracking across scale detection, segmentation, and depth* |
+| ![Dual-Item Rice and Rasam](docs/screenshots/ui_analyze_dish2_rice_rasam.png) | ![Single-Item Biryani Evaluation](docs/screenshots/ui_analyze_dish5_biryani.png) |
+| *Dual-vessel segmentation recognizing Steamed Rice (265.5 g) paired with Tomato Rasam* | *Single-dish analysis achieving 99.3% accuracy (151.1 g prediction vs. 150.0 g weighed ground truth)* |
+
+| Statutory PM POSHAN Standards | Longitudinal Insights & Audit History |
+| :---: | :---: |
+| ![Statutory Menu & Standards](docs/screenshots/ui_menu_standards.png) | ![Audit History & Analytics](docs/screenshots/ui_insights_history.png) |
+| *Statutory mid-day meal nutritional benchmarks (Classes 1–5 & 6–8) grounded in ICMR-NIN IFCT 2017* | *Historical meal logs, daily compliance trends, student rosters, and audit CSV exports* |
+
+| Context-Aware Meal Coach & Critique | Accessible Settings & Theme Engine |
+| :---: | :---: |
+| ![Meal Coach AI Critique](docs/screenshots/current_ui_critique.png) | ![Settings and Theme Choices](docs/screenshots/current_ui_settings.png) |
+| *Grounded dietary critique modal providing actionable nutritional suggestions & Q&A* | *Accessible system configuration, camera calibration, and 8 bespoke high-contrast themes* |
+
+---
+
+## 📋 Formal Software Engineering Functional Requirements (IEEE 830 Specification)
+
+As required by academic project guidelines and IEEE 830 / ISO/IEC/IEEE 29148 standards, every system function is specified with rigorous operational criteria, inputs, mathematical transformations, and testable outputs:
+
+| Req ID | Requirement Title | Operational Specification (RFC 2119 "SHALL") | Mathematical / Algorithmic Transformation | Verification & Traceability |
+| :--- | :--- | :--- | :--- | :--- |
+| **FR-01** | **Meal Image & Metadata Ingestion** | The system **SHALL** accept single-view RGB captures via a responsive web client with mandatory metadata: day $d \in \{\text{mon--sat}\}$, educational band $b \in \{\text{1--5, 6--8}\}$, and serving style. | Decodes binary multipart stream, extracts EXIF focal length $f$, camera make/model, and sensor dimensions. | `tests/test_gates.py`<br/>`tests/test_contract.py` |
+| **FR-02** | **Image Quality & Zoom Gating** | The system **SHALL** evaluate captures prior to model inference: (a) resolution $H, W \ge 800\text{ px}$; (b) digital zoom $Z_{\text{digital}} \le 1.05\times$; (c) non-degenerate color variance. | Enforces $Z = \frac{f_{\text{35mm}}}{f_{\text{actual}} \cdot (36 / w_{\text{sensor}})} \le 1.05$. Returns HTTP 422 with structured abstention on violation. | `engine/gates.py`<br/>`tests/test_gates.py` |
+| **FR-03** | **Mode A: Physical Fiducial Scale Anchor** | The system **SHALL** detect a 60.0 mm ArUco marker (`DICT_4X4_50`, ID 7), validating boundary integrity via Michelson contrast quiet-zone condition. | Computes $C_M = \frac{I_{\text{white}} - I_{\text{black}}}{I_{\text{white}} + I_{\text{black}}} \ge 0.42$. Solves PnP pose with empirical plane RMS $\le 1.0\text{ mm}$ (achieved: **0.74 mm**). | `models/scale_anchor.py`<br/>`100% Admission (23/23)` |
+| **FR-04** | **Mode B: Card-Free Metric Scale Recovery** | When marker is absent or $C_M < 0.42$, the system **SHALL** activate Card-Free Mode B, fitting a tabletop support plane and predicting scale via student regressor. | Evaluates 6-Fold LODO-CV `ImplicitScaleHead` on $1.5\text{--}5.5\text{ cm}$ tabletop annulus, cutting unanchored volume bias by **80.1%** ($-223.52\text{ g} \to -44.40\text{ g}$). | `models/implicit_scale.py`<br/>`Ledger 036 / LODO-CV` |
+| **FR-05** | **Promptable Food & Liquid Instance Segmentation** | The system **SHALL** segment food items using SAM 2.1 Hiera-Large + DeepLabV3, detecting secondary liquid bowls (`katoris`) to prevent liquid meniscus splitting. | Optimizes promptable grid queries with morphological refinement. Achieves **95.81% Foreground Dice** and **82.11% Food IoU** on standard WED benchmark. | `models/dish_segmenter.py`<br/>`tests/test_dish_segmenter.py` |
+| **FR-06** | **Multi-Item Decomposition & Regional Classification** | The system **SHALL** classify crops using SigLIP-2 (ViT-B/16, $\alpha=0.65$), dynamically parsing $\ge 3$ items as `Indian Thali (X Items)` and 2 items as pairings (`Rice + Rasam`). | Matches embeddings against $1,206$ visual prototypes over 115 regional Indian dishes. Reaches **82.27% Top-1** and **96.40% Top-5** categorical accuracy. | `models/food_classifier.py`<br/>`data/external_indian_food/` |
+| **FR-07** | **Monocular 3D Surface Reconstruction** | The system **SHALL** infer dense metric depth using MoGe-2 (ViT-L), unprojecting 2D pixels into 3D metric point clouds and fitting tabletop reference planes. | $\mathbf{X}(u,v) = \left(\frac{u-c_x}{f_x}z, \frac{v-c_y}{f_y}z, z\right)^T$; integrates food volume $V_i = \iint \max(0, z_{\text{table}} - z) \, du \, dv$. | `engine/depth.py`<br/>`tests/test_depth.py` |
+| **FR-08** | **Heteroscedastic Mass Regression & Fusion** | The system **SHALL** fuse geometric volume ($V_i \cdot \rho_i$) with a frozen DINOv2-S heteroscedastic mass head using precision inverse-variance weighting. | $\hat{m}_{\text{fused}} = \frac{\hat{m}_{\text{geo}}/\sigma_{\text{geo}}^2 + \hat{m}_{\text{mlp}}/\sigma_{\text{mlp}}^2}{1/\sigma_{\text{geo}}^2 + 1/\sigma_{\text{mlp}}^2}$. Achieves **15.03 g DEV MAE** and **14.67 g LOCKED MAE**. | `models/weight_head.py`<br/>`tests/test_weight_head.py` |
+| **FR-09** | **Domain-Grounded Nutritional Mapping** | The system **SHALL** map predicted dishes to authentic per-100g nutrient densities from ICMR-NIN IFCT 2017 and INDB (1,014 cooked recipes). | Derives energy (kcal), protein (g), carbohydrates, fats, and fiber, factoring cooking yield and raw-to-cooked moisture retention factors. | `engine/nutrition.py`<br/>`INDB / IFCT 2017` |
+| **FR-10** | **Comonotonic Monte Carlo Uncertainty Metrology** | The system **SHALL** propagate volumetric depth noise and density variance across $N = 4,000$ paired draws, generating calibrated $[p05, p50, p95]$ intervals. | Samples $M \sim \text{LogNormal}(\mu_M, \sigma_M^2)$ rank-coupled with $Q \sim \text{TruncNormal}(\mu_Q, \sigma_Q^2)$, capturing realistic co-variance between calories and protein. | `engine/mc.py`<br/>`tests/test_mc.py` |
+| **FR-11** | **Statutory PM POSHAN Compliance Audit** | The system **SHALL** audit meals against statutory mandates: Primary (450 kcal / 12g protein) & Upper-Primary (700 kcal / 20g protein). | Assigns `PASS` if $P(E \ge E_{\min}) \ge 0.90 \land P(P \ge P_{\min}) \ge 0.90 \land C \ge 0.85$; `BORDERLINE` if $P \ge 0.50$; `FAIL` otherwise. | `engine/compliance.py`<br/>`tests/test_compliance.py` |
+| **FR-12** | **Context-Aware Conversational Meal Coach** | The system **SHALL** generate tailored, non-judgmental meal critiques and maintain a conversational Q&A chat drawer for nutritional guidance. | Evaluates macronutrient headroom and suggests actionable improvements (e.g. legume addition, sodium moderation). | `server/main.py`<br/>`frontend/src/result/MealCoach.tsx` |
+| **FR-13** | **Cryptographic 19-Key Wire Contract Parity** | The backend API **SHALL** output structured payloads conforming to `engine/contract.py`, synchronized with TypeScript types via automated CI gates. | Validates 19 required keys with zero schema drift: `verdict`, `reasons`, `failures`, `lint`, `anchor`, `portion`, `nutrition`, `compliance`, `items`. | `tools/gen_contract_ts.py`<br/>`GitHub Actions CI` |
+| **FR-14** | **Longitudinal Audit Logging & Institutional Analytics** | The system **SHALL** record all verified meal analyses in immutable audit logs, calculating daily school compliance tallies and roster-level summaries. | Preserves records in browser `localStorage` and SQLite, providing longitudinal trends and one-click CSV report export. | `frontend/src/pages/History.test.tsx`<br/>`Analytics.test.tsx` |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend Framework:** FastAPI 0.142 · Python 3.14 · Uvicorn (Port 8731)
+- **Backend Framework:** FastAPI 0.142 · Python 3.14 · Uvicorn (Port 8000)
 - **Deep Learning & Vision Models:**
   - Segment Anything Model 2.1 (`facebook/sam2.1-hiera-large`)
   - Google SigLIP 2 (`google/siglip2-base-patch16-224`)
@@ -157,10 +190,10 @@ The web application is designed for both high-contrast kitchen inspection and pe
   - Meta DINOv2-S (`dinov2_vits14`)
   - Meta DINOv2-S Card-Free Implicit Scale Head (`models/implicit_scale.py`)
   - Native Institutional Segmenter (`DeepLabV3 ResNet-50`)
-- **Computer Vision & Geometry:** OpenCV 5 · NumPy 2 · SciPy
-- **Frontend Architecture:** React 18 · TypeScript · Vite 6 · Pure CSS Micro-Interactions (Port 5173)
-- **Containerization & Deployment:** Docker · Docker Compose · Multi-stage Nginx & Python 3.11 Runtime
-- **Advisory LLM Engine:** Ollama Cloud / Local Ollama API
+- **Computer Vision & Geometry:** OpenCV 4.10 · Pillow 11.1 · NumPy 2.2 · SciPy 1.15
+- **Frontend Architecture:** React 19 · TypeScript 5.8 · Vite 6 · Tailwind CSS (Port 5173)
+- **Containerization & Deployment:** Docker · Docker Compose · Multi-stage Nginx & Python 3.14 Runtime
+- **Advisory LLM Engine:** Ollama Cloud / Local Ollama API (Llama 3 / Mistral)
 
 ---
 
@@ -211,10 +244,10 @@ cd ..
 ### 3. Launch the Backend API
 
 ```bash
-# Start the FastAPI service on port 8731
-./.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8731
+# Start the FastAPI service on port 8000
+./.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
 ```
-*Verify that `http://127.0.0.1:8731/health` returns `{"status":"ok","phase":"built"}`.*
+*Verify that `http://127.0.0.1:8000/health` returns `{"status":"ok","phase":"built"}`.*
 
 ### 4. Launch the Web Frontend
 
@@ -225,7 +258,7 @@ cd frontend
 npm install
 npm run dev
 ```
-Open **`http://localhost:5173`** in your browser to start analyzing meals. The frontend communicates with the backend on port 8731 by default (configurable via `VITE_API_BASE`).
+Open **`http://localhost:5173`** in your browser to start analyzing meals. The frontend communicates with the backend on port 8000 by default (configurable via `VITE_API_BASE`).
 
 ### 5. Production Containerization & Docker Compose
 
@@ -251,7 +284,7 @@ docker compose up -d
 Analyze any meal photo using standard `multipart/form-data`:
 
 ```bash
-curl -X POST http://127.0.0.1:8731/analyze \
+curl -X POST http://127.0.0.1:8000/analyze \
   -F "file=@/path/to/meal_photo.jpg" \
   -F "day=mon" \
   -F "band=1-5" \
