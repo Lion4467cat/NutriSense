@@ -10,6 +10,7 @@
     ".venv",
     "tools/update_report_docx.py",
     "tools/generate_presentation_pptx.py",
-    "tools/generate_report_diagrams.py"
+    "tools/generate_report_diagrams.py",
+    "tools/apply_ieee_standards_to_report.py"
   ]
 }
