@@ -771,22 +771,6 @@
   font-weight: 600;
 }
 
-.nav-label-long {
-  display: none;
-}
-.nav-label-short {
-  display: inline;
-}
-
-@media (min-width: 1540px) {
-  .nav-label-long {
-    display: inline;
-  }
-  .nav-label-short {
-    display: none;
-  }
-}
-
 .main {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -883,12 +867,6 @@
   }
   .sidebar-nav .nav-link svg {
     display: block;
-  }
-  .sidebar-nav .nav-label-long {
-    display: inline !important;
-  }
-  .sidebar-nav .nav-label-short {
-    display: none !important;
   }
   .sidebar-foot {
     display: flex;

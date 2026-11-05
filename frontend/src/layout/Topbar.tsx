@@ -35,7 +35,7 @@ import {
 export interface NavItemConfig {
   to: string;
   label: string;
-  shortLabel?: string;
+  drawerLabel?: string;
   icon: (props: { size?: number; className?: string }) => ReactElement;
   end?: boolean;
 }
@@ -46,7 +46,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
   { to: "/history", label: "History", icon: IconHistory },
   { to: "/analytics", label: "Insights", icon: IconChart },
   { to: "/students", label: "Students", icon: IconUsers },
-  { to: "/menu", label: "Menu & standards", shortLabel: "Menu", icon: IconBook },
+  { to: "/menu", label: "Menu", drawerLabel: "Menu & standards", icon: IconBook },
 ];
 
 export default function Topbar({
@@ -163,22 +163,15 @@ export default function Topbar({
       </button>
 
       <nav className="topbar-nav" aria-label="Main navigation">
-        {NAV_ITEMS.map(({ to, label, shortLabel, end }) => (
+        {NAV_ITEMS.map(({ to, label, drawerLabel, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            title={shortLabel ? `${label} (nutrition targets & meal standards)` : label}
+            title={drawerLabel ? `${drawerLabel} (nutrition targets & meal standards)` : label}
           >
-            {shortLabel ? (
-              <>
-                <span className="nav-label-long">{label}</span>
-                <span className="nav-label-short">{shortLabel}</span>
-              </>
-            ) : (
-              <span>{label}</span>
-            )}
+            <span>{label}</span>
             {to === "/history" && records.length > 0 && (
               <span className="nav-badge num">{records.length}</span>
             )}

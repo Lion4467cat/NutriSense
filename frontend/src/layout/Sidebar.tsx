@@ -74,7 +74,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {NAV_ITEMS.map(({ to, label, drawerLabel, icon: Icon, end }) => (
           <motion.div
             key={to}
             variants={introItem}
@@ -85,10 +85,10 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               end={end}
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
               onClick={onNavigate}
-              title={label}
+              title={drawerLabel || label}
             >
               <Icon size={17} />
-              <span>{label}</span>
+              <span>{drawerLabel || label}</span>
               {to === "/history" && records.length > 0 && (
                 <span className="nav-badge num">{records.length}</span>
               )}
