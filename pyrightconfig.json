@@ -4,5 +4,11 @@
   "venvPath": ".",
   "venv": ".venv",
   "include": ["engine", "models", "geo", "tools", "tests", "main.py", "config.py"],
-  "exclude": ["frontend", "logs", ".venv"]
+  "exclude": [
+    "frontend",
+    "logs",
+    ".venv",
+    "tools/update_report_docx.py",
+    "tools/generate_presentation_pptx.py"
+  ]
 }

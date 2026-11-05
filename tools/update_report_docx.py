@@ -1,3 +1,4 @@
+# pyright: reportMissingImports=false, reportAttributeAccessIssue=false, reportUnknownMemberType=false, reportUnknownVariableType=false
 """Comprehensive Academic Report Overhaul Script for NutriSense_Roman_Report.docx.
 
 Department of Machine Learning, B.M.S. College of Engineering, Bengaluru.

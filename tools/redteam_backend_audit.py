@@ -18,10 +18,10 @@ def make_multipart(fields: dict[str, str], file_field: str, filename: str, file_
     boundary = "----WebKitFormBoundaryChaosAudit7x9"
     body = bytearray()
     for k, v in fields.items():
-        body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode("utf-8"))
-    body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{file_field}\"; filename=\"{filename}\"\r\nContent-Type: {mime}\r\n\r\n".encode("utf-8"))
+        body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode())
+    body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{file_field}\"; filename=\"{filename}\"\r\nContent-Type: {mime}\r\n\r\n".encode())
     body.extend(file_bytes)
-    body.extend(f"\r\n--{boundary}--\r\n".encode("utf-8"))
+    body.extend(f"\r\n--{boundary}--\r\n".encode())
     return bytes(body), f"multipart/form-data; boundary={boundary}"
 
 
