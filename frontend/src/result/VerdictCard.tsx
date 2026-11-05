@@ -5,9 +5,19 @@ import { formatPct } from  "../utils/format";
 import { firstReasonText } from  "../utils/reasons";
 import { EASE, popIn, revealContainer, revealItem } from "../ui/motion";
 
-function formatDishBadge(displayName: string | null | undefined, dishId: string | undefined): { label: string; full: string } {
+function formatDishBadge(
+  displayName: string | null | undefined,
+  dishId: string | undefined,
+  itemCount: number
+): { label: string; full: string } {
   const clean = (s: string) => s.replace(/\s*\(standalone(?: bowl)?\)/gi, "").trim();
   const raw = clean(displayName || dishId || "Meal");
+  if (itemCount >= 3) {
+    return {
+      label: `Indian Thali (${itemCount} items)`,
+      full: raw,
+    };
+  }
   if (!raw.includes(" + ")) {
     return { label: raw, full: raw };
   }
@@ -16,7 +26,7 @@ function formatDishBadge(displayName: string | null | undefined, dishId: string 
     return { label: parts.join(" + "), full: raw };
   }
   return {
-    label: `${parts.length} items (${parts[0]} + ${parts.length - 1} more)`,
+    label: `Indian Thali (${parts.length} items)`,
     full: raw,
   };
 }
@@ -32,7 +42,9 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
   const cov = result.coverage;
   const dish = result.dish;
   const conf = result.classification?.confidence;
-  const dishBadge = formatDishBadge(dish?.display_name, dish?.id);
+  const items = result.items ?? [];
+  const dishBadge = formatDishBadge(dish?.display_name, dish?.id, items.length);
+  const isMultiItem = result.path_used === "multi_item" || items.length >= 2;
 
   return (
     <motion.section
@@ -62,7 +74,8 @@ export default function VerdictCard({ result }: { result: AnalyzeResult }) {
           )}
           {dish && <span className="tag">{dish.day?.toUpperCase()}</span>}
           {dish && <span className="tag">band {dish.band}</span>}
-          {conf != null && <span className="tag">match {formatPct(conf, 0)}</span>}
+          {conf != null && !isMultiItem && <span className="tag">match {formatPct(conf, 0)}</span>}
+          {isMultiItem && <span className="tag">{items.length} food items</span>}
           {result.anchor && (
             <span className="tag">
               scale: {result.anchor.tier}

@@ -41,27 +41,57 @@ export default function SummaryCards({ result }: { result: AnalyzeResult }) {
   const kcal = result.nutrition?.kcal;
   const prot = result.nutrition?.protein_g;
 
+  const items = result.items ?? [];
   const cleanLabel = (s: string) => s.replace(/\s*\(standalone(?: bowl)?\)/gi, "").trim();
+
+  // Extract individual item names from result.items
+  const detectedItemNames = items
+    .map((it) => it.dish?.display_name || it.classification?.dish)
+    .filter((name): name is string => Boolean(name && name.trim()))
+    .map(cleanLabel);
+
   const dishParts = rawDishName.includes(" + ")
     ? rawDishName.split(" + ").map((s) => cleanLabel(s)).filter(Boolean)
     : [cleanLabel(rawDishName)].filter(Boolean);
-  const isMultiThali = dishParts.length > 2;
-  const dishDisplayValue = isMultiThali
-    ? `${dishParts.length}-Item Meal`
-    : (dishParts.join(" + ") || rawDishName);
 
-  const dishSub = isMultiThali ? (
-    <span className="interval" title={rawDishName}>
-      {dishParts.slice(0, 2).join(", ")} +{dishParts.length - 2} more · see Item Evidence below
-    </span>
-  ) : dish ? (
-    <>
-      {conf != null ? `Classifier confidence ${formatPct(conf, 0)}` : "Unrecognized"}
-      {result.classification?.method ? (
-        <span className="interval"> · {result.classification.method}</span>
-      ) : null}
-    </>
-  ) : undefined;
+  // Pool of distinct item names
+  const allItemNames = detectedItemNames.length >= 2
+    ? detectedItemNames
+    : (dishParts.length >= 2 ? dishParts : detectedItemNames);
+
+  const itemCount = Math.max(items.length, allItemNames.length, dishParts.length);
+  const isMultiItem = result.path_used === "multi_item" || items.length >= 2 || dishParts.length >= 2;
+  const isThali = isMultiItem && itemCount >= 3;
+
+  let dishDisplayValue: string;
+  let dishSub: React.ReactNode;
+
+  if (isThali) {
+    dishDisplayValue = `Indian Thali (${itemCount} Items)`;
+    dishSub = (
+      <span className="interval" title={allItemNames.join(" · ")}>
+        {allItemNames.slice(0, 3).join(", ")}
+        {allItemNames.length > 3 ? ` +${allItemNames.length - 3} more` : ""} · see Item Evidence below
+      </span>
+    );
+  } else if (isMultiItem && allItemNames.length === 2) {
+    dishDisplayValue = allItemNames.join(" + ");
+    dishSub = (
+      <span className="interval" title={allItemNames.join(" + ")}>
+        2-item meal · individual regions segmented & weighed
+      </span>
+    );
+  } else {
+    dishDisplayValue = rawDishName || "Unrecognized dish";
+    dishSub = dish ? (
+      <>
+        {conf != null ? `Classifier confidence ${formatPct(conf, 0)}` : "Unrecognized"}
+        {result.classification?.method ? (
+          <span className="interval"> · {result.classification.method}</span>
+        ) : null}
+      </>
+    ) : undefined;
+  }
 
   return (
     <div className="summary-grid">

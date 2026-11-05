@@ -172,10 +172,37 @@ export function dayTotals(records: AnalysisRecord[]): DayTotal[] {
 
 /** Wire dish → label: display name, else classification id, else fallback. */
 export function dishLabel(
-  result: Pick<AnalyzeResult, "dish" | "classification"> | null | undefined,
+  result:
+    | (Pick<AnalyzeResult, "dish" | "classification"> & {
+        items?: AnalyzeResult["items"];
+        path_used?: AnalyzeResult["path_used"];
+      })
+    | null
+    | undefined,
   fallback = ""
 ): string {
-  return result?.dish?.display_name || result?.classification?.dish || fallback;
+  const items = result?.items ?? [];
+  const cleanLabel = (s: string) => s.replace(/\s*\(standalone(?: bowl)?\)/gi, "").trim();
+
+  if (items.length >= 3 || (result?.path_used === "multi_item" && items.length >= 3)) {
+    return `Indian Thali (${items.length} Items)`;
+  }
+  if (items.length === 2) {
+    const itemNames = items
+      .map((it) => it.dish?.display_name || it.classification?.dish)
+      .filter((n): n is string => Boolean(n && n.trim()))
+      .map(cleanLabel);
+    if (itemNames.length === 2) {
+      return itemNames.join(" + ");
+    }
+  }
+
+  const raw = result?.dish?.display_name || result?.classification?.dish || fallback;
+  const parts = raw.includes(" + ") ? raw.split(" + ").map(cleanLabel).filter(Boolean) : [];
+  if (parts.length >= 3) {
+    return `Indian Thali (${parts.length} Items)`;
+  }
+  return raw;
 }
 
 function isValidRecord(r: unknown): r is AnalysisRecord {

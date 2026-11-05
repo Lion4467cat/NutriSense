@@ -212,8 +212,12 @@ export default function GeneralResult({
           <p className="muted" style={{ fontSize: "var(--fs-sm)", marginTop: 10 }}>
             Recognized as{" "}
             <strong>{dishLabel(result) || result.dish.id}</strong>
-            {result.classification?.confidence != null &&
-              ` · classifier confidence ${formatPct(result.classification.confidence, 0)}`}
+            {result.items && result.items.length >= 2 ? (
+              ` · ${result.items.length} segmented food items`
+            ) : (
+              result.classification?.confidence != null &&
+              ` · classifier confidence ${formatPct(result.classification.confidence, 0)}`
+            )}
             .
           </p>
         )}

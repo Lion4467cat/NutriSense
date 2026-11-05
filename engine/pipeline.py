@@ -1630,7 +1630,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         matched_menu_dish = None
         has_rice = any(_same_food_family(r[2]["id"], "rice") for r in resolved)
         has_dal = any(_same_food_family(r[2]["id"], "dal") for r in resolved)
-        if has_rice and has_dal:
+        if has_rice and has_dal and len(resolved) == 2:
             matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
 
         if matched_menu_dish and matched_menu_dish.get("display_name"):
@@ -1646,7 +1646,10 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                     seen_families.add(fam)
                     dn = info_i.get("display_name") or info_i["id"]
                     unique_names.append(dn)
-            agg_dish_name = " + ".join(unique_names)
+            if len(unique_names) >= 3:
+                agg_dish_name = f"Indian Thali ({' + '.join(unique_names)})"
+            else:
+                agg_dish_name = " + ".join(unique_names)
         agg_days = list(matched_menu_dish.get("days") or []) if matched_menu_dish else []
 
         agg_dish = {
@@ -1755,6 +1758,16 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         anchor_blk["depth_scale_source"] = scale_source
         seg_multi = dict(seg_info or {})
         seg_multi["n_items"] = len(resolved)
+        if len(resolved) >= 3:
+            multi_cls = dict(classification) if classification else {}
+            multi_cls["dish"] = "indian_thali"
+            multi_cls["method"] = "multi_item_segmented"
+            multi_cls["confidence"] = round(float(np.mean([
+                float((ci or {}).get("confidence") or 0.8) for _it, ci, _ii, _d, _p, _m in resolved
+            ])), 2)
+            cls_to_use = multi_cls
+        else:
+            cls_to_use = classification
         analysis = Analysis(
             verdict=verdict,
             reasons=reasons,
@@ -1762,7 +1775,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
             lint=lint,
             anchor=anchor_blk,
             segmentation=seg_multi,
-            classification=classification,
+            classification=cls_to_use,
             dish=meal_info,
             portion=_portion_wire_block(agg_portion),
             nutrition={
