@@ -355,8 +355,9 @@ def _analyze_path(path: str, day: str, band: str,
             detail=f"image exceeds the {MAX_IMAGE_PIXELS}-pixel limit",
         )
     image = cv2.imdecode(np.frombuffer(encoded, dtype=np.uint8), cv2.IMREAD_COLOR)
-    if image is None:
-        analysis = unreadable_analysis()
+    if image is None or float(image.std()) < 2.0 or (float(image.mean()) < 3.0 and float(image.std()) < 5.0) or (float(image.mean()) > 252.0 and float(image.std()) < 5.0):
+        detail = "image has no discernible visual content (completely dark or overexposed)" if image is not None else "unreadable image"
+        analysis = unreadable_analysis(detail)
         log.error("kind=%s stage=%s error=%s",
                   analysis.failures[0].kind,
                   analysis.failures[0].stage,

@@ -1,0 +1,273 @@
+{
+  "verdict": "ESTIMATED",
+  "reasons": [
+    {
+      "kind": "estimate_only",
+      "text": "The automatic multi-item detector has no validated measure of whole-meal coverage. Item-level grams and nutrients are provisional, so a School compliance verdict is withheld."
+    }
+  ],
+  "failures": [],
+  "lint": {
+    "digital_zoom": 1.0,
+    "focal_mm": 5.4,
+    "min_side_px": 3000,
+    "resolution_ok": true,
+    "notes": []
+  },
+  "anchor": {
+    "method": "card_aruco",
+    "tier": "measured",
+    "cm_per_px": 0.013692592917323616,
+    "interval": [
+      0.01365624571005815,
+      0.013728940124589082
+    ],
+    "tilt_deg": 30.708194112009636,
+    "reason": "ArUco card detected (measured)",
+    "depth_scale_factor": 0.3785,
+    "depth_scale_source": "card"
+  },
+  "segmentation": {
+    "strategy": "centre_point",
+    "sam_score": 0.98388671875,
+    "area_frac": 0.1816655,
+    "n_candidates": 3,
+    "item_detection_strategy": "dense_grid_box",
+    "item_candidate_count": 15,
+    "truncated_item_count": 0,
+    "multi_item_status": "coverage-unverified",
+    "n_items": 2
+  },
+  "classification": {
+    "dish": "vegetable_rice",
+    "confidence": 0.06634209819595913,
+    "method": "gallery",
+    "match_score": 0.8133001327514648,
+    "reason": "gallery match vegetable_rice=0.813 >= 0.80"
+  },
+  "dish": {
+    "id": "meal",
+    "display_name": "Steamed Rice + Rasam",
+    "day": "mon",
+    "band": "1-5",
+    "serving_style": null,
+    "on_day": true,
+    "nutrition_source": "multi_item_aggregate"
+  },
+  "portion": {
+    "grams": 478.7,
+    "volume_ml": 567.1,
+    "density_eff": 0.844,
+    "components_g": {
+      "rasam:soup": 213.4,
+      "steamed-rice:rice": 265.3
+    },
+    "base_method": "table_prior",
+    "scale_tier": "measured",
+    "grams_source": "geometry",
+    "mean_h_mm": null,
+    "area_cm2": 252.8,
+    "sigma_grams_rel": 0.1573,
+    "sigma_rel": {
+      "multi_item": 0.1573
+    },
+    "flags": [
+      "katori_frustum_inferred",
+      "learned_geometry_fused",
+      "multi_item_meal",
+      "plate_elevation_bias_clamped",
+      "vessel_shape_uncertain"
+    ]
+  },
+  "nutrition": {
+    "kcal": {
+      "mean": 383.8417935628216,
+      "sd": 77.9175865457192,
+      "p05": 269.44754544077813,
+      "p50": 374.98126956101993,
+      "p95": 521.3085964865456,
+      "interval_90": [
+        269.44754544077813,
+        521.3085964865456
+      ]
+    },
+    "protein_g": {
+      "mean": 9.59869935279137,
+      "sd": 1.9407387406935428,
+      "p05": 6.734708133765701,
+      "p50": 9.409707825660117,
+      "p95": 13.011059801236787,
+      "interval_90": [
+        6.734708133765701,
+        13.011059801236787
+      ]
+    },
+    "grams": {
+      "mean": 480.23455644476917,
+      "sd": 94.82456593751367,
+      "p05": 339.9444109416261,
+      "p50": 471.4779319319842,
+      "p95": 645.4792828496561,
+      "interval_90": [
+        339.9444109416261,
+        645.4792828496561
+      ]
+    },
+    "n": 4000,
+    "seed": 1235,
+    "diagnostics": {
+      "raw_equivalent_g": {
+        "soup": 213.4,
+        "rice": 88.43333333333334
+      },
+      "raw_allocation_per_day_g": {
+        "rice": 100,
+        "pulses": 20,
+        "vegetables": 50,
+        "oil": 5,
+        "salt": 2
+      },
+      "raw_basis_note": "raw allocations are per-child/day; plate raw-equivalent is informational only (never verdict input)",
+      "multi_item_count": 2,
+      "uncertainty_dependence": "conservative_positive_rank_alignment; covariance unmeasured"
+    },
+    "assumed_nutrients": [
+      "rasam_type"
+    ],
+    "wider_ranges": false
+  },
+  "coverage": null,
+  "assumptions": [
+    "geometry mass uses configured class/component density from data/wed_dishes.yaml; density uncertainty follows the declared density_sigma_pct status in data/params_status.yaml",
+    "The automatic multi-item detector has no validated measure of whole-meal coverage. Item-level grams and nutrients are provisional, so a School compliance verdict is withheld.",
+    "multi_item_meal: 2 servings measured separately and summed"
+  ],
+  "advisory": null,
+  "compliance": null,
+  "model_versions": {
+    "segmenter": "facebook/sam2.1-hiera-large",
+    "classifier": "google/siglip2-base-patch16-224",
+    "depth": "Ruicheng/moge-2-vitl",
+    "weight_head": "baseline rgb/no-attn/geom-none (test MAE 14.67g)"
+  },
+  "policy": {
+    "pass_p": 0.9,
+    "fail_p": 0.1,
+    "pass_min": 0.85,
+    "fail_min": 0.9,
+    "anchor_prior_cap": 0.6,
+    "estimated_weight": 0.9,
+    "base_table_prior": 0.85,
+    "quality_degraded": 0.9,
+    "depth_uncalibrated": 0.8,
+    "lint_min_side_px": 1280,
+    "policy_version": "7d3431caec4b"
+  },
+  "path_used": "multi_item",
+  "degradations": [],
+  "items": [
+    {
+      "dish": {
+        "id": "rasam",
+        "display_name": "Rasam",
+        "day": "mon",
+        "band": "1-5",
+        "serving_style": null,
+        "on_day": false,
+        "nutrition_source": "generic"
+      },
+      "classification": {
+        "dish": "rasam",
+        "confidence": 0.07621231401038607,
+        "method": "gallery",
+        "match_score": 0.8697057366371155,
+        "reason": "liquid secondary bowl (rasam=0.870, H=16.0, S=196.7)"
+      },
+      "portion": {
+        "grams": 213.4,
+        "volume_ml": 213.4,
+        "density_eff": 1.0,
+        "components_g": {
+          "soup": 213.4
+        },
+        "base_method": "table_prior",
+        "scale_tier": "measured",
+        "grams_source": "geometry",
+        "mean_h_mm": 46.4,
+        "area_cm2": 130.5,
+        "sigma_grams_rel": 0.1966,
+        "sigma_rel": {
+          "depth": 0.1131,
+          "area": 0.0524,
+          "base": 0.1293,
+          "density": 0.08
+        },
+        "flags": [
+          "vessel_shape_uncertain",
+          "katori_frustum_inferred",
+          "plate_elevation_bias_clamped",
+          "learned_geometry_fused"
+        ]
+      },
+      "bbox": [
+        1538,
+        892,
+        2388,
+        1856
+      ],
+      "area_frac": 0.0292,
+      "sam_score": 0.9619
+    },
+    {
+      "dish": {
+        "id": "steamed-rice",
+        "display_name": "Steamed Rice (standalone)",
+        "day": "mon",
+        "band": "1-5",
+        "serving_style": null,
+        "on_day": false,
+        "nutrition_source": "generic"
+      },
+      "classification": {
+        "dish": "steamed-rice",
+        "confidence": 0.06443533688008722,
+        "method": "gallery",
+        "match_score": 0.829450786113739,
+        "reason": "gallery match steamed-rice=0.829 >= 0.80"
+      },
+      "portion": {
+        "grams": 265.3,
+        "volume_ml": 353.7,
+        "density_eff": 0.75,
+        "components_g": {
+          "rice": 265.3
+        },
+        "base_method": "table_prior",
+        "scale_tier": "measured",
+        "grams_source": "geometry",
+        "mean_h_mm": 44.93,
+        "area_cm2": 122.3,
+        "sigma_grams_rel": 0.1994,
+        "sigma_rel": {
+          "depth": 0.1131,
+          "area": 0.0524,
+          "base": 0.1335,
+          "density": 0.08
+        },
+        "flags": [
+          "vessel_shape_uncertain",
+          "katori_frustum_inferred",
+          "learned_geometry_fused"
+        ]
+      },
+      "bbox": [
+        508,
+        2096,
+        1435,
+        3236
+      ],
+      "area_frac": 0.0584,
+      "sam_score": 0.9043
+    }
+  ]
+}

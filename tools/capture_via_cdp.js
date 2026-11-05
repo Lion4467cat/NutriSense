@@ -66,12 +66,15 @@ async function main() {
     mobile: false,
   });
 
-  // Prepare Dish 1 & Dish 5 data
+  // Prepare Dish 1, Dish 2, & Dish 5 data
   const dish1Raw = JSON.parse(fs.readFileSync("/tmp/dish1_response.json", "utf8"));
   const dish5Raw = JSON.parse(fs.readFileSync("/tmp/dish5_response.json", "utf8"));
+  const dish2Raw = JSON.parse(fs.readFileSync("data/reports/dish2_response.json", "utf8"));
 
   const dish1B64 = "data:image/jpeg;base64," + fs.readFileSync("/tmp/dish1_sample.jpg").toString("base64");
   const dish5B64 = "data:image/jpeg;base64," + fs.readFileSync("/tmp/dish5_sample.jpg").toString("base64");
+  const dish2Path = "/home/tinkerer/Desktop/Nutrisense/Aruco_7ID_60mm_with_food/Dish 2/Rice plate 255g rice 211 g,Bowl 66g rasam 127g.jpg";
+  const dish2B64 = "data:image/jpeg;base64," + fs.readFileSync(dish2Path).toString("base64");
 
   const record1 = {
     id: "rec-dish1-sample",
@@ -84,14 +87,35 @@ async function main() {
     photo: dish1B64,
     summary: {
       verdict: dish1Raw.verdict,
-      dish: "Steamed Rice & Veg Sambar",
-      grams: dish1Raw.portion ? dish1Raw.portion.grams : 383.3,
-      kcal: dish1Raw.nutrition ? dish1Raw.nutrition.kcal.p50 : 452.4,
-      protein: dish1Raw.nutrition ? dish1Raw.nutrition.protein_g.p50 : 12.8,
+      dish: "Indian Thali (4 Items)",
+      grams: dish1Raw.portion ? dish1Raw.portion.grams : 886.1,
+      kcal: dish1Raw.nutrition ? dish1Raw.nutrition.kcal.p50 : 1150.0,
+      protein: dish1Raw.nutrition ? dish1Raw.nutrition.protein_g.p50 : 35.1,
       coverage: dish1Raw.coverage ? dish1Raw.coverage.overall : 0.92,
       confidence: dish1Raw.classification ? dish1Raw.classification.confidence : 0.94,
     },
     result: dish1Raw,
+  };
+
+  const record2 = {
+    id: "rec-dish2-sample",
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    day: "mon",
+    band: "1-5",
+    serving_style: "mixed",
+    mode: "school",
+    student: { name: "Gokula Krishnan (Std 5)" },
+    photo: dish2B64,
+    summary: {
+      verdict: dish2Raw.verdict,
+      dish: "Steamed Rice + Rasam",
+      grams: dish2Raw.portion ? dish2Raw.portion.grams : 478.6,
+      kcal: dish2Raw.nutrition ? dish2Raw.nutrition.kcal.p50 : 383.7,
+      protein: dish2Raw.nutrition ? dish2Raw.nutrition.protein_g.p50 : 9.6,
+      coverage: dish2Raw.coverage ? dish2Raw.coverage.overall : 0.94,
+      confidence: dish2Raw.classification ? dish2Raw.classification.confidence : 0.87,
+    },
+    result: dish2Raw,
   };
 
   const record5 = {
@@ -115,7 +139,7 @@ async function main() {
     result: dish5Raw,
   };
 
-  const records = [record1, record5];
+  const records = [record1, record2, record5];
 
   console.log("Injecting records into localStorage via base64...");
   const recordsB64 = Buffer.from(JSON.stringify(records)).toString("base64");
@@ -146,6 +170,7 @@ async function main() {
     { url: "http://127.0.0.1:5173/#/menu", filename: "ui_menu_standards.png" },
     { url: "http://127.0.0.1:5173/#/analytics", filename: "ui_insights_history.png" },
     { url: `http://127.0.0.1:5173/#/result/${record1.id}`, filename: "ui_analyze_dish1_multi_item.png" },
+    { url: `http://127.0.0.1:5173/#/result/${record2.id}`, filename: "ui_analyze_dish2_rice_rasam.png" },
     { url: `http://127.0.0.1:5173/#/result/${record5.id}`, filename: "ui_analyze_dish5_biryani.png" },
   ];
 

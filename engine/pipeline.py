@@ -34,7 +34,7 @@ import numpy as np
 from config import (load_anchor_config, load_menu, load_wed_dishes,
                     load_standards, load_wed_index, load_wed_sigma)
 from engine.compliance import assess, no_card_reason
-from engine.contract import (Analysis, Reason, ReasonKind, Stage,
+from engine.contract import (Analysis, Failure, FailureKind, Reason, ReasonKind, Stage,
                              WeightHeadUnavailable, load_policy, log_analysis,
                              reason_for_failure, register_fallback, stage)
 from engine.gates import INPUT_GATES, SCOPE_GATE, admit
@@ -327,7 +327,7 @@ def _is_valid_secondary_vessel(
     parent_area = float(parent_mask.sum())
     area_frac = item_area / img_area
     # a. Bounded Area: A secondary vessel is compact relative to the meal and frame
-    if not (item_area <= 0.50 * parent_area and 0.012 <= area_frac <= 0.075):
+    if not (item_area <= 0.65 * parent_area and 0.005 <= area_frac <= 0.12):
         return False
     # b. Not the Reference Card:
     if card_mask is not None:
@@ -348,11 +348,11 @@ def _is_valid_secondary_vessel(
     ha = cv2.contourArea(hull)
     solidity = item_area / max(ha, 1.0)
     touches = 0
-    if y1 <= 5: touches += 1
-    if y2 >= H - 6: touches += 1
-    if x1 <= 5: touches += 1
-    if x2 >= W - 6: touches += 1
-    return aspect >= 0.48 and solidity >= 0.55 and touches == 0
+    if y1 <= 3: touches += 1
+    if y2 >= H - 4: touches += 1
+    if x1 <= 3: touches += 1
+    if x2 >= W - 4: touches += 1
+    return aspect >= 0.40 and solidity >= 0.50 and touches <= 1
 
 
 DECOY_SIDE_CLASSES: frozenset[str] = frozenset({
@@ -360,7 +360,7 @@ DECOY_SIDE_CLASSES: frozenset[str] = frozenset({
 })
 LIQUID_BOWL_CLASSES: frozenset[str] = frozenset({
     "sambar", "leaf-dal", "rasam", "non-spicy-dal", "tomato-pappu",
-    "dal", "pachi-pulusu", "bendakaya-pulusu", "rajma"
+    "dal", "pachi-pulusu", "bendakaya-pulusu", "rajma", "masoor-dal"
 })
 
 
@@ -608,6 +608,14 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
     if not lint["resolution_ok"]:
         lint["notes"].append(f"min side {min(H, W)} < {policy.lint_min_side_px}px "
                              "(marker tier may fall back to prior)")
+
+    # Blank / uninformative image check (lens cap, completely black/white or solid)
+    img_std = float(image_bgr.std())
+    img_mean = float(image_bgr.mean())
+    if img_std < 2.0 or (img_mean < 3.0 and img_std < 5.0) or (img_mean > 252.0 and img_std < 5.0):
+        return fail(Failure(FailureKind.INPUT_UNREADABLE, Stage.INPUT,
+                            "image has no discernible visual content (completely dark or overexposed)"),
+                    lint=lint)
 
     # --- hard gates: one table, consulted once each -----------------------
     for gate in INPUT_GATES:
@@ -1331,23 +1339,25 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
 
                 if item.get("is_secondary_vessel"):
                     is_liquid_chroma = (
-                        chroma["mean_s"] >= 40
+                        chroma["mean_s"] >= 25
                         and (
-                            chroma["mean_h"] <= 50
-                            or chroma["mean_h"] >= 155
-                            or (35 <= chroma["mean_h"] <= 85)
+                            chroma["mean_h"] <= 55
+                            or chroma["mean_h"] >= 150
+                            or (30 <= chroma["mean_h"] <= 90)
                         )
-                        and chroma["specular_frac"] < 0.25
+                        and chroma["specular_frac"] < 0.40
                     )
                     liq_cand = {k: float(v) for k, v in (cls_i.get("scores") or {}).items()
                                 if k in LIQUID_BOWL_CLASSES and v is not None and np.isfinite(float(v))}
                     if is_liquid_chroma and liq_cand:
                         best_liq = max(liq_cand, key=lambda k: liq_cand[k])
-                        if "sambar" in liq_cand and liq_cand["sambar"] >= liq_cand[best_liq] - 0.02 and (
+                        if "rasam" in liq_cand and liq_cand["rasam"] >= liq_cand[best_liq] - 0.02:
+                            best_liq = "rasam"
+                        elif "sambar" in liq_cand and liq_cand["sambar"] >= liq_cand[best_liq] - 0.02 and (
                             day == "mon" or "rice_sambar" in (menu.get("dishes") or {})
                         ):
                             best_liq = "sambar"
-                        if liq_cand[best_liq] >= 0.82:
+                        if liq_cand[best_liq] >= 0.78:
                             cls_i = dict(
                                 cls_i,
                                 dish=best_liq,
@@ -1440,7 +1450,7 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
                         cls_i = dict(cls_i, dish=best, reason=note)
                 if item.get("is_secondary_vessel") and not combo:
                     ms = float(cls_i.get("match_score") or 0.0)
-                    if ms < 0.82 or cls_i.get("dish") in DECOY_SIDE_CLASSES:
+                    if ms < 0.78 or cls_i.get("dish") in DECOY_SIDE_CLASSES:
                         continue
                 if semantic_name and "classify" in deps:
                     classifier_candidate = cls_i.get("dish")
@@ -1629,27 +1639,26 @@ def analyze(image_bgr, day, band, exif=None, deps=None, n_mc=4000, seed=1234,
         agg_mc = aggregate_meal([r[5] for r in resolved])
         matched_menu_dish = None
         has_rice = any(_same_food_family(r[2]["id"], "rice") for r in resolved)
-        has_dal = any(_same_food_family(r[2]["id"], "dal") for r in resolved)
-        if has_rice and has_dal and len(resolved) == 2:
+        has_sambar = any("sambar" in (r[2].get("id") or "") for r in resolved)
+        if has_rice and has_sambar and len(resolved) == 2:
             matched_menu_dish = (menu.get("dishes") or {}).get("rice_sambar")
 
         if matched_menu_dish and matched_menu_dish.get("display_name"):
             agg_dish_name = "Rice + Sambar"
         else:
-            seen_families = set()
-            unique_names = []
+            seen_names = set()
+            clean_names = []
             for _i, _c, info_i, _d, _p, _m in resolved:
-                fam = ("rice" if _same_food_family(info_i["id"], "rice")
-                       else ("dal" if _same_food_family(info_i["id"], "dal")
-                       else info_i["id"]))
-                if fam not in seen_families:
-                    seen_families.add(fam)
-                    dn = info_i.get("display_name") or info_i["id"]
-                    unique_names.append(dn)
-            if len(unique_names) >= 3:
-                agg_dish_name = f"Indian Thali ({' + '.join(unique_names)})"
+                dn = info_i.get("display_name") or info_i["id"]
+                cleaned = dn.replace(" (standalone)", "").replace(" (standalone bowl)", "").strip()
+                if cleaned not in seen_names:
+                    seen_names.add(cleaned)
+                    clean_names.append(cleaned)
+            clean_names.sort(key=lambda n: 0 if any(g in n.lower() for g in ("rice", "wheat", "roti", "chapati")) else 1)
+            if len(clean_names) >= 3:
+                agg_dish_name = f"Indian Thali ({' + '.join(clean_names)})"
             else:
-                agg_dish_name = " + ".join(unique_names)
+                agg_dish_name = " + ".join(clean_names)
         agg_days = list(matched_menu_dish.get("days") or []) if matched_menu_dish else []
 
         agg_dish = {
